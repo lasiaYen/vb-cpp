@@ -518,3 +518,35 @@ root1:1.00, root2:3.00
 ```
 
 
+## InitialPreparationSSP
+
+> code
+
+```cpp
+/*
+ * @brief
+ *
+ *  为相平衡计算（闪蒸计算）准备必要的参数和数据
+ *
+ * @param   mf_ParametersWereRead    标志位，表示物性参数是否已读取
+ * @param   EOS     使用的状态方程类型（"PR" 或 "SRK"）
+ * @param   zInput  输入的全局摩尔组成数组
+ * @param   iFlash  组分索引映射数组
+ * @param   zGlobal    处理后的全局摩尔组成数组
+ * @param   mf_TCr   组分的临界温度数组
+ * @param   mf_PCr  组分的临界压力数组
+ * @param   mf_Omega    组分的偏心因子数组
+ * @param   mf_MWgas    组分的分子量数组
+ * @param   mf_kPr  二元交互参数矩阵
+ * @param   mf_c0   状态方程参数数组
+ * @param   mf_c1   状态方程参数数组
+ * 
+ *     InitialPreparationSSP(mf_ParametersWereRead, EOS, zInput, iFlash, zGlobal, TCr, PCr, Omega,
+        MWgas, kPr, c0, c1);
+ */
+
+
+
+```
+
+
