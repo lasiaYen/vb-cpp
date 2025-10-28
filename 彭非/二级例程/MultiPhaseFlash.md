@@ -125,7 +125,7 @@ void MultiPhaseFlash(bool* mf_ParametersWereRead, double* TCr, double* PCr, doub
     *mf_ParametersWereRead = false;
     //Call InitialPreparationSSP(mf_ParametersWereRead, EOS, zInput, iFlash, zGlobal, TCr, PCr, Omega, MWgas, kPr, c0, c1)
     InitialPreparationSSP(mf_ParametersWereRead, EOS, zInput, iFlash, zGlobal, &TCr, &PCr, &Omega,
-        &MWgas, &kPr, &c0, &c1, max_NumGases,15);
+        &MWgas, &kPr, &c0, &c1, max_NumGases, 15);
 
     int counterEquilibrium_final = 0, iter_final = 0, counter_final = 0;//初始化防止传入空值
 
