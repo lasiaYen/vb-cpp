@@ -2748,6 +2748,454 @@ void D1_CalcDensity(int i, double* HCO3stpMix, double* AlkMix, double* ACstpMix,
 label10: ;
 }
 
+/**
+ * @brief 读取输入部分C（ReadInputPartC）
+ *
+ * 此函数读取并设置混合物kk的输入参数，包括标准条件下的浓度、pH选项、气体组成等。
+ * 计算密度和TDS，更新各种浓度数组，并处理摩尔浓度到TDS的转换。
+ * 适用于电解质溶液混合物的输入处理，支持多种运行模式（如测试案例、海水混合等）。
+ *
+ * @param kk 当前混合物索引
+ * @param mt [输出] 温度压力函数值
+ * @param UseTPpHMix [数组] 使用TpH混合标志 [MaxMix]
+ * @param Run10TestCases 运行10测试案例标志
+ * @param Loop10 循环10计数
+ * @param Run_Seawater_Mixing 海水混合运行标志
+ * @param LoopMixing 混合循环计数
+ * @param Run_MixingTwoWells 运行两个井混合标志
+ * @param RunMultiMix 多混合运行标志
+ * @param LoopResChem 残余化学循环计数
+ * @param RunStatMix 统计混合运行标志
+ * @param HCO3stpMix [数组] 标准条件下HCO3-浓度 [MaxMix]
+ * @param AlkMix [数组] 碱度混合 [MaxMix]
+ * @param ACstpMix [数组] 标准条件下Ac-浓度 [MaxMix]
+ * @param TAcMix [数组] 总Ac混合 [MaxMix]
+ * @param HstpMix [数组] 标准条件下H+浓度 [MaxMix]
+ * @param OHstpMix [数组] 标准条件下OH-浓度 [MaxMix]
+ * @param CO3stpMix [数组] 标准条件下CO3^2-浓度 [MaxMix]
+ * @param HSstpMix [数组] 标准条件下HS-浓度 [MaxMix]
+ * @param NH4STPMix [数组] 标准条件下NH4+浓度 [MaxMix]
+ * @param TNH4Mix [数组] 总NH4混合 [MaxMix]
+ * @param H2BO3stpMix [数组] 标准条件下H2BO3-浓度 [MaxMix]
+ * @param TDS [输出] 总溶解固体（mg/L）
+ * @param yH2S [输入/输出] H2S气体摩尔分数
+ * @param yCO2 [输入/输出] CO2气体摩尔分数
+ * @param Iteration2 迭代2计数
+ * @param mc 阳离子摩尔浓度数组 [MaxSpecies]
+ * @param ma 阴离子摩尔浓度数组 [MaxSpecies]
+ * @param mn 中性物种摩尔浓度数组 [MaxSpecies]
+ * @param iH H+ 索引
+ * @param iNa Na+ 索引
+ * @param iK K+ 索引
+ * @param iMg Mg^2+ 索引
+ * @param iCa Ca^2+ 索引
+ * @param iSr Sr^2+ 索引
+ * @param iBa Ba^2+ 索引
+ * @param iFe Fe^2+ 索引
+ * @param iZn Zn^2+ 索引
+ * @param iPb Pb^2+ 索引
+ * @param iRa Ra^2+ 索引
+ * @param iOH OH- 索引
+ * @param iCl Cl- 索引
+ * @param iAc Ac- 索引
+ * @param iNH4 NH4+ 索引
+ * @param iH2BO3 H2BO3- 索引
+ * @param iHCO3 HCO3- 索引
+ * @param iCO3 CO3^2- 索引
+ * @param iH3SiO4 H3SiO4- 索引
+ * @param iH2SiO4 H2SiO4^2- 索引
+ * @param iSO4 SO4^2- 索引
+ * @param iHS HS- 索引
+ * @param intF F- 索引
+ * @param iBr Br- 索引
+ * @param Alk [输入/输出] 碱度
+ * @param TAc [输入/输出] 总醋酸浓度
+ * @param TH2Saq [输入/输出] 总H2S(aq)浓度
+ * @param TH4SiO4 [输入/输出] 总H4SiO4浓度
+ * @param TH3BO3 [输入/输出] 总H3BO3浓度
+ * @param TNH4 [输入/输出] 总NH4浓度
+ * @param TFe [输入/输出] 总Fe浓度
+ * @param TPb [输入/输出] 总Pb浓度
+ * @param TZn [输入/输出] 总Zn浓度
+ * @param iNH3 NH3 索引
+ * @param iH3BO3 H3BO3 索引
+ * @param iH4SiO4aq H4SiO4(aq) 索引
+ * @param use_pH [输入/输出] pH使用选项
+ * @param usepHmix [数组] pH混合使用 [MaxMix]
+ * @param UseH2Sgas [输入/输出] 使用H2S气体标志
+ * @param UseH2SgasMix [数组] H2S气体混合使用 [MaxMix]
+ * @param TCO2 [输入/输出] 总CO2浓度
+ * @param TCO2Mix [数组] 总CO2混合 [MaxMix]
+ * @param yCO2Mix [数组] CO2气体摩尔分数混合 [MaxMix]
+ * @param yH2SMix [数组] H2S气体摩尔分数混合 [MaxMix]
+ * @param useEOSmix [数组] 使用EOS混合 [MaxMix]
+ * @param SumofZMix [数组] Z混合总和 [MaxMix]
+ * @param zMix [数组] Z混合 [MaxMix][MaxComponents]
+ * @param CalculatedTDSMix [数组] 计算TDS混合 [MaxMix]
+ * @param NaMix [数组] Na混合 [MaxMix]
+ * @param KMix [数组] K混合 [MaxMix]
+ * @param MgMix [数组] Mg混合 [MaxMix]
+ * @param CaMix [数组] Ca混合 [MaxMix]
+ * @param TCa [输出] 总Ca
+ * @param SrMix [数组] Sr混合 [MaxMix]
+ * @param BaMix [数组] Ba混合 [MaxMix]
+ * @param FeMix [数组] Fe混合 [MaxMix]
+ * @param ZnMix [数组] Zn混合 [MaxMix]
+ * @param PbMix [数组] Pb混合 [MaxMix]
+ * @param RaMix [数组] Ra混合 [MaxMix]
+ * @param ClMix [数组] Cl混合 [MaxMix]
+ * @param SO4Mix [数组] SO4混合 [MaxMix]
+ * @param FMix [数组] F混合 [MaxMix]
+ * @param BrMix [数组] Br混合 [MaxMix]
+ * @param rho25CMix [数组] 25°C密度混合 [MaxMix]
+ * @param H3SiO4Mix [数组] H3SiO4混合 [MaxMix]
+ * @param H2SiO4Mix [数组] H2SiO4混合 [MaxMix]
+ * @param NH3Mix [数组] NH3混合 [MaxMix]
+ * @param H4SiO4Mix [数组] H4SiO4混合 [MaxMix]
+ * @param H3BO3Mix [数组] H3BO3混合 [MaxMix]
+ * @param CO2aqMix [数组] CO2(aq)混合 [MaxMix]
+ * @param H2SaqMix [数组] H2S(aq)混合 [MaxMix]
+ * @param HACaqMix [数组] HAc(aq)混合 [MaxMix]
+ * @param AlkMix [数组] 碱度混合 [MaxMix]
+ * @param TAcMix [数组] 总Ac混合 [MaxMix]
+ * @param TH2SaqMix [数组] 总H2S(aq)混合 [MaxMix]
+ * @param TH4SiO4Mix [数组] 总H4SiO4混合 [MaxMix]
+ * @param TNH4Mix [数组] 总NH4混合 [MaxMix]
+ * @param TH3BO3Mix [数组] 总H3BO3混合 [MaxMix]
+ * @param yCH4Mix [数组] CH4气体摩尔分数混合 [MaxMix]
+ * @param UseTPVolMix [数组] 使用TpV混合 [MaxMix]
+ * @param WaterDensityMix [数组] 水密度混合 [MaxMix]
+ * @param rho25c [输入] 25°C密度
+ * @param UseMolal 使用摩尔浓度标志
+ * @param CalculateTDSDen [输出] 计算TDS密度
+ * @param NumCat 阳离子数量
+ * @param NumAn 阴离子数量
+ * @param NumNeut 中性物种数量
+ * @param MWCat 阳离子分子量数组 [MaxCat]
+ * @param MWAn 阴离子分子量数组 [MaxAnion]
+ * @param MWNeut 中性物种分子量数组 [MaxNeut]
+ * @param iCO2aq CO2(aq) 索引
+ * @param iH2Saq H2S(aq) 索引
+ * @param iHAcaq HAc(aq) 索引
+ */
+void ReadInputPartC(int kk, double *mt, int* UseTPpHMix, int Run10TestCases, int Loop10, int Run_Seawater_Mixing, int LoopMixing,
+                    int Run_MixingTwoWells, int RunMultiMix, int LoopResChem, int RunStatMix,
+                    double* HCO3stpMix, double* AlkMix, double* ACstpMix, double* TAcMix, double* HstpMix, double* OHstpMix,
+                    double* CO3stpMix, double* HSstpMix, double* NH4STPMix, double* TNH4Mix, double* H2BO3stpMix, double *TDS,
+                    double *yH2S, double *yCO2, int *Iteration2,
+                    double* mc, double* ma, double* mn,
+                    double *Alk, double *TAc, double *TH2Saq, double *TH4SiO4, double *TH3BO3, double *TNH4, double *TFe, double *TPb,
+                    double *TZn, int *use_pH, int* usepHmix, int *UseH2Sgas, int* UseH2SgasMix,
+                    double *TCO2, double* TCO2Mix, double* yCO2Mix, double* yH2SMix, int* useEOSmix, double* SumofZMix,
+                    double** zMix, double* CalculatedTDSMix, double* NaMix, double* KMix, double* MgMix, double* CaMix,
+                    double *TCa, double* SrMix, double* BaMix, double* FeMix, double* ZnMix, double* PbMix, double* RaMix,
+                    double* ClMix, double* SO4Mix, double* FMix, double* BrMix, double* rho25CMix, double* H3SiO4Mix, double* H2SiO4Mix,
+                    double* NH3Mix, double* H4SiO4Mix, double* H3BO3Mix, double* CO2aqMix, double* H2SaqMix, double* HACaqMix,
+                    double* AlkMix2, double* TAcMix2, double* TH2SaqMix, double* TH4SiO4Mix2, double* TNH4Mix2, double* TH3BO3Mix2,
+                    double* yCH4Mix, int* UseTPVolMix, double* WaterDensityMix, double rho25c, int UseMolal, double *CalculateTDSDen,
+                    int NumCat, int NumAn, int NumNeut, double* MWCat, double* MWAn, double* MWNeut
+                    /*int iCO2aq, int iH2Saq, int iHAcaq*/
+                    ) {
+    *mt = fTPFunc(0);  // Densitym TDS, and m calculated at STP condition
+    if (UseTPpHMix[kk] == 1) *mt = fTPFunc(2);
+
+    if (Run10TestCases == 1 && Loop10 > 1) goto label100;
+    if (Run_Seawater_Mixing == 1 && LoopMixing > 1) goto label100;
+    if (Run_MixingTwoWells == 1 && LoopMixing > 1) goto label100;
+    if (RunMultiMix == 1 && LoopResChem > 1) goto label100;
+    if (RunStatMix == 1 && LoopMixing > 1) goto label100;
+
+    HCO3stpMix[kk] = AlkMix[kk];
+    ACstpMix[kk] = TAcMix[kk];
+    HstpMix[kk] = 0.000001;
+    OHstpMix[kk] = 0.0000001;
+    CO3stpMix[kk] = 0;
+    HSstpMix[kk] = 0;
+    NH4STPMix[kk] = TNH4Mix[kk];
+    H2BO3stpMix[kk] = 0;
+    *TDS = 0;
+    yH2S = 0;
+    yCO2 = 0;
+
+    *Iteration2 = 0;
+
+    mc[iH] = HstpMix[kk];
+    mc[iNa] = NaMix[kk];
+    mc[iK] = KMix[kk];
+    mc[iMg] = MgMix[kk];
+    mc[iCa] = CaMix[kk];
+    *TCa = mc[iCa];
+    mc[iSr] = SrMix[kk];
+    mc[iBa] = BaMix[kk];
+    mc[iFe] = FeMix[kk];
+    mc[iZn] = ZnMix[kk];
+    mc[iPb] = PbMix[kk];
+    mc[iRa] = RaMix[kk];
+
+    ma[iOH] = OHstpMix[kk];
+    ma[iCl] = ClMix[kk];
+    ma[iAc] = ACstpMix[kk];
+    mc[iNH4] = NH4STPMix[kk];
+    ma[iH2BO3] = H2BO3stpMix[kk];
+    ma[iHCO3] = HCO3stpMix[kk];
+    ma[iCO3] = CO3stpMix[kk];
+
+    ma[iH3SiO4] = 0;
+    ma[iH2SiO4] = 0;
+
+    ma[iSO4] = SO4Mix[kk];
+    ma[iHS] = HSstpMix[kk];
+    ma[intF] = FMix[kk];
+    ma[iBr] = BrMix[kk];
+
+    *Alk = AlkMix[kk];
+    *TAc = TAcMix[kk];
+    *TH2Saq = TH2SaqMix[kk];
+    *TH4SiO4 = TH4SiO4Mix[kk];
+    *TH3BO3 = TH3BO3Mix[kk];
+    *TNH4 = TNH4Mix[kk];
+
+    *TFe = FeMix[kk];
+    *TPb = PbMix[kk];
+    *TZn = ZnMix[kk];
+
+    mn[iNH3] = 0;
+    mn[iH3BO3] = *TH3BO3;
+    mn[iH4SiO4aq] = *TH4SiO4;
+
+    *use_pH = usepHmix[kk];
+    *UseH2Sgas = UseH2SgasMix[kk];
+
+    if (*use_pH == 3) {
+        *TCO2 = TCO2Mix[kk];
+    } else {
+        *TCO2 = 0;
+    }
+
+    *yCO2 = yCO2Mix[kk];
+    *yH2S = yH2SMix[kk];  // yCH4 = 1 - yCO2 - yH2S 'assume dry gas
+
+    // If yCH4 < 0 Then yCH4 = 0  '?????????????????????????????????????????????????????????????
+
+    if (useEOSmix[kk] == 1 && *yCO2 == 0 && SumofZMix[kk] > 0) *yCO2 = zMix[kk][2];  // if UseEOS=1 then set YCO2 and YH2S to reservoir condition to calculate density and TDS only if the reservoir fluid comp is given
+    if (useEOSmix[kk] == 1 && *yH2S == 0 && SumofZMix[kk] > 0) *yH2S = zMix[kk][3];
+
+    // Call C1_ThermodynamicEquilConsts  'Only function of T,P, does not recalculate in D1_CalcDensity
+    // Call PengRobinson3
+
+    // Call D1_CalcDensity(kk) 'Calculate TDS, density and fix molality based on the predicted density and TDS
+    D1_CalcDensity(kk, HCO3stpMix, AlkMix, ACstpMix, TAcMix, HstpMix, OHstpMix,
+                    CO3stpMix, HSstpMix, NH4STPMix, TNH4Mix, H2BO3stpMix, Iteration2,
+                    mc, ma, mn, 
+                    Alk, TAc, TH2Saq, TH4SiO4, TCa,
+                    TH3BO3, TNH4,
+                    TFe, TDSMix, &TDSOld,
+                    TDS, &TDSSSE, UseMolal, &rho25c, CalculateTDSDen, NumCat, NumAn,
+                    NumNeut, MWCat,  MWAn,  MWNeut, &xMeOH, &xMEG, &IStCosolvent,
+                    Ist, mt, pH, pHMeterStpMix,  DpHj, gNeut, &aH2O,
+                    TK, TC, PBar, Patm, *use_pH, useEOSmix, kk, H, OH, AC,
+                    NH3, H2BO3, HCO3, CO3, HS, H3SiO4, H2SiO4, H4SiO4,
+                    CO2aq, H2Saq, HAcaq,
+                    yCO2, yH2S,
+                    &yCH4, rho_Mix);
+
+    CalculatedTDSMix[kk] = *TDS;
+
+    HstpMix[kk] = mc[iH];
+    NaMix[kk] = mc[iNa];
+    KMix[kk] = mc[iK];
+    MgMix[kk] = mc[iMg];
+    CaMix[kk] = mc[iCa];
+    *TCa = mc[iCa];
+
+    SrMix[kk] = mc[iSr];
+    BaMix[kk] = mc[iBa];
+    FeMix[kk] = *TFe;
+    ZnMix[kk] = mc[iZn];
+    PbMix[kk] = mc[iPb];
+    RaMix[kk] = mc[iRa];
+
+    OHstpMix[kk] = ma[iOH];
+    ClMix[kk] = ma[iCl];
+    ACstpMix[kk] = ma[iAc];
+    NH4STPMix[kk] = mc[iNH4];
+    H2BO3stpMix[kk] = ma[iH2BO3];
+    HCO3stpMix[kk] = ma[iHCO3];
+    CO3stpMix[kk] = ma[iCO3];
+
+    SO4Mix[kk] = ma[iSO4];
+    HSstpMix[kk] = ma[iHS];
+    FMix[kk] = ma[intF];
+    BrMix[kk] = ma[iBr];
+
+    rho25CMix[kk] = rho25c;
+
+    H3SiO4Mix[kk] = ma[iH3SiO4];
+    H2SiO4Mix[kk] = ma[iH2SiO4];
+
+    NH3Mix[kk] = mn[iNH3];
+    H4SiO4Mix[kk] = mn[iH4SiO4aq];
+    H3BO3Mix[kk] = mn[iH3BO3];
+
+    CO2aqMix[kk] = mn[iCO2aq];
+    H2SaqMix[kk] = mn[iH2Saq];
+    HACaqMix[kk] = mn[iHAcaq];
+
+    AlkMix[kk] = *Alk;
+    TAcMix[kk] = *TAc;
+    TH2SaqMix[kk] = *TH2Saq;
+    TH4SiO4Mix[kk] = *TH4SiO4;
+    TNH4Mix[kk] = *TNH4;
+    TH3BO3Mix[kk] = *TH3BO3;
+
+    yCO2Mix[kk] = *yCO2;
+    yH2SMix[kk] = *yH2S;
+    yCH4Mix[kk] = 1 - *yCO2 - *yH2S;  // Set YCO2 and YH2S to the calculated value if pH option is used.
+
+    if (UseTPVolMix[kk] == 0) WaterDensityMix[kk] = rho25c;
+
+    if (UseMolal == 1) {
+        *TDS = 0;
+        *CalculateTDSDen = 0;  // Calculate TDS from density
+
+        int iden;
+        for (iden = 2; iden <= NumCat; iden++) {
+            *CalculateTDSDen += 0.001 * mc[iden] * MWCat[iden];  // =Sum of g salt/Kg H2O
+        }
+        for (iden = 2; iden <= NumAn; iden++) {
+            *CalculateTDSDen += 0.001 * ma[iden] * MWAn[iden];
+        }
+        for (iden = 2; iden <= NumNeut; iden++) {
+            *CalculateTDSDen += 0.001 * mn[iden] * MWNeut[iden];
+        }
+
+        *TDS = *CalculateTDSDen / (1 + *CalculateTDSDen) * rho25c * 1000000.0;  // TDS in unit of mg/L,  numerator=(Kgsalt/KgH2O), denometer=(1+Kgsalt/KgH2O)=(Kgsoln/KgH2O);density Kgsoln/Lsoln
+        CalculatedTDSMix[kk] = *TDS;
+    }
+label100: ;
+}
+
 int main() {
+    // int kk=0;
+    int kk; double *mt=nullptr;
+    int* UseTPpHMix = nullptr; int Run10TestCases=0; int Loop10=10; 
+    int Run_Seawater_Mixing=0;
+    int LoopMixing=0;
+                    
+    int Run_MixingTwoWells=0;
+    int RunMultiMix=0;
+    int LoopResChem=0;
+    int RunStatMix=0;
+                    
+    double* HCO3stpMix= nullptr;
+    double* AlkMix= nullptr;
+    double* ACstpMix= nullptr;
+    double* TAcMix= nullptr;
+    double* HstpMix= nullptr;
+    double* OHstpMix= nullptr;
+                    
+    double* CO3stpMix= nullptr;
+    double* HSstpMix= nullptr;
+    double* NH4STPMix= nullptr;
+    double* TNH4Mix= nullptr;
+    double* H2BO3stpMix= nullptr;
+    double *TDS= nullptr;
+                    
+    double *yH2S= nullptr;
+    double *yCO2= nullptr;
+    int *Iteration2= nullptr;
+                    
+    double* mc= nullptr;
+    double* ma= nullptr;
+    double* mn= nullptr;
+                    
+    double *Alk= nullptr;
+    double *TAc= nullptr;
+    double *TH2Saq= nullptr;
+    double *TH4SiO4= nullptr;
+    double *TH3BO3= nullptr;
+    double *TNH4= nullptr;
+    double *TFe= nullptr;
+    double *TPb= nullptr;
+                    
+    double *TZn= nullptr;
+    int *use_pH= nullptr;
+    int* usepHmix= nullptr;
+    int *UseH2Sgas= nullptr;
+    int* UseH2SgasMix= nullptr;
+                    
+    double *TCO2= nullptr;
+    double* TCO2Mix= nullptr;
+    double* yCO2Mix= nullptr;
+    double* yH2SMix= nullptr;
+    int* useEOSmix= nullptr;
+    double* SumofZMix= nullptr;
+                    
+    double** zMix= nullptr;
+    double* CalculatedTDSMix= nullptr; 
+    double* NaMix= nullptr;
+    double* KMix= nullptr;
+    double* MgMix= nullptr;
+    double* CaMix= nullptr;
+                    
+    double *TCa= nullptr;
+    double* SrMix= nullptr;
+    double* BaMix= nullptr;
+    double* FeMix= nullptr;
+    double* ZnMix= nullptr;
+    double* PbMix= nullptr; 
+    double* RaMix= nullptr;
+                    
+    double* ClMix= nullptr;
+    double* SO4Mix= nullptr;
+    double* FMix= nullptr;
+    double* BrMix= nullptr;
+    double* rho25CMix= nullptr;
+    double* H3SiO4Mix= nullptr;
+    double* H2SiO4Mix= nullptr;
+                    
+    double* NH3Mix= nullptr;
+    double* H4SiO4Mix= nullptr;
+    double* H3BO3Mix= nullptr;
+    double* CO2aqMix= nullptr;
+    double* H2SaqMix= nullptr;
+    double* HACaqMix= nullptr;
+                    
+    double* AlkMix2= nullptr;
+    double* TAcMix2= nullptr;
+    double* TH2SaqMix= nullptr;
+    double* TH4SiO4Mix2= nullptr;
+    double* TNH4Mix2= nullptr;
+    double* TH3BO3Mix2= nullptr;
+                    
+    double* yCH4Mix= nullptr;
+    int* UseTPVolMix= nullptr;
+    double* WaterDensityMix= nullptr;
+    double rho25c= 0;
+    int UseMolal= 0;
+    double *CalculateTDSDen= nullptr;
+                    
+    int NumCat=0;
+    int NumAn=0;
+    int NumNeut=0; 
+    double* MWCat= nullptr;
+    double* MWAn= nullptr;
+    double* MWNeut= nullptr;
+    ReadInputPartC(kk, mt, UseTPpHMix, Run10TestCases, Loop10, Run_Seawater_Mixing, LoopMixing,
+                    Run_MixingTwoWells, RunMultiMix, LoopResChem, RunStatMix,
+                    HCO3stpMix, AlkMix,  ACstpMix,  TAcMix,  HstpMix,  OHstpMix,
+                     CO3stpMix,  HSstpMix,  NH4STPMix,  TNH4Mix,  H2BO3stpMix, TDS,
+                    yH2S, yCO2, Iteration2,
+                     mc,  ma,  mn,
+                    Alk, TAc, TH2Saq, TH4SiO4, TH3BO3, TNH4, TFe, TPb,
+                    TZn, use_pH, usepHmix, UseH2Sgas, UseH2SgasMix,
+                    TCO2,  TCO2Mix,  yCO2Mix,  yH2SMix, useEOSmix,  SumofZMix,
+                    zMix,  CalculatedTDSMix,  NaMix,  KMix,  MgMix,  CaMix,
+                    TCa,  SrMix,  BaMix,  FeMix,  ZnMix,  PbMix,  RaMix,
+                     ClMix,  SO4Mix,  FMix,  BrMix,  rho25CMix,  H3SiO4Mix,  H2SiO4Mix,
+                     NH3Mix,  H4SiO4Mix,  H3BO3Mix,  CO2aqMix,  H2SaqMix,  HACaqMix,
+                     AlkMix2,  TAcMix2,  TH2SaqMix,  TH4SiO4Mix2,  TNH4Mix2,  TH3BO3Mix2,
+                     yCH4Mix, UseTPVolMix,  WaterDensityMix, rho25c, UseMolal, CalculateTDSDen,
+                    NumCat, NumAn, NumNeut,  MWCat,  MWAn,  MWNeut);
     return 0;
 }
