@@ -1,6 +1,380 @@
 #include <iostream>
 #include <cmath>
-#include "publicpara.h"
+// #include "publicpara.h"
+
+///
+
+// 数学常数
+const double pi = 3.14159265358979323846;    // π (圆周率)
+
+// 物理常数
+#define NAv         6.0221367E+23        // 阿伏伽德罗常数 (mol⁻¹)
+#define eElec       1.60217733E-19       // 电子电荷 (C)
+#define eps0        8.854187818E-12      // 真空介电常数 (F/m)
+#define kBoltz      1.380658E-23         // 玻尔兹曼常数 (J/K)
+
+// 气体常数（不同单位）
+#define RBar        0.083144             // Gas constant (L·bar/(K·mol))// 气体常数，单位：bar·m³/(kmol·K)
+#define R           83.144               // Gas constant (cm³·bar/(K·mol))
+#define RAtm        0.082057             // Gas constant (L·atm/(K·mol))
+
+//#endif  // CONSTANTS_H
+
+// Cation indexes: 阳离子索引（宏定义，编译时替换为对应整数）
+#define iH      1   // H+ 的索引为 1
+#define iNa     2   // Na+ 的索引为 2
+#define iK      3   // K+ 的索引为 3
+#define iMg     4   // Mg2+ 的索引为 4
+#define iCa     5   // Ca2+ 的索引为 5
+#define iSr     6   // Sr2+ 的索引为 6
+#define iBa     7   // Ba2+ 的索引为 7
+#define iFe     8   // Fe2+/3+ 的索引为 8（根据实际价态调整注释）
+#define iZn     9   // Zn2+ 的索引为 9
+#define iPb     10  // Pb2+ 的索引为 10
+#define iNH4    11  // NH4+（铵根离子）的索引为 11
+#define iRa     12  // Ra2+ 的索引为 12
+
+// Anion indexes: 阴离子索引（宏定义，对应数组下标）
+#define iOH         1   // OH- (氢氧根离子)
+#define iCl         2   // Cl- (氯离子)
+#define iAc         3   // Ac- (醋酸根离子，CH3COO-)
+#define iHCO3       4   // HCO3- (碳酸氢根离子)
+#define iCO3        5   // CO3^2- (碳酸根离子)
+#define iSO4        6   // SO4^2- (硫酸根离子)
+#define iHS         7   // HS- (硫氢根离子)
+#define intF        8   // F- (氟离子，名称可能为"iF"的笔误，暂保留原拼写)
+#define iBr         9   // Br- (溴离子)
+#define iH2BO3      10  // H2BO3- (硼酸一氢根离子)
+#define iH3SiO4     11  // H3SiO4- (原硅酸一氢根离子)
+#define iH2SiO4     12  // H2SiO4^2- (原硅酸二氢根离子，或偏硅酸根，视具体体系而定)
+
+// 特殊索引：离子总数/离子种类数（推测为 "ion species count" 或 "special ion index"）
+#define iSion       13  // 可能表示阴离子总数，或特殊离子的索引（如"固体离子"、"表面离子"等）
+
+// Neutral aquatic indexes
+#define iCH4aq       1
+#define iCO2aq       2
+#define iH2Saq       3
+#define iHAcaq       4
+#define iH4SiO4aq    5
+#define iNH3         6   // 注意：原数据中该名称未带aq后缀，保持原样
+#define iH3BO3       7   // 同上
+#define iFeSaq       8
+
+// Oil phase indexes
+#define iCH4o        1
+#define iCO2o        2
+#define iH2So        3
+
+// Gas indexes
+#define iCH4g        1  // CH4组分索引
+#define iCO2g        2  // CO2组分索引
+#define iH2Sg        3  // H2S组分索引
+#define iC2g         4
+#define iC3g         5
+#define iC4ig        6
+#define iC4ng        7
+#define iC5ig        8
+#define iC5ng        9   // 原数据中此处序号为9，保持连续
+#define iC6g         10
+#define iC7_12g      11
+#define iC13_25g     12
+#define iC26_80g     13
+#define iN2g         14  // 原数据中iN2g在iH2Og之后，调整为按序号排序
+#define iH2Og        15
+
+// 最后一组未命名类别（推测为矿物/盐类索引）
+#define iBaSO4       1
+#define iCaSO42H2O   2
+#define iSrSO4       3
+#define ihemiCaSO4   4
+#define iCaSO4       5
+#define iNaCl        6
+#define iCaHCO32     7
+#define iFeHCO32     8
+#define iFeHS2       9
+
+/* bDot物质种类索引定义（用于标识不同络合物种或离子的编号） */
+#define iZnDot     1   // Zn²⁺离子（锌离子）
+#define iPbDot     2   // Pb²⁺离子（铅离子）
+#define iHSDot     3   // HS⁻离子（硫氢根离子）
+#define iClDot     4   // Cl⁻离子（氯离子）
+#define iZnCl      5   // ZnCl⁺络离子（一氯合锌离子）
+#define iZnCl2     6   // ZnCl₂中性分子（二氯合锌）
+#define iZnCl3     7   // ZnCl₃⁻络离子（三氯合锌离子）
+#define iZnCl4     8   // ZnCl₄²⁻络离子（四氯合锌离子）
+#define iZnHS2     9   // Zn(HS)₂中性分子（二硫氢合锌）
+#define iZnHS3     10  // Zn(HS)₃⁻络离子（三硫氢合锌离子）
+#define iPbCl      11  // PbCl⁺络离子（一氯合铅离子）
+#define iPbCl2     12  // PbCl₂中性分子（二氯合铅）
+#define iPbCl3     13  // PbCl₃⁻络离子（三氯合铅离子）
+#define iPbCl4     14  // PbCl₄²⁻络离子（四氯合铅离子）
+#define iPbHS2     15  // Pb(HS)₂中性分子（二硫氢合铅）
+#define iPbHS3     16  // Pb(HS)₃⁻络离子（三硫氢合铅离子）
+
+
+/////批量导出
+	int NumCat,NumAn,NumNeut,NumMean, NumSpecies;
+	int ChCat[16], ChAn[16];
+	// 定义三个数组，分别存储整数型数据、整数型数据和双精度浮点型数据，数组大小为35（索引0-34）
+	int ireg1[35];         // 整数数组1（原VB数组声明为(34)，在C中对应大小35的数组）
+	int jreg1[35];         // 整数数组2
+	double nreg1[35];      // 双精度浮点数组（原VB Double类型对应C的double）
+
+	// 单维数组（大小16：索引0~15，VB中(15)表示16个元素）
+	double gCat[16], gAn[16], gNeut[16], gGas[16];
+
+
+	double mc[16], ma[16], mn[16];
+
+	// 二维数组（16x16：索引0~15, 0~15）
+	double b0[16][16], b1[16][16], b2[16][16], CPhi[16][16];
+	double bterm[16][16], btermP[16][16], CtermP[16][16], btermPPlus[16][16];
+	double CtermPPlus[16][16], bVterm[16][16], cVterm[16][16];
+	double Tccp[16][16], Taap[16][16], Lnc[16][16], Lna[16][16], Lnn[16][16];
+
+	// 三维数组（16x16x16：索引0~15, 0~15, 0~15）
+	double Yccpa[16][16][16], Yaapc[16][16][16], zeta[16][16][16];
+
+	// 字符串数组（21个字符串，每个最大长度可自定义，此处设为100字符）
+	char InhName[21][100];  // VB中(20)表示21个元素，C中需显式定义大小
+
+	// 二维数组（21x21：索引0~20, 0~20）
+	double bi[21][21], ci[21][21], gi[21][21], ai[21][21];
+
+	// 单维数组（21个元素：索引0~20）
+	double bInhBar[21], bInhCal[21], bInhGyp[21], bInhAn[21];
+	double yGas[21], TCr[21], Pc[21], Omega[21];
+	double gL[21], z[15];
+
+	// 二维数组（21x21：索引0~20, 0~20）
+	double kPr[21][21];
+
+	// 单维数组（21个元素：索引0~20）
+	double F_Omega[21], aPR[21], bPR[21], Sum_aijPR[21];
+
+	double molAlkF, molTACF, molTNH4F, molTH3BO3F, molTH2SaqF, molTH4SiO4F, molTFeF, SumofZ;     //最终总离子摩尔数
+		
+	double 	rho25c;
+		
+	// 物质的量数组
+	int gNCat[15];
+	int gNAn[15];
+	int gNNeut[10];
+	int gNMean[10];
+	// 其他变量
+	double dSIMeOHBar;
+	double dSIMEGBar;
+	double dSIMeOHcal;
+	double dSIMEGcal;
+	double dSIMeOHHal;
+	double dSIMEGHal;
+	double aNH2O;
+
+	/*
+	 * 从IAPWS-IF97水密度计算中的InitFieldsreg1子程序提取
+	 *************************************
+	 */
+
+	double rgas_water;   // 气体常数，单位：J/(kg·K)
+	double tc_water;     // 临界温度，单位：K
+	double pc_water;      // 临界压力，单位：bar
+	double dc_water;       // 临界密度，单位：kg/m³
+
+	double radiusC[11], radiusA[12], DiffC[11], DiffA[12], Diff[10];
+	// 定义各类化学物质的分子量、体积参数及活度系数数组
+	// 注：数组大小比VB声明多1（C语言下标从0开始，VB声明(15)表示0-15共16个元素）
+	double MWCat[16];        // 阳离子分子量数组（16个元素，下标0-15）
+	double MWAn[16];         // 阴离子分子量数组（16个元素，下标0-15）
+	double MWNeut[11];       // 中性分子分子量数组（11个元素，下标0-10）
+
+	double V0_c[16];         // 阳离子标准偏摩尔体积数组（16个元素，下标0-15）
+	double V0_a[16];         // 阴离子标准偏摩尔体积数组（16个元素，下标0-15）
+	double V0_n[11];         // 中性分子标准偏摩尔体积数组（11个元素，下标0-10）
+
+	 
+	// 声明全局数组（若在函数内使用，需移至函数内部）
+	double EaRInh[21];          // VB: EaRInh(20) → 索引 0~20，共 21 个元素
+	double LnAInh[21];          // VB: LnAInh(20) → 索引 0~20，共 21 个元素
+	double SIRisk[21][11][11][5]; // VB: SIRisk(20, 10, 10, 4) → 4 个维度分别为 0~20, 0~10, 0~10, 0~4
+	 
+	// Global variables全局变量
+	double TDSSSE, TDSOld;
+	double xMeOH, xMEG;
+	double Alk, TAc, TCO2, TH2Saq , TH4SiO4,TCa;
+	double TNH4, TH3BO3, TFe;
+	double nTCO2, nTCH4, nTH2S, mass_w, Mass_o;
+	double mass_MeOH, mass_MEG, API, SGG, QTotal;
+	double VgTP, VO, total_moles, VW;
+	double nTCO2EOS, nTH2sEOS;
+	double mass_w_0, KspCalcite;
+	double nTCO2_before_precipitation; //如果使用EOS>0，则降水前nTCO2等于nTCO2EOS
+	double nTH2S_before_precipitation;
+	double Total_moles_before_precipitation;
+	double *mtotal,*MoleCharge,*Ist,*SumOfCations,*SumOfAnions,*DpHj;
+
+	double TDS; //Thermodynamic density 热力学密度
+	double IStCosolvent;
+    double  TK, TC, PBar, Patm;
+	// fTPFunc 使用的参数
+	double Ppsia,  TF, Pvol, TVol, PpH, TpH;
+
+    double  aH2O;
+	double  H, OH, AC, HS,NH3,H2BO3,HCO3,CO3,H3SiO4,H2SiO4,H4SiO4;
+	double  CO2aq, H2Saq,HAcaq;
+	// Arrays for concentrations 浓度数组
+
+	double molcF[15];
+	double molaF[15];
+	double molnF[10];
+	double z_before_precipitation[15];
+
+	// C2_PitzerActCoefs_T_P_ISt 参数
+	double *a0 = nullptr;
+	double *gDot = nullptr;
+
+	// C5_CalcpHPCO2PH2SSTP 变量
+	double KgwCO2, KgwH2S;
+	int use_pH,UseH2Sgas,useEOS, Ppsia;
+    double *pHMeterReading;
+	// fMeSSpeciation 参数
+	int igas, TZn;
+	double TPb, hidHS, ppt, *root1, *root2, *root3, KstFeSaq;
+	// D2_CalcDensitypH
+	double *rhoOld, *rhoSSE;
+	int *Iteration;
+	// PengRobinson3 参数
+	double yCH4, yCO2, yH2S, *pchiCh4, *pchiCO2, *Znew, *pchiH2S;
+	// D1_CalcDensity
+	double *pH;
+	
+	// 分子/络合物数组指针（初始化为NULL）
+	//不参与系统的计算，以下这些变量
+	//{
+	/*
+	double* H3SiO4Mix;    // 硅酸（H3SiO4⁻）浓度数组指针
+	double* H2SiO4Mix;    // 硅酸（H2SiO4²⁻）浓度数组指针
+	double* H4SiO4Mix;    // 原硅酸（H4SiO4）浓度数组指针
+	double* H3BO3Mix;     // 硼酸（H3BO3）浓度数组指针
+	double* HACaqMix;     // 溶解态醋酸（HAc(aq)）浓度数组指针
+
+	double* Qheat;            // 热量数组（单位：能量单位，如 J 或 kJ）
+	double* YCH4stpmix;       // CH₄标准状态摩尔分数数组（标准状态下CH₄的摩尔占比，范围0~1）
+	double* RatioOilBPointsmix;// 油沸点比例数组（可能为不同沸点区间的油分占比，范围0~1）
+	*/
+	//}//不参与系统的计算，以上这些变量
+
+
+	//原程序中从表格中读出来的//原程序中从表格中读出来的//原程序中从表格中读出来的
+	// 1.2 碱度相关数组指针定义及初始化（初始化为NULL）
+	double* HCO3AlkMix;     // HCO3⁻碱度数组指针（存储各样本HCO3⁻贡献的碱度值）
+	double* HAlkMix;        // H⁺碱度数组指针（存储各样本H⁺贡献的碱度值）
+	double* OHAlkMix;       // OH⁻碱度数组指针（存储各样本OH⁻贡献的碱度值）
+
+	// 物理性质与总浓度数组指针（初始化为NULL）
+	double* TH2SaqMix;    // 总溶解硫化物浓度数组指针
+	double* TH4SiO4Mix;   // 总硅酸浓度数组指针
+	double* TNH4Mix;      // 总铵根离子浓度数组指针
+	double* TH3BO3Mix;    // 总硼酸浓度数组指针
+
+	/* 
+	 * 双精度浮点数数组（double[] 类型）：存储数值型数据
+	 * 定义为 double* 类型，并初始化为 NULL（避免野指针，后续需通过 malloc 分配内存）
+	 */
+	double* yCO2Mix;          // CO₂摩尔分数数组（无单位，CO₂在气相中的摩尔占比，范围0~1）
+	double* yH2SMix;          // H₂S摩尔分数数组（无单位，H₂S在气相中的摩尔占比，范围0~1）
+	// 3. 密度数组指针定义及初始化（初始化为NULL）
+	double* OilDensityMix;  // 原油密度数组指针（存储各样本的原油密度，单位通常为kg/m³）
+	double* GasDensityMix;  // 气体密度数组指针（存储各样本的气体密度）
+	double* WaterDensityMix;// 水密度数组指针（存储各样本的水密度）
+
+	// pH使用标记数组指针（double类型，长度为N）
+	// 用于存储每个样本是否使用pH值进行计算的标记（可能为布尔值或状态码）
+	int* usepHmix;
+	// 混合液离子电荷二维数组指针（double类型，N行15列）
+	// 行索引对应样本编号，列索引对应15种离子，存储各离子的电荷值
+	double** zMix;
+	//原程序中从表格中读出来的	//原程序中从表格中读出来的	//原程序中从表格中读出来的
+
+
+	double* rho_Mix;      // 混合溶液密度数组指针
+
+	double* MixFracGas;       // 气体混合比例数组（无单位，气体在混合物中的占比，范围0~1）
+
+	double* nTCO2Mix;         // 总CO₂物质的量数组（单位：mol）
+	double* nTCH4Mix;         // 总CH₄物质的量数组（单位：mol）
+	double* nTH2SMix;         // 总H₂S物质的量数组（单位：mol）
+	double* mass_w_Mix;       // 水质量数组（单位：kg 或 g）
+	double* mass_o_Mix;       // 油质量数组（单位：kg 或 g）
+	
+	double* mass_MeOH_mix;    // 甲醇质量数组（单位：kg 或 g）MeOH 是 甲醇（Methanol） 的缩写（Me代表甲基-CH₃，OH代表羟基），因此该术语指的是甲醇在流动系统中的体积或质量流量
+	double* mass_MEG_mix;     // 乙二醇（MEG）质量数组（单位：kg 或 g）MEG 是 乙二醇（MonoEthylene Glycol） 的缩写，因此该术语指的是 乙二醇在流动系统中的体积或质量流量，
+	
+	double* MixFracOil;       // 油混合比例数组（无单位，油在混合物中的占比，范围0~1）
+	double* yCH4Mix;          // CH₄摩尔分数数组（无单位，CH₄在气相中的摩尔占比，范围0~1）
+	double* CalculatedTDSMix; // 计算TDS（总溶解固体）数组（单位：可能为 mg/L 或 g/m³）
+	double* rho25CMix;        // 25℃时的密度数组（单位：可能为 kg/m³ 或 g/cm³）
+	double* HstpMix;           // H⁺离子标准状态浓度数组（单位：mol/L，标准状态下的氢离子浓度）
+	double* OHstpMix;         // OH⁻离子标准状态浓度数组（单位：mol/L，标准状态下的氢氧根离子浓度）
+	double* HCO3stpMix;       // HCO₃⁻（碳酸氢根）标准状态浓度数组（单位：mol/L）
+	double* CO3stpMix;        // CO₃²⁻（碳酸根）标准状态浓度数组（单位：mol/L）
+	double* ACstpMix;         // 乙酸根（CH₃COO⁻）标准状态浓度数组（单位：mol/L）
+	double* HSstpMix;         // HS⁻（硫氢根）标准状态浓度数组（单位：mol/L）
+	double* NH4STPMix;        // NH₄⁺（铵根）标准状态浓度数组（单位：mol/L）
+	double* H2BO3stpMix;      // H₂BO₃⁻（硼酸一氢根）标准状态浓度数组（单位：mol/L）
+	double* TCO2Mix;        // 总CO2浓度数组指针（存储各样本的总CO2浓度值）
+
+	// 5. 水相离子摩尔浓度二维数组指针定义及初始化（初始化为NULL）
+	// 阳离子：NumCat种阳离子 × N个样本，每行代表一种阳离子，每列代表一个样本的浓度
+	double** molc;          // 阳离子摩尔浓度二维数组指针（单位通常为mol/L或mol/kg）
+	// 阴离子：NumAn种阴离子 × N个样本，结构同阳离子
+	double** mola;          // 阴离子摩尔浓度二维数组指针
+	// 中性物质：NumNeut种中性物质 × N个样本，结构同上
+	double** moln;          // 中性物质摩尔浓度二维数组指针
+
+	// 6. 水相标量摩尔数数组指针定义及初始化（初始化为NULL）
+	double* molAlk;         // 碱度摩尔数数组指针（各样本的总碱度，单位mol）
+	double* molTAC;         // 总无机碳摩尔数数组指针（各样本的总无机碳，单位mol）
+	double* molTNH4;        // 总铵根摩尔数数组指针（各样本的总铵根离子，单位mol）
+	double* molTH3BO3;      // 总硼酸摩尔数数组指针（各样本的总硼酸，单位mol）
+	double* molTH2Saq;      // 总溶解硫化氢摩尔数数组指针（各样本的总溶解硫化氢，单位mol）
+	double* molTH4SiO4;     // 总硅酸摩尔数数组指针（各样本的总硅酸，单位mol）
+	// 电荷总和数组指针（double类型，长度为N）
+	// 用于存储每个样本中混合液离子的总电荷数
+	double* SumofZMix;
+	// 总摩尔数数组指针（double类型，长度为N）
+	// 用于存储每个样本中混合液的总摩尔数
+	double* Total_molesMix;
+	// CO2平衡总摩尔数数组指针（double类型，长度为N）
+	// 用于存储每个样本中CO2在气液平衡状态下的总摩尔数
+	double* nTCO2MixEOS;
+	// H2S平衡总摩尔数数组指针（double类型，长度为N）
+	// 用于存储每个样本中H2S在气液平衡状态下的总摩尔数
+	double* nTH2SMixEOS;
+	// EOS（状态方程）属性二维数组指针（double类型，nComponents行）
+	// 用于存储各组分的状态方程计算参数（列数由具体EOS模型决定）
+	double** eosProps;
+	// 二元交互作用系数二维数组指针（double类型，nComponents行nComponents列）
+	// 用于存储状态方程中组分间的二元交互作用系数（ kij[i][j] 表示组分i和j的交互系数）
+	double** kij;
+	// 组分浓度二维数组指针（double类型，15行）
+	// 用于存储15种组分在不同条件下的浓度数据（列数通常对应样本数或状态点）
+	double** compositions;
+	// 逸度系数二维数组指针（double类型，15行）
+	// 用于存储15种组分在不同条件下的逸度系数（热力学计算中用于修正理想行为）
+	double** phi;
+	// 压缩系数数组指针（double类型，长度为3）
+	// 通常用于存储气、液、固三相的压缩系数（Z因子）
+	double* Compr;
+	// 体积膨胀系数数组指针（double类型，长度为3）
+	// 通常用于存储不同相态或条件下的体积膨胀系数（如液相膨胀系数、气相膨胀系数）
+	double* beta;
+	// 输出电荷数组指针（double类型，长度为15）
+	// 用于存储15种离子的最终计算电荷值，作为输出结果使用
+	double* zOutput;
+
+
+////
 
 double* NaMix;
 double* MgMix;
@@ -424,7 +798,7 @@ double fTPFunc(int iTP) {
 void CalcIonicStrength(double *Ist, double *mtotal, double *MoleCharge,
                       double *SumOfCations, double *SumOfAnions, double *DpHj) {
     // 初始化变量
-    publicpara_m  *glob_var;
+    // publicpara_m  *glob_var;
     // double* Ist = glob_var
     *mtotal = 0.0;
     *MoleCharge = 0.0;
@@ -580,6 +954,248 @@ double fPZ_DL_6(double TK, double Patm,
     return value;
 }
 
+/**
+ * @brief 计算 V0 方程 (经验公式)
+ *
+ * 本函数根据给定的参数 q1 ~ q18，在温度 TK (K) 和压力 PBar (bar) 下，
+ * 计算 V0 经验公式的结果。
+ *
+ * 公式：
+ * fV0 = q1
+ *     + q2 / TK
+ *     + q3 * TK
+ *     + q4 * TK^2
+ *     + q5 / (TK - 227)
+ *     + q6 / (647 - TK)
+ *     + PBar * (q7 + q8 / TK + q9 * TK + q10 * TK^2 
+ *              + q11 / (TK - 227) + q12 / (647 - TK))
+ *     + PBar^2 * (q13 + q14 / TK + q15 * TK + q16 * TK^2 
+ *                + q17 / (TK - 227) + q18 / (647 - TK))
+ *
+ * @param TK 温度 (K)
+ * @param PBar 压力 (bar)
+ * @param 系数 q1 ~ q18
+ * @return double 计算得到的 fV0 值
+ */
+double fV0(double q1, double q2, double q3, double q4, double q5, double q6,
+           double q7, double q8, double q9, double q10, double q11, double q12,
+           double q13, double q14, double q15, double q16, double q17, double q18)
+{
+    double denom1 = TK - 227.0;
+    double denom2 = 647.0 - TK;
+
+    double term1 = q1 
+                 + q2 / TK 
+                 + q3 * TK 
+                 + q4 * (TK * TK)
+                 + q5 / denom1 
+                 + q6 / denom2;
+
+    double term2 = PBar * (q7 
+                 + q8 / TK 
+                 + q9 * TK 
+                 + q10 * (TK * TK) 
+                 + q11 / denom1 
+                 + q12 / denom2);
+
+    double term3 = (PBar * PBar) * (q13 
+                 + q14 / TK 
+                 + q15 * TK 
+                 + q16 * (TK * TK) 
+                 + q17 / denom1 
+                 + q18 / denom2);
+
+    return term1 + term2 + term3;
+}
+
+/*
+ * fPZ6
+ * 计算公式: z1 + z2*(100/TK) + z3*(0.01*TK) + z4*(0.0001*TK^2)
+ *           + z5*(10/(TK - 227)) + z6*log(TK)
+ *
+ * 输入:
+ *   TK - 温度 (K)
+ *   z1 ~ z6 - 系数
+ * 输出:
+ *   double 型计算结果
+ */
+double fPZ6(double TK, double z1, double z2, double z3, double z4, double z5, double z6) {
+    double result;
+
+    result = z1
+           + z2 * (100.0 / TK)
+           + z3 * (0.01 * TK)
+           + z4 * (0.0001 * TK * TK)
+           + z5 * (10.0 / (TK - 227.0))
+           + z6 * log(TK);
+
+    return result;
+}
+
+/**
+ * @brief 计算标准部分摩尔体积（V0TP）
+ *
+ * 此函数计算各种离子的标准部分摩尔体积（单位：cm³/mol），
+ * 基于温度（TK）和压力（PBar）的依赖性，使用fV0函数进行计算。
+ * 适用于阳离子（Na、K、Mg、Ca、Ba、Sr）和阴离子（Cl、SO4）。
+ */
+// void V0TP(publicpara_m  *glob_var)
+void V0TP()
+{
+    // Na
+    V0_c[iNa] = fV0(
+        8.76686173829976, 10.7463747460684, -3.94438220704875E-02,
+        6.24254747432051E-05, -270.67565216552, 3.71906197249154,
+        -0.548144793641968, 60.4681423698375, 1.6487628506002E-03,
+        -1.78543820686743E-06, -7.22279554933479E-02, 6.1016223460645,
+        5.37401040542647E-04, -5.78337684998825E-02, -1.64057441413787E-06,
+        1.85284769422731E-09, 2.33307684437836E-04, -8.30091414725064E-03);
+
+    // K
+    V0_c[iK] = fV0(
+        1365.58178, -146187.60179, -4.00314, 0.004292463,
+        0.0, -18894.00317, -6.66675, 715.61054, 0.019742057,
+        -0.000020810979, 0.0, 81.91098, 0.00534941, -0.573121,
+        -0.0000158576885, 0.0000000166987, 0.0, -0.0649312);
+
+    // Mg
+    V0_c[iMg] = fV0(
+        15.5470319999999, 18848.33832, -0.380047233, 0.00100500148,
+        -761.133887, -22952.60934, -1.27205782, 142.833027,
+        0.00343937874, -0.00000368366162, 0.0, 36.3788742,
+        0.0, 0.0, 0.000000400785822, 0.0, 0.0, -0.0429183805);
+
+    // Ca
+    V0_c[iCa] = fV0(
+        136.567817, 3135.53072, -0.68264817, 0.0012917585,
+        -761.133887, -22952.60934, -1.6506531, 162.991634,
+        0.0048786976, -0.00000616046222, 0.0, 71.877495,
+        0.0, 0.0, 0.000000400785822, 0.0, 0.0, -0.0429183805);
+
+    // Ba
+    V0_c[iBa] = fV0(
+        131.77473, 3135.53072, -0.65074076, 0.0012917585,
+        -761.133887, -22952.60934, -1.6506531, 162.991634,
+        0.0048786976, -0.00000616046222, 0.0, 71.877495,
+        0.0, 0.0, 0.000000400785822, 0.0, 0.0, -0.0429183805);
+
+    // Sr
+    V0_c[iSr] = fV0(
+        131.475189, 3135.53072, -0.66249868, 0.0012917585,
+        -761.133887, -22952.60934, -1.6506531, 167.104986,
+        0.0048786976, -0.00000616046222, 0.0, 69.810131,
+        0.0, 0.0, 0.000000400785822, 0.0, 0.0, -0.0429183805);
+
+    // Cl
+    V0_a[iCl] = fV0(
+        195.93822, -23046.39821, -0.29604, 0.000299867,
+        0.0, -13674.59683, -0.20212, 19.60946, 0.000482443,
+        -0.000000766921, 0.0, 21.30102, 0.0, 0.0,
+        0.0000000714885, 0.0, 0.0, -0.00727);
+
+    // SO4 (取后面 Dai 20151027 的参数)
+    V0_a[iSO4] = fV0(
+        20.1255488592824, 8382.68656863382, 8.63029649907132E-02,
+        3.86933893465996E-05, -262.073120048569, -20014.7787488445,
+        1.93246311860811E-02, 1.16742679461389, 9.95461079547389E-06,
+        7.58647008800297E-08, -1.30203576761739, -2.31700638251545,
+        -3.61401771714286E-05, -4.71960303681654E-03, -7.8135942334434E-09,
+        4.3129299430231E-11, 1.77316241419105E-03, 7.24281664341625E-03);
+}
+
+double fH2ODensity(double TK, double PBar) {
+    const double rgas_water = 0.461526;
+    double tau, piDen, gammapireg1;
+    double volreg1;
+    int igammapireg;
+
+    tau = 1386.0 / TK;
+    piDen = 0.1 * PBar / 16.53;
+
+    gammapireg1 = 0.0;
+    for (igammapireg = 0; igammapireg < 34; igammapireg++) {
+        gammapireg1 -= nreg1[igammapireg] * ireg1[igammapireg] *
+                       pow(7.1 - piDen, ireg1[igammapireg] - 1) *
+                       pow(tau - 1.222, jreg1[igammapireg]);
+    }
+
+    volreg1 = rgas_water * TK * piDen * gammapireg1 / (PBar * 100000.0);
+
+    if (volreg1 != 0.0) {
+        return 1.0 / volreg1;
+    } else {
+        return -1.0;
+    }
+}
+
+double fPP(double TK, double p0, double p1, double p2,
+           double p3, double p4, double p5)
+{
+    const double Tr = 298.15;
+    double value = p0
+                 + p1 * (TK - Tr)
+                 + p2 * (TK * TK - Tr * Tr)
+                 + p3 * (1.0 / TK - 1.0 / Tr)
+                 + p4 * log(TK / Tr)
+                 + p5 * (1.0 / (TK * TK) - 1.0 / (Tr * Tr));
+    return value;
+}
+
+/**
+ * @brief 计算 Holmes 方程 (经验公式)
+ *
+ * 本函数根据给定参数 (q1 ~ q17)，在温度 TK (K) 和压力 PBar (bar) 下，
+ * 计算 Holmes 经验公式的结果。
+ *
+ * 公式：
+ * fHolmes = q1
+ *         + (1/2) * q2 * TK
+ *         + (1/6) * q3 * TK^2
+ *         + (1/12) * q4 * TK^3
+ *         + (1/6) * q5 * TK^2 * (log(TK) - 5/6)
+ *         + q6 * (TK/2 + 3*227^2/(2*TK) + 227*(TK-227)/TK * log(TK-227))
+ *         + q7 * ( (2*(647-TK)/TK + 1) * log(647-TK) )
+ *         + PBar * (q8 + q9/TK + q10*TK + q11*TK^2 + q12/(TK-227) + q13/(647-TK))
+ *         + PBar^2 * (q14 + q15/TK + q16*TK + q17*TK^2)
+ *
+ * @param TK 温度 (K)
+ * @param PBar 压力 (bar)
+ * @param q1 ~ q17 参数系数
+ * @return double 计算得到的 fHolmes 值
+ */
+double fHolmes(double TK, double PBar,
+               double q1, double q2, double q3, double q4, double q5,
+               double q6, double q7, double q8, double q9, double q10,
+               double q11, double q12, double q13, double q14, double q15,
+               double q16, double q17) 
+{
+    double term1 = q1 
+                 + 0.5 * q2 * TK
+                 + (1.0/6.0) * q3 * (TK * TK)
+                 + (1.0/12.0) * q4 * (TK * TK * TK)
+                 + (1.0/6.0) * q5 * (TK * TK) * (log(TK) - 5.0/6.0);
+
+    double term2 = q6 * (TK / 2.0
+                 + (3.0 * 227.0 * 227.0) / (2.0 * TK)
+                 + 227.0 * (TK - 227.0) / TK * log(TK - 227.0));
+
+    double term3 = q7 * ((2.0 * (647.0 - TK) / TK + 1.0) * log(647.0 - TK));
+
+    double term4 = PBar * (q8 
+                 + q9 / TK 
+                 + q10 * TK 
+                 + q11 * (TK * TK) 
+                 + q12 / (TK - 227.0) 
+                 + q13 / (647.0 - TK));
+
+    double term5 = (PBar * PBar) * (q14 
+                 + q15 / TK 
+                 + q16 * TK 
+                 + q17 * (TK * TK));
+
+    return term1 + term2 + term3 + term4 + term5;
+}
+
 /** 
  * @brief 计算Pitzer模型参数（C2_Pitzer2019）
  * 
@@ -587,61 +1203,14 @@ double fPZ_DL_6(double TK, double Patm,
  * 基于温度（TK）和压力（PBar）依赖性，适用于电解质溶液的热力学建模。 
  * 包括Na、K、Ca、Mg、Ba、Sr、H、OH、Cl、SO4、HCO3、CO3、HS等离子的参数计算。 
  * 
- * @param TK 绝对温度（K） 
- * @param PBar 压力（bar） 
- * @param TC 摄氏温度（°C） 
- * @param Patm 大气压力（bar） 
- * @param b0 二元参数数组 [NumCat+NumAnion][NumCat+NumAnion] 
- * @param b1 二元参数数组 [NumCat+NumAnion][NumCat+NumAnion] 
- * @param b2 二元参数数组 [NumCat+NumAnion][NumCat+NumAnion] 
- * @param CPhi 三元参数数组 [NumCat+NumAnion][NumCat+NumAnion] 
- * @param Lnc 中性物种与阳离子参数 [NumSpecies][NumCat] 
- * @param Lna 中性物种与阴离子参数 [NumSpecies][NumAnion] 
- * @param zeta 三元参数 [NumSpecies][NumCat][NumAnion] 
- * @param Taap 三元参数 [NumCat+NumAnion][NumCat+NumAnion] 
- * @param Yaapc 三元参数 [NumCat+NumAnion][NumCat+NumAnion][NumCat] 
- * @param Yccpa 三元参数 [NumCat][NumCat][NumAnion] 
- * @param Tccp 三元参数 [NumCat][NumCat] 
- * @param NumCat 阳离子数量 
- * @param NumAnion 阴离子数量 
- * @param NumSpecies 物种数量 
- * @param iH H+ 索引 
- * @param iCl Cl- 索引 
- * @param iSO4 SO4^2- 索引 
- * @param iNa Na+ 索引 
- * @param iOH OH- 索引 
- * @param iHCO3 HCO3- 索引 
- * @param iCO3 CO3^2- 索引 
- * @param iK K+ 索引 
- * @param iHS HS- 索引 
- * @param iCa Ca^2+ 索引 
- * @param iMg Mg^2+ 索引 
- * @param iBa Ba^2+ 索引 
- * @param iSr Sr^2+ 索引 
- * @param iFe Fe^2+ 索引 
- * @param iAc Ac- 索引 
- * @param iSion S离子索引 
- * @param iCO2aq CO2(aq) 索引 
- * @param iH2Saq H2S(aq) 索引 
- * @param Tr 参考温度（298.15 K） 
  */
 // void C2_Pitzer2019(publicpara_m  *glob_var);
-void C2_Pitzer2019(double TK, double PBar, double TC, double Patm, 
-                   double b0[16][16], double b1[16][16], double b2[16][16], 
-                   double CPhi[16][16], double Lnc[16][16], double Lna[16][16],
-                   double zeta[16][16][16], double Taap[16][16],
-                   double Yaapc[16][16][16], double Yccpa[16][16][16],
-                   double Tccp[16][16], 
-                   int NumCat, int NumAnion, int NumSpecies){
-                    /* int iH, int iCl, int iSO4, int iNa, int iOH, int iHCO3, int iCO3, 
-                   int iK, int iHS, int iCa, int iMg, int iBa, int iSr, int iFe, int iAc, int iSion, int iCO2aq, int iH2Saq, double Tr) {*/
-    // 调用V0TP函数（假设已定义）
-    publicpara_m  *glob_var;
-    // Lnc = glob_var.lnc
-    V0TP(TK, PBar, V0_c, V0_a);
+//存在不知有何用的变量//Lnn[iCO2aq][iCO2aq]，已经舍弃
+void C2_Pitzer2019() {
+    V0TP();
 
     // b0(iH, iCl) = 0.1769 + -0.0914 * Log(fH2ODensity(TK, PBar) / 997.048) + 0 * (fH2ODensity(TK, PBar) - 997.048) / 1 + -0.0004034 * (TC - 25) / 1 + 0.000062 * (PBar - 1) / 10 'Holmes et al. 1987_Model I_BP
-    b0[iH][iCl] = 0.1769 - 0.0914 * log(fH2ODensity(TK, PBar, rgas_water) / 997.048) + 0 * (fH2ODensity(TK, PBar,rgas_water) - 997.048) / 1 - 0.0004034 * (TC - 25) / 1 + 0.000062 * (PBar - 1) / 10;
+    b0[iH][iCl] = 0.1769 - 0.0914 * log(fH2ODensity(TK, PBar) / 997.048) + 0 * (fH2ODensity(TK, PBar) - 997.048) / 1 - 0.0004034 * (TC - 25) / 1 + 0.000062 * (PBar - 1) / 10;
 
     // b0(iH, iSO4) = fPP(TK, 0.08198, -0.17932, 0.000106, 4655, 49.798, 0)
     b0[iH][iSO4] = fPP(TK, 0.08198, -0.17932, 0.000106, 4655, 49.798, 0);
@@ -676,8 +1245,8 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
     double q20 = 0.00001534474401;
     double q21 = -3.215398267e-09;
     b0[iNa][iCl] = q1 / TK + q2 + q3 * PBar + q4 * pow(PBar, 2) + q5 * pow(PBar, 3) + q6 * log(TK) + (q7 + q8 * PBar + q9 * pow(PBar, 2) + q10 * pow(PBar, 3)) * TK
-                + (q11 + q12 * PBar + q13 * pow(PBar, 2)) * pow(TK, 2) + (q14 + q15 * PBar + q16 * pow(PBar, 2) + q17 * pow(PBar, 3)) / (TK - 227)
-                + (q18 + q19 * PBar + q20 * pow(PBar, 2) + q21 * pow(PBar, 3)) / (680 - TK);
+        + (q11 + q12 * PBar + q13 * pow(PBar, 2)) * pow(TK, 2) + (q14 + q15 * PBar + q16 * pow(PBar, 2) + q17 * pow(PBar, 3)) / (TK - 227)
+        + (q18 + q19 * PBar + q20 * pow(PBar, 2) + q21 * pow(PBar, 3)) / (680 - TK);
 
     // b0(iNa, iHCO3) = fPP(TK, 0.02837, -0.0103, 0.00000782, -579.52, 0, 0)
     b0[iNa][iHCO3] = fPP(TK, 0.02837, -0.0103, 0.00000782, -579.52, 0, 0);
@@ -688,8 +1257,8 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
     // %based on Pabalan & Pitzer 1988 and Dai 20151112
     q1 = 0.60955633; q2 = -16.090797; q3 = -0.10932828; q4 = 0.00025321479; q5 = -0.000000099384034; q6 = 0.040107638; q7 = 0.021711348; q8 = 0.001738512; q9 = 0.001722469; q10 = -0.01255087; q11 = -0.0104936; q12 = 92308.895357; q13 = 963.974106;
     b0[iNa][iSO4] = q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5 / 12) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 +
-                    q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (TK / 2 + 3 * pow(647, 2) / 2 / TK - 647 * (647 - TK) * log(647 - TK) / TK) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11
-                    + 0.001 * (PBar - 200) * fPZ6(TK, 0.047242702840047, -5.38099320830228e-02, 1.18935539713076e-02, -1.47824630406919e-02, -0.733032327494331, 3.62293033499918e-02) + 0.000001 * pow((PBar - 200), 2) * fPZ6(TK, -5.32348171981031e-02, -0.101775451027319, 2.21588585653303e-02, 4.05106192359346e-03, 0.661622313615445, -2.06389886993178e-02);
+        q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (TK / 2 + 3 * pow(647, 2) / 2 / TK - 647 * (647 - TK) * log(647 - TK) / TK) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11
+        + 0.001 * (PBar - 200) * fPZ6(TK, 0.047242702840047, -5.38099320830228e-02, 1.18935539713076e-02, -1.47824630406919e-02, -0.733032327494331, 3.62293033499918e-02) + 0.000001 * pow((PBar - 200), 2) * fPZ6(TK, -5.32348171981031e-02, -0.101775451027319, 2.21588585653303e-02, 4.05106192359346e-03, 0.661622313615445, -2.06389886993178e-02);
 
     // b0(iK, iOH) = fPP(TK, 0.1298, 0.00721, -0.00000184, -863.72, -4.5653, 0)    'Kaasa's book... added by Dai
     b0[iK][iOH] = fPP(TK, 0.1298, 0.00721, -0.00000184, -863.72, -4.5653, 0);
@@ -734,7 +1303,7 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
     q1 = -1.0282; q2 = 0.008479; q3 = -0.0000233667; q4 = 0.000000021575; q5 = 0.00068402; q6 = 0.21499;
     b0[iMg][iSO4] = q1 * (TK / 2 + pow(298, 2) / (2 * TK) - 298) + q2 * (pow(TK, 2) / 6
         + pow(298, 3) / (3 * TK) - pow(298, 2) / 2) + q3 * (pow(TK, 3) / 12 + pow(298, 4) / (4 * TK)
-        - pow(298, 3) / 3) + q4 * (pow(TK, 4) / 20 + pow(298, 5) / (5 * TK) - pow(298, 4) / 4) + q5 * (298 - pow(298, 2) / TK) + q6
+            - pow(298, 3) / 3) + q4 * (pow(TK, 4) / 20 + pow(298, 5) / (5 * TK) - pow(298, 4) / 4) + q5 * (298 - pow(298, 2) / TK) + q6
         + 0.001 * (PBar - 20) * fPZ6(TK, 4.69338657997024e-02, 0.1885487503942, -2.57681401400115e-02, -2.92174438263678e-03, -5.28701612182822e-02, 0.010175024490052) + 0.000001 * pow((PBar - 20), 2) * fPZ6(TK, 4.21601882371307e-02, 0.470528627913928, -1.38985610560422e-02, -8.14864903217854e-03, -0.63735169569643, 3.21374826812395e-03);
 
     q1 = -2.84735725; q2 = 0.061583644; q3 = -0.001004361; q4 = 0.0000000337947; q5 = 0.000140902;
@@ -756,7 +1325,7 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
     b0[iSr][iSO4] = 0.78474727943517 * b0[iCa][iSO4];
 
     // b1(iH, iCl) = 0.2973 + 16.147 * Log(fH2ODensity(TK, PBar) / 997.048) + -0.0176 * (fH2ODensity(TK, PBar) - 997.048) / 1 + 0 * (TC - 25) / 1 + 0.00072 * (PBar - 1) / 10 'Holmes et al. 1987_Model I_BP
-    b1[iH][iCl] = 0.2973 + 16.147 * log(fH2ODensity(TK, PBar,rgas_water) / 997.048) - 0.0176 * (fH2ODensity(TK, PBar,rgas_water) - 997.048) / 1 + 0 * (TC - 25) / 1 + 0.00072 * (PBar - 1) / 10;
+    b1[iH][iCl] = 0.2973 + 16.147 * log(fH2ODensity(TK, PBar) / 997.048) - 0.0176 * (fH2ODensity(TK, PBar) - 997.048) / 1 + 0 * (TC - 25) / 1 + 0.00072 * (PBar - 1) / 10;
 
     // b1(iNa, iOH) = 462.86977 + -10294.181 / (TK) + -85.960581 * Log(TK) + 0.23905969 * (TK) + -0.00010795894 * (TK) ^ 2 'from Pabalan and Pitzer 1987
     b1[iNa][iOH] = 462.86977 - 10294.181 / TK - 85.960581 * log(TK) + 0.23905969 * TK - 0.00010795894 * pow(TK, 2);
@@ -778,7 +1347,7 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
     b1[iK][iOH] = fPP(TK, 0.32, 0.0634, -0.0000276, -3232.7, -24.573, 0);
 
     b1[iK][iCl] = q1 + q2 * (1 / TK - 1 / 298.15) + q3 * log(TK / 298.15) + q4
-                * (TK - 298.15) + q5 * (pow(TK, 2) - pow(298.15, 2)) + q6 * log(TK - 260);
+        * (TK - 298.15) + q5 * (pow(TK, 2) - pow(298.15, 2)) + q6 * log(TK - 260);
 
     // b1(iK, iHCO3) = fPP(TK, 0.0401, -0.31301, 0.000135, 13868, 116.4, 0)    'Kaasa's book... added by Dai
     b1[iK][iHCO3] = fPP(TK, 0.0401, -0.31301, 0.000135, 13868, 116.4, 0);
@@ -848,8 +1417,8 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
 
     // based on Phutela & Pitzer and P dependence from Dai 20151112
     b2[iMg][iSO4] = -13.764 * (TK / 2 + pow(298, 2) / (2 * TK) - 298) + 0.12121 * (pow(TK, 2) / 6 + pow(298, 3) / (3 * TK) - pow(298, 2) / 2) + -0.00027642 * (pow(TK, 3) / 12 + pow(298, 4) / (4 * TK) - pow(298, 3) / 3) + -0.21515 * (298 - pow(298, 2) / TK) + -32.743 +
-                0.1 * (PBar - 20) * fPZ6(TK, 0.412262082080429, 0.400058114021816, 3.00888166907448e-02, -2.94302940870418e-02, -4.42981067782703, 5.66583267829718e-02) +
-                0.0001 * pow((PBar - 20), 2) * fPZ6(TK, 0.234558885627083, -0.245867648958111, 6.55732421096113e-02, -2.74923796315413e-02, -4.12894058959444, 0.011915963054195);
+        0.1 * (PBar - 20) * fPZ6(TK, 0.412262082080429, 0.400058114021816, 3.00888166907448e-02, -2.94302940870418e-02, -4.42981067782703, 5.66583267829718e-02) +
+        0.0001 * pow((PBar - 20), 2) * fPZ6(TK, 0.234558885627083, -0.245867648958111, 6.55732421096113e-02, -2.74923796315413e-02, -4.12894058959444, 0.011915963054195);
 
     // b2(iBa, iSO4) = 0.536160193861812 * b2(iCa, iSO4) 'based on Dai 20151112
     b2[iBa][iSO4] = 0.536160193861812 * b2[iCa][iSO4];
@@ -858,7 +1427,7 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
     b2[iSr][iSO4] = 0.78474727943517 * b2[iCa][iSO4];
 
     // CPhi(iH, iCl) = 2 * (0.000362 + 0 * Log(fH2ODensity(TK, PBar) / 997.048) + 0 * (fH2ODensity(TK, PBar) - 997.048) / 1 + -0.00003036 * (TC - 25) / 1 + 0 * (PBar - 1) / 10) 'Holmes et al. 1987_Model I_BP
-    CPhi[iH][iCl] = 2 * (0.000362 + 0 * log(fH2ODensity(TK, PBar,rgas_water) / 997.048) + 0 * (fH2ODensity(TK, PBar,rgas_water) - 997.048) / 1 - 0.00003036 * (TC - 25) / 1 + 0 * (PBar - 1) / 10);
+    CPhi[iH][iCl] = 2 * (0.000362 + 0 * log(fH2ODensity(TK, PBar) / 997.048) + 0 * (fH2ODensity(TK, PBar) - 997.048) / 1 - 0.00003036 * (TC - 25) / 1 + 0 * (PBar - 1) / 10);
 
     // CPhi(iH, iSO4) = fPP(TK, 0.06375, -0.11362, 0.0000582, 3218.7, 34.424, 0)
     CPhi[iH][iSO4] = fPP(TK, 0.06375, -0.11362, 0.0000582, 3218.7, 34.424, 0);
@@ -870,7 +1439,7 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
     q5 = 0.0001531767295; q6 = -0.000000090550901; q7 = -1.53860082e-08; q8 = 8.69266e-11;
     q9 = 0.353104136; q10 = -0.00043314252; q11 = -0.09187145529; q12 = 0.00051904777;
     CPhi[iNa][iCl] = q1 / TK + q2 + q3 * PBar + q4 * log(TK) + (q5 + q6 * PBar) * TK
-                      + (q7 + q8 * PBar) * pow(TK, 2) + (q9 + q10 * PBar) / (TK - 227) + (q11 + q12 * PBar) / (680 - TK);
+        + (q7 + q8 * PBar) * pow(TK, 2) + (q9 + q10 * PBar) / (TK - 227) + (q11 + q12 * PBar) / (680 - TK);
 
     // based on Pabalan & Pitzer 1988
     q1 = -0.291330454580456; q2 = 7.47067054163403; q3 = 5.25526087271343e-02; q4 = -1.25440539335741e-04; q5 = 5.05817041380687e-08; q6 = -1.46616028524056e-02; q7 = -1.09759151043306e-02; q8 = -3.16065983167313e-04; q9 = -3.26114253370686e-04; q10 = 1.07722061259521e-02; q11 = 1.05906493888146e-02; q12 = -43691.7324087285; q13 = -441.068472680535;
@@ -881,7 +1450,7 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
 
     q1 = -0.000788; q2 = 91.27; q3 = 0.58643; q4 = -0.001298; q5 = 0.00000049567; q6 = 0;
     CPhi[iK][iCl] = q1 + q2 * (1 / TK - 1 / 298.15) + q3 * log(TK / 298.15) + q4
-              * (TK - 298.15) + q5 * (pow(TK, 2) - pow(298.15, 2)) + q6 * log(TK - 260);
+        * (TK - 298.15) + q5 * (pow(TK, 2) - pow(298.15, 2)) + q6 * log(TK - 260);
 
     // CPhi(iK, iSO4) = fPP(TK, 0.00915, -0.000181, 0, -16.092, 0, 0)    'Kaasa's book... added by Dai
     CPhi[iK][iSO4] = fPP(TK, 0.00915, -0.000181, 0, -16.092, 0, 0);
@@ -1033,7 +1602,7 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
 
     Lna[iCO2aq][iHCO3] = 0;
     Lna[iCO2aq][iCO3] = 0;
-    Lnn[iCO2aq][iCO2aq] = 0;
+    //Lnn[iCO2aq][iCO2aq] = 0;  不明所以的变量，暂时舍弃
 
     Tccp[iNa][iCa] = fPZ_DL_6(TK, Patm, -9.00319213981419e-02, 3.32942474038081e-04, -1.71678275211677, 6.96629148452292, 3.53927512842587e-05, -1.39564921696874e-09);
     Tccp[iCa][iNa] = Tccp[iNa][iCa];
@@ -1067,17 +1636,17 @@ void C2_Pitzer2019(double TK, double PBar, double TC, double Patm,
 
     // Dai fit some Fe related paramters 20161116
     // Xin 12/01/2020, ensures gc(iFe) is reasonable at all 10 m
-    b0[iFe][iCl] = 0.05 + 0.001 * (TK - 298.15); 
-    b1[iFe][iCl] = 5.639834738 - 7.21091902166862e-03 * TK; 
-    b2[iFe][iCl] = -36.51133921 - 6.59720850886405e-03 * TK; 
+    b0[iFe][iCl] = 0.05 + 0.001 * (TK - 298.15);
+    b1[iFe][iCl] = 5.639834738 - 7.21091902166862e-03 * TK;
+    b2[iFe][iCl] = -36.51133921 - 6.59720850886405e-03 * TK;
     CPhi[iFe][iCl] = 0.05;
-    b0[iFe][iHS] = 1.999536302; 
-    b1[iFe][iHS] = -12.2860517351668; 
-    b2[iFe][iHS] = -4.94686944425638e-05; 
+    b0[iFe][iHS] = 1.999536302;
+    b1[iFe][iHS] = -12.2860517351668;
+    b2[iFe][iHS] = -4.94686944425638e-05;
     CPhi[iFe][iHS] = 0.5;
-    b0[iFe][iSO4] = -0.999999943766306 - 1.99999911511231e-03 * (TK - 298.15); 
-    b1[iFe][iSO4] = -36.1108185261268 + 0.22019249845693 * TK - 2.23069409321093e-04 * pow(TK, 2); 
-    b2[iFe][iSO4] = -0.5 * pow(10, (-0.8398 - 0.895 * log10(TK) + 0.012 * TK)); 
+    b0[iFe][iSO4] = -0.999999943766306 - 1.99999911511231e-03 * (TK - 298.15);
+    b1[iFe][iSO4] = -36.1108185261268 + 0.22019249845693 * TK - 2.23069409321093e-04 * pow(TK, 2);
+    b2[iFe][iSO4] = -0.5 * pow(10, (-0.8398 - 0.895 * log10(TK) + 0.012 * TK));
     CPhi[iFe][iSO4] = -0.05;
     b0[iFe][iAc] = -0.5; b1[iFe][iAc] = -5; b2[iFe][iAc] = 0; CPhi[iFe][iAc] = -0.05;
 }
@@ -1103,7 +1672,7 @@ void C2_PitzerActCoefs_T_P_ISt(double *gNeut, double *aH2O, double TK, double TC
         // mt = fgammaN;//在该函数中只调用了一次
     }
     
-    C2_Pitzer2019(TK,PBar,TC, Patm, b0, b1, b2, CPhi, Lnc, Lna, zeta, Taap, Yaapc, Yccpa, Tccp, NumCat, NumAn, NumSpecies);
+    C2_Pitzer2019();
     
     double U1 = 342.79;
     double U2 = -0.0050866;
@@ -1119,9 +1688,7 @@ void C2_PitzerActCoefs_T_P_ISt(double *gNeut, double *aH2O, double TK, double TC
     double b = U7 + U8 / TK + U9 * TK;
     double Dielec = D1000 + cc * log((b + PBar) / (b + 1000));
     
-    // dens0 等系数用于密度计算，但后续直接调用 fH2ODensity(TK, PBar)，因此此处计算被覆盖。
-    // 未定义函数 fH2ODensity(TK, PBar) 需要进一步翻译，返回水的密度 (dens)。
-    double dens = fH2ODensity(TK, PBar, rgas_water);
+    double dens = fH2ODensity(TK, PBar);
     
     // APhi 计算：Debye-Hückel 参数
     double APhi = (1.0 / 3.0) * pow((2 * M_PI * NAv * dens), 0.5) * pow((eElec * eElec / (4 * M_PI * eps0 * Dielec * kBoltz * TK)), 1.5);
@@ -2312,7 +2879,7 @@ void D2_CalcDensitypH(int i, double *pH, double *Ist, double *rhoOld, int *Itera
                       double H2SiO4, double H4SiO4, double CO2aq, double H2Saq, double HAcaq, double *xMeOH, double *xMEG, double *IStCosolvent,
                       double *mt, int use_pH, double *pHMeterStpMix, double *rho25c) {
     // Call CalcIonicStrength 'before CO2, H2S, FeSaq speciation
-    publicpara_m  *glob_var;
+    // publicpara_m  *glob_var;
     CalcIonicStrength(Ist, mtotal, MoleCharge, SumOfCations, SumOfAnions, DpHj);
 
     *pH = pHMeterStpMix[i] + *DpHj;
@@ -2419,6 +2986,199 @@ void D2_CalcDensitypH(int i, double *pH, double *Ist, double *rhoOld, int *Itera
         mn[iH2Saq] = 0;
         mn[iHAcaq] = 0;
     }
+}
+
+/**
+ * @brief 计算离子对交互项 bterm(m, a)
+ *
+ * 此函数基于离子电荷（ChCat, ChAn）、离子参数 (b0, b1, b2)，
+ * 以及温度 (TK) 与离子强度 (Ist)，计算双离子之间的经验交互项 bterm。
+ * 
+ * 计算遵循 Holmes 和 Dai 模型的经验公式，适用于不同价态电解质体系：
+ * - 1:(-1) 或 1:(-2) 离子对
+ * - 2:(-1) 离子对
+ * 
+ * @param NumCat   阳离子数
+ * @param NumAn    阴离子数
+ * @param ChCat[]  阳离子电荷数组，例如 {1, 2, 3}
+ * @param ChAn[]   阴离子电荷数组，例如 {-1, -2}
+ * @param b0[][]   b0 参数矩阵 [NumCat][NumAn]
+ * @param b1[][]   b1 参数矩阵 [NumCat][NumAn]
+ * @param b2[][]   b2 参数矩阵 [NumCat][NumAn]
+ * @param TK       绝对温度 (K)
+ * @param Ist      离子强度 (mol/kg)
+ * @param gX14     经验系数 g(X14)，用于 2:(-2) 离子对
+ * @param gX12     经验系数 g(X12)，用于通用修正项
+ * @param c_index  当前阳离子编号（用于 Na-SO4, K-SO4 特例）
+ * @param bterm[][] 输出矩阵 [NumCat][NumAn]，计算后的 bterm 值
+ *
+ * @return 无返回值（结果写入 bterm 数组）
+ */
+void fBtermcalc(
+    int NumCat, int NumAn,
+    const int *ChCat, const int *ChAn,
+    const double **b0, const double **b1, const double **b2,
+    double **bterm,
+    double TK, double Ist,
+    double gX14, double gX12,
+    int c_index
+) {
+    for (int m = 0; m < NumCat; ++m) {
+        for (int a = 0; a < NumAn; ++a) {
+
+            // 默认计算（适用于 2:(-2) 电解质）
+            bterm[m][a] = b0[m][a] + b1[m][a] * gX14 + b2[m][a] * gX12;
+
+            double X20 = 0.0, gX20 = 0.0;
+
+            // ---- 对不同离子价态进行修正 ----
+            if (ChCat[m] == 1) {
+                // 1:(-2) 或 1:(-1) 离子对
+                X20 = 2.0 * sqrt(Ist);
+
+                // 特例修正 Na-SO4 与 K-SO4
+                if (c_index == 2 && a == 5) X20 = 1.4 * sqrt(Ist); // Na-SO4
+                if (c_index == 3 && a == 5) X20 = 1.4 * sqrt(Ist); // K-SO4
+
+                gX20 = 2.0 * (1.0 - (1.0 + X20) * exp(-X20)) / (X20 * X20);
+                bterm[m][a] = b0[m][a] + b1[m][a] * gX20 + b2[m][a] * gX12;
+            }
+
+            if (ChCat[m] == 2 && ChAn[a] == -1) {
+                // 2:(-1) 离子对
+                X20 = (2.0 - 0.00181 * (TK - 298.15)) * sqrt(Ist);
+                gX20 = 2.0 * (1.0 - (1.0 + X20) * exp(-X20)) / (X20 * X20);
+                bterm[m][a] = b0[m][a] + b1[m][a] * gX20 + b2[m][a] * gX12;
+            }
+        }
+    }
+}
+
+
+double CalcRhoTP(double TK, double TC, double PBar, double Patm) {
+    // 计算由于压力引起的过量摩尔体积变化，计算由于压力 1 atm 到 1001 atm 而引起的活度系数的导数
+    // 按设定的TK值计算。如果不是STP条件（Patm !=1），则计算Δ压力=1e-6 bar时的过量性能
+
+    double AphiP, AphiPPlus, X14, gX14, gpX14, X20, gX20, gpX20, X12, gX12, gpX12;
+    double mt, Av, Fv, Ex_Pitzer, V_ex, V_ion, dens, VperKgWater, MassperKgwater;
+    int m, a, c, n, iden;
+
+    C2_Pitzer2019();
+    // AphiP = fAphicalc();
+
+    // 计算各种X值和对应的gX、gpX
+    X14 = 1.4 * sqrt(*Ist); // For 2:(-2) pairs or ions
+    gX14 = 2 * (1 - (1 + X14) * exp(-X14)) / (X14 * X14);
+    gpX14 = -2 * (1 - (1 + X14 + 0.5 * X14 * X14) * exp(-X14)) / (X14 * X14);
+
+    X20 = 2 * sqrt(*Ist); // For 1:(-2), (-1):2, or 1:(-1) pairs
+    gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
+    gpX20 = -2 * (1 - (1 + X20 + 0.5 * X20 * X20) * exp(-X20)) / (X20 * X20);
+
+    X12 = 12 * sqrt(*Ist);
+    gX12 = 2 * (1 - (1 + X12) * exp(-X12)) / (X12 * X12);
+    gpX12 = -2 * (1 - (1 + X12 + 0.5 * X12 * X12) * exp(-X12)) / (X12 * X12);
+
+    // mt = fBtermcalc();
+
+    // 保存当前bterm和CPhi值
+    for (m = 0; m < NumCat; m++) {
+        for (a = 0; a < NumAn; a++) {
+            btermP[m][a] = bterm[m][a];
+            CtermP[m][a] = CPhi[m][a];
+        }
+    }
+
+    // 增加压力并重新计算
+    PBar = PBar + 0.000001;
+    Patm = PBar / 1.013254;
+    // Ppsia = PBar * 14.503774; // 注释掉，如果不需要可以删除
+
+    C2_Pitzer2019();
+
+    // AphiPPlus = fAphicalc();
+    // mt = fBtermcalc();
+
+    // 保存增加压力后的值
+    for (m = 0; m < NumCat; m++) {
+        for (a = 0; a < NumAn; a++) {
+            btermPPlus[m][a] = bterm[m][a];
+            CtermPPlus[m][a] = CPhi[m][a];
+        }
+    }
+
+    // 恢复原始压力
+    PBar = PBar - 0.000001;
+    Patm = PBar / 1.013254;
+    // Ppsia = PBar * 14.503774;
+
+    V0TP(); // 在T,P下重新计算V0
+
+    // 计算体积相关项
+    Av = -4 * RBar * TK * (AphiPPlus - AphiP) / 0.000001;
+    Fv = Av / RBar / TK * *Ist / 1.2 * log(1 + 1.2 * sqrt(*Ist)); // Unit mol/Kg/bar
+
+    // 计算bVterm和cVterm
+    for (m = 0; m < NumCat; m++) {
+        for (a = 0; a < NumAn; a++) {
+            bVterm[m][a] = (btermPPlus[m][a] - btermP[m][a]) / 0.000001; // Unit Kg/mol/bar
+            cVterm[m][a] = (CtermPPlus[m][a] - CtermP[m][a]) / 0.000001; // Unit (Kg/mol)^2/bar
+        }
+    }
+
+    // 计算Pitzer超额项
+    Ex_Pitzer = 0;
+    for (m = 0; m < NumCat; m++) {
+        for (a = 0; a < NumAn; a++) {
+            Ex_Pitzer = Ex_Pitzer + 2 * mc[m] * ma[a] *
+                (bVterm[m][a] + mc[m] * ChCat[m] * cVterm[m][a] /
+                    (2 * sqrt(fabs(ChCat[m] * ChAn[a])))); // unit mol/Kg/bar
+        }
+    }
+
+    // 计算超额体积和离子体积
+    V_ex = (Fv + Ex_Pitzer) * RBar * TK; // L/Kg
+    V_ion = V_ex * 1000; // cm3/Kg
+
+    // 添加各离子的偏摩尔体积贡献
+    for (a = 0; a < NumAn; a++) {
+        V_ion = V_ion + ma[a] * V0_a[a]; // Note Unit of V0 is cm3/Kg
+    }
+
+    for (c = 0; c < NumCat; c++) {
+        V_ion = V_ion + mc[c] * V0_c[c];
+    }
+
+    for (n = 0; n < NumNeut; n++) {
+        V_ion = V_ion + mn[n] * V0_n[n];
+    }
+
+    // 计算密度
+    // If useEOS = 1 Then
+    //     dens = density(3) * 1000 'unit g/L
+    // Else
+    dens = fH2ODensity(TK, PBar); // g/L density of pure water at T, P
+    // End If
+
+    // 计算总体积和质量
+    VperKgWater = (1.0 / dens * 1000000.0) + V_ion; // volume in cm3 of 1 kg water at T
+    MassperKgwater = 1000; // g of water of 1 kg water
+
+    // 添加各离子的质量贡献
+    for (iden = 0; iden < NumCat; iden++) {
+        MassperKgwater = MassperKgwater + mc[iden] * MWCat[iden];
+    }
+
+    for (iden = 0; iden < NumAn; iden++) {
+        MassperKgwater = MassperKgwater + ma[iden] * MWAn[iden];
+    }
+
+    for (iden = 0; iden < NumNeut; iden++) {
+        MassperKgwater = MassperKgwater + mn[iden] * MWNeut[iden]; // g
+    }
+
+    // 返回密度 (g/cm3)
+    return MassperKgwater / VperKgWater;
 }
 
 /**

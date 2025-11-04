@@ -57,7 +57,7 @@ void CalcIonicStrength(double *Ist, double *mtotal, double *MoleCharge,
 }
 
 // 没有找到VB代码
-double CalcRhoTP(publicpara_m  *glob_var);
+double CalcRhoTP(publicpara_m  *glob_var); 
 // 闫师兄的翻译
 void C1_ThermodynamicEquilConsts(void);
 
