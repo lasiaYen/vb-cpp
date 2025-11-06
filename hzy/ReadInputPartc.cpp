@@ -391,8 +391,8 @@ int use_pH,UseH2Sgas,useEOS;
 // double *pHMeterReading;
 
 // D2_CalcDensitypH
-double *rhoOld, *rhoSSE;
-int *Iteration;
+double rhoOld, rhoSSE;
+int Iteration;
 
 // D1_CalcDensity
 double  H, OH, AC, HS,NH3,H2BO3,HCO3,CO3,H3SiO4,H2SiO4,H4SiO4;
@@ -919,7 +919,7 @@ void initData() {
     // 分配二维数组 zMix
     zMix = (double**)malloc(len * sizeof(double*));
     for (int i = 0; i < len; i++) {
-        zMix[i] = (double*)malloc(MaxComponents * sizeof(double));
+        zMix[i] = (double*)malloc(len * sizeof(double));
     }
 
     // 初始化数组值为0
@@ -950,6 +950,103 @@ void initData() {
             zMix[i][j] = 0.0;
         }
     }
+}
+
+// 初始化测试数据函数
+void mockData(SampleData *data)
+{
+
+    /* ---------- sample_basic_information ---------- */
+    strcpy(data->SampleID, "smp01");
+    strcpy(data->Date, "2025-01-01");
+    strcpy(data->Operator, "张三");
+    strcpy(data->WellName, "井-01");
+    strcpy(data->Location, "大庆油田一区");
+    strcpy(data->Field, "大庆油田");
+
+    /* ---------- sample_composition_information ---------- */
+    strcpy(data->SampleInfo, "常规采出水样");
+
+    data->Na_aq = 120.5;
+    data->K_aq = 10.2;
+    data->Mg_aq = 35.6;
+    data->Ca_aq = 85.3;
+    data->Sr_aq = 5.5;
+    data->Ba_aq = 3.1;
+    data->FeII_aq = 0.8;
+    data->Zn_aq = 0.2;
+    data->Pb_aq = 0.05;
+    data->Cl_aq = 19000.0;
+    data->SO4_aq = 250.0;
+    data->F_aq = 2.1;
+    data->Br_aq = 55.0;
+    data->Si_aq = 8.4;
+    data->FeIII_aq = 0.1;
+    data->Li_aq = 0.03;
+    data->Be_aq = 0.01;
+    data->Ra_aq = 0.002;
+    data->Mn_aq = 0.4;
+    data->Cu_aq = 0.06;
+    data->Al_aq = 0.7;
+    data->P_aq = 0.9;
+    data->I_aq = 0.04;
+    data->U_aq = 0.005;
+    data->Alk_Bicarbonate_aq = 180.0;
+    data->Alk_Carbonate_aq = 20.0;
+    data->OrgAcid_Acetate_aq = 10.0;
+    data->Ammonia_aq = 2.0;
+    data->B_aq = 0.8;
+    data->TDS_aq = 21000.0;
+    data->Density_STP = 1.05;
+    data->CO2_pct_g = 0.01;
+    data->Option_Use_H2Sg = 1;
+    data->H2S_pct_g = 0.003;
+    data->H2S_aq = 1.2;
+    data->pH_STP = 6.9;
+    data->Q_Gas = 500.0;
+    data->Q_Oil = 100.0;
+    data->Q_Water = 250.0;
+
+    /* ---------- sample_temperature_pressure_information ---------- */
+    data->T_initial = 60.0;
+    data->T_final = 80.0;
+    data->P_initial = 10.0;
+    data->P_final = 20.0;
+    data->API = 32.0;
+    data->SG_g = 0.85;
+    data->Q_MeOH = 5.0;
+    data->Q_MEG = 8.0;
+    data->StrongAcid_aq = 1.0;
+    data->StrongBase_aq = 0.5;
+    data->Conc_Multiplier = 1.0;
+    data->T_pH = 25.0;
+    data->P_pH = 1.0;
+    data->T_Q = 30.0;
+    data->P_Q = 5.0;
+
+    /* ---------- sample_oil_phase_information ---------- */
+    data->C1_o = 30.0;
+    data->CO2_o = 2.5;
+    data->H2S_o = 0.8;
+    data->C2_o = 12.0;
+    data->C3_o = 8.0;
+    data->iC4_o = 5.0;
+    data->nC4_o = 6.0;
+    data->iC5_o = 3.0;
+    data->nC5_o = 2.5;
+    data->C6_o = 4.0;
+    data->C7_C12_o = 10.0;
+    data->C13_C25_o = 8.0;
+    data->C26_C80_o = 5.0;
+    data->N2_o = 1.0;
+
+    /* ---------- config_options_information ---------- */
+    data->Option_Alk = 1;
+    data->Option_Defined_TP = 1;
+    data->Option_TP_for_pH = 1;
+    data->Option_TP_for_Q = 1;
+    data->Option_EoS = 1;
+    data->Option_Water_HC = 0;
 }
 
 
@@ -7668,7 +7765,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
  * @param pHMeterStpMix pH 测量值
  * @param rho25c [输入/输出] 25°C密度
  */
-void D2_CalcDensitypH(int i, double pH, double Ist, double *rhoOld, int *Iteration, double *rhoSSE, double TK, double TC, double PBar, double Patm,
+void D2_CalcDensitypH(int i, double pH, double Ist, double rhoOld, int Iteration, double rhoSSE, double TK, double TC, double PBar, double Patm,
                       double mc[], double ma[], double mn[], double *Alk, double *TAc, double *TCO2, double *TNH4, double *TH3BO3,
                       double *TH2Saq, double *TH4SiO4, double *TFe, double TDS, int NumCat, int NumAn, int NumNeut,
                       int useEOSmix[], int kk, double gNeut[], double *aH2O, double DpHj,
@@ -7685,9 +7782,7 @@ void D2_CalcDensitypH(int i, double pH, double Ist, double *rhoOld, int *Iterati
         return;  // End
     }
 
-    *Iteration = 0;
-    *rhoSSE = 1;
-    while (*rhoSSE > 0.00000001 && *Iteration < 30) {
+    while (rhoSSE > 0.00000001 && Iteration < 30) {
         *mt = fTPFunc(0);  // iTP=0 T=77F, P=14.696 psi: iTP=1 T=TVol, P=Pvol;iTP=2 T=TpH, P=PpH
 
         // rho25c = CalcRhoTP(TK, TC, PBar, Patm)
@@ -7695,26 +7790,26 @@ void D2_CalcDensitypH(int i, double pH, double Ist, double *rhoOld, int *Iterati
 
         int iden;
         for (iden = 1; iden <= NumCat; iden++) {
-            mc[iden] *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+            mc[iden] *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
         }
         for (iden = 1; iden <= NumAn; iden++) {
-            ma[iden] *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+            ma[iden] *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
         }
         for (iden = 1; iden <= NumNeut; iden++) {
-            mn[iden] *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+            mn[iden] *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
         }
-        *Alk *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
-        *TAc *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
-        *TCO2 *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
-        *TNH4 *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
-        *TH3BO3 *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
-        *TH2Saq *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
-        *TH4SiO4 *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
-        *TFe *= (*rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+        *Alk *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+        *TAc *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+        *TCO2 *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+        *TNH4 *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+        *TH3BO3 *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+        *TH2Saq *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+        *TH4SiO4 *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
+        *TFe *= (rhoOld - TDS / 1000000.0) / (*rho25c - TDS / 1000000.0);
 
-        *rhoSSE = pow(*rho25c - *rhoOld, 2);
-        *rhoOld = *rho25c;
-        (*Iteration)++;
+        rhoSSE = pow(*rho25c - rhoOld, 2);
+        rhoOld = *rho25c;
+        (Iteration)++;
     }
 
     *xMeOH = 0;
@@ -8279,8 +8374,6 @@ void ReadInputPartC(int kk, double *mt, int* UseTPpHMix, int Run10TestCases, int
     NH4STPMix[kk] = TNH4Mix[kk];
     H2BO3stpMix[kk] = 0;
     *TDS = 0;
-    yH2S = 0;
-    yCO2 = 0;
 
     *Iteration2 = 0;
 
@@ -8446,31 +8539,127 @@ label100: ;
 void cleanupData() {
     int len = nob_Input + nob_InputII;
     
-    // 释放一维数组
-    free(NaMix); free(MgMix); free(CaMix); free(SrMix); free(BaMix); free(FeMix); free(ZnMix);
-    free(ClMix); free(PbMix); free(BrMix); free(RaMix); free(NH3Mix); free(H3SiO4Mix); free(H2SiO4Mix);
-    free(H4SiO4Mix); free(H3BO3Mix); free(CO2aqMix); free(H2SaqMix); free(HACaqMix); free(UseH2SgasMix);
-    free(SO4Mix); free(FMix); free(TDSMix); free(AlkMix); free(TAcMix); free(KMix); free(MixFrac);
-    free(rho_Mix); free(TH2SaqMix); free(pHMeterStpMix); free(TH4SiO4Mix); free(TNH4Mix); free(TH3BO3Mix);
-    free(SampleIDMix); free(SampleDateMix); free(OperatorMix); free(WellNameMix); free(FieldMix); free(StateMix);
-    free(VgTPMix); free(VoMix); free(VwMix); free(VMeOHMix); free(VMEGMix); free(oilAPIgravMix); free(gasSpGravMix);
-    free(MixFracGas); free(nTCO2Mix); free(nTCH4Mix); free(nTH2SMix); free(mass_w_Mix); free(mass_o_Mix);
-    free(MixFracOil); free(mass_MeOH_mix); free(mass_MEG_mix); free(Qheat); free(yCO2Mix); free(yH2SMix);
-    free(yCH4Mix); free(YCH4stpmix); free(RatioOilBPointsmix); free(CalculatedTDSMix); free(rho25CMix);
-    free(HstpMix); free(OHstpMix); free(HCO3stpMix); free(CO3stpMix); free(ACstpMix); free(HSstpMix);
-    free(NH4STPMix); free(H2BO3stpMix); free(HCO3AlkMix); free(CO3AlkMix); free(HAlkMix); free(OHAlkMix);
-    free(ConcFactor); free(TCO2Mix); free(TofpH); free(PofpH); free(TofVol); free(PofVol); free(OilDensityMix);
-    free(GasDensityMix); free(WaterDensityMix); free(UseTPpHMix); free(UseTPVolMix); free(useEOSmix);
-    free(molAlk); free(molTAC); free(molTNH4); free(molTH3BO3); free(molTH2Saq); free(molTH4SiO4);
-    free(mol_g_origMix); free(mol_o_OrigMix); free(mol_w_OrigMix); free(mol_g_finalMix); free(mol_o_finalMix);
-    free(mol_w_finalMix); free(mol_w_evapMix); free(Total_molesMix); free(SumofZMix); free(nTCO2MixEOS);
-    free(nTH2SMixEOS); free(usepHmix);
+    // 安全释放一维数组 - 添加空指针检查
+    if (NaMix) { free(NaMix); NaMix = NULL; }
+    if (MgMix) { free(MgMix); MgMix = NULL; }
+    if (CaMix) { free(CaMix); CaMix = NULL; }
+    if (SrMix) { free(SrMix); SrMix = NULL; }
+    if (BaMix) { free(BaMix); BaMix = NULL; }
+    if (FeMix) { free(FeMix); FeMix = NULL; }
+    if (ZnMix) { free(ZnMix); ZnMix = NULL; }
+    if (ClMix) { free(ClMix); ClMix = NULL; }
+    if (PbMix) { free(PbMix); PbMix = NULL; }
+    if (BrMix) { free(BrMix); BrMix = NULL; }
+    if (RaMix) { free(RaMix); RaMix = NULL; }
+    if (NH3Mix) { free(NH3Mix); NH3Mix = NULL; }
+    if (H3SiO4Mix) { free(H3SiO4Mix); H3SiO4Mix = NULL; }
+    if (H2SiO4Mix) { free(H2SiO4Mix); H2SiO4Mix = NULL; }
+    if (H4SiO4Mix) { free(H4SiO4Mix); H4SiO4Mix = NULL; }
+    if (H3BO3Mix) { free(H3BO3Mix); H3BO3Mix = NULL; }
+    if (CO2aqMix) { free(CO2aqMix); CO2aqMix = NULL; }
+    if (H2SaqMix) { free(H2SaqMix); H2SaqMix = NULL; }
+    if (HACaqMix) { free(HACaqMix); HACaqMix = NULL; }
+    if (UseH2SgasMix) { free(UseH2SgasMix); UseH2SgasMix = NULL; }
+    if (SO4Mix) { free(SO4Mix); SO4Mix = NULL; }
+    if (FMix) { free(FMix); FMix = NULL; }
+    if (TDSMix) { free(TDSMix); TDSMix = NULL; }
+    if (AlkMix) { free(AlkMix); AlkMix = NULL; }
+    if (TAcMix) { free(TAcMix); TAcMix = NULL; }
+    if (KMix) { free(KMix); KMix = NULL; }
+    if (MixFrac) { free(MixFrac); MixFrac = NULL; }
+    if (rho_Mix) { free(rho_Mix); rho_Mix = NULL; }
+    if (TH2SaqMix) { free(TH2SaqMix); TH2SaqMix = NULL; }
+    if (pHMeterStpMix) { free(pHMeterStpMix); pHMeterStpMix = NULL; }
+    if (TH4SiO4Mix) { free(TH4SiO4Mix); TH4SiO4Mix = NULL; }
+    if (TNH4Mix) { free(TNH4Mix); TNH4Mix = NULL; }
+    if (TH3BO3Mix) { free(TH3BO3Mix); TH3BO3Mix = NULL; }
+    if (SampleIDMix) { free(SampleIDMix); SampleIDMix = NULL; }
+    if (SampleDateMix) { free(SampleDateMix); SampleDateMix = NULL; }
+    if (OperatorMix) { free(OperatorMix); OperatorMix = NULL; }
+    if (WellNameMix) { free(WellNameMix); WellNameMix = NULL; }
+    if (FieldMix) { free(FieldMix); FieldMix = NULL; }
+    if (StateMix) { free(StateMix); StateMix = NULL; }
+    if (VgTPMix) { free(VgTPMix); VgTPMix = NULL; }
+    if (VoMix) { free(VoMix); VoMix = NULL; }
+    if (VwMix) { free(VwMix); VwMix = NULL; }
+    if (VMeOHMix) { free(VMeOHMix); VMeOHMix = NULL; }
+    if (VMEGMix) { free(VMEGMix); VMEGMix = NULL; }
+    if (oilAPIgravMix) { free(oilAPIgravMix); oilAPIgravMix = NULL; }
+    if (gasSpGravMix) { free(gasSpGravMix); gasSpGravMix = NULL; }
+    if (MixFracGas) { free(MixFracGas); MixFracGas = NULL; }
+    if (nTCO2Mix) { free(nTCO2Mix); nTCO2Mix = NULL; }
+    if (nTCH4Mix) { free(nTCH4Mix); nTCH4Mix = NULL; }
+    if (nTH2SMix) { free(nTH2SMix); nTH2SMix = NULL; }
+    if (mass_w_Mix) { free(mass_w_Mix); mass_w_Mix = NULL; }
+    if (mass_o_Mix) { free(mass_o_Mix); mass_o_Mix = NULL; }
+    if (MixFracOil) { free(MixFracOil); MixFracOil = NULL; }
+    if (mass_MeOH_mix) { free(mass_MeOH_mix); mass_MeOH_mix = NULL; }
+    if (mass_MEG_mix) { free(mass_MEG_mix); mass_MEG_mix = NULL; }
+    if (Qheat) { free(Qheat); Qheat = NULL; }
+    if (yCO2Mix) { free(yCO2Mix); yCO2Mix = NULL; }
+    if (yH2SMix) { free(yH2SMix); yH2SMix = NULL; }
+    if (yCH4Mix) { free(yCH4Mix); yCH4Mix = NULL; }
+    if (YCH4stpmix) { free(YCH4stpmix); YCH4stpmix = NULL; }
+    if (RatioOilBPointsmix) { free(RatioOilBPointsmix); RatioOilBPointsmix = NULL; }
+    if (CalculatedTDSMix) { free(CalculatedTDSMix); CalculatedTDSMix = NULL; }
+    if (rho25CMix) { free(rho25CMix); rho25CMix = NULL; }
+    if (HstpMix) { free(HstpMix); HstpMix = NULL; }
+    if (OHstpMix) { free(OHstpMix); OHstpMix = NULL; }
+    if (HCO3stpMix) { free(HCO3stpMix); HCO3stpMix = NULL; }
+    if (CO3stpMix) { free(CO3stpMix); CO3stpMix = NULL; }
+    if (ACstpMix) { free(ACstpMix); ACstpMix = NULL; }
+    if (HSstpMix) { free(HSstpMix); HSstpMix = NULL; }
+    if (NH4STPMix) { free(NH4STPMix); NH4STPMix = NULL; }
+    if (H2BO3stpMix) { free(H2BO3stpMix); H2BO3stpMix = NULL; }
+    if (HCO3AlkMix) { free(HCO3AlkMix); HCO3AlkMix = NULL; }
+    if (CO3AlkMix) { free(CO3AlkMix); CO3AlkMix = NULL; }
+    if (HAlkMix) { free(HAlkMix); HAlkMix = NULL; }
+    if (OHAlkMix) { free(OHAlkMix); OHAlkMix = NULL; }
+    if (ConcFactor) { free(ConcFactor); ConcFactor = NULL; }
+    if (TCO2Mix) { free(TCO2Mix); TCO2Mix = NULL; }
+    if (TofpH) { free(TofpH); TofpH = NULL; }
+    if (PofpH) { free(PofpH); PofpH = NULL; }
+    if (TofVol) { free(TofVol); TofVol = NULL; }
+    if (PofVol) { free(PofVol); PofVol = NULL; }
+    if (OilDensityMix) { free(OilDensityMix); OilDensityMix = NULL; }
+    if (GasDensityMix) { free(GasDensityMix); GasDensityMix = NULL; }
+    if (WaterDensityMix) { free(WaterDensityMix); WaterDensityMix = NULL; }
+    if (UseTPpHMix) { free(UseTPpHMix); UseTPpHMix = NULL; }
+    if (UseTPVolMix) { free(UseTPVolMix); UseTPVolMix = NULL; }
+    if (useEOSmix) { free(useEOSmix); useEOSmix = NULL; }
+    if (molAlk) { free(molAlk); molAlk = NULL; }
+    if (molTAC) { free(molTAC); molTAC = NULL; }
+    if (molTNH4) { free(molTNH4); molTNH4 = NULL; }
+    if (molTH3BO3) { free(molTH3BO3); molTH3BO3 = NULL; }
+    if (molTH2Saq) { free(molTH2Saq); molTH2Saq = NULL; }
+    if (molTH4SiO4) { free(molTH4SiO4); molTH4SiO4 = NULL; }
+    if (mol_g_origMix) { free(mol_g_origMix); mol_g_origMix = NULL; }
+    if (mol_o_OrigMix) { free(mol_o_OrigMix); mol_o_OrigMix = NULL; }
+    if (mol_w_OrigMix) { free(mol_w_OrigMix); mol_w_OrigMix = NULL; }
+    if (mol_g_finalMix) { free(mol_g_finalMix); mol_g_finalMix = NULL; }
+    if (mol_o_finalMix) { free(mol_o_finalMix); mol_o_finalMix = NULL; }
+    if (mol_w_finalMix) { free(mol_w_finalMix); mol_w_finalMix = NULL; }
+    if (mol_w_evapMix) { free(mol_w_evapMix); mol_w_evapMix = NULL; }
+    if (Total_molesMix) { free(Total_molesMix); Total_molesMix = NULL; }
+    if (SumofZMix) { free(SumofZMix); SumofZMix = NULL; }
+    if (nTCO2MixEOS) { free(nTCO2MixEOS); nTCO2MixEOS = NULL; }
+    if (nTH2SMixEOS) { free(nTH2SMixEOS); nTH2SMixEOS = NULL; }
+    if (usepHmix) { free(usepHmix); usepHmix = NULL; }
 
-    // 释放二维数组 zMix
-    for (int i = 0; i < len; i++) {
-        free(zMix[i]);
+    // 安全释放二维数组 zMix
+    if (zMix && len > 0) {
+        for (int i = 0; i < len; i++) {
+            if (zMix[i]) {
+                free(zMix[i]);
+                zMix[i] = NULL;
+            }
+        }
+        free(zMix);
+        zMix = NULL;
+    } else if (zMix) {
+        free(zMix);  // 如果 len <= 0 但 zMix 已分配
+        zMix = NULL;
     }
-    free(zMix);
 }
 
 
@@ -8487,6 +8676,11 @@ int main()
     double mt = 0.0;
     int Run10TestCases = 0, Loop10 = 0, Run_Seawater_Mixing = 0, LoopMixing = 0;
     int Run_MixingTwoWells = 0, RunMultiMix = 0, LoopResChem = 0, RunStatMix = 0;
+
+    // D2_CalcDensitypH
+    rhoOld = 0;
+    rhoSSE = 0.00000002;
+    Iteration = 0;
     
     double TDS = 0.0, yH2S = 0.0, yCO2 = 0.0;
     int Iteration2 = 0;
