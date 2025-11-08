@@ -27,7 +27,8 @@ double* CO2aqMix;
 double* H2SaqMix;
 double* HACaqMix;
 
-double* UseH2SgasMix;
+// edit by hzy - 改为int类型
+int* UseH2SgasMix;
 double* SO4Mix;
 double* FMix;
 double* TDSMix;
@@ -126,7 +127,8 @@ double* SumofZMix;
 double* nTCO2MixEOS;
 double* nTH2SMixEOS;
 
-double* usepHmix;
+// edit by hzy - 改为int类型
+int* usepHmix;
 
 int nob = 1;
 int nob_Input = 2;
@@ -150,7 +152,7 @@ int RunH2SGUI;
 
 int Run_CalcConcFactor;
 
-double rho25c;
+double rho25c = 1.0;       // 25°C密度
 
 double RunQualityControlChecks;
 
@@ -182,463 +184,6 @@ double ConcInhCalRisk[10];
 double ConcInhBarRisk[10];
 double ConcInhAnRisk[10];
 double ConcInhGypRisk[10];
-
-//全局变量 -- by 黄志缘
-/********************************************************************************************************/
-// 物理常数
-#define NAv         6.0221367E+23        // 阿伏伽德罗常数 (mol⁻¹)
-#define eElec       1.60217733E-19       // 电子电荷 (C)
-#define eps0        8.854187818E-12      // 真空介电常数 (F/m)
-#define kBoltz      1.380658E-23         // 玻尔兹曼常数 (J/K)
-
-double Lnn[16][16], a0[16];
-double Alk = 0.0;          // 碱度
-double TAc = 0.0;          // 总醋酸浓度  
-double TH2Saq = 0.0;       // 总H2S(aq)浓度
-double TH4SiO4 = 0.0;      // 总H4SiO4浓度
-double TH3BO3 = 0.0;       // 总H3BO3浓度
-double TNH4 = 0.0;         // 总NH4浓度
-double TFe = 0.0;          // 总Fe浓度
-double TPb = 0.0;          // 总Pb浓度
-double TZn = 0.0;          // 总Zn浓度
-double TCO2 = 0.0;         // 总CO2浓度
-double TDS = 0.0;          // 总溶解固体
-double TCa = 0.0;          // 总Ca
-double yH2S = 0.0;         // H2S气体摩尔分数
-double yCO2 = 0.0;         // CO2气体摩尔分数
-double CalculateTDSDen = 0.0; // 计算TDS密度
-double rho25c = 1.0;       // 25°C密度
-
-// C5_CalcpHPCO2PH2SSTP 变量
-// double KgwCO2;
-// double KgwH2S;
-int use_pH,UseH2Sgas,useEOS;
-// double *pHMeterReading;
-
-// D2_CalcDensitypH
-double rhoOld, rhoSSE;
-int Iteration;
-
-// D1_CalcDensity
-double  H, OH, AC, HS,NH3,H2BO3,HCO3,CO3,H3SiO4,H2SiO4,H4SiO4;
-double  CO2aq, H2Saq,HAcaq;
-double TDSSSE, TDSOld;
-
-const int MaxMix = 100, MaxSpecies=13, MaxComponents=100, MaxCat=100, MaxNeut=100, MaxAnion=100;
-/********************************************************************************************************/
-
-
-typedef struct
-{
-
-    /* ---------- sample_basic_information ---------- */
-    char SampleID[256]; // 样品ID
-    char Date[256];     // 采样日期
-    char Operator[256]; // 采样人员
-    char WellName[256]; // 油井名称
-    char Location[256]; // 所在位置
-    char Field[256];    // 油田名称
-
-    /* ---------- sample_composition_information ---------- */
-    char SampleInfo[256]; // 样品信息（用户自由输入）
-    double Na_aq;
-    double K_aq;
-    double Mg_aq;
-    double Ca_aq;
-    double Sr_aq;
-    double Ba_aq;
-    double FeII_aq;
-    double Zn_aq;
-    double Pb_aq;
-    double Cl_aq;
-    double SO4_aq;
-    double F_aq;
-    double Br_aq;
-    double Si_aq;
-    double FeIII_aq;
-    double Li_aq;
-    double Be_aq;
-    double Ra_aq;
-    double Mn_aq;
-    double Cu_aq;
-    double Al_aq;
-    double P_aq;
-    double I_aq;
-    double U_aq;
-    double Alk_Bicarbonate_aq;
-    double Alk_Carbonate_aq;
-    double OrgAcid_Acetate_aq;
-    double Ammonia_aq;
-    double B_aq;
-    double TDS_aq;
-    double Density_STP;
-    double CO2_pct_g;
-    int Option_Use_H2Sg;
-    double H2S_pct_g;
-    double H2S_aq;
-    double pH_STP;
-    double Q_Gas;
-    double Q_Oil;
-    double Q_Water;
-
-    /* ---------- sample_temperature_pressure_information ---------- */
-    double T_initial;
-    double T_final;
-    double P_initial;
-    double P_final;
-    double API;
-    double SG_g;
-    double Q_MeOH;
-    double Q_MEG;
-    double StrongAcid_aq;
-    double StrongBase_aq;
-    double Conc_Multiplier;
-    double T_pH;
-    double P_pH;
-    double T_Q;
-    double P_Q;
-
-    /* ---------- sample_oil_phase_information ---------- */
-    double C1_o;
-    double CO2_o;
-    double H2S_o;
-    double C2_o;
-    double C3_o;
-    double iC4_o;
-    double nC4_o;
-    double iC5_o;
-    double nC5_o;
-    double C6_o;
-    double C7_C12_o;
-    double C13_C25_o;
-    double C26_C80_o;
-    double N2_o;
-
-    /* ---------- config_options_information ---------- */
-    int Option_Alk;
-    int Option_Defined_TP;
-    int Option_TP_for_pH;
-    int Option_TP_for_Q;
-    int Option_EoS;
-    int Option_Water_HC;
-
-} SampleData;
-
-// 初始化测试数据函数
-void mockData(SampleData* data)
-{
-
-    /* ---------- sample_basic_information ---------- */
-    strcpy(data->SampleID, "smp01");
-    strcpy(data->Date, "2025-01-01");
-    strcpy(data->Operator, "张三");
-    strcpy(data->WellName, "井-01");
-    strcpy(data->Location, "大庆油田一区");
-    strcpy(data->Field, "大庆油田");
-
-    /* ---------- sample_composition_information ---------- */
-    strcpy(data->SampleInfo, "常规采出水样");
-
-    data->Na_aq = 120.5;
-    data->K_aq = 10.2;
-    data->Mg_aq = 35.6;
-    data->Ca_aq = 85.3;
-    data->Sr_aq = 5.5;
-    data->Ba_aq = 3.1;
-    data->FeII_aq = 0.8;
-    data->Zn_aq = 0.2;
-    data->Pb_aq = 0.05;
-    data->Cl_aq = 19000.0;
-    data->SO4_aq = 250.0;
-    data->F_aq = 2.1;
-    data->Br_aq = 55.0;
-    data->Si_aq = 8.4;
-    data->FeIII_aq = 0.1;
-    data->Li_aq = 0.03;
-    data->Be_aq = 0.01;
-    data->Ra_aq = 0.002;
-    data->Mn_aq = 0.4;
-    data->Cu_aq = 0.06;
-    data->Al_aq = 0.7;
-    data->P_aq = 0.9;
-    data->I_aq = 0.04;
-    data->U_aq = 0.005;
-    data->Alk_Bicarbonate_aq = 180.0;
-    data->Alk_Carbonate_aq = 20.0;
-    data->OrgAcid_Acetate_aq = 10.0;
-    data->Ammonia_aq = 2.0;
-    data->B_aq = 0.8;
-    data->TDS_aq = 21000.0;
-    data->Density_STP = 1.05;
-    data->CO2_pct_g = 0.01;
-    data->Option_Use_H2Sg = 1;
-    data->H2S_pct_g = 0.003;
-    data->H2S_aq = 1.2;
-    data->pH_STP = 6.9;
-    data->Q_Gas = 500.0;
-    data->Q_Oil = 100.0;
-    data->Q_Water = 250.0;
-
-    /* ---------- sample_temperature_pressure_information ---------- */
-    data->T_initial = 60.0;
-    data->T_final = 80.0;
-    data->P_initial = 10.0;
-    data->P_final = 20.0;
-    data->API = 32.0;
-    data->SG_g = 0.85;
-    data->Q_MeOH = 5.0;
-    data->Q_MEG = 8.0;
-    data->StrongAcid_aq = 1.0;
-    data->StrongBase_aq = 0.5;
-    data->Conc_Multiplier = 1.0;
-    data->T_pH = 25.0;
-    data->P_pH = 1.0;
-    data->T_Q = 30.0;
-    data->P_Q = 5.0;
-
-    /* ---------- sample_oil_phase_information ---------- */
-    data->C1_o = 30.0;
-    data->CO2_o = 2.5;
-    data->H2S_o = 0.8;
-    data->C2_o = 12.0;
-    data->C3_o = 8.0;
-    data->iC4_o = 5.0;
-    data->nC4_o = 6.0;
-    data->iC5_o = 3.0;
-    data->nC5_o = 2.5;
-    data->C6_o = 4.0;
-    data->C7_C12_o = 10.0;
-    data->C13_C25_o = 8.0;
-    data->C26_C80_o = 5.0;
-    data->N2_o = 1.0;
-
-    /* ---------- config_options_information ---------- */
-    data->Option_Alk = 1;
-    data->Option_Defined_TP = 1;
-    data->Option_TP_for_pH = 1;
-    data->Option_TP_for_Q = 1;
-    data->Option_EoS = 1;
-    data->Option_Water_HC = 0;
-}
-
-
-
-void printSampleData(const SampleData* data)
-{
-    printf("\n================= Sample Basic Information =================\n");
-    printf("SampleID: %s\n", data->SampleID);
-    printf("Date: %s\n", data->Date);
-    printf("Operator: %s\n", data->Operator);
-    printf("WellName: %s\n", data->WellName);
-    printf("Location: %s\n", data->Location);
-    printf("Field: %s\n", data->Field);
-
-    printf("\n================= Sample Composition Information =================\n");
-    printf("SampleInfo: %s\n", data->SampleInfo);
-    printf("Na_aq: %.4f\n", data->Na_aq);
-    printf("K_aq: %.4f\n", data->K_aq);
-    printf("Mg_aq: %.4f\n", data->Mg_aq);
-    printf("Ca_aq: %.4f\n", data->Ca_aq);
-    printf("Sr_aq: %.4f\n", data->Sr_aq);
-    printf("Ba_aq: %.4f\n", data->Ba_aq);
-    printf("FeII_aq: %.4f\n", data->FeII_aq);
-    printf("Zn_aq: %.4f\n", data->Zn_aq);
-    printf("Pb_aq: %.4f\n", data->Pb_aq);
-    printf("Cl_aq: %.4f\n", data->Cl_aq);
-    printf("SO4_aq: %.4f\n", data->SO4_aq);
-    printf("F_aq: %.4f\n", data->F_aq);
-    printf("Br_aq: %.4f\n", data->Br_aq);
-    printf("Si_aq: %.4f\n", data->Si_aq);
-    printf("FeIII_aq: %.4f\n", data->FeIII_aq);
-    printf("Li_aq: %.4f\n", data->Li_aq);
-    printf("Be_aq: %.4f\n", data->Be_aq);
-    printf("Ra_aq: %.4f\n", data->Ra_aq);
-    printf("Mn_aq: %.4f\n", data->Mn_aq);
-    printf("Cu_aq: %.4f\n", data->Cu_aq);
-    printf("Al_aq: %.4f\n", data->Al_aq);
-    printf("P_aq: %.4f\n", data->P_aq);
-    printf("I_aq: %.4f\n", data->I_aq);
-    printf("U_aq: %.4f\n", data->U_aq);
-    printf("Alk_Bicarbonate_aq: %.4f\n", data->Alk_Bicarbonate_aq);
-    printf("Alk_Carbonate_aq: %.4f\n", data->Alk_Carbonate_aq);
-    printf("OrgAcid_Acetate_aq: %.4f\n", data->OrgAcid_Acetate_aq);
-    printf("Ammonia_aq: %.4f\n", data->Ammonia_aq);
-    printf("B_aq: %.4f\n", data->B_aq);
-    printf("TDS_aq: %.4f\n", data->TDS_aq);
-    printf("Density_STP: %.4f\n", data->Density_STP);
-    printf("CO2_pct_g: %.4f\n", data->CO2_pct_g);
-    printf("Option_Use_H2Sg: %d\n", data->Option_Use_H2Sg);
-    printf("H2S_pct_g: %.4f\n", data->H2S_pct_g);
-    printf("H2S_aq: %.4f\n", data->H2S_aq);
-    printf("pH_STP: %.4f\n", data->pH_STP);
-    printf("Q_Gas: %.4f\n", data->Q_Gas);
-    printf("Q_Oil: %.4f\n", data->Q_Oil);
-    printf("Q_Water: %.4f\n", data->Q_Water);
-
-    printf("\n================= Temperature & Pressure Information =================\n");
-    printf("T_initial: %.4f\n", data->T_initial);
-    printf("T_final: %.4f\n", data->T_final);
-    printf("P_initial: %.4f\n", data->P_initial);
-    printf("P_final: %.4f\n", data->P_final);
-    printf("API: %.4f\n", data->API);
-    printf("SG_g: %.4f\n", data->SG_g);
-    printf("Q_MeOH: %.4f\n", data->Q_MeOH);
-    printf("Q_MEG: %.4f\n", data->Q_MEG);
-    printf("StrongAcid_aq: %.4f\n", data->StrongAcid_aq);
-    printf("StrongBase_aq: %.4f\n", data->StrongBase_aq);
-    printf("Conc_Multiplier: %.4f\n", data->Conc_Multiplier);
-    printf("T_pH: %.4f\n", data->T_pH);
-    printf("P_pH: %.4f\n", data->P_pH);
-    printf("T_Q: %.4f\n", data->T_Q);
-    printf("P_Q: %.4f\n", data->P_Q);
-
-    printf("\n================= Oil Phase Information =================\n");
-    printf("C1_o: %.4f\n", data->C1_o);
-    printf("CO2_o: %.4f\n", data->CO2_o);
-    printf("H2S_o: %.4f\n", data->H2S_o);
-    printf("C2_o: %.4f\n", data->C2_o);
-    printf("C3_o: %.4f\n", data->C3_o);
-    printf("iC4_o: %.4f\n", data->iC4_o);
-    printf("nC4_o: %.4f\n", data->nC4_o);
-    printf("iC5_o: %.4f\n", data->iC5_o);
-    printf("nC5_o: %.4f\n", data->nC5_o);
-    printf("C6_o: %.4f\n", data->C6_o);
-    printf("C7_C12_o: %.4f\n", data->C7_C12_o);
-    printf("C13_C25_o: %.4f\n", data->C13_C25_o);
-    printf("C26_C80_o: %.4f\n", data->C26_C80_o);
-    printf("N2_o: %.4f\n", data->N2_o);
-
-    printf("\n================= Configuration Options =================\n");
-    printf("Option_Alk: %d\n", data->Option_Alk);
-    printf("Option_Defined_TP: %d\n", data->Option_Defined_TP);
-    printf("Option_TP_for_pH: %d\n", data->Option_TP_for_pH);
-    printf("Option_TP_for_Q: %d\n", data->Option_TP_for_Q);
-    printf("Option_EoS: %d\n", data->Option_EoS);
-    printf("Option_Water_HC: %d\n", data->Option_Water_HC);
-
-    printf("===========================================================\n");
-}
-
-
-void initData()
-{
-    int len = nob_Input + nob_InputII;
-    NaMix = (double*)malloc(len * sizeof(double));
-    MgMix = (double*)malloc(len * sizeof(double));
-    CaMix = (double*)malloc(len * sizeof(double));
-    SrMix = (double*)malloc(len * sizeof(double));
-    BaMix = (double*)malloc(len * sizeof(double));
-    FeMix = (double*)malloc(len * sizeof(double));
-    ZnMix = (double*)malloc(len * sizeof(double));
-    ClMix = (double*)malloc(len * sizeof(double));
-    PbMix = (double*)malloc(len * sizeof(double));
-    BrMix = (double*)malloc(len * sizeof(double));
-    RaMix = (double*)malloc(len * sizeof(double));
-
-    NH3Mix = (double*)malloc(len * sizeof(double));
-    H3SiO4Mix = (double*)malloc(len * sizeof(double));
-    H2SiO4Mix = (double*)malloc(len * sizeof(double));
-    H4SiO4Mix = (double*)malloc(len * sizeof(double));
-    H3BO3Mix = (double*)malloc(len * sizeof(double));
-    CO2aqMix = (double*)malloc(len * sizeof(double));
-    H2SaqMix = (double*)malloc(len * sizeof(double));
-    HACaqMix = (double*)malloc(len * sizeof(double));
-
-    UseH2SgasMix = (double*)malloc(len * sizeof(double));
-    SO4Mix = (double*)malloc(len * sizeof(double));
-    FMix = (double*)malloc(len * sizeof(double));
-    TDSMix = (double*)malloc(len * sizeof(double));
-    AlkMix = (double*)malloc(len * sizeof(double));
-    TAcMix = (double*)malloc(len * sizeof(double));
-    KMix = (double*)malloc(len * sizeof(double));
-    MixFrac = (double*)malloc(len * sizeof(double));
-
-    rho_Mix = (double*)malloc(len * sizeof(double));
-    TH2SaqMix = (double*)malloc(len * sizeof(double));
-    pHMeterStpMix = (double*)malloc(len * sizeof(double));
-    TH4SiO4Mix = (double*)malloc(len * sizeof(double));
-    TNH4Mix = (double*)malloc(len * sizeof(double));
-    TH3BO3Mix = (double*)malloc(len * sizeof(double));
-    SampleIDMix = (double*)malloc(len * sizeof(double));
-    SampleDateMix = (char*)malloc(len * sizeof(char));
-    OperatorMix = (double*)malloc(len * sizeof(double));
-    WellNameMix = (char*)malloc(len * sizeof(char));
-    FieldMix = (double*)malloc(len * sizeof(double));
-    StateMix = (char*)malloc(len * sizeof(char));
-    VgTPMix = (double*)malloc(len * sizeof(double));
-    VoMix = (double*)malloc(len * sizeof(double));
-    VwMix = (double*)malloc(len * sizeof(double));
-    VMeOHMix = (double*)malloc(len * sizeof(double));
-    VMEGMix = (double*)malloc(len * sizeof(double));
-    oilAPIgravMix = (double*)malloc(len * sizeof(double));
-    gasSpGravMix = (double*)malloc(len * sizeof(double));
-    MixFracGas = (double*)malloc(len * sizeof(double));
-    nTCO2Mix = (double*)malloc(len * sizeof(double));
-    nTCH4Mix = (double*)malloc(len * sizeof(double));
-    nTH2SMix = (double*)malloc(len * sizeof(double));
-    mass_w_Mix = (double*)malloc(len * sizeof(double));
-    mass_o_Mix = (double*)malloc(len * sizeof(double));
-    MixFracOil = (double*)malloc(len * sizeof(double));
-    mass_MeOH_mix = (double*)malloc(len * sizeof(double));
-    mass_MEG_mix = (double*)malloc(len * sizeof(double));
-    Qheat = (double*)malloc(len * sizeof(double));
-    yCO2Mix = (double*)malloc(len * sizeof(double));
-    yH2SMix = (double*)malloc(len * sizeof(double));
-    yCH4Mix = (double*)malloc(len * sizeof(double));
-    YCH4stpmix = (double*)malloc(len * sizeof(double));
-    RatioOilBPointsmix = (double*)malloc(len * sizeof(double));
-    CalculatedTDSMix = (double*)malloc(len * sizeof(double));
-    rho25CMix = (double*)malloc(len * sizeof(double));
-    HstpMix = (double*)malloc(len * sizeof(double));
-    OHstpMix = (double*)malloc(len * sizeof(double));
-    HCO3stpMix = (double*)malloc(len * sizeof(double));
-    CO3stpMix = (double*)malloc(len * sizeof(double));
-    ACstpMix = (double*)malloc(len * sizeof(double));
-    HSstpMix = (double*)malloc(len * sizeof(double));
-    NH4STPMix = (double*)malloc(len * sizeof(double));
-    H2BO3stpMix = (double*)malloc(len * sizeof(double));
-    HCO3AlkMix = (double*)malloc(len * sizeof(double));
-    CO3AlkMix = (double*)malloc(len * sizeof(double));
-    HAlkMix = (double*)malloc(len * sizeof(double));
-    OHAlkMix = (double*)malloc(len * sizeof(double));
-    ConcFactor = (double*)malloc(len * sizeof(double));
-    TCO2Mix = (double*)malloc(len * sizeof(double));
-    TofpH = (double*)malloc(len * sizeof(double));
-    PofpH = (double*)malloc(len * sizeof(double));
-    TofVol = (double*)malloc(len * sizeof(double));
-    PofVol = (double*)malloc(len * sizeof(double));
-    OilDensityMix = (double*)malloc(len * sizeof(double));
-    GasDensityMix = (double*)malloc(len * sizeof(double));
-    WaterDensityMix = (double*)malloc(len * sizeof(double));
-    UseTPpHMix = (double*)malloc(len * sizeof(double));
-    UseTPVolMix = (double*)malloc(len * sizeof(double));
-    useEOSmix = (double*)malloc(len * sizeof(double));
-    molAlk = (double*)malloc(len * sizeof(double));
-    molTAC = (double*)malloc(len * sizeof(double));
-    molTNH4 = (double*)malloc(len * sizeof(double));
-    molTH3BO3 = (double*)malloc(len * sizeof(double));
-    molTH2Saq = (double*)malloc(len * sizeof(double));
-    molTH4SiO4 = (double*)malloc(len * sizeof(double));
-    mol_g_origMix = (double*)malloc(len * sizeof(double));
-    mol_o_OrigMix = (double*)malloc(len * sizeof(double));
-    mol_w_OrigMix = (double*)malloc(len * sizeof(double));
-    mol_g_finalMix = (double*)malloc(len * sizeof(double));
-    mol_o_finalMix = (double*)malloc(len * sizeof(double));
-    mol_w_finalMix = (double*)malloc(len * sizeof(double));
-    mol_w_evapMix = (double*)malloc(len * sizeof(double));
-    Total_molesMix = (double*)malloc(len * sizeof(double));
-    SumofZMix = (double*)malloc(len * sizeof(double));
-    nTCO2MixEOS = (double*)malloc(len * sizeof(double));
-    nTH2SMixEOS = (double*)malloc(len * sizeof(double));
-    usepHmix = (double*)malloc(len * sizeof(double));
-
-    zMix = (double**)malloc((nob_Input + nob_InputII) * sizeof(double*));
-    for (int i = 0; i < (nob_Input + nob_InputII); i++)
-    {
-        zMix[i] = (double*)malloc(15 * sizeof(double));
-    }
-}
-
 
 int Run10TestCases;
 int Loop10;
@@ -960,6 +505,464 @@ int RunQualityControlChecks_II;
 //molc(NumCat, nob_Input + nob_InputII),mola(NumAn, nob_Input + nob_InputII), moln(NumNeut, nob_Input + nob_InputII)
 double** molc; double** mola; double** moln;
 
+//全局变量 -- by 黄志缘
+/********************************************************************************************************/
+
+// 物理常数
+#define NAv         6.0221367E+23        // 阿伏伽德罗常数 (mol⁻¹)
+#define eElec       1.60217733E-19       // 电子电荷 (C)
+#define eps0        8.854187818E-12      // 真空介电常数 (F/m)
+#define kBoltz      1.380658E-23         // 玻尔兹曼常数 (J/K)
+
+double Lnn[16][16], a0[16];
+double Alk = 0.0;          // 碱度
+double TAc = 0.0;          // 总醋酸浓度  
+double TH2Saq = 0.0;       // 总H2S(aq)浓度
+double TH4SiO4 = 0.0;      // 总H4SiO4浓度
+double TH3BO3 = 0.0;       // 总H3BO3浓度
+double TNH4 = 0.0;         // 总NH4浓度
+double TFe = 0.0;          // 总Fe浓度
+double TPb = 0.0;          // 总Pb浓度
+double TZn = 0.0;          // 总Zn浓度
+double TCO2 = 0.0;         // 总CO2浓度
+double TDS = 0.0;          // 总溶解固体
+double TCa = 0.0;          // 总Ca
+//double yH2S = 0.0;         // H2S气体摩尔分数    -已定义
+//double yCO2 = 0.0;         // CO2气体摩尔分数    -已定义
+double CalculateTDSDen = 0.0; // 计算TDS密度
+//double rho25c = 1.0;       // 25°C密度    -已定义
+
+// C5_CalcpHPCO2PH2SSTP 变量
+// double KgwCO2;
+// double KgwH2S;
+int use_pH;
+//int UseH2Sgas,useEOS;    -已定义
+// double *pHMeterReading;
+
+// D2_CalcDensitypH
+double rhoOld, rhoSSE;
+//int Iteration;    -已定义
+
+// D1_CalcDensity
+//double  H, OH, AC, HS, NH3, H2BO3, HCO3, CO3, H3SiO4, H2SiO4, H4SiO4;  -全部已定义
+//double CO2aq, H2Saq, HAcaq;  -全部已定义
+double TDSSSE, TDSOld;
+
+const int MaxMix = 100, MaxSpecies = 13, MaxComponents = 100, MaxCat = 100, MaxNeut = 100, MaxAnion = 100;
+/********************************************************************************************************/
+
+
+typedef struct
+{
+
+    /* ---------- sample_basic_information ---------- */
+    char SampleID[256]; // 样品ID
+    char Date[256];     // 采样日期
+    char Operator[256]; // 采样人员
+    char WellName[256]; // 油井名称
+    char Location[256]; // 所在位置
+    char Field[256];    // 油田名称
+
+    /* ---------- sample_composition_information ---------- */
+    char SampleInfo[256]; // 样品信息（用户自由输入）
+    double Na_aq;
+    double K_aq;
+    double Mg_aq;
+    double Ca_aq;
+    double Sr_aq;
+    double Ba_aq;
+    double FeII_aq;
+    double Zn_aq;
+    double Pb_aq;
+    double Cl_aq;
+    double SO4_aq;
+    double F_aq;
+    double Br_aq;
+    double Si_aq;
+    double FeIII_aq;
+    double Li_aq;
+    double Be_aq;
+    double Ra_aq;
+    double Mn_aq;
+    double Cu_aq;
+    double Al_aq;
+    double P_aq;
+    double I_aq;
+    double U_aq;
+    double Alk_Bicarbonate_aq;
+    double Alk_Carbonate_aq;
+    double OrgAcid_Acetate_aq;
+    double Ammonia_aq;
+    double B_aq;
+    double TDS_aq;
+    double Density_STP;
+    double CO2_pct_g;
+    int Option_Use_H2Sg;
+    double H2S_pct_g;
+    double H2S_aq;
+    double pH_STP;
+    double Q_Gas;
+    double Q_Oil;
+    double Q_Water;
+
+    /* ---------- sample_temperature_pressure_information ---------- */
+    double T_initial;
+    double T_final;
+    double P_initial;
+    double P_final;
+    double API;
+    double SG_g;
+    double Q_MeOH;
+    double Q_MEG;
+    double StrongAcid_aq;
+    double StrongBase_aq;
+    double Conc_Multiplier;
+    double T_pH;
+    double P_pH;
+    double T_Q;
+    double P_Q;
+
+    /* ---------- sample_oil_phase_information ---------- */
+    double C1_o;
+    double CO2_o;
+    double H2S_o;
+    double C2_o;
+    double C3_o;
+    double iC4_o;
+    double nC4_o;
+    double iC5_o;
+    double nC5_o;
+    double C6_o;
+    double C7_C12_o;
+    double C13_C25_o;
+    double C26_C80_o;
+    double N2_o;
+
+    /* ---------- config_options_information ---------- */
+    int Option_Alk;
+    int Option_Defined_TP;
+    int Option_TP_for_pH;
+    int Option_TP_for_Q;
+    int Option_EoS;
+    int Option_Water_HC;
+
+} SampleData;
+
+// 初始化测试数据函数
+void mockData(SampleData* data)
+{
+
+    /* ---------- sample_basic_information ---------- */
+    strcpy(data->SampleID, "smp01");
+    strcpy(data->Date, "2025-01-01");
+    strcpy(data->Operator, "张三");
+    strcpy(data->WellName, "井-01");
+    strcpy(data->Location, "大庆油田一区");
+    strcpy(data->Field, "大庆油田");
+
+    /* ---------- sample_composition_information ---------- */
+    strcpy(data->SampleInfo, "常规采出水样");
+
+    data->Na_aq = 120.5;
+    data->K_aq = 10.2;
+    data->Mg_aq = 35.6;
+    data->Ca_aq = 85.3;
+    data->Sr_aq = 5.5;
+    data->Ba_aq = 3.1;
+    data->FeII_aq = 0.8;
+    data->Zn_aq = 0.2;
+    data->Pb_aq = 0.05;
+    data->Cl_aq = 19000.0;
+    data->SO4_aq = 250.0;
+    data->F_aq = 2.1;
+    data->Br_aq = 55.0;
+    data->Si_aq = 8.4;
+    data->FeIII_aq = 0.1;
+    data->Li_aq = 0.03;
+    data->Be_aq = 0.01;
+    data->Ra_aq = 0.002;
+    data->Mn_aq = 0.4;
+    data->Cu_aq = 0.06;
+    data->Al_aq = 0.7;
+    data->P_aq = 0.9;
+    data->I_aq = 0.04;
+    data->U_aq = 0.005;
+    data->Alk_Bicarbonate_aq = 180.0;
+    data->Alk_Carbonate_aq = 20.0;
+    data->OrgAcid_Acetate_aq = 10.0;
+    data->Ammonia_aq = 2.0;
+    data->B_aq = 0.8;
+    data->TDS_aq = 21000.0;
+    data->Density_STP = 1.05;
+    data->CO2_pct_g = 0.01;
+    data->Option_Use_H2Sg = 1;
+    data->H2S_pct_g = 0.003;
+    data->H2S_aq = 1.2;
+    data->pH_STP = 6.9;
+    data->Q_Gas = 500.0;
+    data->Q_Oil = 100.0;
+    data->Q_Water = 250.0;
+
+    /* ---------- sample_temperature_pressure_information ---------- */
+    data->T_initial = 60.0;
+    data->T_final = 80.0;
+    data->P_initial = 10.0;
+    data->P_final = 20.0;
+    data->API = 32.0;
+    data->SG_g = 0.85;
+    data->Q_MeOH = 5.0;
+    data->Q_MEG = 8.0;
+    data->StrongAcid_aq = 1.0;
+    data->StrongBase_aq = 0.5;
+    data->Conc_Multiplier = 1.0;
+    data->T_pH = 25.0;
+    data->P_pH = 1.0;
+    data->T_Q = 30.0;
+    data->P_Q = 5.0;
+
+    /* ---------- sample_oil_phase_information ---------- */
+    data->C1_o = 30.0;
+    data->CO2_o = 2.5;
+    data->H2S_o = 0.8;
+    data->C2_o = 12.0;
+    data->C3_o = 8.0;
+    data->iC4_o = 5.0;
+    data->nC4_o = 6.0;
+    data->iC5_o = 3.0;
+    data->nC5_o = 2.5;
+    data->C6_o = 4.0;
+    data->C7_C12_o = 10.0;
+    data->C13_C25_o = 8.0;
+    data->C26_C80_o = 5.0;
+    data->N2_o = 1.0;
+
+    /* ---------- config_options_information ---------- */
+    data->Option_Alk = 1;
+    data->Option_Defined_TP = 1;
+    data->Option_TP_for_pH = 1;
+    data->Option_TP_for_Q = 1;
+    data->Option_EoS = 1;
+    data->Option_Water_HC = 0;
+}
+
+
+
+void printSampleData(const SampleData* data)
+{
+    printf("\n================= Sample Basic Information =================\n");
+    printf("SampleID: %s\n", data->SampleID);
+    printf("Date: %s\n", data->Date);
+    printf("Operator: %s\n", data->Operator);
+    printf("WellName: %s\n", data->WellName);
+    printf("Location: %s\n", data->Location);
+    printf("Field: %s\n", data->Field);
+
+    printf("\n================= Sample Composition Information =================\n");
+    printf("SampleInfo: %s\n", data->SampleInfo);
+    printf("Na_aq: %.4f\n", data->Na_aq);
+    printf("K_aq: %.4f\n", data->K_aq);
+    printf("Mg_aq: %.4f\n", data->Mg_aq);
+    printf("Ca_aq: %.4f\n", data->Ca_aq);
+    printf("Sr_aq: %.4f\n", data->Sr_aq);
+    printf("Ba_aq: %.4f\n", data->Ba_aq);
+    printf("FeII_aq: %.4f\n", data->FeII_aq);
+    printf("Zn_aq: %.4f\n", data->Zn_aq);
+    printf("Pb_aq: %.4f\n", data->Pb_aq);
+    printf("Cl_aq: %.4f\n", data->Cl_aq);
+    printf("SO4_aq: %.4f\n", data->SO4_aq);
+    printf("F_aq: %.4f\n", data->F_aq);
+    printf("Br_aq: %.4f\n", data->Br_aq);
+    printf("Si_aq: %.4f\n", data->Si_aq);
+    printf("FeIII_aq: %.4f\n", data->FeIII_aq);
+    printf("Li_aq: %.4f\n", data->Li_aq);
+    printf("Be_aq: %.4f\n", data->Be_aq);
+    printf("Ra_aq: %.4f\n", data->Ra_aq);
+    printf("Mn_aq: %.4f\n", data->Mn_aq);
+    printf("Cu_aq: %.4f\n", data->Cu_aq);
+    printf("Al_aq: %.4f\n", data->Al_aq);
+    printf("P_aq: %.4f\n", data->P_aq);
+    printf("I_aq: %.4f\n", data->I_aq);
+    printf("U_aq: %.4f\n", data->U_aq);
+    printf("Alk_Bicarbonate_aq: %.4f\n", data->Alk_Bicarbonate_aq);
+    printf("Alk_Carbonate_aq: %.4f\n", data->Alk_Carbonate_aq);
+    printf("OrgAcid_Acetate_aq: %.4f\n", data->OrgAcid_Acetate_aq);
+    printf("Ammonia_aq: %.4f\n", data->Ammonia_aq);
+    printf("B_aq: %.4f\n", data->B_aq);
+    printf("TDS_aq: %.4f\n", data->TDS_aq);
+    printf("Density_STP: %.4f\n", data->Density_STP);
+    printf("CO2_pct_g: %.4f\n", data->CO2_pct_g);
+    printf("Option_Use_H2Sg: %d\n", data->Option_Use_H2Sg);
+    printf("H2S_pct_g: %.4f\n", data->H2S_pct_g);
+    printf("H2S_aq: %.4f\n", data->H2S_aq);
+    printf("pH_STP: %.4f\n", data->pH_STP);
+    printf("Q_Gas: %.4f\n", data->Q_Gas);
+    printf("Q_Oil: %.4f\n", data->Q_Oil);
+    printf("Q_Water: %.4f\n", data->Q_Water);
+
+    printf("\n================= Temperature & Pressure Information =================\n");
+    printf("T_initial: %.4f\n", data->T_initial);
+    printf("T_final: %.4f\n", data->T_final);
+    printf("P_initial: %.4f\n", data->P_initial);
+    printf("P_final: %.4f\n", data->P_final);
+    printf("API: %.4f\n", data->API);
+    printf("SG_g: %.4f\n", data->SG_g);
+    printf("Q_MeOH: %.4f\n", data->Q_MeOH);
+    printf("Q_MEG: %.4f\n", data->Q_MEG);
+    printf("StrongAcid_aq: %.4f\n", data->StrongAcid_aq);
+    printf("StrongBase_aq: %.4f\n", data->StrongBase_aq);
+    printf("Conc_Multiplier: %.4f\n", data->Conc_Multiplier);
+    printf("T_pH: %.4f\n", data->T_pH);
+    printf("P_pH: %.4f\n", data->P_pH);
+    printf("T_Q: %.4f\n", data->T_Q);
+    printf("P_Q: %.4f\n", data->P_Q);
+
+    printf("\n================= Oil Phase Information =================\n");
+    printf("C1_o: %.4f\n", data->C1_o);
+    printf("CO2_o: %.4f\n", data->CO2_o);
+    printf("H2S_o: %.4f\n", data->H2S_o);
+    printf("C2_o: %.4f\n", data->C2_o);
+    printf("C3_o: %.4f\n", data->C3_o);
+    printf("iC4_o: %.4f\n", data->iC4_o);
+    printf("nC4_o: %.4f\n", data->nC4_o);
+    printf("iC5_o: %.4f\n", data->iC5_o);
+    printf("nC5_o: %.4f\n", data->nC5_o);
+    printf("C6_o: %.4f\n", data->C6_o);
+    printf("C7_C12_o: %.4f\n", data->C7_C12_o);
+    printf("C13_C25_o: %.4f\n", data->C13_C25_o);
+    printf("C26_C80_o: %.4f\n", data->C26_C80_o);
+    printf("N2_o: %.4f\n", data->N2_o);
+
+    printf("\n================= Configuration Options =================\n");
+    printf("Option_Alk: %d\n", data->Option_Alk);
+    printf("Option_Defined_TP: %d\n", data->Option_Defined_TP);
+    printf("Option_TP_for_pH: %d\n", data->Option_TP_for_pH);
+    printf("Option_TP_for_Q: %d\n", data->Option_TP_for_Q);
+    printf("Option_EoS: %d\n", data->Option_EoS);
+    printf("Option_Water_HC: %d\n", data->Option_Water_HC);
+
+    printf("===========================================================\n");
+}
+
+
+void initData()
+{
+    int len = nob_Input + nob_InputII;
+    NaMix = (double*)malloc(len * sizeof(double));
+    MgMix = (double*)malloc(len * sizeof(double));
+    CaMix = (double*)malloc(len * sizeof(double));
+    SrMix = (double*)malloc(len * sizeof(double));
+    BaMix = (double*)malloc(len * sizeof(double));
+    FeMix = (double*)malloc(len * sizeof(double));
+    ZnMix = (double*)malloc(len * sizeof(double));
+    ClMix = (double*)malloc(len * sizeof(double));
+    PbMix = (double*)malloc(len * sizeof(double));
+    BrMix = (double*)malloc(len * sizeof(double));
+    RaMix = (double*)malloc(len * sizeof(double));
+
+    NH3Mix = (double*)malloc(len * sizeof(double));
+    H3SiO4Mix = (double*)malloc(len * sizeof(double));
+    H2SiO4Mix = (double*)malloc(len * sizeof(double));
+    H4SiO4Mix = (double*)malloc(len * sizeof(double));
+    H3BO3Mix = (double*)malloc(len * sizeof(double));
+    CO2aqMix = (double*)malloc(len * sizeof(double));
+    H2SaqMix = (double*)malloc(len * sizeof(double));
+    HACaqMix = (double*)malloc(len * sizeof(double));
+
+    UseH2SgasMix = (int*)malloc(len * sizeof(int));
+    SO4Mix = (double*)malloc(len * sizeof(double));
+    FMix = (double*)malloc(len * sizeof(double));
+    TDSMix = (double*)malloc(len * sizeof(double));
+    AlkMix = (double*)malloc(len * sizeof(double));
+    TAcMix = (double*)malloc(len * sizeof(double));
+    KMix = (double*)malloc(len * sizeof(double));
+    MixFrac = (double*)malloc(len * sizeof(double));
+
+    rho_Mix = (double*)malloc(len * sizeof(double));
+    TH2SaqMix = (double*)malloc(len * sizeof(double));
+    pHMeterStpMix = (double*)malloc(len * sizeof(double));
+    TH4SiO4Mix = (double*)malloc(len * sizeof(double));
+    TNH4Mix = (double*)malloc(len * sizeof(double));
+    TH3BO3Mix = (double*)malloc(len * sizeof(double));
+    SampleIDMix = (double*)malloc(len * sizeof(double));
+    SampleDateMix = (char*)malloc(len * sizeof(char));
+    OperatorMix = (double*)malloc(len * sizeof(double));
+    WellNameMix = (char*)malloc(len * sizeof(char));
+    FieldMix = (double*)malloc(len * sizeof(double));
+    StateMix = (char*)malloc(len * sizeof(char));
+    VgTPMix = (double*)malloc(len * sizeof(double));
+    VoMix = (double*)malloc(len * sizeof(double));
+    VwMix = (double*)malloc(len * sizeof(double));
+    VMeOHMix = (double*)malloc(len * sizeof(double));
+    VMEGMix = (double*)malloc(len * sizeof(double));
+    oilAPIgravMix = (double*)malloc(len * sizeof(double));
+    gasSpGravMix = (double*)malloc(len * sizeof(double));
+    MixFracGas = (double*)malloc(len * sizeof(double));
+    nTCO2Mix = (double*)malloc(len * sizeof(double));
+    nTCH4Mix = (double*)malloc(len * sizeof(double));
+    nTH2SMix = (double*)malloc(len * sizeof(double));
+    mass_w_Mix = (double*)malloc(len * sizeof(double));
+    mass_o_Mix = (double*)malloc(len * sizeof(double));
+    MixFracOil = (double*)malloc(len * sizeof(double));
+    mass_MeOH_mix = (double*)malloc(len * sizeof(double));
+    mass_MEG_mix = (double*)malloc(len * sizeof(double));
+    Qheat = (double*)malloc(len * sizeof(double));
+    yCO2Mix = (double*)malloc(len * sizeof(double));
+    yH2SMix = (double*)malloc(len * sizeof(double));
+    yCH4Mix = (double*)malloc(len * sizeof(double));
+    YCH4stpmix = (double*)malloc(len * sizeof(double));
+    RatioOilBPointsmix = (double*)malloc(len * sizeof(double));
+    CalculatedTDSMix = (double*)malloc(len * sizeof(double));
+    rho25CMix = (double*)malloc(len * sizeof(double));
+    HstpMix = (double*)malloc(len * sizeof(double));
+    OHstpMix = (double*)malloc(len * sizeof(double));
+    HCO3stpMix = (double*)malloc(len * sizeof(double));
+    CO3stpMix = (double*)malloc(len * sizeof(double));
+    ACstpMix = (double*)malloc(len * sizeof(double));
+    HSstpMix = (double*)malloc(len * sizeof(double));
+    NH4STPMix = (double*)malloc(len * sizeof(double));
+    H2BO3stpMix = (double*)malloc(len * sizeof(double));
+    HCO3AlkMix = (double*)malloc(len * sizeof(double));
+    CO3AlkMix = (double*)malloc(len * sizeof(double));
+    HAlkMix = (double*)malloc(len * sizeof(double));
+    OHAlkMix = (double*)malloc(len * sizeof(double));
+    ConcFactor = (double*)malloc(len * sizeof(double));
+    TCO2Mix = (double*)malloc(len * sizeof(double));
+    TofpH = (double*)malloc(len * sizeof(double));
+    PofpH = (double*)malloc(len * sizeof(double));
+    TofVol = (double*)malloc(len * sizeof(double));
+    PofVol = (double*)malloc(len * sizeof(double));
+    OilDensityMix = (double*)malloc(len * sizeof(double));
+    GasDensityMix = (double*)malloc(len * sizeof(double));
+    WaterDensityMix = (double*)malloc(len * sizeof(double));
+    UseTPpHMix = (double*)malloc(len * sizeof(double));
+    UseTPVolMix = (double*)malloc(len * sizeof(double));
+    useEOSmix = (double*)malloc(len * sizeof(double));
+    molAlk = (double*)malloc(len * sizeof(double));
+    molTAC = (double*)malloc(len * sizeof(double));
+    molTNH4 = (double*)malloc(len * sizeof(double));
+    molTH3BO3 = (double*)malloc(len * sizeof(double));
+    molTH2Saq = (double*)malloc(len * sizeof(double));
+    molTH4SiO4 = (double*)malloc(len * sizeof(double));
+    mol_g_origMix = (double*)malloc(len * sizeof(double));
+    mol_o_OrigMix = (double*)malloc(len * sizeof(double));
+    mol_w_OrigMix = (double*)malloc(len * sizeof(double));
+    mol_g_finalMix = (double*)malloc(len * sizeof(double));
+    mol_o_finalMix = (double*)malloc(len * sizeof(double));
+    mol_w_finalMix = (double*)malloc(len * sizeof(double));
+    mol_w_evapMix = (double*)malloc(len * sizeof(double));
+    Total_molesMix = (double*)malloc(len * sizeof(double));
+    SumofZMix = (double*)malloc(len * sizeof(double));
+    nTCO2MixEOS = (double*)malloc(len * sizeof(double));
+    nTH2SMixEOS = (double*)malloc(len * sizeof(double));
+    // edit by hzy - 改为int类型
+    usepHmix = (int*)malloc(len * sizeof(int));
+
+    zMix = (double**)malloc((nob_Input + nob_InputII) * sizeof(double*));
+    for (int i = 0; i < (nob_Input + nob_InputII); i++)
+    {
+        zMix[i] = (double*)malloc(15 * sizeof(double));
+    }
+}
 
 void pointerInit_pf() {
     mf_TCr = (double*)malloc(6 * sizeof(double));
@@ -1042,59 +1045,6 @@ void cleanMemory_pf() {
         free(moln);
     }
 }
-
-
-//全局变量 -- by 黄志缘
-/********************************************************************************************************/
-
-// 物理常数
-#define NAv         6.0221367E+23        // 阿伏伽德罗常数 (mol⁻¹)
-#define eElec       1.60217733E-19       // 电子电荷 (C)
-#define eps0        8.854187818E-12      // 真空介电常数 (F/m)
-#define kBoltz      1.380658E-23         // 玻尔兹曼常数 (J/K)
-
-double Lnn[16][16], a0[16];
-double Alk = 0.0;          // 碱度
-double TAc = 0.0;          // 总醋酸浓度  
-double TH2Saq = 0.0;       // 总H2S(aq)浓度
-double TH4SiO4 = 0.0;      // 总H4SiO4浓度
-double TH3BO3 = 0.0;       // 总H3BO3浓度
-double TNH4 = 0.0;         // 总NH4浓度
-double TFe = 0.0;          // 总Fe浓度
-double TPb = 0.0;          // 总Pb浓度
-double TZn = 0.0;          // 总Zn浓度
-double TCO2 = 0.0;         // 总CO2浓度
-double TDS = 0.0;          // 总溶解固体
-double TCa = 0.0;          // 总Ca
-//double yH2S = 0.0;         // H2S气体摩尔分数    -已定义
-//double yCO2 = 0.0;         // CO2气体摩尔分数    -已定义
-double CalculateTDSDen = 0.0; // 计算TDS密度
-//double rho25c = 1.0;       // 25°C密度    -已定义
-
-// C5_CalcpHPCO2PH2SSTP 变量
-// double KgwCO2;
-// double KgwH2S;
-int use_pH;
-//int UseH2Sgas,useEOS;    -已定义
-// double *pHMeterReading;
-
-// D2_CalcDensitypH
-double rhoOld, rhoSSE;
-//int Iteration;    -已定义
-
-// D1_CalcDensity
-//double  H, OH, AC, HS, NH3, H2BO3, HCO3, CO3, H3SiO4, H2SiO4, H4SiO4;  -全部已定义
-//double CO2aq, H2Saq, HAcaq;  -全部已定义
-double TDSSSE, TDSOld;
-
-const int MaxMix = 100, MaxSpecies = 13, MaxComponents = 100, MaxCat = 100, MaxNeut = 100, MaxAnion = 100;
-/********************************************************************************************************/
-
-
-// -------------------------------------定义的全局变量分割线-------------------------
-
-
-
 
 
 void ReadInputPartA(int kk, SampleData* data)
@@ -1838,9 +1788,18 @@ double PsatH2O(double TK)
 }
 
 
-// ==================== C1_ThermodynamicEquilConsts ====================
-//  This subroutine is called by subroutines D, E, and G above.
-// =====================================================================
+/**
+ * @brief 计算热力学平衡常数
+ * 
+ * 此函数计算多种化学物质在水溶液中的热力学平衡常数，包括：
+ * - 气体溶解度常数（CO2、CH4、H2S等）
+ * - 酸解离常数（碳酸、硫化氢、乙酸、硅酸等）
+ * - 矿物溶度积常数（方解石、石膏、重晶石、闪锌矿等）
+ * - 配合物稳定常数（Zn、Pb的氯配合物和硫配合物等）
+ * 
+ * 计算考虑了温度、压力和离子强度的影响，适用于地球化学模拟。
+ * 
+ */
 void C1_ThermodynamicEquilConsts()
 {
     double dk;
@@ -3471,7 +3430,18 @@ void CubicRoots(double coef1, double coef2, double coef3, double coef4, double* 
     }
 }
 
-
+/**
+ * @brief 求解二次方程的实根
+ *
+ * 二次方程形式：coef1 * x^2 + coef2 * x + coef3 = 0
+ * 使用 Numerical Recipes 推荐的高精度算法
+ *
+ * @param coef1(double) 二次项系数
+ * @param coef2(double) 一次项系数
+ * @param coef3(double) 常数项
+ * @param root1(double*) 输出根1
+ * @param root2(double*) 输出根2
+ */
 void QuadraticRoots(double coef1, double coef2, double coef3, double* root1, double* root2)
 {
     double qroot;
@@ -3611,11 +3581,13 @@ void PengRobinson3() {
 }
 
 
-void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
-    double TK, double Ppsia, double* yCO2, double* yH2S,
-    double Alk, double TAc, double TH2Saq, double TFe, double TCO2,
-    double TNH4, double TH3BO3, double TH4SiO4,
-    double pH, double pHMeterReading) {
+void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
+    // double TK, double Ppsia, double* yCO2, double* yH2S,
+    // double Alk, double TAc, double TH2Saq, double TFe, double TCO2
+    // double TNH4, double TH3BO3, double TH4SiO4,
+    // double pH
+    // , double pHMeterReading
+) {
 
     // 局部变量声明
     double aH, H, OH, CO2aq, HCO3, CO3, H2Saq, HS, S;
@@ -3647,7 +3619,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
             OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
             // 计算碳酸系统物种
-            CO2aq = KgwCO2 * Ppsia * (*yCO2) * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+            CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
             HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
                 (aH * gAn[iHCO3] * gNAn[iHCO3]);
             CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
@@ -3665,7 +3637,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
 
             H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
             S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            *yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
+            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
 
             // 计算其他弱酸物种
             double hydAc = aH * gAn[iAc] * gNAn[iAc] / (KHAc * gNeut[iHAcaq] * gNNeut[iHAcaq]) + 1.0;
@@ -3698,9 +3670,9 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
         mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
 
-        if (*yH2S > 1.0) {
+        if (yH2S > 1.0) {
             // errmsg[3] = 3;
-            *yH2S = 1.0;
+            yH2S = 1.0;
         }
     }
 
@@ -3720,15 +3692,15 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
 
             H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
             S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            *yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
+            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
 
-            if (*yH2S > 1.0) {
+            if (yH2S > 1.0) {
                 // errmsg[3] = 3;
-                *yH2S = 1.0;
+                yH2S = 1.0;
             }
         }
         else {
-            H2Saq = KgwH2S * Ppsia * (*yH2S) * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
+            H2Saq = KgwH2S * Ppsia * (yH2S) * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
             HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
             S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
             mc[iFe] = TFe / (1.0 + KstFeSaq * HS * gAn[iHS] * gNAn[iHS] *
@@ -3737,8 +3709,8 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
                 gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
         }
 
-        if (TH2Saq == 0.0 && *yH2S == 0.0) {
-            H2Saq = 0.0; HS = 0.0; TH2Saq = 0.0; *yH2S = 0.0;
+        if (TH2Saq == 0.0 && yH2S == 0.0) {
+            H2Saq = 0.0; HS = 0.0; TH2Saq = 0.0; yH2S = 0.0;
         }
 
         // 计算其他物种
@@ -3767,27 +3739,27 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
         tCO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * gGas[iCO2g] /
             (aH * aH * gAn[iCO3] * gNAn[iCO3]);
 
-        *yCO2 = (Alk + H - AC - HS - OH - NH3 - H2BO3 - H3SiO4 - 2.0 * H2SiO4) /
+        yCO2 = (Alk + H - AC - HS - OH - NH3 - H2BO3 - H3SiO4 - 2.0 * H2SiO4) /
             (tHCO3 + 2.0 * tCO3);
 
         // 计算碳酸物种浓度
-        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (*yCO2) * gGas[iCO2g] /
+        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] /
             (aH * gAn[iHCO3] * gNAn[iHCO3]);
-        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (*yCO2) * gGas[iCO2g] /
+        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] /
             (aH * aH * gAn[iCO3] * gNAn[iCO3]);
-        CO2aq = KgwCO2 * Ppsia * (*yCO2) * gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
+        CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
 
         mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
 
         // 错误检查
-        if (*yCO2 > 1.0) {
+        if (yCO2 > 1.0) {
             // errmsg[1] = 1;
-            *yCO2 = 1.0;
+            yCO2 = 1.0;
         }
-        if (*yCO2 < 0.0) {
+        if (yCO2 < 0.0) {
             // errmsg[2] = 2;
-            *yCO2 = 0.0;
+            yCO2 = 0.0;
             HCO3 = 0.0; CO3 = 0.0; CO2aq = 0.0;
         }
     }
@@ -5749,9 +5721,16 @@ void MultiPhaseFlash_CS(char* iosheet, char* ioCol, double eosProps[][6], double
     free(logPHI);
 }
 
-
-void MeSWhileloop(int im, int igas, double TZn, double TPb, double hydHS, double ppt, double ZP1,
-    double ZP2, double ZP3, double ZP4, double ZP5, double ZP6, double ZP7, double* root1, double* root2, double* root3)
+// 这些局部变量不确定
+double ZP1; double ZP2; double ZP3; double ZP4; double ZP5; double ZP6; double ZP7; 
+// double* root1; double* root2; double* root3;
+// 删减了参数
+/**
+ * @brief fMeSSpeciation 的迭代子过程
+ * @param im   金属索引
+ * @param igas 气体标志
+ */
+void MeSWhileloop(int im, int igas)
 {
     double HSOld = HS;
     double coef1 = 1.0;
@@ -5767,16 +5746,16 @@ void MeSWhileloop(int im, int igas, double TZn, double TPb, double hydHS, double
             HS = -coef4 / coef3;
         }
         else {
-            QuadraticRoots(coef2, coef3, coef4, root1, root2);
-            HS = (*root2 > *root1) ? *root2 : *root1;
+            QuadraticRoots(coef2, coef3, coef4, &root1, &root2);
+            HS = (root2 > root1) ? root2 : root1;
         }
         if (HS <= 0) return;
     }
     else {
-        CubicRoots(coef1, coef2, coef3, coef4, root1, root2, root3);
-        HS = *root1;
-        if (*root2 > HS) HS = *root2;
-        if (*root3 > HS) HS = *root3;
+        CubicRoots(coef1, coef2, coef3, coef4, &root1, &root2, &root3);
+        HS = root1;
+        if (root2 > HS) HS = root2;
+        if (root3 > HS) HS = root3;
         if (HS <= 0) {
             HS = 0;
             return;
@@ -5800,15 +5779,21 @@ void MeSWhileloop(int im, int igas, double TZn, double TPb, double hydHS, double
         mc[iPb] = TPb / (1.0 + ZP5 + ZP6 * pow(HS, 2) + ZP7 * pow(HS, 3));
 }
 
-
-double fMeSSpeciation(int im, int igas)
-{
+/**
+ * @brief 金属硫化物水溶液物种化计算
+ *        （只考虑水相，不包括与气相、油相的平衡；Cl- 物种化未考虑）
+ *
+ * @param im   金属索引 (如 iFe, iZn, iPb)
+ * @param igas 气体标志 (3 表示硫化物沉淀)
+ * @return double (未定义时返回 NAN)
+ */
+double fMeSSpeciation(int im, int igas){
     double HSOld = HS;
     double FeOld = TFe;
     double ZnOld = TZn;
     double PbOld = TPb;
 
-    // 预计算常用项
+        // 预计算常用项
     double cl_term = gDot[iClDot] * ma[iCl];
     double hs_term_sq = pow(gDot[iHSDot], 2); // HS的平方项
     double hs_term_cb = pow(gDot[iHSDot], 3); // HS的立方项
@@ -5930,8 +5915,7 @@ double fMeSSpeciation(int im, int igas)
             || fabs((PbOld / (1.0 + ZP5 + ZP6 * pow(HS, 2.0) + ZP7 * pow(HS, 3.0)) - mc[iPb]) / mc[iPb]) > 0.001
             || fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(HS, 2.0) + ZP4 * pow(HS, 3.0)) - mc[iZn]) / mc[iZn]) > 0.001
             || fabs((HSOld - HS) / HS) > 0.001) {
-            MeSWhileloop(im, igas, TZn, TPb, hydHS, ppt, ZP1, ZP2, ZP3, ZP4,
-                ZP5, ZP6, ZP7, &root1, &root2, &root3);
+            MeSWhileloop(im, igas);
         }
     }
 
@@ -5940,8 +5924,7 @@ double fMeSSpeciation(int im, int igas)
         while (fabs((FeOld / (1.0 + ZP1 * HS) - mc[iFe]) / mc[iFe]) > 0.001
             || fabs((PbOld / (1.0 + ZP5 + ZP6 * pow(HS, 2.0) + ZP7 * pow(HS, 3.0)) - mc[iPb]) / mc[iPb]) > 0.001
             || fabs((HSOld - HS) / HS) > 0.001) {
-            MeSWhileloop(im, igas, TZn, TPb, hydHS, ppt, ZP1, ZP2, ZP3, ZP4,
-                ZP5, ZP6, ZP7, &root1, &root2, &root3);
+            MeSWhileloop(im, igas);
         }
     }
 
@@ -5950,8 +5933,7 @@ double fMeSSpeciation(int im, int igas)
         while (fabs((FeOld / (1.0 + ZP1 * HS) - mc[iFe]) / mc[iFe]) > 0.001
             || fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(HS, 2.0) + ZP4 * pow(HS, 3.0)) - mc[iZn]) / mc[iZn]) > 0.001
             || fabs((HSOld - HS) / HS) > 0.001) {
-            MeSWhileloop(im, igas, TZn, TPb, hydHS, ppt, ZP1, ZP2, ZP3, ZP4,
-                ZP5, ZP6, ZP7, &root1, &root2, &root3);
+            MeSWhileloop(im, igas);
         }
     }
 
@@ -5960,8 +5942,7 @@ double fMeSSpeciation(int im, int igas)
         while (fabs((PbOld - mc[iPb]) / mc[iPb]) > 0.001
             || fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(HS, 2.0) + ZP4 * pow(HS, 3.0)) - mc[iZn]) / mc[iZn]) > 0.001
             || fabs((HSOld - HS) / HS) > 0.001) {
-            MeSWhileloop(im, igas, TZn, TPb, hydHS, ppt, ZP1, ZP2, ZP3, ZP4,
-                ZP5, ZP6, ZP7, &root1, &root2, &root3);
+            MeSWhileloop(im, igas);
         }
     }
 
@@ -5969,8 +5950,7 @@ double fMeSSpeciation(int im, int igas)
     if (TFe == 0.0 && HS > 0.0 && TZn > 0.0 && TPb == 0.0) {
         while (fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(HS, 2.0) + ZP4 * pow(HS, 3.0)) - mc[iZn]) / mc[iZn]) > 0.001
             || fabs((HSOld - HS) / HS) > 0.001) {
-            MeSWhileloop(im, igas, TZn, TPb, hydHS, ppt, ZP1, ZP2, ZP3, ZP4,
-                ZP5, ZP6, ZP7, &root1, &root2, &root3);
+            MeSWhileloop(im, igas);
         }
     }
 
@@ -5978,8 +5958,7 @@ double fMeSSpeciation(int im, int igas)
     if (TFe == 0.0 && HS > 0.0 && TZn == 0.0 && TPb > 0.0) {
         while (fabs((PbOld / (1.0 + ZP5 + ZP6 * pow(HS, 2.0) + ZP7 * pow(HS, 3.0)) - mc[iPb]) / mc[iPb]) > 0.001
             || fabs((HSOld - HS) / HS) > 0.001) {
-            MeSWhileloop(im, igas, TZn, TPb, hydHS, ppt, ZP1, ZP2, ZP3, ZP4,
-                ZP5, ZP6, ZP7, &root1, &root2, &root3);
+            MeSWhileloop(im, igas);
         }
     }
 
@@ -7197,8 +7176,1521 @@ void QualityControlCalculations(int kk, int j)
 
 }
 
+// 新增函数 by 黄志缘
+/********************************************************************************************************/
+
+/**
+ * @brief 计算Pitzer活性系数（温度、压力、离子强度版本）
+ *
+ * 此函数使用温度(TK)、温度(摄氏度 TC)、压力(PBar)和大气压(Patm)计算阴离子、阳离子和中性化合物的活性系数。
+ * 基于Pitzer离子相互作用模型，包含二元、三元和中性项的计算。还计算水的渗透系数和活性，以及特定络合物的Bdot参数。
+ * 注意：函数依赖外部数组和全局变量（如mc, ma, b0, b1等），这些需在调用前定义。
+ * 特殊处理：对于某些离子对（如Na-SO4, K-SO4, Ca-SO4）使用自定义alpha值。
+ *
+ * @param gNeut [输出] 中性化合物的活性系数数组
+ * @param aH2O [输出] 水的活性
+ * @param TK 绝对温度 (K)
+ * @param TC 温度 (摄氏度)
+ * @param PBar 压力 (bar)
+ * @param Patm 大气压 (atm)
+ */
+void C2_PitzerActCoefs_T_P_ISt(double *gNeut, double aH2O, double TK, double TC, double PBar, double Patm) {
+
+    if (xMeOH > 0 || xMEG > 0) {
+        // mt = fgammaN;//在该函数中只调用了一次
+    }
+    
+    C2_Pitzer2019();
+    
+    double U1 = 342.79;
+    double U2 = -0.0050866;
+    double U3 = 0.0000009469;
+    double U4 = -2.0525;
+    double U5 = 3115.9;
+    double U6 = -182.89;
+    double U7 = -8032.5;
+    double U8 = 4214200;
+    double U9 = 2.1417;
+    double D1000 = U1 * exp(U2 * TK + U3 * pow(TK, 2));
+    double cc = U4 + U5 / (U6 + TK);
+    double b = U7 + U8 / TK + U9 * TK;
+    double Dielec = D1000 + cc * log((b + PBar) / (b + 1000));
+    
+    double dens = fH2ODensity(TK, PBar);
+    
+    // APhi 计算：Debye-Hückel 参数
+    double APhi = (1.0 / 3.0) * pow((2 * M_PI * NAv * dens), 0.5) * pow((eElec * eElec / (4 * M_PI * eps0 * Dielec * kBoltz * TK)), 1.5);
+    
+    // 计算 gX 和 gpX 函数（依赖离子强度 Ist）
+    double X14 = 1.4 * sqrt(Ist);  // 对于 2:(-2) 对或离子
+    double gX14 = 2 * (1 - (1 + X14) * exp(-X14)) / (X14 * X14);
+    double gpX14 = -2 * (1 - (1 + X14 + 0.5 * X14 * X14) * exp(-X14)) / (X14 * X14);
+    
+    double X20 = 2 * sqrt(Ist);  // 对于 1:(-2), (-1):2 或 1:(-1) 对
+    double gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
+    double gpX20 = -2 * (1 - (1 + X20 + 0.5 * X20 * X20) * exp(-X20)) / (X20 * X20);
+    
+    double X12 = 12 * sqrt(Ist);
+    double gX12 = 2 * (1 - (1 + X12) * exp(-X12)) / (X12 * X12);
+    double gpX12 = -2 * (1 - (1 + X12 + 0.5 * X12 * X12) * exp(-X12)) / (X12 * X12);
+    
+    // 添加 by GD 20191021：针对 Ca-SO4
+    double xCaSO4 = 32 * APhi * sqrt(Ist);
+    double gXCaSO4 = 2 * (1 - (1 + xCaSO4) * exp(-xCaSO4)) / (xCaSO4 * xCaSO4);
+    double gpXCaSO4 = -2 * (1 - (1 + xCaSO4 + 0.5 * xCaSO4 * xCaSO4) * exp(-xCaSO4)) / (xCaSO4 * xCaSO4);
+    
+    // 计算 JX 和 JpX 函数（同电荷但不同离子，如 1:2 或 -1:-2）
+    double X12_temp = 6 * 1 * 2 * APhi * sqrt(Ist);
+    double JX12 = X12_temp / (4 + 4.581 * pow(X12_temp, -0.7237) * exp(-0.012 * pow(X12_temp, 0.528)));
+    double X12_delta = 1.001 * X12_temp;
+    double JX12delta = X12_delta / (4 + 4.581 * pow(X12_delta, -0.7237) * exp(-0.012 * pow(X12_delta, 0.528)));
+    double JpX12 = (JX12delta - JX12) / (0.001 * X12_temp);
+    
+    double X11 = 6 * 1 * 1 * APhi * sqrt(Ist);
+    double JX11 = X11 / (4 + 4.581 * pow(X11, -0.7237) * exp(-0.012 * pow(X11, 0.528)));
+    double X11_delta = 1.001 * X11;
+    double JX11delta = X11_delta / (4 + 4.581 * pow(X11_delta, -0.7237) * exp(-0.012 * pow(X11_delta, 0.528)));
+    double JpX11 = (JX11delta - JX11) / (0.001 * X11);
+    
+    double X22 = 6 * 2 * 2 * APhi * sqrt(Ist);
+    double JX22 = X22 / (4 + 4.581 * pow(X22, -0.7237) * exp(-0.012 * pow(X22, 0.528)));
+    double X22_delta = 1.001 * X22;
+    double JX22delta = X22_delta / (4 + 4.581 * pow(X22_delta, -0.7237) * exp(-0.012 * pow(X22_delta, 0.528)));
+    double JpX22 = (JX22delta - JX22) / (0.001 * X22);
+    
+    double ETh = (0.5 / Ist) * (JX12 - 0.5 * (JX11 + JX22));
+    double EThp = (0.25 / (Ist * Ist)) * (X12_temp * JpX12 - 0.5 * (X11 * JpX11 + X22 * JpX22)) - ETh / Ist;
+    double Phip = EThp;
+    
+    // 计算 f_gamma（渗透系数部分）
+    double f_gamma = -APhi * (sqrt(Ist) / (1 + 1.2 * sqrt(Ist)) + (2 / 1.2) * log(1 + 1.2 * sqrt(Ist)));
+    for (int c = 1; c <= NumCat; c++) {
+        for (int a = 1; a <= NumAn; a++) {
+            double Bpca = b1[c][a] * gpX14 / Ist + b2[c][a] * gpX12 / Ist;
+            // Holmes and Dai 特殊处理
+            if (ChCat[c] == 1) {
+                X20 = 2 * sqrt(Ist);
+                if (c == 2 && a == 6) X20 = 1.4 * sqrt(Ist);  // Na-SO4
+                if (c == 3 && a == 6) X20 = 1.4 * sqrt(Ist);  // K-SO4
+                gpX20 = -2 * (1 - (1 + X20 + 0.5 * X20 * X20) * exp(-X20)) / (X20 * X20);
+                Bpca = b1[c][a] * gpX20 / Ist + b2[c][a] * gpX12 / Ist;
+            }
+            if (ChCat[c] == 2 && ChAn[a] == -1) {
+                X20 = (2 - 0.00181 * (TK - 298.15)) * sqrt(Ist);
+                gpX20 = -2 * (1 - (1 + X20 + 0.5 * X20 * X20) * exp(-X20)) / (X20 * X20);
+                Bpca = b1[c][a] * gpX20 / Ist + b2[c][a] * gpX12 / Ist;
+            }
+            // 添加 by GD 20191021：针对 Ca-SO4
+            if (c == 5 && a == 6) {
+                Bpca = b1[c][a] * gpX14 / Ist + b2[c][a] * gpXCaSO4 / Ist;
+            }
+            f_gamma += mc[c] * ma[a] * Bpca;
+        }
+    }
+    
+    for (int c = 1; c <= NumCat - 1; c++) {
+        for (int cp = c + 1; cp <= NumCat; cp++) {
+            if (ChCat[c] != ChCat[cp]) {
+                f_gamma += mc[c] * mc[cp] * Phip;
+            }
+        }
+    }
+    
+    for (int a = 1; a <= NumAn - 1; a++) {
+        for (int ap = a + 1; ap <= NumAn; ap++) {
+            if (ChAn[a] != ChAn[ap]) {
+                f_gamma += ma[a] * ma[ap] * Phip;
+            }
+        }
+    }
+    
+    // 阳离子活性系数循环
+    for (int m = 1; m <= NumCat; m++) {
+        double term1 = pow(ChCat[m], 2) * f_gamma;  // D-H 项
+        
+        double term2 = 0;
+        for (int a = 1; a <= NumAn; a++) {
+            double BMa = b0[m][a] + b1[m][a] * gX14 + b2[m][a] * gX12;
+            // Holmes and Dai 特殊处理（注意：此处 c 应为 m）
+            if (ChCat[m] == 1) {
+                X20 = 2 * sqrt(Ist);
+                if (m == 2 && a == 6) X20 = 1.4 * sqrt(Ist);  // Na-SO4
+                if (m == 3 && a == 6) X20 = 1.4 * sqrt(Ist);  // K-SO4
+                gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
+                BMa = b0[m][a] + b1[m][a] * gX20 + b2[m][a] * gX12;
+            }
+            if (ChCat[m] == 2 && ChAn[a] == -1) {
+                X20 = (2 - 0.00181 * (TK - 298.15)) * sqrt(Ist);
+                gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
+                BMa = b0[m][a] + b1[m][a] * gX20 + b2[m][a] * gX12;
+            }
+            // 添加 by GD 20191021：针对 Ca-SO4
+            if (m == 5 && a == 6) {
+                BMa = b0[m][a] + b1[m][a] * gX14 + b2[m][a] * gXCaSO4;
+            }
+            double CMa = CPhi[m][a] / (2 * sqrt(fabs(ChCat[m] * ChAn[a])));
+            term2 += ma[a] * (2 * BMa + MoleCharge * CMa);
+        }
+        
+        double term3 = 0;
+        for (int c = 1; c <= NumCat; c++) {
+            double PhiMc = Tccp[m][c];
+            if (ChCat[m] != ChCat[c]) PhiMc = Tccp[m][c] + ETh;
+            double SumYMca = 0;
+            for (int a = 1; a <= NumAn; a++) {
+                SumYMca += ma[a] * Yccpa[m][c][a];
+            }
+            term3 += mc[c] * (2 * PhiMc + SumYMca);
+        }
+        
+        double term4 = 0;
+        for (int a = 1; a <= NumAn - 1; a++) {
+            for (int ap = a + 1; ap <= NumAn; ap++) {
+                term4 += ma[a] * ma[ap] * Yaapc[a][ap][m];
+            }
+        }
+        
+        double term5 = 0;
+        for (int c = 1; c <= NumCat; c++) {
+            for (int a = 1; a <= NumAn; a++) {
+                double Cca = CPhi[c][a] / (2 * sqrt(fabs(ChCat[c] * ChAn[a])));
+                term5 += mc[c] * ma[a] * Cca;
+            }
+        }
+        term5 = fabs(ChCat[m]) * term5;
+        
+        double term6 = 0;
+        for (int n = 1; n <= NumNeut; n++) {
+            term6 += mn[n] * 2 * Lnc[n][m];
+        }
+        
+        double term7 = 0;
+        for (int n = 1; n <= NumNeut; n++) {
+            for (int a = 1; a <= NumAn; a++) {
+                // pH = pH;  // VB调试语句，忽略
+                term7 += 6 * mn[n] * ma[a] * zeta[n][m][a];
+            }
+        }
+        
+        double termsum = term1 + term2 + term3 + term4 + term5 + term6 + term7;
+        double ActCoefM = exp(termsum);
+        gCat[m] = ActCoefM;
+    }
+    
+    // 特殊设置：Pb, NH4, Ra 的活性系数
+    gCat[iPb] = gCat[iZn];
+    gCat[iNH4] = gCat[iK];
+    gCat[iRa] = gCat[iCa];
+    
+    // 阴离子活性系数循环
+    for (int iPz = 1; iPz <= NumAn; iPz++) {
+        double term1 = pow(ChAn[iPz], 2) * f_gamma;  // D-H 项
+        
+        double term2 = 0;
+        for (int c = 1; c <= NumCat; c++) {
+            double BcX = b0[c][iPz] + b1[c][iPz] * gX14 + b2[c][iPz] * gX12;
+            // Holmes and Dai 特殊处理
+            if (ChCat[c] == 1) {
+                X20 = 2 * sqrt(Ist);
+                if (c == 2 && iPz == 6) X20 = 1.4 * sqrt(Ist);  // Na-SO4
+                if (c == 3 && iPz == 6) X20 = 1.4 * sqrt(Ist);  // K-SO4
+                gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
+                BcX = b0[c][iPz] + b1[c][iPz] * gX20 + b2[c][iPz] * gX12;
+            }
+            if (ChCat[c] == 2 && ChAn[iPz] == -1) {
+                X20 = (2 - 0.00181 * (TK - 298.15)) * sqrt(Ist);
+                gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
+                BcX = b0[c][iPz] + b1[c][iPz] * gX20 + b2[c][iPz] * gX12;
+            }
+            // 添加 by GD 20191021：针对 Ca-SO4
+            if (c == 5 && iPz == 6) {
+                BcX = b0[c][iPz] + b1[c][iPz] * gX14 + b2[c][iPz] * gXCaSO4;
+            }
+            double CcX = CPhi[c][iPz] / (2 * sqrt(fabs(ChAn[iPz] * ChCat[c])));
+            term2 += mc[c] * (2 * BcX + MoleCharge * CcX);
+        }
+        
+        double term3 = 0;
+        for (int a = 1; a <= NumAn; a++) {
+            double PhiXa = Taap[iPz][a];
+            if (ChAn[iPz] != ChAn[a]) PhiXa = Taap[iPz][a] + ETh;
+            double SumYXac = 0;
+            for (int c = 1; c <= NumCat; c++) {
+                SumYXac += mc[c] * Yaapc[iPz][a][c];
+            }
+            term3 += ma[a] * (2 * PhiXa + SumYXac);
+        }
+        
+        double term4 = 0;
+        for (int c = 1; c <= NumCat - 1; c++) {
+            for (int cp = c + 1; cp <= NumCat; cp++) {
+                term4 += mc[c] * mc[cp] * Yccpa[c][cp][iPz];
+            }
+        }
+        
+        double term5 = 0;
+        for (int c = 1; c <= NumCat; c++) {
+            for (int a = 1; a <= NumAn; a++) {
+                double Cca = CPhi[c][a] / (2 * sqrt(fabs(ChCat[c] * ChAn[a])));
+                term5 += mc[c] * ma[a] * Cca;
+            }
+        }
+        term5 = fabs(ChAn[iPz]) * term5;
+        
+        double term6 = 0;
+        for (int n = 1; n <= NumNeut; n++) {
+            term6 += mn[n] * 2 * Lna[n][iPz];
+        }
+        
+        double term7 = 0;
+        for (int n = 1; n <= NumNeut; n++) {
+            for (int c = 1; c <= NumCat; c++) {
+                // pH = pH;  // VB调试语句，忽略
+                term7 += 6 * mn[n] * mc[c] * zeta[n][c][iPz];
+            }
+        }
+        
+        double termsum = term1 + term2 + term3 + term4 + term5 + term6 + term7;
+        double ActCoefX = exp(termsum);
+        gAn[iPz] = ActCoefX;
+    }
+    gAn[iSion] = gAn[iCO3];  // 设置硫化物活性系数等于碳酸盐
+    
+    // 中性化合物活性系数
+    for (int n = 1; n <= NumNeut; n++) {
+        double termn = 0;
+        for (int c = 1; c <= NumCat; c++) {
+            termn += mc[c] * 2 * Lnc[n][c];
+        }
+        for (int a = 1; a <= NumAn; a++) {
+            termn += ma[a] * 2 * Lna[n][a];
+        }
+        // pH = pH;  // VB调试语句，忽略
+        termn += 2 * mn[n] * Lnn[n][n];
+        
+        for (int c = 1; c <= NumCat; c++) {
+            for (int a = 1; a <= NumAn; a++) {
+                // pH = pH;  // VB调试语句，忽略
+                termn += mc[c] * ma[a] * zeta[n][c][a];
+            }
+        }
+        
+        double ActCoefn = exp(termn);
+        gNeut[n] = ActCoefn;
+    }
+    // 特殊设置：CH4, HAc, NH3, FeS 的活性系数
+    gNeut[iCH4aq] = gNeut[iCO2aq];
+    gNeut[iHAcaq] = gNeut[iCO2aq];
+    gNeut[iNH3] = gNeut[iCO2aq];
+    gNeut[iFeSaq] = gNeut[iH2Saq];
+    gNeut[iH4SiO4aq] = pow(10, (0.00978 * pow(10, 280 / TK) * Ist));  // Solmineq 88 page 46
+    
+    // 水的渗透系数 PhiH2O 和活性 aH2O
+    double term1_h2o = -APhi * pow(Ist, 1.5) / (1 + 1.2 * sqrt(Ist));
+    double term2_h2o = 0;
+    for (int c = 1; c <= NumCat; c++) {
+        for (int a = 1; a <= NumAn; a++) {
+            double BPhica = b0[c][a] + b1[c][a] * exp(-1.4 * sqrt(Ist)) + b2[c][a] * exp(-12 * sqrt(Ist));
+            // 修正 by GD 20191021
+            if (ChCat[c] == 1) {
+                X20 = 2 * sqrt(Ist);
+                if (c == 2 && a == 6) X20 = 1.4 * sqrt(Ist);  // Na-SO4
+                if (c == 3 && a == 6) X20 = 1.4 * sqrt(Ist);  // K-SO4
+                BPhica = b0[c][a] + b1[c][a] * exp(-X20) + b2[c][a] * exp(-12 * sqrt(Ist));
+            }
+            if (ChCat[c] == 2 && ChAn[a] == -1) {
+                X20 = (2 - 0.00181 * (TK - 298.15)) * sqrt(Ist);
+                BPhica = b0[c][a] + b1[c][a] * exp(-X20) + b2[c][a] * exp(-12 * sqrt(Ist));
+            }
+            // 添加 by GD 20191021：针对 Ca-SO4
+            if (c == 5 && a == 6) {
+                BPhica = b0[c][a] + b1[c][a] * exp(-1.4 * sqrt(Ist)) + b2[c][a] * exp(-xCaSO4);
+            }
+            double Cca = CPhi[c][a] / (2 * sqrt(fabs(ChCat[c] * ChAn[a])));
+            term2_h2o += mc[c] * ma[a] * (BPhica + MoleCharge * Cca);
+        }
+    }
+    
+    double term3_h2o = 0;
+    for (int c = 1; c <= NumCat - 1; c++) {
+        for (int cp = c + 1; cp <= NumCat; cp++) {
+            double PhiPhiccp = Tccp[c][cp];
+            if (ChCat[c] != ChCat[cp]) PhiPhiccp = Tccp[c][cp] + ETh + Ist * EThp;
+            double Sumccpa = 0;
+            for (int a = 1; a <= NumAn; a++) {
+                Sumccpa += ma[a] * Yccpa[c][cp][a];
+            }
+            term3_h2o += mc[c] * mc[cp] * (PhiPhiccp + Sumccpa);
+        }
+    }
+    
+    double term4_h2o = 0;
+    for (int a = 1; a <= NumAn - 1; a++) {
+        for (int ap = a + 1; ap <= NumAn; ap++) {
+            double PhiPhiaap = Taap[a][ap];
+            if (ChAn[a] != ChAn[ap]) PhiPhiaap = Taap[a][ap] + ETh + Ist * EThp;
+            double Sumaapc = 0;
+            for (int c = 1; c <= NumCat; c++) {
+                Sumaapc += mc[c] * Yaapc[a][ap][c];
+            }
+            term4_h2o += ma[a] * ma[ap] * (PhiPhiaap + Sumaapc);
+        }
+    }
+    
+    double term5_h2o = 0;
+    for (int n = 1; n <= NumNeut; n++) {
+        for (int c = 1; c <= NumCat; c++) {
+            term5_h2o += mn[n] * mc[c] * Lnc[n][c];
+        }
+    }
+    
+    double term6_h2o = 0;
+    for (int n = 1; n <= NumNeut; n++) {
+        for (int a = 1; a <= NumAn; a++) {
+            term6_h2o += mn[n] * ma[a] * Lna[n][a];
+        }
+    }
+    
+    double term7_h2o = 0;
+    for (int n = 1; n <= NumNeut; n++) {
+        for (int c = 1; c <= NumCat; c++) {
+            for (int a = 1; a <= NumAn; a++) {
+                // pH = pH;  // VB调试语句，忽略
+                term7_h2o += mn[n] * mc[c] * ma[a] * zeta[n][c][a];
+            }
+        }
+    }
+    
+    double termsum_h2o = term1_h2o + term2_h2o + term3_h2o + term4_h2o + term5_h2o + term6_h2o + term7_h2o;
+    double PhiH2O = 2 * termsum_h2o / mtotal + 1;  // 水的渗透系数
+    aH2O = 1;
+    if (fabs(18 * mtotal * PhiH2O / 1000) < 600) {
+        aH2O = exp(-18 * mtotal * PhiH2O / 1000);  // 水的活性
+    }
+    
+    // Bdot 参数用于 Zn 和 Pb 络合物（基于 Solmineq）
+    double B_dot = 0.03804695 + 0.0001031039 * TC + 0.0000007119498 * pow(TC, 2) - 0.00000001968215 * pow(TC, 3) + 1.276773E-10 * pow(TC, 4) - 2.71893E-13 * pow(TC, 5);
+    double B_gamma = (50.29158649 * sqrt(0.001 * dens)) / sqrt(Dielec * TK);
+    double Lambda_gamma = -log10(1 + 0.0180153 * mtotal);
+    
+    // a0 参数设置
+    a0[iClDot] = 3; a0[iZnDot] = 6; a0[iPbDot] = 4.5; a0[iHSDot] = 3; a0[iZnCl] = 4; a0[iZnCl2] = 0; a0[iZnCl3] = 4; a0[iZnCl4] = 5;
+    a0[iPbCl] = 4; a0[iPbCl2] = 0; a0[iPbCl3] = 4; a0[iPbCl4] = 5; a0[iZnHS2] = 0; a0[iZnHS3] = 4; a0[iPbHS2] = 0; a0[iPbHS3] = 4;
+    
+    // gDot 计算（基于 Solmineq Pg 51 和 Ananthaswamy & Atkinson 1984）
+    gDot[iClDot] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iClDot] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iZnDot] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iZnDot] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iPbDot] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iPbDot] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iHSDot] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iHSDot] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iZnCl] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iZnCl] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iZnCl2] = 1;
+    gDot[iZnCl3] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iZnCl3] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iZnCl4] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iZnCl4] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iZnHS2] = 1;
+    gDot[iZnHS3] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iZnHS3] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iPbCl] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iPbCl] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iPbCl2] = 1;
+    gDot[iPbCl3] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iPbCl3] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iPbCl4] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iPbCl4] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    gDot[iPbHS2] = 1;
+    gDot[iPbHS3] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iPbHS3] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+}
+
+/**
+ * @brief 计算STP条件下的pH、PCO2和PH2S
+ * 
+ * 此函数用于在标准温度压力条件下计算水溶液的pH值、CO2分压和H2S分压。
+ * 根据不同的输入条件组合（pH测量值、碱度、气体分压等），采用二分法求解pH值，
+ * 并计算相关化学物种的浓度分布。
+ * 
+ * @param use_pH pH使用标志: 0-计算pH, 1-使用pH计算PCO2, 2-使用pH计算碱度, 3-使用TCO2计算pH
+ * @param UseH2Sgas H2S气体使用标志: 0-使用TH2Saq, 1-使用yH2S
+ * @param useEOS 状态方程使用标志
+ * @param TK 温度 (K)
+ * @param Ppsia 压力 (psia)
+ * @param yCO2 CO2摩尔分数
+ * @param yH2S H2S摩尔分数
+ * @param Alk 碱度 (mol/kg)
+ * @param TAc 总乙酸浓度 (mol/kg)
+ * @param TH2Saq 总溶解H2S浓度 (mol/kg)
+ * @param TFe 总铁浓度 (mol/kg)
+ * @param TCO2 总无机碳浓度 (mol/kg)
+ * @param TNH4 总铵浓度 (mol/kg)
+ * @param TH3BO3 总硼酸浓度 (mol/kg)
+ * @param TH4SiO4 总硅酸浓度 (mol/kg)
+ * @param pH [输入/输出] pH值
+ * @param pHMeterReading [输出] pH计读数
+ * @param errmsg [输出] 错误信息数组
+ */
+void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
+                         double TK, double Ppsia, double yCO2, double yH2S,
+                         double Alk, double TAc, double TH2Saq, double TFe, double TCO2,
+                         double TNH4, double TH3BO3, double TH4SiO4,
+                         double pH, double pHMeterReading) {
+    
+    // 局部变量声明
+    double aH, H, OH, CO2aq, HCO3, CO3, H2Saq, HS, S;
+    double AC, HAcaq, H2BO3, NH3, H2SiO4, H3SiO4, H4SiO4;
+    double hydHS, hydAc, hydH2BO3, hydNH3, hydH2SiO4;
+    double tHCO3, tCO3, faH;
+    double pHHigh, pHLow;
+    int k;
+    
+    // // 获取活度系数和水活度（这些应该是全局变量或通过参数传递）
+    // extern double gCat[], gNCat[], gAn[], gNAn[], gNeut[], gNNeut[];
+    // extern double gGas[];
+    // extern double KgwCO2, KgwH2S, K1H2CO3, K2HCO3, K1H2S, K2HS;
+    // extern double KHAc, KH3BO3, KNH4, KH4SiO4, KH3SiO3, aH2O;
+    // extern double KstFeSaq, DpHj;
+    // extern double mc[], mn[];
+
+    // 情况1: 使用P-CO2和碱度计算pH (use_pH = 0)
+    if (use_pH == 0 && UseH2Sgas == 1 && useEOS == 0) {
+        pHHigh = 14.0;
+        pHLow = 0.0;
+        
+        for (k = 0; k < 30; k++) {
+            pH = (pHHigh + pHLow) / 2.0;
+            aH = pow(10.0, -(pH));
+            
+            // 计算H+和OH-浓度
+            H = aH / (gCat[iH] * gNCat[iH]);
+            OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
+            
+            // 计算碳酸系统物种
+            CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+            HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / 
+                   (aH * gAn[iHCO3] * gNAn[iHCO3]);
+            CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] / 
+                  (aH * gAn[iCO3] * gNAn[iCO3]);
+            
+            // 计算硫系统物种
+            hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) + 
+                    1.0 + (K2HS * gAn[iHS] * gNAn[iHS]) / (aH * gAn[iSion] * gNAn[iSion]);
+            HS = TH2Saq / hydHS;
+            
+            // // 金属硫化物形态计算
+            // if (TH2Saq > 0) {
+            //     fMeSSpeciation(k, igas);  // 计算Fe, Zn, Pb的形态
+            // }
+            
+            H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
+            
+            // 计算其他弱酸物种
+            double hydAc = aH * gAn[iAc] * gNAn[iAc] / (KHAc * gNeut[iHAcaq] * gNNeut[iHAcaq]) + 1.0;
+            AC = TAc / hydAc;
+            HAcaq = TAc - AC;
+            
+            double hydH2BO3 = aH * gAn[iH2BO3] * gNAn[iH2BO3] / (KH3BO3 * gNeut[iH3BO3] * gNNeut[iH3BO3]) + 1.0;
+            H2BO3 = TH3BO3 / hydH2BO3;
+
+            double hydNH3 = aH * gNeut[iNH3] * gNNeut[iNH3] / (KNH4 * gCat[iNH4] * gNCat[iNH4]) + 1.0;
+            NH3 = TNH4 / hydNH3;
+            
+            double hydH2SiO4 = aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]) +
+                       aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH3SiO3 * gAn[iH3SiO4] * gNAn[iH3SiO4]) + 1.0;
+    
+            H2SiO4 = TH4SiO4 / hydH2SiO4;
+            H3SiO4 = H2SiO4 * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH3SiO3 * gAn[iH3SiO4] * gNAn[iH3SiO4]);
+            H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
+            
+            // 计算碱度残差
+            faH = Alk - (HCO3 + 2.0 * CO3 + HS + 2.0 * S + AC + NH3 + 
+                         H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
+            
+            // 二分法更新pH范围
+            if (faH > 0) pHLow = pH;
+            else pHHigh = pH;
+        }
+        
+        pHMeterReading = pH - DpHj;
+        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] * 
+                     gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
+        
+        if (yH2S > 1.0) {
+            // errmsg[3] = 3;
+            yH2S = 1.0;
+        }
+    }
+    
+    // 情况2: 使用pH和碱度计算P-CO2 (use_pH = 1)
+    else if (use_pH == 1) {
+        aH = pow(10.0, -(pH));
+        
+        // H2S系统计算
+        if (UseH2Sgas == 0) {
+            hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) + 
+                    1.0 + (K2HS * gAn[iHS] * gNAn[iHS]) / (aH * gAn[iSion] * gNAn[iSion]);
+            HS = TH2Saq / hydHS;
+            
+            if (TH2Saq > 0) {
+                // fMeSSpeciation(k, igas);
+            }
+            
+            H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
+            
+            if (yH2S > 1.0) {
+                // errmsg[3] = 3;
+                yH2S = 1.0;
+            }
+        } else {
+            H2Saq = KgwH2S * Ppsia * (yH2S) * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
+            HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
+            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+            mc[iFe] = TFe / (1.0 + KstFeSaq * HS * gAn[iHS] * gNAn[iHS] * 
+                             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH));
+            TH2Saq = H2Saq + HS + S + KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] * 
+                     gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
+        }
+        
+        if (TH2Saq == 0.0 && yH2S == 0.0) {
+            H2Saq = 0.0; HS = 0.0; TH2Saq = 0.0; yH2S = 0.0;
+        }
+        
+        // 计算其他物种
+        H = aH / gCat[iH] / gNCat[iH];
+        OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
+        double hydAc = aH * gAn[iAc] * gNAn[iAc] / (KHAc * gNeut[iHAcaq] * gNNeut[iHAcaq]) + 1.0;
+        AC = TAc / hydAc;
+        HAcaq = TAc - AC;
+        
+        double hydH2BO3 = aH * gAn[iH2BO3] * gNAn[iH2BO3] / (KH3BO3 * gNeut[iH3BO3] * gNNeut[iH3BO3]) + 1.0;
+        H2BO3 = TH3BO3 / hydH2BO3;
+
+        double hydNH3 = aH * gNeut[iNH3] * gNNeut[iNH3] / (KNH4 * gCat[iNH4] * gNCat[iNH4]) + 1.0;
+        NH3 = TNH4 / hydNH3;
+        
+        double hydH2SiO4 = aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]) +
+                       aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH3SiO3 * gAn[iH3SiO4] * gNAn[iH3SiO4]) + 1.0;
+    
+        H2SiO4 = TH4SiO4 / hydH2SiO4;
+        H3SiO4 = H2SiO4 * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH3SiO3 * gAn[iH3SiO4] * gNAn[iH3SiO4]);
+        H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
+        
+        // 计算yCO2
+        tHCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * gGas[iCO2g] / 
+                (aH * gAn[iHCO3] * gNAn[iHCO3]);
+        tCO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * gGas[iCO2g] / 
+               (aH * aH * gAn[iCO3] * gNAn[iCO3]);
+        
+        yCO2 = (Alk + H - AC - HS - OH - NH3 - H2BO3 - H3SiO4 - 2.0 * H2SiO4) / 
+                (tHCO3 + 2.0 * tCO3);
+        
+        // 计算碳酸物种浓度
+        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / 
+               (aH * gAn[iHCO3] * gNAn[iHCO3]);
+        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / 
+              (aH * aH * gAn[iCO3] * gNAn[iCO3]);
+        CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
+        
+        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] * 
+                     gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
+        
+        // 错误检查
+        if (yCO2 > 1.0) {
+            // errmsg[1] = 1;
+            yCO2 = 1.0;
+        }
+        if (yCO2 < 0.0) {
+            // errmsg[2] = 2;
+            yCO2 = 0.0;
+            HCO3 = 0.0; CO3 = 0.0; CO2aq = 0.0;
+        }
+    }
+    
+    // 其他情况（use_pH = 2, 3）的类似实现...
+    
+    pHMeterReading = pH - DpHj;
+}
 
 
+/**
+ * @brief 计算密度和pH（D2_CalcDensitypH）
+ *
+ * 此函数计算溶液的密度和pH值，通过迭代方法调整浓度以实现密度收敛。
+ * 包括离子强度计算、pH调整、密度迭代、浓度修正，以及热力学平衡常数和活度系数的计算。
+ * 适用于电解质溶液的密度和pH计算，处理CO2、H2S、FeSaq等物种的物种分布。
+ *
+ * @param i 当前混合物索引
+ * @param pH [输出] pH值
+ * @param Ist [输入/输出] 离子强度
+ * @param rhoOld [输入/输出] 旧密度值
+ * @param Iteration [输入/输出] 迭代次数
+ * @param rhoSSE [输入/输出] 密度平方误差
+ * @param TK 绝对温度（K）
+ * @param TC 摄氏温度（°C）
+ * @param PBar 压力（bar）
+ * @param Patm 大气压力（bar）
+ * @param mc 阳离子摩尔浓度数组 [MaxSpecies]
+ * @param ma 阴离子摩尔浓度数组 [MaxSpecies]
+ * @param mn 中性物种摩尔浓度数组 [MaxSpecies]
+ * @param Alk [输入/输出] 碱度
+ * @param TAc [输入/输出] 总醋酸浓度
+ * @param TCO2 [输入/输出] 总CO2浓度
+ * @param TNH4 [输入/输出] 总NH4浓度
+ * @param TH3BO3 [输入/输出] 总H3BO3浓度
+ * @param TH2Saq [输入/输出] 总H2S(aq)浓度
+ * @param TH4SiO4 [输入/输出] 总H4SiO4浓度
+ * @param TFe [输入/输出] 总Fe浓度
+ * @param TDS 总溶解固体（mg/L）
+ * @param NumCat 阳离子数量
+ * @param NumAn 阴离子数量
+ * @param NumNeut 中性物种数量
+ * @param iH H+ 索引
+ * @param iOH OH- 索引
+ * @param iAc Ac- 索引
+ * @param iNH3 NH3 索引
+ * @param iH2BO3 H2BO3- 索引
+ * @param iHCO3 HCO3- 索引
+ * @param iCO3 CO3^2- 索引
+ * @param iHS HS- 索引
+ * @param iH3SiO4 H3SiO4- 索引
+ * @param iH2SiO4 H2SiO4^2- 索引
+ * @param iH4SiO4aq H4SiO4(aq) 索引
+ * @param iNH4 NH4+ 索引
+ * @param iCO2aq CO2(aq) 索引
+ * @param iH2Saq H2S(aq) 索引
+ * @param iHAcaq HAc(aq) 索引
+ * @param useEOSmix [数组] EOS混合标志 [MaxMix]
+ * @param kk 当前EOS索引
+ * @param gNeut 中性活度系数数组 [MaxNeut]
+ * @param aH2O [输出] 水活度
+ * @param DpHj pH校正
+ * @param H [输入] H+ 浓度（从C5_CalcpHPCO2PH2SSTP）
+ * @param OH [输入] OH- 浓度
+ * @param AC [输入] Ac- 浓度
+ * @param NH3 [输入] NH3 浓度
+ * @param H2BO3 [输入] H2BO3- 浓度
+ * @param HCO3 [输入] HCO3- 浓度
+ * @param CO3 [输入] CO3^2- 浓度
+ * @param HS [输入] HS- 浓度
+ * @param H3SiO4 [输入] H3SiO4- 浓度
+ * @param H2SiO4 [输入] H2SiO4^2- 浓度
+ * @param H4SiO4 [输入] H4SiO4 浓度
+ * @param CO2aq [输入] CO2(aq) 浓度
+ * @param H2Saq [输入] H2S(aq) 浓度
+ * @param HAcaq [输入] HAc(aq) 浓度
+ * @param xMeOH [输出] 甲醇摩尔分数
+ * @param xMEG [输出] 乙二醇摩尔分数
+ * @param IStCosolvent [输出] 共溶剂离子强度
+ * @param mt [输出] 温度压力函数值
+ * @param use_pH pH使用选项
+ * @param pHMeterStpMix pH 测量值
+ * @param rho25c [输入/输出] 25°C密度
+ */
+void D2_CalcDensitypH(int i,
+                    // double pH, double Ist, double rhoOld,
+                    int Iteration,
+                    //  double rhoSSE, double TK, double TC, double PBar, double Patm,
+                    //   double mc[], double ma[], double mn[], double *Alk, double *TAc, double *TCO2, double *TNH4, double *TH3BO3,
+                    //   double *TH2Saq, double *TH4SiO4, double *TFe, double TDS, int NumCat, int NumAn, int NumNeut,
+                    //   int useEOSmix[], 
+                      int kk, 
+                    //   double gNeut[], double *aH2O, double DpHj,
+                    //   double H, double OH, double AC, double NH3, double H2BO3, double HCO3, double CO3, double HS, double H3SiO4,
+                    //   double H2SiO4, double H4SiO4, double CO2aq, double H2Saq, double HAcaq, double *xMeOH, double *xMEG, double *IStCosolvent,
+                      double *mt, int use_pH
+                    //   double *pHMeterStpMix, double *rho25c
+                    ) {
+    // Call CalcIonicStrength 'before CO2, H2S, FeSaq speciation
+    CalcIonicStrength();
+
+    pH = pHMeterStpMix[i] + DpHj;
+
+    if (Ist >= 25) {
+        printf("The calculated ionic strength is %.2f. This is greater than 20 m (moles of salt/kg of water), the upper limit. The calculation will be terminated. It is suggested that you check the input, conc unit, and retry the calculation.\n", Ist);
+        return;  // End
+    }
+
+    while (rhoSSE > 0.00000001 && Iteration < 30) {
+        *mt = fTPFunc(0);  // iTP=0 T=77F, P=14.696 psi: iTP=1 T=TVol, P=Pvol;iTP=2 T=TpH, P=PpH
+
+        // rho25c = CalcRhoTP(TK, TC, PBar, Patm)
+        // *rho25c = CalcRhoTP(TK, TC, PBar, Patm);
+
+        int iden;
+        for (iden = 1; iden <= NumCat; iden++) {
+            mc[iden] *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        }
+        for (iden = 1; iden <= NumAn; iden++) {
+            ma[iden] *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        }
+        for (iden = 1; iden <= NumNeut; iden++) {
+            mn[iden] *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        }
+        Alk *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        TAc *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        TCO2 *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        TNH4 *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        TH3BO3 *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        TH2Saq *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        TH4SiO4 *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        TFe *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+
+        rhoSSE = pow(rho25c - rhoOld, 2);
+        rhoOld = rho25c;
+        (Iteration)++;
+    }
+
+    xMeOH = 0;
+    xMEG = 0;
+    IStCosolvent = Ist;
+
+    // Call CalcIonicStrength 'before CO2, H2S, FeSaq speciation
+    CalcIonicStrength();
+
+    pH = pHMeterStpMix[i] + DpHj;
+
+    // If use_pH = 0 Then mt = fTPFunc(0) 'Option0 77F, 14.696 psi: Option1 T=TVol, P=Pvol; Option2 T=TpH, P=PpH
+    // If use_pH = 1 Then mt = fTPFunc(2) 'Option0 77F, 14.696 psi: Option1 T=TVol, P=Pvol; Option2 T=TpH, P=PpH
+    // If use_pH = 2 Or use_pH = 3 Then mt = fTPFunc(0) 'Option0 77F, 14.696 psi: Option1 T=TVol, P=Pvol; Option2 T=TpH, P=PpH
+
+    // Call C1_ThermodynamicEquilConsts
+    C1_ThermodynamicEquilConsts();
+
+    // Call C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm)
+    C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+
+    // Call PengRobinson3
+    PengRobinson3();
+
+    // Call C5_CalcpHPCO2PH2SSTP 'CO2, H2S, FeSaq speciation
+    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
+                         TK, Ppsia, yCO2, yH2S,
+                         Alk, TAc, TH2Saq, TFe, TCO2,
+                         TNH4, TH3BO3, TH4SiO4,
+                         pH, pHMeterReading);
+
+    mc[iH] = H;
+    ma[iOH] = OH;
+    ma[iAc] = AC;
+    mn[iNH3] = NH3;
+    ma[iH2BO3] = H2BO3;
+    ma[iHCO3] = HCO3;
+    ma[iCO3] = CO3;
+    ma[iHS] = HS;
+    ma[iH3SiO4] = H3SiO4;
+    ma[iH2SiO4] = H2SiO4;
+    mn[iH4SiO4aq] = H4SiO4;
+    mn[iNH3] = NH3;
+    mn[iH3BO3] = TH3BO3 - H2BO3;
+    mn[iCO2aq] = CO2aq;
+    mn[iH2Saq] = H2Saq;
+    mn[iHAcaq] = HAcaq;
+
+    if (useEOSmix[kk] == 1) {
+        mc[iH] = 0.0000001;
+        ma[iOH] = 0.0000001;
+        ma[iAc] = TAc;
+        ma[iHCO3] = Alk;
+        ma[iHS] = TH2Saq;
+        mn[iH4SiO4aq] = TH4SiO4;
+        mn[iH3BO3] = TH3BO3;
+        mc[iNH4] = TNH4;
+        mn[iNH3] = 0;
+        ma[iH2BO3] = 0;
+        ma[iCO3] = 0;
+        ma[iH3SiO4] = 0;
+        ma[iH2SiO4] = 0;
+        mn[iH3BO3] = 0;
+        mn[iCO2aq] = 0;
+        mn[iH2Saq] = 0;
+        mn[iHAcaq] = 0;
+    }
+}
+
+
+/**
+ * @brief 计算密度（D1_CalcDensity）
+ *
+ * 此函数计算混合物i的密度，通过迭代调整TDS和浓度以实现收敛。
+ * 支持摩尔浓度（UseMolal=0）和直接计算（UseMolal=1）两种模式。
+ * 在摩尔浓度模式下，进行TDS迭代；在直接模式下，计算离子强度、活度系数和物种分布。
+ *
+ * @param i 当前混合物索引
+ * @param HCO3stpMix [数组] 标准条件下HCO3-浓度 [MaxMix]
+ * @param AlkMix [数组] 碱度混合 [MaxMix]
+ * @param ACstpMix [数组] 标准条件下Ac-浓度 [MaxMix]
+ * @param TAcMix [数组] 总Ac混合 [MaxMix]
+ * @param HstpMix [数组] 标准条件下H+浓度 [MaxMix]
+ * @param OHstpMix [数组] 标准条件下OH-浓度 [MaxMix]
+ * @param CO3stpMix [数组] 标准条件下CO3^2-浓度 [MaxMix]
+ * @param HSstpMix [数组] 标准条件下HS-浓度 [MaxMix]
+ * @param NH4STPMix [数组] 标准条件下NH4+浓度 [MaxMix]
+ * @param TNH4Mix [数组] 总NH4混合 [MaxMix]
+ * @param H2BO3stpMix [数组] 标准条件下H2BO3-浓度 [MaxMix]
+ * @param Iteration2 [输入/输出] 迭代2计数
+ * @param mc 阳离子摩尔浓度数组 [MaxSpecies]
+ * @param ma 阴离子摩尔浓度数组 [MaxSpecies]
+ * @param mn 中性物种摩尔浓度数组 [MaxSpecies]
+ * @param iH H+ 索引
+ * @param iNa Na+ 索引
+ * @param iK K+ 索引
+ * @param iMg Mg^2+ 索引
+ * @param iCa Ca^2+ 索引
+ * @param TCa [输出] 总Ca浓度
+ * @param iSr Sr^2+ 索引
+ * @param iBa Ba^2+ 索引
+ * @param iFe Fe^2+ 索引
+ * @param iZn Zn^2+ 索引
+ * @param iPb Pb^2+ 索引
+ * @param iOH OH- 索引
+ * @param iCl Cl- 索引
+ * @param iAc Ac- 索引
+ * @param iNH4 NH4+ 索引
+ * @param iH2BO3 H2BO3- 索引
+ * @param iHCO3 HCO3- 索引
+ * @param iCO3 CO3^2- 索引
+ * @param iH3SiO4 H3SiO4- 索引
+ * @param iH2SiO4 H2SiO4^2- 索引
+ * @param iSO4 SO4^2- 索引
+ * @param iHS HS- 索引
+ * @param intF F- 索引
+ * @param iBr Br- 索引
+ * @param Alk [输入/输出] 碱度
+ * @param TAc [输入/输出] 总醋酸浓度
+ * @param TH2Saq [输入/输出] 总H2S(aq)浓度
+ * @param TH4SiO4 [输入/输出] 总H4SiO4浓度
+ * @param TH3BO3 [输入/输出] 总H3BO3浓度
+ * @param TNH4 [输入/输出] 总NH4浓度
+ * @param iNH3 NH3 索引
+ * @param iH3BO3 H3BO3 索引
+ * @param iH4SiO4aq H4SiO4(aq) 索引
+ * @param TFe [输入/输出] 总Fe浓度
+ * @param TDSMix [数组] TDS混合 [MaxMix]
+ * @param TDSOld [输入/输出] 旧TDS值
+ * @param TDS [输入/输出] 总溶解固体（mg/L）
+ * @param TDSSSE [输入/输出] TDS平方误差
+ * @param UseMolal 使用摩尔浓度标志
+ * @param rho25c [输入/输出] 25°C密度
+ * @param CalculateTDSDen [输入/输出] 计算TDS密度
+ * @param NumCat 阳离子数量
+ * @param NumAn 阴离子数量
+ * @param NumNeut 中性物种数量
+ * @param MWCat 阳离子分子量数组 [MaxCat]
+ * @param MWAn 阴离子分子量数组 [MaxAnion]
+ * @param MWNeut 中性物种分子量数组 [MaxNeut]
+ * @param xMeOH 甲醇摩尔分数
+ * @param xMEG 乙二醇摩尔分数
+ * @param IStCosolvent 共溶剂离子强度
+ * @param Ist [输入/输出] 离子强度
+ * @param mt [输出] 温度压力函数值
+ * @param pH [输出] pH值
+ * @param pHMeterStpMix pH 测量值
+ * @param DpHj pH校正
+ * @param gNeut 中性活度系数数组 [MaxNeut]
+ * @param aH2O [输出] 水活度
+ * @param TK 绝对温度（K）
+ * @param TC 摄氏温度（°C）
+ * @param PBar 压力（bar）
+ * @param Patm 大气压力（bar）
+ * @param use_pH pH使用选项
+ * @param useEOSmix [数组] 使用EOS混合 [MaxMix]
+ * @param kk 当前EOS索引
+ * @param H [输入] H+ 浓度（从C5_CalcpHPCO2PH2SSTP）
+ * @param OH [输入] OH- 浓度
+ * @param AC [输入] Ac- 浓度
+ * @param NH3 [输入] NH3 浓度
+ * @param H2BO3 [输入] H2BO3- 浓度
+ * @param HCO3 [输入] HCO3- 浓度
+ * @param CO3 [输入] CO3^2- 浓度
+ * @param HS [输入] HS- 浓度
+ * @param H3SiO4 [输入] H3SiO4- 浓度
+ * @param H2SiO4 [输入] H2SiO4^2- 浓度
+ * @param H4SiO4 [输入] H4SiO4 浓度
+ * @param CO2aq [输入] CO2(aq) 浓度
+ * @param H2Saq [输入] H2S(aq) 浓度
+ * @param HAcaq [输入] HAc(aq) 浓度
+ * @param iCO2aq CO2(aq) 索引
+ * @param iH2Saq H2S(aq) 索引
+ * @param iHAcaq HAc(aq) 索引
+ * @param yCO2 [输入/输出] CO2气体摩尔分数
+ * @param yH2S [输入/输出] H2S气体摩尔分数
+ * @param yCH4 [输入/输出] CH4气体摩尔分数
+ * @param rho_Mix [数组] 密度混合 [MaxMix]
+ */
+void D1_CalcDensity(int i, 
+    // double* HCO3stpMix, double* AlkMix, double* ACstpMix, double* TAcMix, double* HstpMix, double* OHstpMix,
+                    // double* CO3stpMix, double* HSstpMix, double* NH4STPMix, double* TNH4Mix, double* H2BO3stpMix, 
+                    int *Iteration2,
+                    // double* mc, double* ma, double* mn, 
+                    // double *Alk, double *TAc, double *TH2Saq, double *TH4SiO4, double* TCa,
+                    // double *TH3BO3, double *TNH4,
+                    // double *TFe, double* TDSMix, double *TDSOld,
+                    // double *TDS, double *TDSSSE, int UseMolal, double *rho25c, double *CalculateTDSDen,
+                    // int NumCat, int NumAn, int NumNeut, 
+                    // double* MWCat, double* MWAn, double* MWNeut, double *xMeOH, double *xMEG, double *IStCosolvent,
+                    // double Ist,
+                     double *mt, 
+                    //  double pH, double *pHMeterStpMix,  double DpHj, double gNeut[], double *aH2O,
+                    // double TK, double TC, double PBar, double Patm, int use_pH,
+                    //  int* useEOSmix, 
+                     int kk
+                    //  double H, double OH, double AC,
+                    // double NH3, double H2BO3, double HCO3, double CO3, double HS, double H3SiO4, double H2SiO4, double H4SiO4,
+                    // double CO2aq, double H2Saq, double HAcaq,
+                    // double *yCO2, double *yH2S,
+                    // double *yCH4, double* rho_Mix
+                ) {
+
+    // HCO3stpMix(i) = AlkMix(i): ACstpMix(i) = TAcMix(i): HstpMix(i) = 0.000001: OHstpMix(i) = 0.0000001: CO3stpMix(i) = 0: _
+    // HSstpMix(i) = 0: NH4STPMix(i) = TNH4Mix(i): H2BO3stpMix(i) = 0
+    HCO3stpMix[i] = AlkMix[i];
+    ACstpMix[i] = TAcMix[i];
+    HstpMix[i] = 0.000001;
+    OHstpMix[i] = 0.0000001;
+    CO3stpMix[i] = 0;
+    HSstpMix[i] = 0;
+    NH4STPMix[i] = TNH4Mix[i];
+    H2BO3stpMix[i] = 0;
+
+    *Iteration2 = 0;
+
+    mc[iH] = HstpMix[i];
+    mc[iNa] = NaMix[i];  // 注意：NaMix等需从全局或参数中获取，假设已定义
+    mc[iK] = KMix[i];
+    mc[iMg] = MgMix[i];
+    mc[iCa] = CaMix[i];
+    TCa = mc[iCa];
+    mc[iSr] = SrMix[i];
+    mc[iBa] = BaMix[i];
+    mc[iFe] = FeMix[i];
+    mc[iZn] = ZnMix[i];
+    mc[iPb] = PbMix[i];
+
+    ma[iOH] = OHstpMix[i];
+    ma[iCl] = ClMix[i];
+    ma[iAc] = ACstpMix[i];
+    mc[iNH4] = NH4STPMix[i];
+    ma[iH2BO3] = H2BO3stpMix[i];
+    ma[iHCO3] = HCO3stpMix[i];
+    ma[iCO3] = CO3stpMix[i];
+
+    ma[iH3SiO4] = 0;
+    ma[iH2SiO4] = 0;
+
+    ma[iSO4] = SO4Mix[i];
+    ma[iHS] = HSstpMix[i];
+    ma[intF] = FMix[i];
+    ma[iBr] = BrMix[i];
+
+    Alk = AlkMix[i];
+    TAc = TAcMix[i];
+    TH2Saq = TH2SaqMix[i];
+    TH4SiO4 = TH4SiO4Mix[i];
+    TH3BO3 = TH3BO3Mix[i];
+    TNH4 = TNH4Mix[i];
+
+    mn[iNH3] = 0;
+    mn[iH3BO3] = TH3BO3;
+    mn[iH4SiO4aq] = TH4SiO4;
+    TFe = mc[iFe];
+
+    // If use_pH = 3 Then TCO2 = TCO2Mix(i)
+    // TDSOld = TDSMix(i):  rhoOld = rho_Mix(i): TDS = TDSMix(i): TDSSSE = 1:
+    TDSOld = TDSMix[i];
+    // rhoOld = rho_Mix[i];  // 假设rhoOld在D2_CalcDensitypH中处理
+    TDS = TDSMix[i];
+    TDSSSE = 1;
+
+    // yCO2 = yCO2Mix(i): yH2S = yH2SMix(i): yCH4 = 1 - yCO2 - yH2S
+    yCO2 = yCO2Mix[i];
+    yH2S = yH2SMix[i];
+    yCH4 = 1 - yCO2 - yH2S;
+
+    if (UseMolal == 0) {
+        while (TDSSSE > 0.00000001 && *Iteration2 < 20) {
+            // Call D2_CalcDensitypH(i) 'Calculate ISt, density, and HCO3, AC, HS speciation from TDS
+            D2_CalcDensitypH(i, 
+                // pH, Ist, rhoOld, 
+                Iteration,
+                // rhoSSE, TK, TC, PBar, Patm,
+                // mc, ma, mn, Alk, TAc, &TCO2, TNH4, TH3BO3, TH2Saq, TH4SiO4, TFe, *TDS, NumCat, NumAn, NumNeut,
+                /*iH, iOH, iAc, iNH3, iH2BO3, iHCO3, iCO3, iHS, iH3SiO4, iH2SiO4, iH4SiO4aq, iNH4, iCO2aq, iH2Saq, iHAcaq,*/
+                // useEOSmix, 
+                kk,
+                //  gNeut, aH2O, DpHj, H, OH, AC, NH3, H2BO3, HCO3, CO3, HS, H3SiO4, H2SiO4, H4SiO4, CO2aq, H2Saq, HAcaq,
+                // xMeOH, xMEG, IStCosolvent, 
+                mt, use_pH 
+                // pHMeterStpMix, rho25c
+            );
+            TDS = 0;
+            CalculateTDSDen = 0;  // Calculate TDS from density
+            int iden;
+            for (iden = 2; iden <= NumCat; iden++) {
+                TDS += 1000 * (rho25c) * mc[iden] * MWCat[iden];  // =Sum of mg salt/L*(Kg soln/Kg H2O)
+                CalculateTDSDen += 0.001 * mc[iden] * MWCat[iden];  // =Sum of Kg salt/Kg H2O
+            }
+            for (iden = 2; iden <= NumAn; iden++) {
+                TDS += 1000 * (rho25c) * ma[iden] * MWAn[iden];
+                CalculateTDSDen += 0.001 * ma[iden] * MWAn[iden];
+            }
+            for (iden = 2; iden <= NumNeut; iden++) {
+                TDS += 1000 * (rho25c) * mn[iden] * MWNeut[iden];
+                CalculateTDSDen += 0.001 * mn[iden] * MWNeut[iden];
+            }
+            TDS /= (1 + CalculateTDSDen);  // denometer=(1+Kgsalt/KgH2O)=(Kgsoln/KgH2O)
+
+            for (iden = 2; iden <= NumCat; iden++) {  // Calculate molality from new TDS
+                mc[iden] *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            }
+            for (iden = 2; iden <= NumAn; iden++) {
+                ma[iden] *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            }
+            for (iden = 2; iden <= NumNeut; iden++) {
+                mn[iden] *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            }
+            Alk *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            TAc *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            // TCO2 *= ...  // 假设TCO2已定义
+            TNH4 *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            TH3BO3 *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            TH2Saq *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            TH4SiO4 *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            TFe *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+
+            // Call D2_CalcDensitypH(i) 'Calculate ISt, density, and HCO3, AC, HS speciation from TDS
+            D2_CalcDensitypH(i, pH, 
+                            // Ist, rhoOld, 
+                            Iteration,
+                            // rhoSSE, TK, TC, PBar, Patm,
+                            // mc, ma, mn, Alk, TAc, &TCO2, TNH4, TH3BO3, TH2Saq, TH4SiO4, TFe, *TDS, NumCat, NumAn, NumNeut,
+                            // useEOSmix, kk, gNeut, aH2O, DpHj, H, OH, AC, NH3, H2BO3, HCO3, CO3, HS, H3SiO4, H2SiO4, H4SiO4, CO2aq, H2Saq, HAcaq,xMeOH,xMEG, IStCosolvent,
+                            mt, use_pH
+                            // pHMeterStpMix, rho25c
+                            );
+
+            if (TDSOld == 0) goto label10;
+            TDSSSE = pow((TDS / TDSOld) - 1, 2);
+            TDSOld = TDS;
+            (*Iteration2)++;
+        }
+    } else {
+        // Call CalcIonicStrength  // 未定义函数：计算离子强度
+        CalcIonicStrength();  // 参数：无（使用全局mc, ma, Ist等）
+
+        xMeOH = 0;
+        xMEG = 0;
+        IStCosolvent = Ist;
+
+        *mt = fTPFunc(0);  // iTP=0 T=77F, P=14.696 psi: iTP=1 T=TVol, P=Pvol;iTP=2 T=TpH, P=PpH
+
+        // rho25c = CalcRhoTP(TK, TC, PBar, Patm) 'Function subroutine  // 未定义函数：计算密度
+        rho25c = CalcRhoTP(TK, TC, PBar, Patm);  // 参数：TK, TC, PBar, Patm -> double
+
+        pH = pHMeterStpMix[i] + DpHj;
+
+        // amy check ????????????????????????????????????????????????????
+        // If use_pH = 0 Then mt = fTPFunc(0) 'Option0 77F, 14.696 psi: Option1 T=TVol, P=Pvol; Option2 T=TpH, P=PpH
+        // If use_pH = 1 Then mt = fTPFunc(2) 'Option0 77F, 14.696 psi: Option1 T=TVol, P=Pvol; Option2 T=TpH, P=PpH
+        // If use_pH = 2 Or use_pH = 3 Then mt = fTPFunc(0) 'Option0 77F, 14.696 psi: Option1 T=TVol, P=Pvol; Option2 T=TpH, P=PpH
+
+        // Call C1_ThermodynamicEquilConsts  // 未定义函数：计算热力学平衡常数
+        C1_ThermodynamicEquilConsts();  // 参数：无（使用全局TK, PBar等）
+
+        // Call C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm)  // 已部分定义
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);  // 参数：gNeut[], aH2O*, TK, TC, PBar, Patm
+
+        PengRobinson3();
+
+        C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
+                         TK, Ppsia, yCO2, yH2S,
+                         Alk, TAc, TH2Saq, TFe, TCO2,
+                         TNH4, TH3BO3, TH4SiO4,
+                         pH, pHMeterReading);
+        mc[iH] = H;
+        ma[iOH] = OH;
+        ma[iAc] = AC;
+        mn[iNH3] = NH3;
+        ma[iH2BO3] = H2BO3;
+        ma[iHCO3] = HCO3;
+        ma[iCO3] = CO3;
+        ma[iHS] = HS;
+        ma[iH3SiO4] = H3SiO4;
+        ma[iH2SiO4] = H2SiO4;
+        mn[iH4SiO4aq] = H4SiO4;
+        mn[iNH3] = NH3;
+        mn[iH3BO3] = TH3BO3 - H2BO3;
+        mn[iCO2aq] = CO2aq;
+        mn[iH2Saq] = H2Saq;
+        mn[iHAcaq] = HAcaq;
+
+        if (useEOSmix[kk] == 1) {
+            mc[iH] = 0.0000001;
+            ma[iOH] = 0.0000001;
+            ma[iAc] = TAc;
+            ma[iHCO3] = Alk;
+            ma[iHS] = 0;
+            mn[iH4SiO4aq] = TH4SiO4;
+            mn[iH3BO3] = TH3BO3;
+            mc[iNH4] = TNH4;
+        }
+
+        *mt = fTPFunc(0);  // iTP=0 T=77F, P=14.696 psi: iTP=1 T=TVol, P=Pvol;iTP=2 T=TpH, P=PpH
+
+        // Call CalcIonicStrength
+        C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
+                         TK, Ppsia, yCO2, yH2S,
+                         Alk, TAc, TH2Saq, TFe, TCO2,
+                         TNH4, TH3BO3, TH4SiO4,
+                         pH, pHMeterReading);
+
+        // rho25c = CalcRhoTP(TK, TC, PBar, Patm)
+        rho25c = CalcRhoTP(TK, TC, PBar, Patm);
+
+        // If yCO2 + yH2S <= 1 Then  ' UseTPpH is chosen, the gas composition is calculated at T,P of pH
+        // yCH4 = 1 - (yCO2 + yH2S)
+        // Else
+        // yCH4 = 0
+        // End If
+
+    }
+
+label10: ;
+}
+
+
+/**
+ * @brief 读取输入部分C（ReadInputPartC）
+ *
+ * 此函数读取并设置混合物kk的输入参数，包括标准条件下的浓度、pH选项、气体组成等。
+ * 计算密度和TDS，更新各种浓度数组，并处理摩尔浓度到TDS的转换。
+ * 适用于电解质溶液混合物的输入处理，支持多种运行模式（如测试案例、海水混合等）。
+ *
+ * @param kk 当前混合物索引
+ * @param mt [输出] 温度压力函数值
+ * @param UseTPpHMix [数组] 使用TpH混合标志 [MaxMix]
+ * @param Run10TestCases 运行10测试案例标志
+ * @param Loop10 循环10计数
+ * @param Run_Seawater_Mixing 海水混合运行标志
+ * @param LoopMixing 混合循环计数
+ * @param Run_MixingTwoWells 运行两个井混合标志
+ * @param RunMultiMix 多混合运行标志
+ * @param LoopResChem 残余化学循环计数
+ * @param RunStatMix 统计混合运行标志
+ * @param HCO3stpMix [数组] 标准条件下HCO3-浓度 [MaxMix]
+ * @param AlkMix [数组] 碱度混合 [MaxMix]
+ * @param ACstpMix [数组] 标准条件下Ac-浓度 [MaxMix]
+ * @param TAcMix [数组] 总Ac混合 [MaxMix]
+ * @param HstpMix [数组] 标准条件下H+浓度 [MaxMix]
+ * @param OHstpMix [数组] 标准条件下OH-浓度 [MaxMix]
+ * @param CO3stpMix [数组] 标准条件下CO3^2-浓度 [MaxMix]
+ * @param HSstpMix [数组] 标准条件下HS-浓度 [MaxMix]
+ * @param NH4STPMix [数组] 标准条件下NH4+浓度 [MaxMix]
+ * @param TNH4Mix [数组] 总NH4混合 [MaxMix]
+ * @param H2BO3stpMix [数组] 标准条件下H2BO3-浓度 [MaxMix]
+ * @param TDS [输出] 总溶解固体（mg/L）
+ * @param yH2S [输入/输出] H2S气体摩尔分数
+ * @param yCO2 [输入/输出] CO2气体摩尔分数
+ * @param Iteration2 迭代2计数
+ * @param mc 阳离子摩尔浓度数组 [MaxSpecies]
+ * @param ma 阴离子摩尔浓度数组 [MaxSpecies]
+ * @param mn 中性物种摩尔浓度数组 [MaxSpecies]
+ * @param iH H+ 索引
+ * @param iNa Na+ 索引
+ * @param iK K+ 索引
+ * @param iMg Mg^2+ 索引
+ * @param iCa Ca^2+ 索引
+ * @param iSr Sr^2+ 索引
+ * @param iBa Ba^2+ 索引
+ * @param iFe Fe^2+ 索引
+ * @param iZn Zn^2+ 索引
+ * @param iPb Pb^2+ 索引
+ * @param iRa Ra^2+ 索引
+ * @param iOH OH- 索引
+ * @param iCl Cl- 索引
+ * @param iAc Ac- 索引
+ * @param iNH4 NH4+ 索引
+ * @param iH2BO3 H2BO3- 索引
+ * @param iHCO3 HCO3- 索引
+ * @param iCO3 CO3^2- 索引
+ * @param iH3SiO4 H3SiO4- 索引
+ * @param iH2SiO4 H2SiO4^2- 索引
+ * @param iSO4 SO4^2- 索引
+ * @param iHS HS- 索引
+ * @param intF F- 索引
+ * @param iBr Br- 索引
+ * @param Alk [输入/输出] 碱度
+ * @param TAc [输入/输出] 总醋酸浓度
+ * @param TH2Saq [输入/输出] 总H2S(aq)浓度
+ * @param TH4SiO4 [输入/输出] 总H4SiO4浓度
+ * @param TH3BO3 [输入/输出] 总H3BO3浓度
+ * @param TNH4 [输入/输出] 总NH4浓度
+ * @param TFe [输入/输出] 总Fe浓度
+ * @param TPb [输入/输出] 总Pb浓度
+ * @param TZn [输入/输出] 总Zn浓度
+ * @param iNH3 NH3 索引
+ * @param iH3BO3 H3BO3 索引
+ * @param iH4SiO4aq H4SiO4(aq) 索引
+ * @param use_pH [输入/输出] pH使用选项
+ * @param usepHmix [数组] pH混合使用 [MaxMix]
+ * @param UseH2Sgas [输入/输出] 使用H2S气体标志
+ * @param UseH2SgasMix [数组] H2S气体混合使用 [MaxMix]
+ * @param TCO2 [输入/输出] 总CO2浓度
+ * @param TCO2Mix [数组] 总CO2混合 [MaxMix]
+ * @param yCO2Mix [数组] CO2气体摩尔分数混合 [MaxMix]
+ * @param yH2SMix [数组] H2S气体摩尔分数混合 [MaxMix]
+ * @param useEOSmix [数组] 使用EOS混合 [MaxMix]
+ * @param SumofZMix [数组] Z混合总和 [MaxMix]
+ * @param zMix [数组] Z混合 [MaxMix][MaxComponents]
+ * @param CalculatedTDSMix [数组] 计算TDS混合 [MaxMix]
+ * @param NaMix [数组] Na混合 [MaxMix]
+ * @param KMix [数组] K混合 [MaxMix]
+ * @param MgMix [数组] Mg混合 [MaxMix]
+ * @param CaMix [数组] Ca混合 [MaxMix]
+ * @param TCa [输出] 总Ca
+ * @param SrMix [数组] Sr混合 [MaxMix]
+ * @param BaMix [数组] Ba混合 [MaxMix]
+ * @param FeMix [数组] Fe混合 [MaxMix]
+ * @param ZnMix [数组] Zn混合 [MaxMix]
+ * @param PbMix [数组] Pb混合 [MaxMix]
+ * @param RaMix [数组] Ra混合 [MaxMix]
+ * @param ClMix [数组] Cl混合 [MaxMix]
+ * @param SO4Mix [数组] SO4混合 [MaxMix]
+ * @param FMix [数组] F混合 [MaxMix]
+ * @param BrMix [数组] Br混合 [MaxMix]
+ * @param rho25CMix [数组] 25°C密度混合 [MaxMix]
+ * @param H3SiO4Mix [数组] H3SiO4混合 [MaxMix]
+ * @param H2SiO4Mix [数组] H2SiO4混合 [MaxMix]
+ * @param NH3Mix [数组] NH3混合 [MaxMix]
+ * @param H4SiO4Mix [数组] H4SiO4混合 [MaxMix]
+ * @param H3BO3Mix [数组] H3BO3混合 [MaxMix]
+ * @param CO2aqMix [数组] CO2(aq)混合 [MaxMix]
+ * @param H2SaqMix [数组] H2S(aq)混合 [MaxMix]
+ * @param HACaqMix [数组] HAc(aq)混合 [MaxMix]
+ * @param AlkMix [数组] 碱度混合 [MaxMix]
+ * @param TAcMix [数组] 总Ac混合 [MaxMix]
+ * @param TH2SaqMix [数组] 总H2S(aq)混合 [MaxMix]
+ * @param TH4SiO4Mix [数组] 总H4SiO4混合 [MaxMix]
+ * @param TNH4Mix [数组] 总NH4混合 [MaxMix]
+ * @param TH3BO3Mix [数组] 总H3BO3混合 [MaxMix]
+ * @param yCH4Mix [数组] CH4气体摩尔分数混合 [MaxMix]
+ * @param UseTPVolMix [数组] 使用TpV混合 [MaxMix]
+ * @param WaterDensityMix [数组] 水密度混合 [MaxMix]
+ * @param rho25c [输入] 25°C密度
+ * @param UseMolal 使用摩尔浓度标志
+ * @param CalculateTDSDen [输出] 计算TDS密度
+ * @param NumCat 阳离子数量
+ * @param NumAn 阴离子数量
+ * @param NumNeut 中性物种数量
+ * @param MWCat 阳离子分子量数组 [MaxCat]
+ * @param MWAn 阴离子分子量数组 [MaxAnion]
+ * @param MWNeut 中性物种分子量数组 [MaxNeut]
+ * @param iCO2aq CO2(aq) 索引
+ * @param iH2Saq H2S(aq) 索引
+ * @param iHAcaq HAc(aq) 索引
+ */
+void ReadInputPartC(int kk, 
+                    double *mt, 
+                    // int* UseTPpHMix, int Run10TestCases, int Loop10, int Run_Seawater_Mixing, int LoopMixing,
+                    int Run_MixingTwoWells, int RunMultiMix, int LoopResChem, int RunStatMix,
+                    // double* HCO3stpMix, double* AlkMix, double* ACstpMix, double* TAcMix, double* HstpMix, double* OHstpMix,
+                    // double* CO3stpMix, double* HSstpMix, double* NH4STPMix, double* TNH4Mix, double* H2BO3stpMix, double *TDS,
+                    // double *yH2S, double *yCO2, 
+                    int *Iteration2,
+                    // double* mc, double* ma, double* mn,
+                    // double *Alk, double *TAc, double *TH2Saq, double *TH4SiO4, double *TH3BO3, double *TNH4, double *TFe, double *TPb, double *TZn, 
+                    int *use_pH, int* usepHmix, int *UseH2Sgas, int* UseH2SgasMix
+                    // double *TCO2, double* TCO2Mix, double* yCO2Mix, double* yH2SMix, int* useEOSmix, double* SumofZMix,
+                    // double** zMix, double* CalculatedTDSMix, double* NaMix, double* KMix, double* MgMix, double* CaMix,
+                    // double *TCa, double* SrMix, double* BaMix, double* FeMix, double* ZnMix, double* PbMix, double* RaMix,
+                    // double* ClMix, double* SO4Mix, double* FMix, double* BrMix, double* rho25CMix, double* H3SiO4Mix, double* H2SiO4Mix,
+                    // double* NH3Mix, double* H4SiO4Mix, double* H3BO3Mix, double* CO2aqMix, double* H2SaqMix, double* HACaqMix,
+                    // double* AlkMix2, double* TAcMix2, double* TH2SaqMix, double* TH4SiO4Mix2, double* TNH4Mix2, double* TH3BO3Mix2,
+                    // double* yCH4Mix, int* UseTPVolMix, double* WaterDensityMix, 
+                    // double rho25c, int UseMolal, 
+                    // double *CalculateTDSDen
+                    // int NumCat, int NumAn, int NumNeut, double* MWCat, double* MWAn, double* MWNeut
+                    /*int iCO2aq, int iH2Saq, int iHAcaq*/
+                    ) {
+    *mt = fTPFunc(0);  // Densitym TDS, and m calculated at STP condition
+    if (UseTPpHMix[kk] == 1) *mt = fTPFunc(2);
+
+    if (Run10TestCases == 1 && Loop10 > 1) goto label100;
+    if (Run_Seawater_Mixing == 1 && LoopMixing > 1) goto label100;
+    if (Run_MixingTwoWells == 1 && LoopMixing > 1) goto label100;
+    if (RunMultiMix == 1 && LoopResChem > 1) goto label100;
+    if (RunStatMix == 1 && LoopMixing > 1) goto label100;
+
+    HCO3stpMix[kk] = AlkMix[kk];
+    ACstpMix[kk] = TAcMix[kk];
+    HstpMix[kk] = 0.000001;
+    OHstpMix[kk] = 0.0000001;
+    CO3stpMix[kk] = 0;
+    HSstpMix[kk] = 0;
+    NH4STPMix[kk] = TNH4Mix[kk];
+    H2BO3stpMix[kk] = 0;
+    TDS = 0;
+
+    *Iteration2 = 0;
+
+    mc[iH] = HstpMix[kk];
+    mc[iNa] = NaMix[kk];
+    mc[iK] = KMix[kk];
+    mc[iMg] = MgMix[kk];
+    mc[iCa] = CaMix[kk];
+    TCa = mc[iCa];
+    mc[iSr] = SrMix[kk];
+    mc[iBa] = BaMix[kk];
+    mc[iFe] = FeMix[kk];
+    mc[iZn] = ZnMix[kk];
+    mc[iPb] = PbMix[kk];
+    mc[iRa] = RaMix[kk];
+
+    ma[iOH] = OHstpMix[kk];
+    ma[iCl] = ClMix[kk];
+    ma[iAc] = ACstpMix[kk];
+    mc[iNH4] = NH4STPMix[kk];
+    ma[iH2BO3] = H2BO3stpMix[kk];
+    ma[iHCO3] = HCO3stpMix[kk];
+    ma[iCO3] = CO3stpMix[kk];
+
+    ma[iH3SiO4] = 0;
+    ma[iH2SiO4] = 0;
+
+    ma[iSO4] = SO4Mix[kk];
+    ma[iHS] = HSstpMix[kk];
+    ma[intF] = FMix[kk];
+    ma[iBr] = BrMix[kk];
+
+    Alk = AlkMix[kk];
+    TAc = TAcMix[kk];
+    TH2Saq = TH2SaqMix[kk];
+    TH4SiO4 = TH4SiO4Mix[kk];
+    TH3BO3 = TH3BO3Mix[kk];
+    TNH4 = TNH4Mix[kk];
+
+    TFe = FeMix[kk];
+    TPb = PbMix[kk];
+    TZn = ZnMix[kk];
+
+    mn[iNH3] = 0;
+    mn[iH3BO3] = TH3BO3;
+    mn[iH4SiO4aq] = TH4SiO4;
+
+    *use_pH = usepHmix[kk];
+    *UseH2Sgas = UseH2SgasMix[kk];
+
+    if (*use_pH == 3) {
+        TCO2 = TCO2Mix[kk];
+    } else {
+        TCO2 = 0;
+    }
+
+    yCO2 = yCO2Mix[kk];
+    yH2S = yH2SMix[kk];  // yCH4 = 1 - yCO2 - yH2S 'assume dry gas
+
+    // If yCH4 < 0 Then yCH4 = 0  '?????????????????????????????????????????????????????????????
+
+    if (useEOSmix[kk] == 1 && yCO2 == 0 && SumofZMix[kk] > 0) yCO2 = zMix[kk][2];  // if UseEOS=1 then set YCO2 and YH2S to reservoir condition to calculate density and TDS only if the reservoir fluid comp is given
+    if (useEOSmix[kk] == 1 && yH2S == 0 && SumofZMix[kk] > 0) yH2S = zMix[kk][3];
+
+    // Call C1_ThermodynamicEquilConsts  'Only function of T,P, does not recalculate in D1_CalcDensity
+    // Call PengRobinson3
+
+    // Call D1_CalcDensity(kk) 'Calculate TDS, density and fix molality based on the predicted density and TDS
+    D1_CalcDensity(kk, 
+        // HCO3stpMix, AlkMix, ACstpMix, TAcMix, HstpMix, OHstpMix,
+                    // CO3stpMix, HSstpMix, NH4STPMix, TNH4Mix, H2BO3stpMix,
+                    Iteration2,
+                    // mc, ma, mn, 
+                    // Alk, TAc, TH2Saq, TH4SiO4, TCa,
+                    // TH3BO3, TNH4,
+                    // TFe, TDSMix, &TDSOld,
+                    // TDS, &TDSSSE, UseMolal, &rho25c, CalculateTDSDen, NumCat, NumAn,
+                    // NumNeut, MWCat,  MWAn,  MWNeut, &xMeOH, &xMEG, &IStCosolvent,
+                    // Ist, 
+                    mt,
+                    // pH, pHMeterStpMix,  DpHj, gNeut, &aH2O,
+                    // TK, TC, PBar, Patm, *use_pH, useEOSmix,
+                     kk
+                    //  H, OH, AC,
+                    // NH3, H2BO3, HCO3, CO3, HS, H3SiO4, H2SiO4, H4SiO4,
+                    // CO2aq, H2Saq, HAcaq,
+                    // yCO2, yH2S,
+                    // &yCH4, rho_Mix
+                );
+
+    CalculatedTDSMix[kk] = TDS;
+
+    HstpMix[kk] = mc[iH];
+    NaMix[kk] = mc[iNa];
+    KMix[kk] = mc[iK];
+    MgMix[kk] = mc[iMg];
+    CaMix[kk] = mc[iCa];
+    TCa = mc[iCa];
+
+    SrMix[kk] = mc[iSr];
+    BaMix[kk] = mc[iBa];
+    FeMix[kk] = TFe;
+    ZnMix[kk] = mc[iZn];
+    PbMix[kk] = mc[iPb];
+    RaMix[kk] = mc[iRa];
+
+    OHstpMix[kk] = ma[iOH];
+    ClMix[kk] = ma[iCl];
+    ACstpMix[kk] = ma[iAc];
+    NH4STPMix[kk] = mc[iNH4];
+    H2BO3stpMix[kk] = ma[iH2BO3];
+    HCO3stpMix[kk] = ma[iHCO3];
+    CO3stpMix[kk] = ma[iCO3];
+
+    SO4Mix[kk] = ma[iSO4];
+    HSstpMix[kk] = ma[iHS];
+    FMix[kk] = ma[intF];
+    BrMix[kk] = ma[iBr];
+
+    rho25CMix[kk] = rho25c;
+
+    H3SiO4Mix[kk] = ma[iH3SiO4];
+    H2SiO4Mix[kk] = ma[iH2SiO4];
+
+    NH3Mix[kk] = mn[iNH3];
+    H4SiO4Mix[kk] = mn[iH4SiO4aq];
+    H3BO3Mix[kk] = mn[iH3BO3];
+
+    CO2aqMix[kk] = mn[iCO2aq];
+    H2SaqMix[kk] = mn[iH2Saq];
+    HACaqMix[kk] = mn[iHAcaq];
+
+    AlkMix[kk] = Alk;
+    TAcMix[kk] = TAc;
+    TH2SaqMix[kk] = TH2Saq;
+    TH4SiO4Mix[kk] = TH4SiO4;
+    TNH4Mix[kk] = TNH4;
+    TH3BO3Mix[kk] = TH3BO3;
+
+    yCO2Mix[kk] = yCO2;
+    yH2SMix[kk] = yH2S;
+    yCH4Mix[kk] = 1 - yCO2 - yH2S;  // Set YCO2 and YH2S to the calculated value if pH option is used.
+
+    if (UseTPVolMix[kk] == 0) WaterDensityMix[kk] = rho25c;
+
+    if (UseMolal == 1) {
+        TDS = 0;
+        CalculateTDSDen = 0;  // Calculate TDS from density
+
+        int iden;
+        for (iden = 2; iden <= NumCat; iden++) {
+            CalculateTDSDen += 0.001 * mc[iden] * MWCat[iden];  // =Sum of g salt/Kg H2O
+        }
+        for (iden = 2; iden <= NumAn; iden++) {
+            CalculateTDSDen += 0.001 * ma[iden] * MWAn[iden];
+        }
+        for (iden = 2; iden <= NumNeut; iden++) {
+            CalculateTDSDen += 0.001 * mn[iden] * MWNeut[iden];
+        }
+
+        TDS = CalculateTDSDen / (1 + CalculateTDSDen) * rho25c * 1000000.0;  // TDS in unit of mg/L,  numerator=(Kgsalt/KgH2O), denometer=(1+Kgsalt/KgH2O)=(Kgsoln/KgH2O);density Kgsoln/Lsoln
+        CalculatedTDSMix[kk] = TDS;
+    }
+label100: ;
+}
+/********************************************************************************************************/
 
 void ReadInputPartD(int kk, int j, SampleData* data)
 {
@@ -7320,22 +8812,24 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     PengRobinson3();
     //注意，如果 useEOSmix(kk)<>0，则省略此 pH 计算步骤。换句话说，如果此处 useEOS<>0，则不会运行 pH 和形态分析。形态分析已在 ReadInputPartC 中完成
     //C5_CalcpHPCO2PH2SSTP();
-    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
-        TK, Ppsia, &yCO2, &yH2S,
-        Alk, TAc, TH2Saq, TFe, TCO2,
-        TNH4, TH3BO3, TH4SiO4,
-        pH, pHMeterReading);
+    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
+        // TK, Ppsia, &yCO2, &yH2S,
+        // Alk, TAc, TH2Saq, TFe, TCO2,
+        // TNH4, TH3BO3, TH4SiO4,
+        // pH, pHMeterReading
+    );
     //重新分配 CO2aq、HCO3、CO3、H2Saq、HS 并重新计算离子强度
     //mt = fmn();
     fmn();
 
     CalcIonicStrength();
     C2_PitzerActCoefs_T_P_ISt(gNeut, &aH2O, TK, TC, PBar, Patm);
-    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
-        TK, Ppsia, &yCO2, &yH2S,
-        Alk, TAc, TH2Saq, TFe, TCO2,
-        TNH4, TH3BO3, TH4SiO4,
-        pH, pHMeterReading);
+    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
+        // TK, Ppsia, &yCO2, &yH2S,
+        // Alk, TAc, TH2Saq, TFe, TCO2,
+        // TNH4, TH3BO3, TH4SiO4,
+        // pH, pHMeterReading
+    );
 
     //使用温度 TVol 和 PVol 下计算的水密度
     if (UseTPVolMix[kk] == 1) WaterDensityMix[kk] = CalcRhoTP(TK, TC, PBar, Patm);
@@ -7405,22 +8899,24 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     PengRobinson3();
 
                     // ***注意，如果 useEOSmix[kk]!=0，则省略此 pH 计算步骤。换句话说，如果此处 useEOS!=0，则不会运行 pH 和形态分析。形态分析已在 ReadInputPartC 中完成。
-                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
-                        TK, Ppsia, &yCO2, &yH2S,
-                        Alk, TAc, TH2Saq, TFe, TCO2,
-                        TNH4, TH3BO3, TH4SiO4,
-                        pH, pHMeterReading);
+                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
+                        // TK, Ppsia, &yCO2, &yH2S,
+                        // Alk, TAc, TH2Saq, TFe, TCO2,
+                        // TNH4, TH3BO3, TH4SiO4,
+                        // pH, pHMeterReading
+                        );
 
                     // ******重新分配 CO2aq、HCO3、CO3、H2Saq、HS 并重新计算离子强度
                     fmn();
                     CalcIonicStrength();
                     C2_PitzerActCoefs_T_P_ISt(gNeut, &aH2O, TK, TC, PBar, Patm);
 
-                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
-                        TK, Ppsia, &yCO2, &yH2S,
-                        Alk, TAc, TH2Saq, TFe, TCO2,
-                        TNH4, TH3BO3, TH4SiO4,
-                        pH, pHMeterReading);
+                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
+                        // TK, Ppsia, &yCO2, &yH2S,
+                        // Alk, TAc, TH2Saq, TFe, TCO2,
+                        // TNH4, TH3BO3, TH4SiO4,
+                        // pH, pHMeterReading
+                        );
 
                     pHMeterReading = pH - DpHj;
                     goto label_3003;
@@ -8427,12 +9923,38 @@ void B2_ReadinAllData(SampleData* data)
 int main()
 {
     SampleData data;
-    int kk=0, j=0;
+
+    //
+    int kk = 0;  // 混合物索引
+    int j=0;
+    
+    // 声明并初始化所有需要的变量
+    double mt = 0.0;
+    int Run10TestCases = 0, Loop10 = 0, Run_Seawater_Mixing = 0, LoopMixing = 0;
+    int Run_MixingTwoWells = 0, RunMultiMix = 0, LoopResChem = 0, RunStatMix = 0;
+
+    // D2_CalcDensitypH
+    rhoOld = 0;
+    rhoSSE = 0.00000002;
+    Iteration = 0;
+    
+    double TDS = 0.0, yH2S = 0.0, yCO2 = 0.0;
+    int Iteration2 = 0;
+    //
     initData();
     pointerInit_pf();
     mockData(&data);
     B2_ReadinAllData(&data);
+    ReadInputPartC(kk, &mt,
+                  Run_MixingTwoWells, RunMultiMix, LoopResChem, RunStatMix,
+                  &Iteration2,
+                  &use_pH, usepHmix, &UseH2Sgas, UseH2SgasMix
+                  );
     ReadInputPartD(kk, j, &data);
+    
+    printf("ReadInputPartC ended\n");
+    printf("Calc Result: TDS = %f, yCO2 = %f, yH2S = %f\n", TDS, yCO2, yH2S);
+    printf("Alkalinity Alk = %f, Tatal Ac TAc = %f\n", Alk, TAc);
     // cleanMemory_pf();
     printf("hello world\n");
     return 0;

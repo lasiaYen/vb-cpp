@@ -7685,7 +7685,6 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
     }
     
     // 其他情况（use_pH = 2, 3）的类似实现...
-    // 由于代码长度限制，这里只展示主要结构
     
     pHMeterReading = pH - DpHj;
 }
