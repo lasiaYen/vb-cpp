@@ -3580,7 +3580,32 @@ void PengRobinson3() {
     }
 }
 
-
+/**
+ * @brief 计算STP条件下的pH、PCO2和PH2S
+ * 
+ * 此函数用于在标准温度压力条件下计算水溶液的pH值、CO2分压和H2S分压。
+ * 根据不同的输入条件组合（pH测量值、碱度、气体分压等），采用二分法求解pH值，
+ * 并计算相关化学物种的浓度分布。
+ * 
+ * @param use_pH pH使用标志: 0-计算pH, 1-使用pH计算PCO2, 2-使用pH计算碱度, 3-使用TCO2计算pH
+ * @param UseH2Sgas H2S气体使用标志: 0-使用TH2Saq, 1-使用yH2S
+ * @param useEOS 状态方程使用标志
+ * @param TK 温度 (K)
+ * @param Ppsia 压力 (psia)
+ * @param yCO2 CO2摩尔分数
+ * @param yH2S H2S摩尔分数
+ * @param Alk 碱度 (mol/kg)
+ * @param TAc 总乙酸浓度 (mol/kg)
+ * @param TH2Saq 总溶解H2S浓度 (mol/kg)
+ * @param TFe 总铁浓度 (mol/kg)
+ * @param TCO2 总无机碳浓度 (mol/kg)
+ * @param TNH4 总铵浓度 (mol/kg)
+ * @param TH3BO3 总硼酸浓度 (mol/kg)
+ * @param TH4SiO4 总硅酸浓度 (mol/kg)
+ * @param pH [输入/输出] pH值
+ * @param pHMeterReading [输出] pH计读数
+ * @param errmsg [输出] 错误信息数组
+ */
 void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
     // double TK, double Ppsia, double* yCO2, double* yH2S,
     // double Alk, double TAc, double TH2Saq, double TFe, double TCO2
@@ -7596,217 +7621,6 @@ void C2_PitzerActCoefs_T_P_ISt(double *gNeut, double aH2O, double TK, double TC,
     gDot[iPbHS3] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iPbHS3] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
 }
 
-/**
- * @brief 计算STP条件下的pH、PCO2和PH2S
- * 
- * 此函数用于在标准温度压力条件下计算水溶液的pH值、CO2分压和H2S分压。
- * 根据不同的输入条件组合（pH测量值、碱度、气体分压等），采用二分法求解pH值，
- * 并计算相关化学物种的浓度分布。
- * 
- * @param use_pH pH使用标志: 0-计算pH, 1-使用pH计算PCO2, 2-使用pH计算碱度, 3-使用TCO2计算pH
- * @param UseH2Sgas H2S气体使用标志: 0-使用TH2Saq, 1-使用yH2S
- * @param useEOS 状态方程使用标志
- * @param TK 温度 (K)
- * @param Ppsia 压力 (psia)
- * @param yCO2 CO2摩尔分数
- * @param yH2S H2S摩尔分数
- * @param Alk 碱度 (mol/kg)
- * @param TAc 总乙酸浓度 (mol/kg)
- * @param TH2Saq 总溶解H2S浓度 (mol/kg)
- * @param TFe 总铁浓度 (mol/kg)
- * @param TCO2 总无机碳浓度 (mol/kg)
- * @param TNH4 总铵浓度 (mol/kg)
- * @param TH3BO3 总硼酸浓度 (mol/kg)
- * @param TH4SiO4 总硅酸浓度 (mol/kg)
- * @param pH [输入/输出] pH值
- * @param pHMeterReading [输出] pH计读数
- * @param errmsg [输出] 错误信息数组
- */
-void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS,
-                         double TK, double Ppsia, double yCO2, double yH2S,
-                         double Alk, double TAc, double TH2Saq, double TFe, double TCO2,
-                         double TNH4, double TH3BO3, double TH4SiO4,
-                         double pH, double pHMeterReading) {
-    
-    // 局部变量声明
-    double aH, H, OH, CO2aq, HCO3, CO3, H2Saq, HS, S;
-    double AC, HAcaq, H2BO3, NH3, H2SiO4, H3SiO4, H4SiO4;
-    double hydHS, hydAc, hydH2BO3, hydNH3, hydH2SiO4;
-    double tHCO3, tCO3, faH;
-    double pHHigh, pHLow;
-    int k;
-    
-    // // 获取活度系数和水活度（这些应该是全局变量或通过参数传递）
-    // extern double gCat[], gNCat[], gAn[], gNAn[], gNeut[], gNNeut[];
-    // extern double gGas[];
-    // extern double KgwCO2, KgwH2S, K1H2CO3, K2HCO3, K1H2S, K2HS;
-    // extern double KHAc, KH3BO3, KNH4, KH4SiO4, KH3SiO3, aH2O;
-    // extern double KstFeSaq, DpHj;
-    // extern double mc[], mn[];
-
-    // 情况1: 使用P-CO2和碱度计算pH (use_pH = 0)
-    if (use_pH == 0 && UseH2Sgas == 1 && useEOS == 0) {
-        pHHigh = 14.0;
-        pHLow = 0.0;
-        
-        for (k = 0; k < 30; k++) {
-            pH = (pHHigh + pHLow) / 2.0;
-            aH = pow(10.0, -(pH));
-            
-            // 计算H+和OH-浓度
-            H = aH / (gCat[iH] * gNCat[iH]);
-            OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
-            
-            // 计算碳酸系统物种
-            CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
-            HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / 
-                   (aH * gAn[iHCO3] * gNAn[iHCO3]);
-            CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] / 
-                  (aH * gAn[iCO3] * gNAn[iCO3]);
-            
-            // 计算硫系统物种
-            hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) + 
-                    1.0 + (K2HS * gAn[iHS] * gNAn[iHS]) / (aH * gAn[iSion] * gNAn[iSion]);
-            HS = TH2Saq / hydHS;
-            
-            // // 金属硫化物形态计算
-            // if (TH2Saq > 0) {
-            //     fMeSSpeciation(k, igas);  // 计算Fe, Zn, Pb的形态
-            // }
-            
-            H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
-            
-            // 计算其他弱酸物种
-            double hydAc = aH * gAn[iAc] * gNAn[iAc] / (KHAc * gNeut[iHAcaq] * gNNeut[iHAcaq]) + 1.0;
-            AC = TAc / hydAc;
-            HAcaq = TAc - AC;
-            
-            double hydH2BO3 = aH * gAn[iH2BO3] * gNAn[iH2BO3] / (KH3BO3 * gNeut[iH3BO3] * gNNeut[iH3BO3]) + 1.0;
-            H2BO3 = TH3BO3 / hydH2BO3;
-
-            double hydNH3 = aH * gNeut[iNH3] * gNNeut[iNH3] / (KNH4 * gCat[iNH4] * gNCat[iNH4]) + 1.0;
-            NH3 = TNH4 / hydNH3;
-            
-            double hydH2SiO4 = aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]) +
-                       aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH3SiO3 * gAn[iH3SiO4] * gNAn[iH3SiO4]) + 1.0;
-    
-            H2SiO4 = TH4SiO4 / hydH2SiO4;
-            H3SiO4 = H2SiO4 * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH3SiO3 * gAn[iH3SiO4] * gNAn[iH3SiO4]);
-            H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
-            
-            // 计算碱度残差
-            faH = Alk - (HCO3 + 2.0 * CO3 + HS + 2.0 * S + AC + NH3 + 
-                         H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
-            
-            // 二分法更新pH范围
-            if (faH > 0) pHLow = pH;
-            else pHHigh = pH;
-        }
-        
-        pHMeterReading = pH - DpHj;
-        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] * 
-                     gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
-        
-        if (yH2S > 1.0) {
-            // errmsg[3] = 3;
-            yH2S = 1.0;
-        }
-    }
-    
-    // 情况2: 使用pH和碱度计算P-CO2 (use_pH = 1)
-    else if (use_pH == 1) {
-        aH = pow(10.0, -(pH));
-        
-        // H2S系统计算
-        if (UseH2Sgas == 0) {
-            hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) + 
-                    1.0 + (K2HS * gAn[iHS] * gNAn[iHS]) / (aH * gAn[iSion] * gNAn[iSion]);
-            HS = TH2Saq / hydHS;
-            
-            if (TH2Saq > 0) {
-                // fMeSSpeciation(k, igas);
-            }
-            
-            H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
-            
-            if (yH2S > 1.0) {
-                // errmsg[3] = 3;
-                yH2S = 1.0;
-            }
-        } else {
-            H2Saq = KgwH2S * Ppsia * (yH2S) * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
-            HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            mc[iFe] = TFe / (1.0 + KstFeSaq * HS * gAn[iHS] * gNAn[iHS] * 
-                             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH));
-            TH2Saq = H2Saq + HS + S + KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] * 
-                     gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
-        }
-        
-        if (TH2Saq == 0.0 && yH2S == 0.0) {
-            H2Saq = 0.0; HS = 0.0; TH2Saq = 0.0; yH2S = 0.0;
-        }
-        
-        // 计算其他物种
-        H = aH / gCat[iH] / gNCat[iH];
-        OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
-        double hydAc = aH * gAn[iAc] * gNAn[iAc] / (KHAc * gNeut[iHAcaq] * gNNeut[iHAcaq]) + 1.0;
-        AC = TAc / hydAc;
-        HAcaq = TAc - AC;
-        
-        double hydH2BO3 = aH * gAn[iH2BO3] * gNAn[iH2BO3] / (KH3BO3 * gNeut[iH3BO3] * gNNeut[iH3BO3]) + 1.0;
-        H2BO3 = TH3BO3 / hydH2BO3;
-
-        double hydNH3 = aH * gNeut[iNH3] * gNNeut[iNH3] / (KNH4 * gCat[iNH4] * gNCat[iNH4]) + 1.0;
-        NH3 = TNH4 / hydNH3;
-        
-        double hydH2SiO4 = aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]) +
-                       aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH3SiO3 * gAn[iH3SiO4] * gNAn[iH3SiO4]) + 1.0;
-    
-        H2SiO4 = TH4SiO4 / hydH2SiO4;
-        H3SiO4 = H2SiO4 * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH3SiO3 * gAn[iH3SiO4] * gNAn[iH3SiO4]);
-        H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
-        
-        // 计算yCO2
-        tHCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * gGas[iCO2g] / 
-                (aH * gAn[iHCO3] * gNAn[iHCO3]);
-        tCO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * gGas[iCO2g] / 
-               (aH * aH * gAn[iCO3] * gNAn[iCO3]);
-        
-        yCO2 = (Alk + H - AC - HS - OH - NH3 - H2BO3 - H3SiO4 - 2.0 * H2SiO4) / 
-                (tHCO3 + 2.0 * tCO3);
-        
-        // 计算碳酸物种浓度
-        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / 
-               (aH * gAn[iHCO3] * gNAn[iHCO3]);
-        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / 
-              (aH * aH * gAn[iCO3] * gNAn[iCO3]);
-        CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
-        
-        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] * 
-                     gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
-        
-        // 错误检查
-        if (yCO2 > 1.0) {
-            // errmsg[1] = 1;
-            yCO2 = 1.0;
-        }
-        if (yCO2 < 0.0) {
-            // errmsg[2] = 2;
-            yCO2 = 0.0;
-            HCO3 = 0.0; CO3 = 0.0; CO2aq = 0.0;
-        }
-    }
-    
-    // 其他情况（use_pH = 2, 3）的类似实现...
-    
-    pHMeterReading = pH - DpHj;
-}
-
 
 /**
  * @brief 计算密度和pH（D2_CalcDensitypH）
@@ -7959,11 +7773,12 @@ void D2_CalcDensitypH(int i,
     PengRobinson3();
 
     // Call C5_CalcpHPCO2PH2SSTP 'CO2, H2S, FeSaq speciation
-    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
-                         TK, Ppsia, yCO2, yH2S,
-                         Alk, TAc, TH2Saq, TFe, TCO2,
-                         TNH4, TH3BO3, TH4SiO4,
-                         pH, pHMeterReading);
+    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
+                        //  TK, Ppsia, yCO2, yH2S,
+                        //  Alk, TAc, TH2Saq, TFe, TCO2,
+                        //  TNH4, TH3BO3, TH4SiO4,
+                        //  pH, pHMeterReading
+                        );
 
     mc[iH] = H;
     ma[iOH] = OH;
@@ -8297,11 +8112,12 @@ void D1_CalcDensity(int i,
 
         PengRobinson3();
 
-        C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
-                         TK, Ppsia, yCO2, yH2S,
-                         Alk, TAc, TH2Saq, TFe, TCO2,
-                         TNH4, TH3BO3, TH4SiO4,
-                         pH, pHMeterReading);
+        C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
+                        //  TK, Ppsia, yCO2, yH2S,
+                        //  Alk, TAc, TH2Saq, TFe, TCO2,
+                        //  TNH4, TH3BO3, TH4SiO4,
+                        //  pH, pHMeterReading
+                        );
         mc[iH] = H;
         ma[iOH] = OH;
         ma[iAc] = AC;
@@ -8333,11 +8149,12 @@ void D1_CalcDensity(int i,
         *mt = fTPFunc(0);  // iTP=0 T=77F, P=14.696 psi: iTP=1 T=TVol, P=Pvol;iTP=2 T=TpH, P=PpH
 
         // Call CalcIonicStrength
-        C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS,
-                         TK, Ppsia, yCO2, yH2S,
-                         Alk, TAc, TH2Saq, TFe, TCO2,
-                         TNH4, TH3BO3, TH4SiO4,
-                         pH, pHMeterReading);
+        C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
+                        //  TK, Ppsia, yCO2, yH2S,
+                        //  Alk, TAc, TH2Saq, TFe, TCO2,
+                        //  TNH4, TH3BO3, TH4SiO4,
+                        //  pH, pHMeterReading
+                        );
 
         // rho25c = CalcRhoTP(TK, TC, PBar, Patm)
         rho25c = CalcRhoTP(TK, TC, PBar, Patm);
