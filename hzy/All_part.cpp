@@ -9430,6 +9430,22 @@ label_123:
 
 void B2_ReadinAllData(SampleData* data)
 {
+    //
+    
+    // 声明并初始化所有需要的变量
+    double mt = 0.0;
+    int Run10TestCases = 0, Loop10 = 0, Run_Seawater_Mixing = 0, LoopMixing = 0;
+    int Run_MixingTwoWells = 0, RunMultiMix = 0, LoopResChem = 0, RunStatMix = 0;
+
+    // D2_CalcDensitypH
+    rhoOld = 0;
+    rhoSSE = 0.00000002;
+    Iteration = 0;
+    
+    double TDS = 0.0, yH2S = 0.0, yCO2 = 0.0;
+    int Iteration2 = 0;
+    //
+
     if (Read_InputII == 1) nob = nob_Input;
     if (Run1000Cases == 1) nob = nob_Input; 
 
@@ -9452,7 +9468,11 @@ void B2_ReadinAllData(SampleData* data)
     for (int iRead = 0; iRead < nob; iRead++){
         j = CaseCount[iRead];
         kk = iRead;
-        //ReadInputPartC(kk);
+        ReadInputPartC(kk, &mt,
+                  Run_MixingTwoWells, RunMultiMix, LoopResChem, RunStatMix,
+                  &Iteration2,
+                  &use_pH, usepHmix, &UseH2Sgas, UseH2SgasMix
+                );
         if (RunStat == 0)
         {
             if (RunH2SGUI != 1)
@@ -9741,33 +9761,17 @@ int main()
 {
     SampleData data;
 
-    //
-    int kk = 0;  // 混合物索引
-    int j=0;
-    
-    // 声明并初始化所有需要的变量
-    double mt = 0.0;
-    int Run10TestCases = 0, Loop10 = 0, Run_Seawater_Mixing = 0, LoopMixing = 0;
-    int Run_MixingTwoWells = 0, RunMultiMix = 0, LoopResChem = 0, RunStatMix = 0;
-
-    // D2_CalcDensitypH
-    rhoOld = 0;
-    rhoSSE = 0.00000002;
-    Iteration = 0;
-    
-    double TDS = 0.0, yH2S = 0.0, yCO2 = 0.0;
-    int Iteration2 = 0;
-    //
     initData();
     pointerInit_pf();
     mockData(&data);
     B2_ReadinAllData(&data);
-    ReadInputPartC(kk, &mt,
-                  Run_MixingTwoWells, RunMultiMix, LoopResChem, RunStatMix,
-                  &Iteration2,
-                  &use_pH, usepHmix, &UseH2Sgas, UseH2SgasMix
-                  );
-    ReadInputPartD(kk, j, &data);
+    // ReadInputPartA(kk, &data);
+    // ReadInputPartC(kk, &mt,
+    //               Run_MixingTwoWells, RunMultiMix, LoopResChem, RunStatMix,
+    //               &Iteration2,
+    //               &use_pH, usepHmix, &UseH2Sgas, UseH2SgasMix
+    //               );
+    // ReadInputPartD(kk, j, &data);
     
     printf("ReadInputPartC ended\n");
     printf("Calc Result: TDS = %f, yCO2 = %f, yH2S = %f\n", TDS, yCO2, yH2S);
