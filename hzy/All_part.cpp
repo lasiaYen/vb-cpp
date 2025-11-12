@@ -745,6 +745,102 @@ void mockData(SampleData* data)
     data->Option_Water_HC = 0;
 }
 
+// 初始化测试数据函数
+void mockData_sheetInput(SampleData* data)
+{
+
+    /* ---------- sample_basic_information ---------- */
+    strcpy(data->SampleID, "smp01");
+    strcpy(data->Date, "2025-01-01");
+    strcpy(data->Operator, "张三");
+    strcpy(data->WellName, "井-01");
+    strcpy(data->Location, "大庆油田一区");
+    strcpy(data->Field, "大庆油田");
+
+    /* ---------- sample_composition_information ---------- */
+    strcpy(data->SampleInfo, "常规采出水样");
+
+    data->Na_aq = 19872.0;
+    data->K_aq = 500.0;
+    data->Mg_aq = 54.0;
+    data->Ca_aq = 6500.0;
+    data->Sr_aq = 700.0;
+    data->Ba_aq = 550.0;
+    data->FeII_aq = 12.0;
+    data->Zn_aq = 10.0;
+    data->Pb_aq = 1.0;
+    data->Cl_aq = 43000.0;
+    data->SO4_aq = 10.0;
+    data->F_aq = 1.0;
+    data->Br_aq = 10.0;
+    data->Si_aq = 10.0;
+    data->FeIII_aq = 0.1;
+    data->Li_aq = 0.03;
+    data->Be_aq = 0.01;
+    data->Ra_aq = 0.002;
+    data->Mn_aq = 0.4;
+    data->Cu_aq = 0.06;
+    data->Al_aq = 0.7;
+    data->P_aq = 0.9;
+    data->I_aq = 0.04;
+    data->U_aq = 0.005;
+    data->Alk_Bicarbonate_aq = 281.0;
+    data->Alk_Carbonate_aq = 0.0;
+    data->OrgAcid_Acetate_aq = 0.0;
+    data->Ammonia_aq = 0.0;
+    data->B_aq = 0.0;
+    data->TDS_aq = 70000.0;
+    data->Density_STP = 1.05;
+    data->CO2_pct_g = 0.28;
+    data->Option_Use_H2Sg = 0;
+    data->H2S_pct_g = 4.32;
+    data->H2S_aq = 1.2;
+    data->pH_STP = 6.9;
+    data->Q_Gas = 500.0;
+    data->Q_Oil = 100.0;
+    data->Q_Water = 250.0;
+
+    /* ---------- sample_temperature_pressure_information ---------- */
+    data->T_initial = 60.0;
+    data->T_final = 80.0;
+    data->P_initial = 10.0;
+    data->P_final = 20.0;
+    data->API = 32.0;
+    data->SG_g = 0.85;
+    data->Q_MeOH = 5.0;
+    data->Q_MEG = 8.0;
+    data->StrongAcid_aq = 1.0;
+    data->StrongBase_aq = 0.5;
+    data->Conc_Multiplier = 1.0;
+    data->T_pH = 25.0;
+    data->P_pH = 1.0;
+    data->T_Q = 30.0;
+    data->P_Q = 5.0;
+
+    /* ---------- sample_oil_phase_information ---------- */
+    data->C1_o = 30.0;
+    data->CO2_o = 2.5;
+    data->H2S_o = 0.8;
+    data->C2_o = 12.0;
+    data->C3_o = 8.0;
+    data->iC4_o = 5.0;
+    data->nC4_o = 6.0;
+    data->iC5_o = 3.0;
+    data->nC5_o = 2.5;
+    data->C6_o = 4.0;
+    data->C7_C12_o = 10.0;
+    data->C13_C25_o = 8.0;
+    data->C26_C80_o = 5.0;
+    data->N2_o = 1.0;
+
+    /* ---------- config_options_information ---------- */
+    data->Option_Alk = 1;
+    data->Option_Defined_TP = 1;
+    data->Option_TP_for_pH = 1;
+    data->Option_TP_for_Q = 1;
+    data->Option_EoS = 1;
+    data->Option_Water_HC = 0;
+}
 
 
 void printSampleData(const SampleData* data)
@@ -10021,7 +10117,7 @@ int main()
 
     initData();
     pointerInit_pf();
-    mockData(&data);
+    mockData_sheetInput(&data);
     B2_ReadinAllData(&data);
     // ReadInputPartA(kk, &data);
     // ReadInputPartC(kk, &mt,
