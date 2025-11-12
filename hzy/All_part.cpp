@@ -1349,106 +1349,171 @@ void ReadInputPartA(int kk, SampleData* data)
         }
     }
 
-    if (TDSMix[kk] = 0) // If TDSMix(kk) = 0 Or TDSMix(kk) = "" Then 这里不对空字符串做判断
+    TDSMix[kk] = 0.0000000000;
+    if (TDSMix[kk] == 0) // If TDSMix(kk) = 0 Or TDSMix(kk) = "" Then 这里不对空字符串做判断
     {
-        if (UseMolal == 0)
-        {
-            NaMix[kk] = NaMix[kk] / (22990.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            KMix[kk] = KMix[kk] / (39098.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            MgMix[kk] = MgMix[kk] / (24305.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            CaMix[kk] = CaMix[kk] / (40080.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            SrMix[kk] = SrMix[kk] / (87620.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            BaMix[kk] = BaMix[kk] / (137330.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            FeMix[kk] = FeMix[kk] / (55847.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            ZnMix[kk] = ZnMix[kk] / (65380.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            PbMix[kk] = PbMix[kk] / (207200.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            ClMix[kk] = ClMix[kk] / (35450.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            SO4Mix[kk] = SO4Mix[kk] / (96064.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            FMix[kk] = FMix[kk] / (18998.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            BrMix[kk] = BrMix[kk] / (79904.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            TH4SiO4Mix[kk] = TH4SiO4Mix[kk] / (28085.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            HCO3AlkMix[kk] = HCO3AlkMix[kk] / (61019.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            CO3AlkMix[kk] = CO3AlkMix[kk] / (60019.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            TAcMix[kk] = TAcMix[kk] / (59046.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            TNH4Mix[kk] = TNH4Mix[kk] / (17031.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            TH3BO3Mix[kk] = TH3BO3Mix[kk] / (10811.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-
-            if (UseH2SgasMix[kk] == 0)
-            {
-                TH2SaqMix[kk] = TH2SaqMix[kk] / (34080.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-            }
-
-            HAlkMix[kk] = HAlkMix[kk] / (0.9991 - 0.0000003612 * TDSMix[kk]);
-            OHAlkMix[kk] = OHAlkMix[kk] / (0.9991 - 0.0000003612 * TDSMix[kk]);
-            RaMix[kk] = RaMix[kk] / (226.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        //修改   by   -彭非
+        if (UseMolal == 0) {
+            //for (int iTDS = 0; iTDS < 19; iTDS++);
+                /*TDSMix(kk) = TDSMix(kk) + Worksheets(mySheet).Cells(9 + iTDS, j + 2).Value*/
+            TDSMix[kk] += data->Na_aq;
+            TDSMix[kk] += data->K_aq;
+            TDSMix[kk] += data->Mg_aq;
+            TDSMix[kk] += data->Ca_aq;
+            TDSMix[kk] += data->Sr_aq;
+            TDSMix[kk] += data->Ba_aq;
+            TDSMix[kk] += data->FeII_aq;
+            TDSMix[kk] += data->Zn_aq;
+            TDSMix[kk] += data->Pb_aq;
+            TDSMix[kk] += data->Cl_aq;
+            TDSMix[kk] += data->SO4_aq;
+            TDSMix[kk] += data->F_aq;
+            TDSMix[kk] += data->Br_aq;
+            TDSMix[kk] += data->Si_aq;
+            TDSMix[kk] += data->Alk_Bicarbonate_aq;
+            TDSMix[kk] += data->Alk_Carbonate_aq;
+            TDSMix[kk] += data->OrgAcid_Acetate_aq;
+            TDSMix[kk] += data->Ammonia_aq;
+            TDSMix[kk] += data->B_aq;
         }
-        else if (UseMolal == 1)
-        {
-            NaMix[kk] = NaMix[kk] * ConcFactor[kk]; // Convert mg/L to molality
-            KMix[kk] = KMix[kk] * ConcFactor[kk];
-            MgMix[kk] = MgMix[kk] * ConcFactor[kk];
-            CaMix[kk] = CaMix[kk] * ConcFactor[kk];
-            SrMix[kk] = SrMix[kk] * ConcFactor[kk];
-            BaMix[kk] = BaMix[kk] * ConcFactor[kk];
-            FeMix[kk] = FeMix[kk] * ConcFactor[kk];
-            ZnMix[kk] = ZnMix[kk] * ConcFactor[kk];
-            PbMix[kk] = PbMix[kk] * ConcFactor[kk]; // Pb added
-            ClMix[kk] = ClMix[kk] * ConcFactor[kk];
-            SO4Mix[kk] = SO4Mix[kk] * ConcFactor[kk];
-            FMix[kk] = FMix[kk] * ConcFactor[kk];
-            BrMix[kk] = BrMix[kk] * ConcFactor[kk];           // Br added
-            TH4SiO4Mix[kk] = TH4SiO4Mix[kk] * ConcFactor[kk]; // Input silica as SiO2
-            HCO3AlkMix[kk] = HCO3AlkMix[kk] * ConcFactor[kk];
-            CO3AlkMix[kk] = CO3AlkMix[kk] * ConcFactor[kk];
-            TAcMix[kk] = TAcMix[kk] * ConcFactor[kk];
-            TNH4Mix[kk] = TNH4Mix[kk] * ConcFactor[kk];
-            TH3BO3Mix[kk] = TH3BO3Mix[kk] * ConcFactor[kk];
-
-            if (UseH2SgasMix[kk] == 0)
-            {
-                TH2SaqMix[kk] = TH2SaqMix[kk] * ConcFactor[kk]; // Used to calculate yH2Sstp
-            }
-
-            // HAlkMix 和 OHAlkMix 被注释掉，不处理
-            RaMix[kk] = RaMix[kk] * ConcFactor[kk];
+        else {
+            //Use corelation of NaCl molal to TDS, initial guess for molality input
+            //for (int iTDS = 0; iTDS < 19; iTDS++);
+                //TDSMix(kk) = TDSMix(kk) + Worksheets(mySheet).Cells(9 + iTDS, j + 2).Value * 53459 / 2 
+            TDSMix[kk] += data->Na_aq * 53459 / 2;
+            TDSMix[kk] += data->K_aq * 53459 / 2;
+            TDSMix[kk] += data->Mg_aq * 53459 / 2;
+            TDSMix[kk] += data->Ca_aq * 53459 / 2;
+            TDSMix[kk] += data->Sr_aq * 53459 / 2;
+            TDSMix[kk] += data->Ba_aq * 53459 / 2;
+            TDSMix[kk] += data->FeII_aq * 53459 / 2;
+            TDSMix[kk] += data->Zn_aq * 53459 / 2;
+            TDSMix[kk] += data->Pb_aq * 53459 / 2;
+            TDSMix[kk] += data->Cl_aq * 53459 / 2;
+            TDSMix[kk] += data->SO4_aq * 53459 / 2;
+            TDSMix[kk] += data->F_aq * 53459 / 2;
+            TDSMix[kk] += data->Br_aq * 53459 / 2;
+            TDSMix[kk] += data->Si_aq * 53459 / 2;
+            TDSMix[kk] += data->Alk_Bicarbonate_aq * 53459 / 2;
+            TDSMix[kk] += data->Alk_Carbonate_aq * 53459 / 2;
+            TDSMix[kk] += data->OrgAcid_Acetate_aq * 53459 / 2;
+            TDSMix[kk] += data->Ammonia_aq * 53459 / 2;
+            TDSMix[kk] += data->B_aq * 53459 / 2;
         }
-        AlkMix[kk] = HCO3AlkMix[kk] + 2 * CO3AlkMix[kk] - HAlkMix[kk] + OHAlkMix[kk];
-        TCO2Mix[kk] = HCO3AlkMix[kk] + CO3AlkMix[kk];
-        if (UseTPCalciteSheet != 1)
+    }
+
+    //
+
+
+    //If rho_Mix(kk) = 0 Or rho_Mix(kk) = "" Then rho_Mix(kk) = 0.9991 + 0.0000006398 * TDSMix(kk)
+    rho_Mix[kk] = 0.00000000;
+    if (rho_Mix[kk] == 0) rho_Mix[kk] = 0.9991 + 0.0000006398 * TDSMix[kk];
+
+    //If the cell is leave empty assume a concentration factor=1
+    if (ConcFactor[kk] == 0 || ConcFactor[kk] < 0) ConcFactor[kk] = 1;
+
+    if (ConcFactor[kk] != 1) {
+        Run_CalcConcFactor = 1;
+        VwMix[kk] /= ConcFactor[kk];
+    }
+
+    if (UseMolal == 0)
+    {
+        NaMix[kk] = NaMix[kk] / (22990.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        KMix[kk] = KMix[kk] / (39098.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        MgMix[kk] = MgMix[kk] / (24305.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        CaMix[kk] = CaMix[kk] / (40080.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        SrMix[kk] = SrMix[kk] / (87620.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        BaMix[kk] = BaMix[kk] / (137330.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        FeMix[kk] = FeMix[kk] / (55847.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        ZnMix[kk] = ZnMix[kk] / (65380.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        PbMix[kk] = PbMix[kk] / (207200.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        ClMix[kk] = ClMix[kk] / (35450.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        SO4Mix[kk] = SO4Mix[kk] / (96064.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        FMix[kk] = FMix[kk] / (18998.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        BrMix[kk] = BrMix[kk] / (79904.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        TH4SiO4Mix[kk] = TH4SiO4Mix[kk] / (28085.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        HCO3AlkMix[kk] = HCO3AlkMix[kk] / (61019.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        CO3AlkMix[kk] = CO3AlkMix[kk] / (60019.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        TAcMix[kk] = TAcMix[kk] / (59046.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        TNH4Mix[kk] = TNH4Mix[kk] / (17031.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        TH3BO3Mix[kk] = TH3BO3Mix[kk] / (10811.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+
+        if (UseH2SgasMix[kk] == 0)
         {
-            UseTPCalciteSheet = 0;
+            TH2SaqMix[kk] = TH2SaqMix[kk] / (34080.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
         }
 
-        if (Run_Seawater_Mixing == 1 && j == 2)
+        HAlkMix[kk] = HAlkMix[kk] / (0.9991 - 0.0000003612 * TDSMix[kk]);
+        OHAlkMix[kk] = OHAlkMix[kk] / (0.9991 - 0.0000003612 * TDSMix[kk]);
+        RaMix[kk] = RaMix[kk] / (226.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+    }
+    else if (UseMolal == 1)
+    {
+        NaMix[kk] = NaMix[kk] * ConcFactor[kk]; // Convert mg/L to molality
+        KMix[kk] = KMix[kk] * ConcFactor[kk];
+        MgMix[kk] = MgMix[kk] * ConcFactor[kk];
+        CaMix[kk] = CaMix[kk] * ConcFactor[kk];
+        SrMix[kk] = SrMix[kk] * ConcFactor[kk];
+        BaMix[kk] = BaMix[kk] * ConcFactor[kk];
+        FeMix[kk] = FeMix[kk] * ConcFactor[kk];
+        ZnMix[kk] = ZnMix[kk] * ConcFactor[kk];
+        PbMix[kk] = PbMix[kk] * ConcFactor[kk]; // Pb added
+        ClMix[kk] = ClMix[kk] * ConcFactor[kk];
+        SO4Mix[kk] = SO4Mix[kk] * ConcFactor[kk];
+        FMix[kk] = FMix[kk] * ConcFactor[kk];
+        BrMix[kk] = BrMix[kk] * ConcFactor[kk];           // Br added
+        TH4SiO4Mix[kk] = TH4SiO4Mix[kk] * ConcFactor[kk]; // Input silica as SiO2
+        HCO3AlkMix[kk] = HCO3AlkMix[kk] * ConcFactor[kk];
+        CO3AlkMix[kk] = CO3AlkMix[kk] * ConcFactor[kk];
+        TAcMix[kk] = TAcMix[kk] * ConcFactor[kk];
+        TNH4Mix[kk] = TNH4Mix[kk] * ConcFactor[kk];
+        TH3BO3Mix[kk] = TH3BO3Mix[kk] * ConcFactor[kk];
+
+        if (UseH2SgasMix[kk] == 0)
         {
-            yCO2Mix[kk] = pow(10.0, -3.5);
-            yH2SMix[kk] = 0.0;
-            TH2SaqMix[kk] = 0.0;
-            UseH2SgasMix[kk] = 0; // 假设是 int 类型
+            TH2SaqMix[kk] = TH2SaqMix[kk] * ConcFactor[kk]; // Used to calculate yH2Sstp
         }
-        if (UseTPpHMix[kk] == 1)
+
+        // HAlkMix 和 OHAlkMix 被注释掉，不处理
+        RaMix[kk] = RaMix[kk] * ConcFactor[kk];
+    }
+    AlkMix[kk] = HCO3AlkMix[kk] + 2 * CO3AlkMix[kk] - HAlkMix[kk] + OHAlkMix[kk];
+    TCO2Mix[kk] = HCO3AlkMix[kk] + CO3AlkMix[kk];
+    if (UseTPCalciteSheet != 1)
+    {
+        UseTPCalciteSheet = 0;
+    }
+
+    if (Run_Seawater_Mixing == 1 && j == 2)
+    {
+        yCO2Mix[kk] = pow(10.0, -3.5);
+        yH2SMix[kk] = 0.0;
+        TH2SaqMix[kk] = 0.0;
+        UseH2SgasMix[kk] = 0; // 假设是 int 类型
+    }
+    if (UseTPpHMix[kk] == 1)
+    {
+        if (TofpH[kk] == 0.0 && UseSI == 0)
+            TofpH[kk] = 77.0;
+        if (PofpH[kk] == 0.0 && UseSI == 0)
+            PofpH[kk] = 14.696;
+        if (TofpH[kk] == 0.0 && UseSI == 1)
+            TofpH[kk] = 25.0;
+        if (PofpH[kk] == 0.0 && UseSI == 1)
+            PofpH[kk] = 1.0;
+    }
+    else
+    {
+        if (UseSI == 0)
         {
-            if (TofpH[kk] == 0.0 && UseSI == 0)
-                TofpH[kk] = 77.0;
-            if (PofpH[kk] == 0.0 && UseSI == 0)
-                PofpH[kk] = 14.696;
-            if (TofpH[kk] == 0.0 && UseSI == 1)
-                TofpH[kk] = 25.0;
-            if (PofpH[kk] == 0.0 && UseSI == 1)
-                PofpH[kk] = 1.0;
+            TofpH[kk] = 77.0;
+            PofpH[kk] = 14.696; // set to 77 F and 14.696 psia as default for pH calculation
         }
         else
         {
-            if (UseSI == 0)
-            {
-                TofpH[kk] = 77.0;
-                PofpH[kk] = 14.696; // set to 77 F and 14.696 psia as default for pH calculation
-            }
-            else
-            {
-                TofpH[kk] = 25.0;
-                PofpH[kk] = 1.0;
-            }
+            TofpH[kk] = 25.0;
+            PofpH[kk] = 1.0;
         }
     }
 
@@ -1491,13 +1556,13 @@ void ReadInputPartA(int kk, SampleData* data)
 
     if (yCO2Mix[kk] > 1.0)
     {
-        errmsg[1] = 1;
+        errmsg[0] = 1;  // 源代码：errmsg(1) = 1
         yCO2Mix[kk] = 1.0;
     }
 
     if (yCO2Mix[kk] < 0.0)
     {
-        errmsg[2] = 2;
+        errmsg[1] = 2;
         yCO2Mix[kk] = 0.0;
         yCO2 = 0.0;
         CO2aq = 0.0;
@@ -1507,7 +1572,7 @@ void ReadInputPartA(int kk, SampleData* data)
 
     if (yH2SMix[kk] > 1.0)
     {
-        errmsg[3] = 3;
+        errmsg[2] = 3;
         yH2SMix[kk] = 1.0;
         yH2S = 1.0;
         TH2SaqMix[kk] = 0.0; // This will cause the program to use yH2Sstp as the calculation for TH2Saq instead of the input sheet value
@@ -1515,7 +1580,7 @@ void ReadInputPartA(int kk, SampleData* data)
 
     if (yH2SMix[kk] < 0.0)
     {
-        errmsg[4] = 4;
+        errmsg[3] = 4;   //
         yH2SMix[kk] = 0.0;
         yH2S = 0.0;
         HS = 0.0;
