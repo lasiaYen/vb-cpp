@@ -131,7 +131,7 @@ double* nTH2SMixEOS;
 int* usepHmix;
 
 int nob = 1;
-int nob_Input = 2;
+int nob_Input = 1;
 int nob_InputII = 0;
 int Read_InputII = 0;
 int Run1000Cases;
@@ -556,29 +556,29 @@ typedef struct
 {
 
     /* ---------- sample_basic_information ---------- */
-    char SampleID[256]; // 样品ID
-    char Date[256];     // 采样日期
-    char Operator[256]; // 采样人员
-    char WellName[256]; // 油井名称
-    char Location[256]; // 所在位置
-    char Field[256];    // 油田名称
+    char SampleID[256]; // 样品ID Excel row 4
+    char Date[256];     // 采样日期 Excel row 5
+    char Operator[256]; // 采样人员 Excel row 6
+    char WellName[256]; // 油井名称 Excel row 7
+    char Location[256]; // 所在位置 Excel row 8
+    char Field[256];    // 油田名称 Excel row 9
 
     /* ---------- sample_composition_information ---------- */
     char SampleInfo[256]; // 样品信息（用户自由输入）
-    double Na_aq;
-    double K_aq;
-    double Mg_aq;
-    double Ca_aq;
-    double Sr_aq;
-    double Ba_aq;
-    double FeII_aq;
-    double Zn_aq;
-    double Pb_aq;
-    double Cl_aq;
-    double SO4_aq;
-    double F_aq;
-    double Br_aq;
-    double Si_aq;
+    double Na_aq;   // Execl row 10
+    double K_aq;    // Excel row 11
+    double Mg_aq;   // Excel row 12
+    double Ca_aq;   // Excel row 13
+    double Sr_aq;   // Excel row 14
+    double Ba_aq;   // Excel row 15
+    double FeII_aq; // Excel row 16
+    double Zn_aq;   // Excel row 17
+    double Pb_aq;   // Excel row 18
+    double Cl_aq;   // Excel row 19
+    double SO4_aq;  // Excel row 20
+    double F_aq;    // Excel row 21
+    double Br_aq;   // Excel row 22
+    double Si_aq;   // Excel row 23
     double FeIII_aq;
     double Li_aq;
     double Be_aq;
@@ -589,62 +589,62 @@ typedef struct
     double P_aq;
     double I_aq;
     double U_aq;
-    double Alk_Bicarbonate_aq;
-    double Alk_Carbonate_aq;
-    double OrgAcid_Acetate_aq;
-    double Ammonia_aq;
-    double B_aq;
-    double TDS_aq;
-    double Density_STP;
-    double CO2_pct_g;
-    int Option_Use_H2Sg;
-    double H2S_pct_g;
-    double H2S_aq;
-    double pH_STP;
-    double Q_Gas;
-    double Q_Oil;
-    double Q_Water;
+    double Alk_Bicarbonate_aq;  // Excel row 24
+    double Alk_Carbonate_aq;    // Excel row 25
+    double OrgAcid_Acetate_aq;  // Excel row 26
+    double Ammonia_aq;          // Excel row 27
+    double B_aq;                // Excel row 28
+    double TDS_aq;              // Excel row 29
+    double Density_STP;         // Excel row 30
+    double CO2_pct_g;           // Excel row 31
+    int Option_Use_H2Sg;        // Excel row 32
+    double H2S_pct_g;           // Excel row 
+    double H2S_aq;              // Excel row 33
+    double pH_STP;              // Excel row 34
+    double Q_Gas;               // Excel row 35
+    double Q_Oil;               // Excel row 36
+    double Q_Water;             // Excel row 37
 
     /* ---------- sample_temperature_pressure_information ---------- */
-    double T_initial;
-    double T_final;
-    double P_initial;
-    double P_final;
-    double API;
-    double SG_g;
-    double Q_MeOH;
-    double Q_MEG;
-    double StrongAcid_aq;
-    double StrongBase_aq;
-    double Conc_Multiplier;
+    double T_initial;   // Excel row 39
+    double T_final;     // Excel row 40
+    double P_initial;   // Excel row 41
+    double P_final;     // Excel row 42
+    double API;         // Excel row 43
+    double SG_g;        // Excel row 44
+    double Q_MeOH;      // Excel row 45
+    double Q_MEG;       // Excel row 46
+    double StrongAcid_aq;   // Excel row 47
+    double StrongBase_aq;   // Excel row 48
+    double Conc_Multiplier; // Excel row 49
     double T_pH;
     double P_pH;
     double T_Q;
     double P_Q;
 
     /* ---------- sample_oil_phase_information ---------- */
-    double C1_o;
-    double CO2_o;
-    double H2S_o;
-    double C2_o;
-    double C3_o;
-    double iC4_o;
-    double nC4_o;
-    double iC5_o;
-    double nC5_o;
-    double C6_o;
-    double C7_C12_o;
-    double C13_C25_o;
-    double C26_C80_o;
-    double N2_o;
+    double C1_o;    // Excel row 66
+    double CO2_o;   // Excel row 67
+    double H2S_o;   // Excel row 68
+    double C2_o;    // Excel row 69
+    double C3_o;    // Excel row 70
+    double iC4_o;   // Excel row 71
+    double nC4_o;   // Excel row 72
+    double iC5_o;   // Excel row 73
+    double nC5_o;   // Excel row 74
+    double C6_o;    // Excel row 75
+    double C7_C12_o;// Excel row 76
+    double C13_C25_o;// Excel row 77
+    double C26_C80_o;// Excel row 78
+    double N2_o;    // Excel row 79
 
     /* ---------- config_options_information ---------- */
-    int Option_Alk;
-    int Option_Defined_TP;
-    int Option_TP_for_pH;
-    int Option_TP_for_Q;
-    int Option_EoS;
-    int Option_Water_HC;
+    int Option_Alk;         // Excel row 51
+    int Option_Defined_TP;  // Excel row 52
+    int Option_TP_for_pH;   // Excel row 53
+    int Option_TP_for_Q;    // Excel row 54
+    int Option_EoS;         // Excel row 55
+    int Option_Water_HC;    // Excel row 56
 
 } SampleData;
 
@@ -795,50 +795,50 @@ void mockData_sheetInput(SampleData* data)
     data->Option_Use_H2Sg = 0;
     data->H2S_pct_g = 4.32;
     data->H2S_aq = 1.2;
-    data->pH_STP = 6.9;
-    data->Q_Gas = 500.0;
-    data->Q_Oil = 100.0;
-    data->Q_Water = 250.0;
+    data->pH_STP = 7.61618535964846;
+    data->Q_Gas = 8500.0;
+    data->Q_Oil = 1000.0;
+    data->Q_Water = 100.0;
 
     /* ---------- sample_temperature_pressure_information ---------- */
-    data->T_initial = 60.0;
-    data->T_final = 80.0;
-    data->P_initial = 10.0;
-    data->P_final = 20.0;
-    data->API = 32.0;
-    data->SG_g = 0.85;
-    data->Q_MeOH = 5.0;
-    data->Q_MEG = 8.0;
-    data->StrongAcid_aq = 1.0;
-    data->StrongBase_aq = 0.5;
+    data->T_initial = 340;
+    data->T_final = 140.0;
+    data->P_initial = 7000.0;
+    data->P_final = 400.0;
+    data->API = 40.0;
+    data->SG_g = 0.80;
+    data->Q_MeOH = 0.0;
+    data->Q_MEG = 0.0;
+    data->StrongAcid_aq = 0.0;
+    data->StrongBase_aq = 0.0;
     data->Conc_Multiplier = 1.0;
-    data->T_pH = 25.0;
-    data->P_pH = 1.0;
+    data->T_pH = 0.0;
+    data->P_pH = 0.0;
     data->T_Q = 30.0;
     data->P_Q = 5.0;
 
     /* ---------- sample_oil_phase_information ---------- */
-    data->C1_o = 30.0;
-    data->CO2_o = 2.5;
-    data->H2S_o = 0.8;
-    data->C2_o = 12.0;
-    data->C3_o = 8.0;
-    data->iC4_o = 5.0;
-    data->nC4_o = 6.0;
-    data->iC5_o = 3.0;
-    data->nC5_o = 2.5;
-    data->C6_o = 4.0;
-    data->C7_C12_o = 10.0;
-    data->C13_C25_o = 8.0;
-    data->C26_C80_o = 5.0;
-    data->N2_o = 1.0;
+    data->C1_o = 74.16;
+    data->CO2_o = 0.28;
+    data->H2S_o = 0.013;
+    data->C2_o = 7.9;
+    data->C3_o = 4.15;
+    data->iC4_o = 0.71;
+    data->nC4_o = 1.44;
+    data->iC5_o = 0.53;
+    data->nC5_o = 0.66;
+    data->C6_o = 0.81;
+    data->C7_C12_o = 4.04;
+    data->C13_C25_o = 1.45897808911913;
+    data->C26_C80_o = 0.189774787571497;
+    data->N2_o = 0.6;
 
     /* ---------- config_options_information ---------- */
-    data->Option_Alk = 1;
-    data->Option_Defined_TP = 1;
-    data->Option_TP_for_pH = 1;
-    data->Option_TP_for_Q = 1;
-    data->Option_EoS = 1;
+    data->Option_Alk = 0;
+    data->Option_Defined_TP = 0;
+    data->Option_TP_for_pH = 0;
+    data->Option_TP_for_Q = 0;
+    data->Option_EoS = 0;
     data->Option_Water_HC = 0;
 }
 
