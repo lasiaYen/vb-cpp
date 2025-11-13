@@ -404,7 +404,7 @@ double aH2O = 0;
 
 double gNeut[15] = { 0 }; double zOutput[15] = { 0 }; double z[20] = { 0 }; double gL[20] = { 0 };
 double density[3] = { 0 }; double mc[15] = { 0 }; double ma[15] = { 0 };
-double ChCat[15] = { 0 }; double ChAn[15] = { 0 };
+double ChCat[15] = { 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0 }; double ChAn[15] = { -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -1, -2, -2, 0 ,0 };
 
 double b0[15][15] = { 0 }; double b1[15][15] = { 0 }; double b2[15][15] = { 0 };
 double CPhi[15][15] = { 0 }; double Lnc[15][15] = { 0 }; double Lna[15][15] = { 0 };
@@ -1843,42 +1843,42 @@ void ReadInputPartB(int kk, SampleData* data)
  */
 double fTPFunc(int iTP) {
     switch (iTP) {
-        case 0: // 标准条件
-            Ppsia = 14.696;
-            Patm = Ppsia / 14.696;
-            PBar = Ppsia / 14.503774;
-            TF = 77;
-            TC = (TF - 32) * 5.0 / 9.0;
-            TK = TC + 273.15;
-            break;
-        case 1: // 使用 Pvol 和 TVol
-            Ppsia = Pvol;
-            Patm = Ppsia / 14.696;
-            PBar = Ppsia / 14.503774;
-            TF = TVol;
-            TC = (TF - 32) * 5.0 / 9.0;
-            TK = TC + 273.15;
-            break;
-        case 2: // 使用 PpH 和 TpH
-            Ppsia = PpH;
-            Patm = Ppsia / 14.696;
-            PBar = Ppsia / 14.503774;
-            TF = TpH;
-            TC = (TF - 32) * 5.0 / 9.0;
-            TK = TC + 273.15;
-            break;
-        case 3: // API 标准条件
-            Ppsia = 14.696;
-            Patm = Ppsia / 14.696;
-            PBar = Ppsia / 14.503774;
-            TF = 60;
-            TC = (TF - 32) * 5.0 / 9.0;
-            TK = TC + 273.15;
-            break;
-        default:
-            // 处理无效输入
-            fprintf(stderr, "Invalid iTP value: %d\n", iTP);
-            return -1.0; // 返回错误码
+    case 0: // 标准条件
+        Ppsia = 14.696;
+        Patm = Ppsia / 14.696;
+        PBar = Ppsia / 14.503774;
+        TF = 77;
+        TC = (TF - 32) * 5.0 / 9.0;
+        TK = TC + 273.15;
+        break;
+    case 1: // 使用 Pvol 和 TVol
+        Ppsia = Pvol;
+        Patm = Ppsia / 14.696;
+        PBar = Ppsia / 14.503774;
+        TF = TVol;
+        TC = (TF - 32) * 5.0 / 9.0;
+        TK = TC + 273.15;
+        break;
+    case 2: // 使用 PpH 和 TpH
+        Ppsia = PpH;
+        Patm = Ppsia / 14.696;
+        PBar = Ppsia / 14.503774;
+        TF = TpH;
+        TC = (TF - 32) * 5.0 / 9.0;
+        TK = TC + 273.15;
+        break;
+    case 3: // API 标准条件
+        Ppsia = 14.696;
+        Patm = Ppsia / 14.696;
+        PBar = Ppsia / 14.503774;
+        TF = 60;
+        TC = (TF - 32) * 5.0 / 9.0;
+        TK = TC + 273.15;
+        break;
+    default:
+        // 处理无效输入
+        fprintf(stderr, "Invalid iTP value: %d\n", iTP);
+        return -1.0; // 返回错误码
     }
     return TK; // 返回绝对温度（K）
 }
@@ -1954,15 +1954,15 @@ double PsatH2O(double TK)
 
 /**
  * @brief 计算热力学平衡常数
- * 
+ *
  * 此函数计算多种化学物质在水溶液中的热力学平衡常数，包括：
  * - 气体溶解度常数（CO2、CH4、H2S等）
  * - 酸解离常数（碳酸、硫化氢、乙酸、硅酸等）
  * - 矿物溶度积常数（方解石、石膏、重晶石、闪锌矿等）
  * - 配合物稳定常数（Zn、Pb的氯配合物和硫配合物等）
- * 
+ *
  * 计算考虑了温度、压力和离子强度的影响，适用于地球化学模拟。
- * 
+ *
  */
 void C1_ThermodynamicEquilConsts()
 {
@@ -2530,13 +2530,35 @@ void V0TP()
         0.0000000714885, 0.0, 0.0, -0.00727);
 
     // SO4 (取后面 Dai 20151027 的参数)
-    V0_a[iSO4] = fV0(
-        20.1255488592824, 8382.68656863382, 8.63029649907132E-02,
-        3.86933893465996E-05, -262.073120048569, -20014.7787488445,
-        1.93246311860811E-02, 1.16742679461389, 9.95461079547389E-06,
-        7.58647008800297E-08, -1.30203576761739, -2.31700638251545,
-        -3.61401771714286E-05, -4.71960303681654E-03, -7.8135942334434E-09,
-        4.3129299430231E-11, 1.77316241419105E-03, 7.24281664341625E-03);
+    double q1 = 20.1255488592824;
+    double q2 = 8382.68656863382;
+    double q3 = 8.63029649907132E-02;
+    double q4 = 3.86933893465996E-05;
+    double q5 = -262.073120048569;
+    double q6 = -20014.7787488445;
+    double q7 = 1.93246311860811E-02;
+    double q8 = 1.16742679461389;
+    double q9 = 9.95461079547389E-06;
+    double q10 = 7.58647008800297E-08;
+    double q11 = -1.30203576761739;
+    double q12 = -2.31700638251545;
+    double q13 = -3.61401771714286E-05;
+    double q14 = -4.71960303681654E-03;
+    double q15 = -7.8135942334434E-09;
+    double q16 = 4.3129299430231E-11;
+    double q17 = 1.77316241419105E-03;
+    double q18 = 7.24281664341625E-03;
+
+    V0_a[iSO4] =
+        q1 + q2 / TK + q3 * TK + q4 * pow(TK, 2)
+        + q5 / (TK - 227.0)
+        + q6 / (647.0 - TK)
+        + PBar * (q7 + q8 / TK + q9 * TK + q10 * pow(TK, 2)
+            + q11 / (TK - 227.0)
+            + q12 / (647.0 - TK))
+        + pow(PBar, 2) * (q13 + q14 / TK + q15 * TK + q16 * pow(TK, 2)
+            + q17 / (TK - 227.0)
+            + q18 / (647.0 - TK));
 }
 
 
@@ -2683,17 +2705,17 @@ void C2_Pitzer2019() {
     // b0(iNa, iCO3) = fPP(TK, 0.03856, 0.00128, 0.0000056, -1986.1, -7.5408, 0)
     b0[iNa][iCO3] = fPP(TK, 0.03856, 0.00128, 0.0000056, -1986.1, -7.5408, 0);
 
-    // %based on Pabalan & Pitzer 1988 and Dai 20151112
+    // %based on Pabalan & Pitzer 1988 and Dai 20151112   - 注意涉及到除法必须给数字加小数
     q1 = 0.60955633; q2 = -16.090797; q3 = -0.10932828; q4 = 0.00025321479; q5 = -0.000000099384034; q6 = 0.040107638; q7 = 0.021711348; q8 = 0.001738512; q9 = 0.001722469; q10 = -0.01255087; q11 = -0.0104936; q12 = 92308.895357; q13 = 963.974106;
-    b0[iNa][iSO4] = q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5 / 12) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 +
-        q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (TK / 2 + 3 * pow(647, 2) / 2 / TK - 647 * (647 - TK) * log(647 - TK) / TK) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11
+    b0[iNa][iSO4] = q1 * pow(TK, 2) / 6.0 + q2 * TK / 2.0 + q3 * pow(TK, 2) * (log(TK) / 2.0 - 5.0 / 12.0) / 3.0 + q4 * pow(TK, 3) / 12.0 + q5 * pow(TK, 4) / 20.0 +
+        q6 * (TK / 2.0 + 3 * pow(227, 2) / 2.0 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (TK / 2.0 + 3 * pow(647, 2) / 2.0 / TK - 647 * (647 - TK) * log(647 - TK) / TK) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11
         + 0.001 * (PBar - 200) * fPZ6(TK, 0.047242702840047, -5.38099320830228e-02, 1.18935539713076e-02, -1.47824630406919e-02, -0.733032327494331, 3.62293033499918e-02) + 0.000001 * pow((PBar - 200), 2) * fPZ6(TK, -5.32348171981031e-02, -0.101775451027319, 2.21588585653303e-02, 4.05106192359346e-03, 0.661622313615445, -2.06389886993178e-02);
 
     // b0(iK, iOH) = fPP(TK, 0.1298, 0.00721, -0.00000184, -863.72, -4.5653, 0)    'Kaasa's book... added by Dai
     b0[iK][iOH] = fPP(TK, 0.1298, 0.00721, -0.00000184, -863.72, -4.5653, 0);
 
     q1 = 0.04808; q2 = -758.48; q3 = -4.7062; q4 = 0.010072;  q5 = -0.0000037599; q6 = 0;
-    b0[iK][iCl] = q1 + q2 * (1 / TK - 1 / 298.15) + q3 * log(TK / 298.15) + q4 * (TK - 298.15) + q5 * (pow(TK, 2) - pow(298.15, 2)) + q6 * log(TK - 260);
+    b0[iK][iCl] = q1 + q2 * (1.0 / TK - 1.0 / 298.15) + q3 * log(TK / 298.15) + q4 * (TK - 298.15) + q5 * (pow(TK, 2) - pow(298.15, 2)) + q6 * log(TK - 260);
 
     // b0(iK, iHCO3) = fPP(TK, -0.01344, -0.21739, 0.0000921, 10020, 82.417, 0)    'Kaasa's book... added by Dai
     b0[iK][iHCO3] = fPP(TK, -0.01344, -0.21739, 0.0000921, 10020, 82.417, 0);
@@ -2770,7 +2792,7 @@ void C2_Pitzer2019() {
 
     // '%based on Pabalan & Pitzer 1988
     q1 = 1.1040235; q2 = -25.758534; q3 = -0.20290775; q4 = 0.00053309441; q5 = -0.00000023576724; q6 = 0; q7 = 0.14455381; q8 = 0.005820066; q9 = 0.005512612; q10 = 0.703766; q11 = 0.690077; q12 = 363078.71668; q13 = 1926.602872;
-    b1[iNa][iSO4] = q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5 / 12) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 + q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (TK / 2 + 3 * pow(647, 2) / 2 / TK - 647 * (647 - TK) * log(647 - TK) / TK) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11;
+    b1[iNa][iSO4] = q1 * pow(TK, 2) / 6.0 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2.0 - 5.0 / 12.0) / 3.0 + q4 * pow(TK, 3) / 12.0 + q5 * pow(TK, 4) / 20.0 + q6 * (TK / 2.0 + 3 * pow(227, 2) / 2.0 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (TK / 2.0 + 3 * pow(647, 2) / 2.0 / TK - 647 * (647 - TK) * log(647 - TK) / TK) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11;
 
     q1 = 0.0476; q2 = 303.9; q3 = 1.066; q4 = 0; q5 = 0; q6 = 0.047;
     b1[iK][iOH] = fPP(TK, 0.32, 0.0634, -0.0000276, -3232.7, -24.573, 0);
@@ -2845,7 +2867,7 @@ void C2_Pitzer2019() {
     b2[iCa][iSO4] = fHolmes(TK, PBar, -3451.92417674836, -25.0510497042672, 0.52463858314361, -6.03901870423439e-04, -5.41906113936402e-02, 4.17388513213358, 96.8711207569075, -1.38634677934667, 452.409611072822, -3.37062199562341e-04, 4.42711788329082e-06, -15.5294298988312, -58.8816456334969, -4.86122268847504e-03, 0.458609072994063, 1.52062601592044e-05, -1.41724741011899e-08);
 
     // based on Phutela & Pitzer and P dependence from Dai 20151112
-    b2[iMg][iSO4] = -13.764 * (TK / 2 + pow(298, 2) / (2 * TK) - 298) + 0.12121 * (pow(TK, 2) / 6 + pow(298, 3) / (3 * TK) - pow(298, 2) / 2) + -0.00027642 * (pow(TK, 3) / 12 + pow(298, 4) / (4 * TK) - pow(298, 3) / 3) + -0.21515 * (298 - pow(298, 2) / TK) + -32.743 +
+    b2[iMg][iSO4] = -13.764 * (TK / 2.0 + pow(298, 2) / (2 * TK) - 298) + 0.12121 * (pow(TK, 2) / 6.0 + pow(298, 3) / (3 * TK) - pow(298, 2) / 2) + -0.00027642 * (pow(TK, 3) / 12.0 + pow(298, 4) / (4 * TK) - pow(298, 3) / 3.0) + -0.21515 * (298 - pow(298, 2) / TK) + -32.743 +
         0.1 * (PBar - 20) * fPZ6(TK, 0.412262082080429, 0.400058114021816, 3.00888166907448e-02, -2.94302940870418e-02, -4.42981067782703, 5.66583267829718e-02) +
         0.0001 * pow((PBar - 20), 2) * fPZ6(TK, 0.234558885627083, -0.245867648958111, 6.55732421096113e-02, -2.74923796315413e-02, -4.12894058959444, 0.011915963054195);
 
@@ -2872,7 +2894,7 @@ void C2_Pitzer2019() {
 
     // based on Pabalan & Pitzer 1988
     q1 = -0.291330454580456; q2 = 7.47067054163403; q3 = 5.25526087271343e-02; q4 = -1.25440539335741e-04; q5 = 5.05817041380687e-08; q6 = -1.46616028524056e-02; q7 = -1.09759151043306e-02; q8 = -3.16065983167313e-04; q9 = -3.26114253370686e-04; q10 = 1.07722061259521e-02; q11 = 1.05906493888146e-02; q12 = -43691.7324087285; q13 = -441.068472680535;
-    CPhi[iNa][iSO4] = q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5 / 12) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 + q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (TK / 2 + 3 * pow(647, 2) / 2 / TK - 647 * (647 - TK) * log(647 - TK) / TK) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11;
+    CPhi[iNa][iSO4] = q1 * pow(TK, 2) / 6.0 + q2 * TK / 2.0 + q3 * pow(TK, 2) * (log(TK) / 2.0 - 5.0 / 12.0) / 3.0 + q4 * pow(TK, 3) / 12.0 + q5 * pow(TK, 4) / 20.0 + q6 * (TK / 2 + 3 * pow(227, 2) / 2.0 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (TK / 2 + 3 * pow(647, 2) / 2.0 / TK - 647 * (647 - TK) * log(647 - TK) / TK) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11;
 
     // CPhi(iK, iOH) = fPP(TK, 0.0041, -0.00274, 0.00000104, 195.95, 1.2493, 0)    'Kaasa's book... added by Dai
     CPhi[iK][iOH] = fPP(TK, 0.0041, -0.00274, 0.00000104, 195.95, 1.2493, 0);
@@ -2952,7 +2974,7 @@ void C2_Pitzer2019() {
     q1 = -0.0210289; q2 = 0.603967; q3 = 0.00367768; q4 = -0.00000705537; q5 = 0.00000000197968;
     q6 = -0.00247588; q7 = 0.14416; q8 = 0.000677136; q9 = 0.000656838; q10 = 0.04808;
     q11 = 0.050038; q12 = -2931.268116; q13 = -33.953143; q14 = 0; q15 = 0; q16 = 0; q17 = 0; q18 = 0;
-    b0[iK][iCl] = q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5 / 12) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 + q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (2 * (647 - TK) * log(647 - TK) / TK + log(647 - TK)) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11;
+    b0[iK][iCl] = q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5.0 / 12.0) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 + q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (2 * (647 - TK) * log(647 - TK) / TK + log(647 - TK)) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11;
 
     q1 = 0; q2 = 0; q3 = 0.0000000945016; q4 = -0.000000000290741; q5 = 0;
     q6 = 0.00326205; q7 = 0.000000839662; q8 = 0; q9 = -0.00000000441638; q10 = 6.71235e-12;
@@ -2963,25 +2985,27 @@ void C2_Pitzer2019() {
     q1 = 0.220813; q2 = -4.61849; q3 = -0.0410116; q4 = 0.000110445; q5 = -0.0000000473196;
     q6 = -0.027412; q7 = 0.332883; q8 = 0.000967854; q9 = 0.000967854; q10 = 0.218752;
     q11 = 0.218752; q12 = 6353.355434; q13 = 193.004059; q14 = 0; q15 = 0; q16 = 0; q17 = 0; q18 = 0;
-    b1[iK][iCl] = q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5 / 12) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 + q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (2 * (647 - TK) * log(647 - TK) / TK + log(647 - TK)) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11;
+    b1[iK][iCl] = q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5.0 / 12.0) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 + q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (2 * (647 - TK) * log(647 - TK) / TK + log(647 - TK)) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11;
 
     q1 = 0; q2 = 0.000764891; q3 = 0; q4 = -0.0000000112131; q5 = 1.72256e-11;
     q6 = 0; q7 = -0.00571188; q8 = -0.0000412364; q9 = -0.0000412364; q10 = -0.000394;
     q11 = -0.000394; q12 = 28.17218; q13 = -0.125567; q14 = 0; q15 = 0; q16 = 0; q17 = 0; q18 = 0;
-    CPhi[iK][iCl] = 2 * (q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5 / 12) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 + q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (2 * (647 - TK) * log(647 - TK) / TK + log(647 - TK)) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11);
+    CPhi[iK][iCl] = 2 * (q1 * pow(TK, 2) / 6 + q2 * TK / 2 + q3 * pow(TK, 2) * (log(TK) / 2 - 5.0 / 12.0) / 3 + q4 * pow(TK, 3) / 12 + q5 * pow(TK, 4) / 20 + q6 * (TK / 2 + 3 * pow(227, 2) / 2 / TK + 227 * (TK - 227) * log(TK - 227) / TK) - q7 * (2 * (647 - TK) * log(647 - TK) / TK + log(647 - TK)) - q12 / TK - q9 * (pow(298.15, 2) / TK) + q13 + q11);
 
     // '%Pabalan and Pitzer
     Taap[iCl][iSO4] = 0.03; Taap[iSO4][iCl] = 0.03;
 
     // '%based on Pabalan & Pitzer 1988
-    Yaapc[iCl][iSO4][iNa] = -0.016958 + 3.13544 / TK + 0.0000216352 * TK + -131254 / pow((647 - TK), 4);
-    Yaapc[iSO4][iCl][iNa] = -0.016958 + 3.13544 / TK + 0.0000216352 * TK + -131254 / pow((647 - TK), 4);
+    Yaapc[iCl][iSO4][iNa] = -0.016958 + 3.13544 / TK + 0.0000216352 * TK + -131254.0 / pow((647 - TK), 4);
+    Yaapc[iSO4][iCl][iNa] = -0.016958 + 3.13544 / TK + 0.0000216352 * TK + -131254.0 / pow((647 - TK), 4);
 
     // 'Duan and Li 2008 Carbonate
     q1 = 0.0661; q2 = 0; q3 = 0; q4 = 0; q5 = 0; q6 = 0.0000000375951; q7 = 0; q8 = 0;
     b0[iNa][iHCO3] = fDuan1(TK, PBar, q1, q2, q3, q4, q5, q6, q7, q8);
+
     q1 = 0.5153; q2 = -0.0005991; q3 = 0; q4 = -25.81; q5 = -2.659; q6 = 0; q7 = 0.0000875; q8 = -0.0000000266;
     b0[iNa][iCO3] = fDuan1(TK, PBar, q1, q2, q3, q4, q5, q6, q7, q8);
+
     q1 = -4.116; q2 = 0.006309; q3 = 924; q4 = -52.02; q5 = -80.26; q6 = 0; q7 = 0.0001634; q8 = -0.000000139;
     b1[iNa][iHCO3] = fDuan1(TK, PBar, q1, q2, q3, q4, q5, q6, q7, q8);
 
@@ -2997,6 +3021,7 @@ void C2_Pitzer2019() {
     q8 = 0.005683638727; q9 = -0.0008009093476; q10 = 0; q11 = -0.0000174562027;
     Lnc[iCO2aq][iNa] = fDuan2(TK, PBar, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11);
     Lna[iCO2aq][iCl] = 0;
+
     q1 = -0.01665719188; q2 = 0.0000013916186; q3 = 0; q4 = 0; q5 = 0;
     q6 = 0; q7 = 0; q8 = -0.001873812115; q9 = -0.001577400757; q10 = 0; q11 = 0;
     zeta[iCO2aq][iNa][iCl] = fDuan2(TK, PBar, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11);
@@ -3004,6 +3029,7 @@ void C2_Pitzer2019() {
     // based on Dai 20151112
     Tccp[iNa][iCa] = fPZ_DL_6(TK, Patm, -0.147510859131801, 9.76229611297803e-04, -4.82248417271452, -2.06519624782849, -1.51280704258336e-05, -1.04898649291008e-08);
     Tccp[iCa][iNa] = Tccp[iNa][iCa];
+
     Tccp[iNa][iBa] = 1.14420890430833 * Tccp[iNa][iCa];
     Tccp[iBa][iNa] = Tccp[iNa][iBa];
     Tccp[iNa][iSr] = 1.89691943139874 * Tccp[iNa][iCa];
@@ -3011,6 +3037,7 @@ void C2_Pitzer2019() {
 
     Yccpa[iNa][iCa][iCl] = fPZ_DL_6(TK, Patm, 2.26910136864354e-02, -2.43069462162211e-04, 2.40163930955923, 0.900545162398897, 9.17559621916219e-06, 1.11650476459493e-09);
     Yccpa[iCa][iNa][iCl] = Yccpa[iNa][iCa][iCl];
+
     Yccpa[iNa][iBa][iCl] = 1.29191707034912 * Yccpa[iNa][iCa][iCl];
     Yccpa[iBa][iNa][iCl] = Yccpa[iNa][iBa][iCl];
     Yccpa[iNa][iSr][iCl] = 2.32054171945995 * Yccpa[iNa][iCa][iCl];
@@ -3019,44 +3046,49 @@ void C2_Pitzer2019() {
     // based on Dai 20151112
     Yaapc[iCl][iHCO3][iNa] = fPZ_DL_6(TK, Patm, 3.29114286722895e-02, -9.905848162123e-05, -1.1319579697159, -6.66253293573831e-02, -1.209935715211e-05, 5.05498885272366e-09);
     Yaapc[iHCO3][iCl][iNa] = Yaapc[iCl][iHCO3][iNa];
+
     Yaapc[iSO4][iHCO3][iNa] = fPZ6(TK, -2.30508813504961, 10.9078063774135, 0.173488671930141, 2.38184731898223e-02, -10.9432999062871, 6.12652697241691e-03);
     Yaapc[iHCO3][iSO4][iNa] = Yaapc[iSO4][iHCO3][iNa];
 
     // '%based on IUPAC
     Lnc[iCO2aq][iCa] = 0.2045 - 0.000284 * (TK - 298.15);
-    b0[iCa][iHCO3] = -3.7313 + 1371.42 / TK - 57330 / pow(TK, 2);
-    b1[iCa][iHCO3] = 4.3005 - 2819.46 / TK + 483720 / pow(TK, 2);
-    b0[iMg][iHCO3] = -1.9113 + 769.53 / TK - 57330 / pow(TK, 2);
-    b1[iMg][iHCO3] = 14.3043 - 5590.6 / TK + 483720 / pow(TK, 2);
+    b0[iCa][iHCO3] = -3.7313 + 1371.42 / TK - 57330.0 / pow(TK, 2);
+    b1[iCa][iHCO3] = 4.3005 - 2819.46 / TK + 483720.0 / pow(TK, 2);
+    b0[iMg][iHCO3] = -1.9113 + 769.53 / TK - 57330.0 / pow(TK, 2);
+    b1[iMg][iHCO3] = 14.3043 - 5590.6 / TK + 483720.0 / pow(TK, 2);
 
     Lna[iCO2aq][iHCO3] = 0;
     Lna[iCO2aq][iCO3] = 0;
-    //Lnn[iCO2aq][iCO2aq] = 0;  不明所以的变量，暂时舍弃
+    Lnn[iCO2aq][iCO2aq] = 0;
 
     Tccp[iNa][iCa] = fPZ_DL_6(TK, Patm, -9.00319213981419e-02, 3.32942474038081e-04, -1.71678275211677, 6.96629148452292, 3.53927512842587e-05, -1.39564921696874e-09);
     Tccp[iCa][iNa] = Tccp[iNa][iCa];
+
     Yccpa[iNa][iCa][iCl] = fPZ_DL_6(TK, Patm, -2.03123697088405e-02, 6.79617962918556e-05, 1.46202927499665, -2.31987379795446, -1.23017318725963e-05, -2.5328414139378e-09);
-    Yccpa[iCa][iNa][iCl] = Yccpa[iNa][iCa][iCl];
 
     Tccp[iNa][iCa] = fPZ_DL_6(TK, PsatH2O(TK), -9.00319213981419e-02, 3.32942474038081e-04, -1.71678275211677, 6.96629148452292, 3.53927512842587e-05, -1.39564921696874e-09);
+
     Tccp[iNa][iCa] = Tccp[iNa][iCa] + -0.00000025 * TK * (Patm - PsatH2O(TK));
+
     Tccp[iCa][iNa] = Tccp[iNa][iCa];
     Yccpa[iNa][iCa][iCl] = fPZ_DL_6(TK, PsatH2O(TK), -2.03123697088405e-02, 6.79617962918556e-05, 1.46202927499665, -2.31987379795446, -1.23017318725963e-05, -2.5328414139378e-09);
+
     Yccpa[iNa][iCa][iCl] = Yccpa[iNa][iCa][iCl] + 0.00000001 * TK * (Patm - PsatH2O(TK));
+
     Yccpa[iCa][iNa][iCl] = Yccpa[iNa][iCa][iCl];
 
     // ''===========================H2Saq coefficients
     q1 = -0.10242; q2 = 0.000322; q3 = 27.88934; q4 = 0; q5 = 0; q6 = 0; q7 = 0;            // Noe that q1-q3 are fitted by Dai based on Barrett's data, q7-q11 are set to equal to CO2aq parameters
     q8 = 0.005683638727; q9 = -0.0008009093476; q10 = 0; q11 = -0.0000174562027;
     Lnc[iH2Saq][iNa] = fDuan2(TK, PBar, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11);
+
     Lna[iH2Saq][iCl] = 0;
     q1 = 0.06745; q2 = -0.000104; q3 = -13.71127; q4 = 0; q5 = 0;
     q6 = 0; q7 = 0; q8 = -0.001873812115; q9 = -0.001577400757; q10 = 0; q11 = 0;
     zeta[iH2Saq][iNa][iCl] = fDuan2(TK, PBar, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11);
-
     // For m = 1 To NumCat  'fbtermma calculation in density calculation, set parameter for sulfide = parameters for carbonate
     int m;
-    for (m = 1; m <= NumCat; m++) {
+    for (m = 0; m < NumCat; m++) {
         b0[m][iSion] = b0[m][iCO3];
         b1[m][iSion] = b1[m][iCO3];
         b2[m][iSion] = b2[m][iCO3];
@@ -3752,11 +3784,11 @@ void PengRobinson3() {
 
 /**
  * @brief 计算STP条件下的pH、PCO2和PH2S
- * 
+ *
  * 此函数用于在标准温度压力条件下计算水溶液的pH值、CO2分压和H2S分压。
  * 根据不同的输入条件组合（pH测量值、碱度、气体分压等），采用二分法求解pH值，
  * 并计算相关化学物种的浓度分布。
- * 
+ *
  * @param use_pH pH使用标志: 0-计算pH, 1-使用pH计算PCO2, 2-使用pH计算碱度, 3-使用TCO2计算pH
  * @param UseH2Sgas H2S气体使用标志: 0-使用TH2Saq, 1-使用yH2S
  * @param useEOS 状态方程使用标志
@@ -3814,7 +3846,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
             OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
             // 计算碳酸系统物种
-            CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+            CO2aq = KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
             HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
                 (aH * gAn[iHCO3] * gNAn[iHCO3]);
             CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
@@ -3884,14 +3916,14 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
             OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
             // 计算碳酸系统物种
-            CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+            CO2aq = KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
             HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
                 (aH * gAn[iHCO3] * gNAn[iHCO3]);
             CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
                 (aH * gAn[iCO3] * gNAn[iCO3]);
 
             // 计算硫系统物种
-            H2Saq = KgwH2S * Ppsia * (yH2S) * gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            H2Saq = KgwH2S * Ppsia * (yH2S)*gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
             HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
                 (aH * gAn[iHS] * gNAn[iHS]);
             S = K2HS * HS * gAn[iHS] * gNAn[iHS] /
@@ -3954,7 +3986,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
             }
         }
         else {
-            H2Saq = KgwH2S * Ppsia * (yH2S) * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
+            H2Saq = KgwH2S * Ppsia * (yH2S)*gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
             HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
             S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
             mc[iFe] = TFe / (1.0 + KstFeSaq * HS * gAn[iHS] * gNAn[iHS] *
@@ -3997,11 +4029,11 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
             (tHCO3 + 2.0 * tCO3);
 
         // 计算碳酸物种浓度
-        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] /
+        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] /
             (aH * gAn[iHCO3] * gNAn[iHCO3]);
-        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] /
+        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] /
             (aH * aH * gAn[iCO3] * gNAn[iCO3]);
-        CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
+        CO2aq = KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
 
         mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
@@ -4041,7 +4073,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
             }
         }
         else {
-            H2Saq = KgwH2S * Ppsia * (yH2S) * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
+            H2Saq = KgwH2S * Ppsia * (yH2S)*gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
             HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
             S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
             mc[iFe] = TFe / (1.0 + KstFeSaq * HS * gAn[iHS] * gNAn[iHS] *
@@ -4076,15 +4108,15 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
         NH3 = TNH4 / hydNH3;
 
         // 计算碳酸物种浓度
-        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] /
+        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] /
             (aH * gAn[iHCO3] * gNAn[iHCO3]);
-        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] /
+        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] /
             (aH * aH * gAn[iCO3] * gNAn[iCO3]);
 
         // 计算Alk
         Alk = HCO3 + 2.0 * CO3 + AC + NH3 + H2BO3 + HS + 2.0 * S + H3SiO4 + 2.0 * H2SiO4 + OH - H;
 
-        CO2aq = KgwCO2 * Ppsia * (yCO2) * gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
+        CO2aq = KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
 
         mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
@@ -4179,7 +4211,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
             CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
 
             // 计算硫系统物种
-            H2Saq = KgwH2S * Ppsia * (yH2S) * gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            H2Saq = KgwH2S * Ppsia * (yH2S)*gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
             HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
                 (aH * gAn[iHS] * gNAn[iHS]);
             S = K2HS * HS * gAn[iHS] * gNAn[iHS] /
@@ -4471,11 +4503,11 @@ double CalcRhoTP(double TK, double TC, double PBar, double Patm) {
     if (btermP) {
         for (i = 0; i < 15; i++) free(btermP[i]);
         free(btermP);
-    }    
+    }
     if (CtermP) {
         for (i = 0; i < 15; i++) free(CtermP[i]);
         free(CtermP);
-    }    
+    }
     if (btermPPlus) {
         for (i = 0; i < 15; i++) free(btermPPlus[i]);
         free(btermPPlus);
@@ -4727,7 +4759,7 @@ static double arcCos(double x)
     double tol = 1.0 - 1e-14;  // 容差 0.00000000000001
     double result;
 
-    if (fabs(x) >= tol) 
+    if (fabs(x) >= tol)
         result = 0.0;
     else
         result = atan(-x / sqrt(-x * x + 1.0)) + (2.0 * atan(1.0));
@@ -5337,7 +5369,7 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     const double my_RBar = 83.14;//Const RBar As Double = 83.14    ' cm3 bar / (mol K)
 
     //变量定义
-    int NonZeroNumGases, mf_NumGases, MaxBeta, i, j, k, L, m =0;
+    int NonZeroNumGases, mf_NumGases, MaxBeta, i, j, k, L, m = 0;
     double mf_Vg, mf_mass_w_GO;
     int counterEquilibrium_final, counter_final;
     bool eqAqueous, eqVapor;
@@ -5346,7 +5378,7 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     int Numbeta;
     int pure;
     double Sz;
-    double logphipure[15] = {0};
+    double logphipure[15] = { 0 };
     double PsatPure;
     char* phase = NULL;
     /*源代码没有给它默认值，担心会出问题，此处给phase 一个默认的值  */
@@ -5430,7 +5462,7 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     InitialPreparationSSP(mf_ParametersWereRead, EOS, zInput, iFlash, zGlobal, &TCr, &PCr, &Omega,
         &MWgas, &kPr, &c0, &c1, max_NumGases, mf_NumGases);
 
-    counterEquilibrium_final = 0; 
+    counterEquilibrium_final = 0;
     int iter_final = 0;
     counter_final = 0;//初始化防止传入空值
 
@@ -5813,8 +5845,8 @@ ReDim composition_Aq(NumGases), lnphi_Aq(NumGases)
 }
 
 
-void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, double mol_wpd, double TK, 
-    double PBar, double aH2O, double gNeut[], double nTCO2, double nTH2S, double yCO2, double yH2S, double YH2O, 
+void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, double mol_wpd, double TK,
+    double PBar, double aH2O, double gNeut[], double nTCO2, double nTH2S, double yCO2, double yH2S, double YH2O,
     double* total_moles, double feed_Composition[], double* mol_HC) {
     // ======= INPUT =======
     // API: Pseudo API gravity at given TP
@@ -5831,7 +5863,7 @@ void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, dou
     // feed_Composition: Molar composition of 15 components to make it compatible with other routines (Multiflash)
     int i, j;
     int NumGases = 15;
-    
+
     //-----参考true_composition
     double* composition_G = NULL;
     double* MWgas = NULL;
@@ -5867,13 +5899,13 @@ void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, dou
     double mol_HeavyGpd;
     double lnphiH2O_Aq, composition_Aq[15], lnphi_Water[15], Compr_composition_Aq;
     double Compr_G;
-    
+
     char EOS[3] = "PR";
     double mf_gNeut[2];
 
     const double RBar = 0.000083144621;  // m3*Bar/mol*K
 
-    
+
 
     // ReDim MWgas(NumGases), TCr(NumGases), PCr(NumGases), Omega(NumGases), mf_c0(NumGases), mf_c1(NumGases), kPr(NumGases, NumGases)
     // ReDim composition_Aq(NumGases), lnphi_Water(NumGases), composition_G(NumGases), lnphi_Gas(NumGases)
@@ -6175,7 +6207,7 @@ void MultiPhaseFlash_CS(char* iosheet, char* ioCol, double eosProps[][6], double
 }
 
 // 这些局部变量不确定
-double ZP1; double ZP2; double ZP3; double ZP4; double ZP5; double ZP6; double ZP7; 
+double ZP1; double ZP2; double ZP3; double ZP4; double ZP5; double ZP6; double ZP7;
 // double* root1; double* root2; double* root3;
 // 删减了参数
 /**
@@ -6240,13 +6272,13 @@ void MeSWhileloop(int im, int igas)
  * @param igas 气体标志 (3 表示硫化物沉淀)
  * @return double (未定义时返回 NAN)
  */
-double fMeSSpeciation(int im, int igas){
+double fMeSSpeciation(int im, int igas) {
     double HSOld = HS;
     double FeOld = TFe;
     double ZnOld = TZn;
     double PbOld = TPb;
 
-        // 预计算常用项
+    // 预计算常用项
     double cl_term = gDot[iClDot] * ma[iCl];
     double hs_term_sq = pow(gDot[iHSDot], 2); // HS的平方项
     double hs_term_cb = pow(gDot[iHSDot], 3); // HS的立方项
@@ -7708,19 +7740,19 @@ void QualityControlCalculations(int kk, int j)
  * @param rho25c [输入/输出] 25°C密度
  */
 void D2_CalcDensitypH(int i,
-                    // double pH, double Ist, double rhoOld,
-                    int Iteration,
-                    //  double rhoSSE, double TK, double TC, double PBar, double Patm,
-                    //   double mc[], double ma[], double mn[], double *Alk, double *TAc, double *TCO2, double *TNH4, double *TH3BO3,
-                    //   double *TH2Saq, double *TH4SiO4, double *TFe, double TDS, int NumCat, int NumAn, int NumNeut,
-                    //   int useEOSmix[], 
-                      int kk, 
-                    //   double gNeut[], double *aH2O, double DpHj,
-                    //   double H, double OH, double AC, double NH3, double H2BO3, double HCO3, double CO3, double HS, double H3SiO4,
-                    //   double H2SiO4, double H4SiO4, double CO2aq, double H2Saq, double HAcaq, double *xMeOH, double *xMEG, double *IStCosolvent,
-                      double *mt, int use_pH
-                    //   double *pHMeterStpMix, double *rho25c
-                    ) {
+    // double pH, double Ist, double rhoOld,
+    int Iteration,
+    //  double rhoSSE, double TK, double TC, double PBar, double Patm,
+    //   double mc[], double ma[], double mn[], double *Alk, double *TAc, double *TCO2, double *TNH4, double *TH3BO3,
+    //   double *TH2Saq, double *TH4SiO4, double *TFe, double TDS, int NumCat, int NumAn, int NumNeut,
+    //   int useEOSmix[], 
+    int kk,
+    //   double gNeut[], double *aH2O, double DpHj,
+    //   double H, double OH, double AC, double NH3, double H2BO3, double HCO3, double CO3, double HS, double H3SiO4,
+    //   double H2SiO4, double H4SiO4, double CO2aq, double H2Saq, double HAcaq, double *xMeOH, double *xMEG, double *IStCosolvent,
+    double* mt, int use_pH
+    //   double *pHMeterStpMix, double *rho25c
+) {
     // Call CalcIonicStrength 'before CO2, H2S, FeSaq speciation
     CalcIonicStrength();
 
@@ -7730,21 +7762,21 @@ void D2_CalcDensitypH(int i,
         printf("The calculated ionic strength is %.2f. This is greater than 20 m (moles of salt/kg of water), the upper limit. The calculation will be terminated. It is suggested that you check the input, conc unit, and retry the calculation.\n", Ist);
         return;  // End
     }
-
+    Iteration = 0, rhoSSE = 1;
     while (rhoSSE > 0.00000001 && Iteration < 30) {
         *mt = fTPFunc(0);  // iTP=0 T=77F, P=14.696 psi: iTP=1 T=TVol, P=Pvol;iTP=2 T=TpH, P=PpH
 
-        // rho25c = CalcRhoTP(TK, TC, PBar, Patm)
+        rho25c = CalcRhoTP(TK, TC, PBar, Patm);
         // *rho25c = CalcRhoTP(TK, TC, PBar, Patm);
 
         int iden;
-        for (iden = 1; iden <= NumCat; iden++) {
+        for (iden = 0; iden < NumCat; iden++) {
             mc[iden] *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
         }
-        for (iden = 1; iden <= NumAn; iden++) {
+        for (iden = 0; iden < NumAn; iden++) {
             ma[iden] *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
         }
-        for (iden = 1; iden <= NumNeut; iden++) {
+        for (iden = 0; iden < NumNeut; iden++) {
             mn[iden] *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
         }
         Alk *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
@@ -7785,11 +7817,11 @@ void D2_CalcDensitypH(int i,
 
     // Call C5_CalcpHPCO2PH2SSTP 'CO2, H2S, FeSaq speciation
     C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-                        //  TK, Ppsia, yCO2, yH2S,
-                        //  Alk, TAc, TH2Saq, TFe, TCO2,
-                        //  TNH4, TH3BO3, TH4SiO4,
-                        //  pH, pHMeterReading
-                        );
+        //  TK, Ppsia, yCO2, yH2S,
+        //  Alk, TAc, TH2Saq, TFe, TCO2,
+        //  TNH4, TH3BO3, TH4SiO4,
+        //  pH, pHMeterReading
+    );
 
     mc[iH] = H;
     ma[iOH] = OH;
@@ -7939,29 +7971,29 @@ void D2_CalcDensitypH(int i,
  * @param yCH4 [输入/输出] CH4气体摩尔分数
  * @param rho_Mix [数组] 密度混合 [MaxMix]
  */
-void D1_CalcDensity(int i, 
+void D1_CalcDensity(int i,
     // double* HCO3stpMix, double* AlkMix, double* ACstpMix, double* TAcMix, double* HstpMix, double* OHstpMix,
                     // double* CO3stpMix, double* HSstpMix, double* NH4STPMix, double* TNH4Mix, double* H2BO3stpMix, 
-                    int *Iteration2,
-                    // double* mc, double* ma, double* mn, 
-                    // double *Alk, double *TAc, double *TH2Saq, double *TH4SiO4, double* TCa,
-                    // double *TH3BO3, double *TNH4,
-                    // double *TFe, double* TDSMix, double *TDSOld,
-                    // double *TDS, double *TDSSSE, int UseMolal, double *rho25c, double *CalculateTDSDen,
-                    // int NumCat, int NumAn, int NumNeut, 
-                    // double* MWCat, double* MWAn, double* MWNeut, double *xMeOH, double *xMEG, double *IStCosolvent,
-                    // double Ist,
-                     double *mt, 
-                    //  double pH, double *pHMeterStpMix,  double DpHj, double gNeut[], double *aH2O,
-                    // double TK, double TC, double PBar, double Patm, int use_pH,
-                    //  int* useEOSmix, 
-                     int kk
-                    //  double H, double OH, double AC,
-                    // double NH3, double H2BO3, double HCO3, double CO3, double HS, double H3SiO4, double H2SiO4, double H4SiO4,
-                    // double CO2aq, double H2Saq, double HAcaq,
-                    // double *yCO2, double *yH2S,
-                    // double *yCH4, double* rho_Mix
-                ) {
+    int* Iteration2,
+    // double* mc, double* ma, double* mn, 
+    // double *Alk, double *TAc, double *TH2Saq, double *TH4SiO4, double* TCa,
+    // double *TH3BO3, double *TNH4,
+    // double *TFe, double* TDSMix, double *TDSOld,
+    // double *TDS, double *TDSSSE, int UseMolal, double *rho25c, double *CalculateTDSDen,
+    // int NumCat, int NumAn, int NumNeut, 
+    // double* MWCat, double* MWAn, double* MWNeut, double *xMeOH, double *xMEG, double *IStCosolvent,
+    // double Ist,
+    double* mt,
+    //  double pH, double *pHMeterStpMix,  double DpHj, double gNeut[], double *aH2O,
+    // double TK, double TC, double PBar, double Patm, int use_pH,
+    //  int* useEOSmix, 
+    int kk
+    //  double H, double OH, double AC,
+    // double NH3, double H2BO3, double HCO3, double CO3, double HS, double H3SiO4, double H2SiO4, double H4SiO4,
+    // double CO2aq, double H2Saq, double HAcaq,
+    // double *yCO2, double *yH2S,
+    // double *yCH4, double* rho_Mix
+) {
 
     // HCO3stpMix(i) = AlkMix(i): ACstpMix(i) = TAcMix(i): HstpMix(i) = 0.000001: OHstpMix(i) = 0.0000001: CO3stpMix(i) = 0: _
     // HSstpMix(i) = 0: NH4STPMix(i) = TNH4Mix(i): H2BO3stpMix(i) = 0
@@ -8019,19 +8051,19 @@ void D1_CalcDensity(int i,
     // If use_pH = 3 Then TCO2 = TCO2Mix(i)
     // TDSOld = TDSMix(i):  rhoOld = rho_Mix(i): TDS = TDSMix(i): TDSSSE = 1:
     TDSOld = TDSMix[i];
-    // rhoOld = rho_Mix[i];  // 假设rhoOld在D2_CalcDensitypH中处理
+    rhoOld = rho_Mix[i];  // 假设rhoOld在D2_CalcDensitypH中处理
     TDS = TDSMix[i];
     TDSSSE = 1;
 
     // yCO2 = yCO2Mix(i): yH2S = yH2SMix(i): yCH4 = 1 - yCO2 - yH2S
-    yCO2 = yCO2Mix[i];
-    yH2S = yH2SMix[i];
-    yCH4 = 1 - yCO2 - yH2S;
+    //yCO2 = yCO2Mix[i];
+    //yH2S = yH2SMix[i];
+    //yCH4 = 1 - yCO2 - yH2S;
 
     if (UseMolal == 0) {
         while (TDSSSE > 0.00000001 && *Iteration2 < 20) {
             // Call D2_CalcDensitypH(i) 'Calculate ISt, density, and HCO3, AC, HS speciation from TDS
-            D2_CalcDensitypH(i, 
+            D2_CalcDensitypH(i,
                 // pH, Ist, rhoOld, 
                 Iteration,
                 // rhoSSE, TK, TC, PBar, Patm,
@@ -8041,61 +8073,62 @@ void D1_CalcDensity(int i,
                 kk,
                 //  gNeut, aH2O, DpHj, H, OH, AC, NH3, H2BO3, HCO3, CO3, HS, H3SiO4, H2SiO4, H4SiO4, CO2aq, H2Saq, HAcaq,
                 // xMeOH, xMEG, IStCosolvent, 
-                mt, use_pH 
+                mt, use_pH
                 // pHMeterStpMix, rho25c
             );
             TDS = 0;
             CalculateTDSDen = 0;  // Calculate TDS from density
             int iden;
             for (iden = 2; iden <= NumCat; iden++) {
-                TDS += 1000 * (rho25c) * mc[iden] * MWCat[iden];  // =Sum of mg salt/L*(Kg soln/Kg H2O)
+                TDS += 1000 * (rho25c)*mc[iden] * MWCat[iden];  // =Sum of mg salt/L*(Kg soln/Kg H2O)
                 CalculateTDSDen += 0.001 * mc[iden] * MWCat[iden];  // =Sum of Kg salt/Kg H2O
             }
             for (iden = 2; iden <= NumAn; iden++) {
-                TDS += 1000 * (rho25c) * ma[iden] * MWAn[iden];
+                TDS += 1000 * (rho25c)*ma[iden] * MWAn[iden];
                 CalculateTDSDen += 0.001 * ma[iden] * MWAn[iden];
             }
             for (iden = 2; iden <= NumNeut; iden++) {
-                TDS += 1000 * (rho25c) * mn[iden] * MWNeut[iden];
+                TDS += 1000 * (rho25c)*mn[iden] * MWNeut[iden];
                 CalculateTDSDen += 0.001 * mn[iden] * MWNeut[iden];
             }
             TDS /= (1 + CalculateTDSDen);  // denometer=(1+Kgsalt/KgH2O)=(Kgsoln/KgH2O)
 
             for (iden = 2; iden <= NumCat; iden++) {  // Calculate molality from new TDS
-                mc[iden] *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+                mc[iden] *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
             }
             for (iden = 2; iden <= NumAn; iden++) {
-                ma[iden] *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+                ma[iden] *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
             }
             for (iden = 2; iden <= NumNeut; iden++) {
-                mn[iden] *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+                mn[iden] *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
             }
-            Alk *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
-            TAc *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            Alk *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
+            TAc *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
             // TCO2 *= ...  // 假设TCO2已定义
-            TNH4 *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
-            TH3BO3 *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
-            TH2Saq *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
-            TH4SiO4 *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
-            TFe *= ((rho25c) - (TDSOld) / 1000000.0) / ((rho25c) - (TDS) / 1000000.0);
+            TNH4 *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
+            TH3BO3 *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
+            TH2Saq *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
+            TH4SiO4 *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
+            TFe *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
 
             // Call D2_CalcDensitypH(i) 'Calculate ISt, density, and HCO3, AC, HS speciation from TDS
-            D2_CalcDensitypH(i, pH, 
-                            // Ist, rhoOld, 
-                            Iteration,
-                            // rhoSSE, TK, TC, PBar, Patm,
-                            // mc, ma, mn, Alk, TAc, &TCO2, TNH4, TH3BO3, TH2Saq, TH4SiO4, TFe, *TDS, NumCat, NumAn, NumNeut,
-                            // useEOSmix, kk, gNeut, aH2O, DpHj, H, OH, AC, NH3, H2BO3, HCO3, CO3, HS, H3SiO4, H2SiO4, H4SiO4, CO2aq, H2Saq, HAcaq,xMeOH,xMEG, IStCosolvent,
-                            mt, use_pH
-                            // pHMeterStpMix, rho25c
-                            );
+            D2_CalcDensitypH(i, pH,
+                // Ist, rhoOld, 
+                Iteration,
+                // rhoSSE, TK, TC, PBar, Patm,
+                // mc, ma, mn, Alk, TAc, &TCO2, TNH4, TH3BO3, TH2Saq, TH4SiO4, TFe, *TDS, NumCat, NumAn, NumNeut,
+                // useEOSmix, kk, gNeut, aH2O, DpHj, H, OH, AC, NH3, H2BO3, HCO3, CO3, HS, H3SiO4, H2SiO4, H4SiO4, CO2aq, H2Saq, HAcaq,xMeOH,xMEG, IStCosolvent,
+                mt, use_pH
+                // pHMeterStpMix, rho25c
+            );
 
             if (TDSOld == 0) goto label10;
             TDSSSE = pow((TDS / TDSOld) - 1, 2);
             TDSOld = TDS;
             (*Iteration2)++;
         }
-    } else {
+    }
+    else {
         // Call CalcIonicStrength  // 未定义函数：计算离子强度
         CalcIonicStrength();  // 参数：无（使用全局mc, ma, Ist等）
 
@@ -8124,11 +8157,11 @@ void D1_CalcDensity(int i,
         PengRobinson3();
 
         C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-                        //  TK, Ppsia, yCO2, yH2S,
-                        //  Alk, TAc, TH2Saq, TFe, TCO2,
-                        //  TNH4, TH3BO3, TH4SiO4,
-                        //  pH, pHMeterReading
-                        );
+            //  TK, Ppsia, yCO2, yH2S,
+            //  Alk, TAc, TH2Saq, TFe, TCO2,
+            //  TNH4, TH3BO3, TH4SiO4,
+            //  pH, pHMeterReading
+        );
         mc[iH] = H;
         ma[iOH] = OH;
         ma[iAc] = AC;
@@ -8161,11 +8194,11 @@ void D1_CalcDensity(int i,
 
         // Call CalcIonicStrength
         C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-                        //  TK, Ppsia, yCO2, yH2S,
-                        //  Alk, TAc, TH2Saq, TFe, TCO2,
-                        //  TNH4, TH3BO3, TH4SiO4,
-                        //  pH, pHMeterReading
-                        );
+            //  TK, Ppsia, yCO2, yH2S,
+            //  Alk, TAc, TH2Saq, TFe, TCO2,
+            //  TNH4, TH3BO3, TH4SiO4,
+            //  pH, pHMeterReading
+        );
 
         // rho25c = CalcRhoTP(TK, TC, PBar, Patm)
         rho25c = CalcRhoTP(TK, TC, PBar, Patm);
@@ -8178,7 +8211,7 @@ void D1_CalcDensity(int i,
 
     }
 
-label10: ;
+label10:;
 }
 
 
@@ -8312,29 +8345,29 @@ label10: ;
  * @param iH2Saq H2S(aq) 索引
  * @param iHAcaq HAc(aq) 索引
  */
-void ReadInputPartC(int kk, 
-                    double *mt, 
-                    // int* UseTPpHMix, int Run10TestCases, int Loop10, int Run_Seawater_Mixing, int LoopMixing,
-                    int Run_MixingTwoWells, int RunMultiMix, int LoopResChem, int RunStatMix,
-                    // double* HCO3stpMix, double* AlkMix, double* ACstpMix, double* TAcMix, double* HstpMix, double* OHstpMix,
-                    // double* CO3stpMix, double* HSstpMix, double* NH4STPMix, double* TNH4Mix, double* H2BO3stpMix, double *TDS,
-                    // double *yH2S, double *yCO2, 
-                    int *Iteration2,
-                    // double* mc, double* ma, double* mn,
-                    // double *Alk, double *TAc, double *TH2Saq, double *TH4SiO4, double *TH3BO3, double *TNH4, double *TFe, double *TPb, double *TZn, 
-                    int *use_pH, int* usepHmix, int *UseH2Sgas, int* UseH2SgasMix
-                    // double *TCO2, double* TCO2Mix, double* yCO2Mix, double* yH2SMix, int* useEOSmix, double* SumofZMix,
-                    // double** zMix, double* CalculatedTDSMix, double* NaMix, double* KMix, double* MgMix, double* CaMix,
-                    // double *TCa, double* SrMix, double* BaMix, double* FeMix, double* ZnMix, double* PbMix, double* RaMix,
-                    // double* ClMix, double* SO4Mix, double* FMix, double* BrMix, double* rho25CMix, double* H3SiO4Mix, double* H2SiO4Mix,
-                    // double* NH3Mix, double* H4SiO4Mix, double* H3BO3Mix, double* CO2aqMix, double* H2SaqMix, double* HACaqMix,
-                    // double* AlkMix2, double* TAcMix2, double* TH2SaqMix, double* TH4SiO4Mix2, double* TNH4Mix2, double* TH3BO3Mix2,
-                    // double* yCH4Mix, int* UseTPVolMix, double* WaterDensityMix, 
-                    // double rho25c, int UseMolal, 
-                    // double *CalculateTDSDen
-                    // int NumCat, int NumAn, int NumNeut, double* MWCat, double* MWAn, double* MWNeut
-                    /*int iCO2aq, int iH2Saq, int iHAcaq*/
-                    ) {
+void ReadInputPartC(int kk,
+    double* mt,
+    // int* UseTPpHMix, int Run10TestCases, int Loop10, int Run_Seawater_Mixing, int LoopMixing,
+    int Run_MixingTwoWells, int RunMultiMix, int LoopResChem, int RunStatMix,
+    // double* HCO3stpMix, double* AlkMix, double* ACstpMix, double* TAcMix, double* HstpMix, double* OHstpMix,
+    // double* CO3stpMix, double* HSstpMix, double* NH4STPMix, double* TNH4Mix, double* H2BO3stpMix, double *TDS,
+    // double *yH2S, double *yCO2, 
+    int* Iteration2,
+    // double* mc, double* ma, double* mn,
+    // double *Alk, double *TAc, double *TH2Saq, double *TH4SiO4, double *TH3BO3, double *TNH4, double *TFe, double *TPb, double *TZn, 
+    int* use_pH, int* usepHmix, int* UseH2Sgas, int* UseH2SgasMix
+    // double *TCO2, double* TCO2Mix, double* yCO2Mix, double* yH2SMix, int* useEOSmix, double* SumofZMix,
+    // double** zMix, double* CalculatedTDSMix, double* NaMix, double* KMix, double* MgMix, double* CaMix,
+    // double *TCa, double* SrMix, double* BaMix, double* FeMix, double* ZnMix, double* PbMix, double* RaMix,
+    // double* ClMix, double* SO4Mix, double* FMix, double* BrMix, double* rho25CMix, double* H3SiO4Mix, double* H2SiO4Mix,
+    // double* NH3Mix, double* H4SiO4Mix, double* H3BO3Mix, double* CO2aqMix, double* H2SaqMix, double* HACaqMix,
+    // double* AlkMix2, double* TAcMix2, double* TH2SaqMix, double* TH4SiO4Mix2, double* TNH4Mix2, double* TH3BO3Mix2,
+    // double* yCH4Mix, int* UseTPVolMix, double* WaterDensityMix, 
+    // double rho25c, int UseMolal, 
+    // double *CalculateTDSDen
+    // int NumCat, int NumAn, int NumNeut, double* MWCat, double* MWAn, double* MWNeut
+    /*int iCO2aq, int iH2Saq, int iHAcaq*/
+) {
     *mt = fTPFunc(0);  // Densitym TDS, and m calculated at STP condition
     if (UseTPpHMix[kk] == 1) *mt = fTPFunc(2);
 
@@ -8405,7 +8438,8 @@ void ReadInputPartC(int kk,
 
     if (*use_pH == 3) {
         TCO2 = TCO2Mix[kk];
-    } else {
+    }
+    else {
         TCO2 = 0;
     }
 
@@ -8421,27 +8455,27 @@ void ReadInputPartC(int kk,
     // Call PengRobinson3
 
     // Call D1_CalcDensity(kk) 'Calculate TDS, density and fix molality based on the predicted density and TDS
-    D1_CalcDensity(kk, 
+    D1_CalcDensity(kk,
         // HCO3stpMix, AlkMix, ACstpMix, TAcMix, HstpMix, OHstpMix,
                     // CO3stpMix, HSstpMix, NH4STPMix, TNH4Mix, H2BO3stpMix,
-                    Iteration2,
-                    // mc, ma, mn, 
-                    // Alk, TAc, TH2Saq, TH4SiO4, TCa,
-                    // TH3BO3, TNH4,
-                    // TFe, TDSMix, &TDSOld,
-                    // TDS, &TDSSSE, UseMolal, &rho25c, CalculateTDSDen, NumCat, NumAn,
-                    // NumNeut, MWCat,  MWAn,  MWNeut, &xMeOH, &xMEG, &IStCosolvent,
-                    // Ist, 
-                    mt,
-                    // pH, pHMeterStpMix,  DpHj, gNeut, &aH2O,
-                    // TK, TC, PBar, Patm, *use_pH, useEOSmix,
-                     kk
-                    //  H, OH, AC,
-                    // NH3, H2BO3, HCO3, CO3, HS, H3SiO4, H2SiO4, H4SiO4,
-                    // CO2aq, H2Saq, HAcaq,
-                    // yCO2, yH2S,
-                    // &yCH4, rho_Mix
-                );
+        Iteration2,
+        // mc, ma, mn, 
+        // Alk, TAc, TH2Saq, TH4SiO4, TCa,
+        // TH3BO3, TNH4,
+        // TFe, TDSMix, &TDSOld,
+        // TDS, &TDSSSE, UseMolal, &rho25c, CalculateTDSDen, NumCat, NumAn,
+        // NumNeut, MWCat,  MWAn,  MWNeut, &xMeOH, &xMEG, &IStCosolvent,
+        // Ist, 
+        mt,
+        // pH, pHMeterStpMix,  DpHj, gNeut, &aH2O,
+        // TK, TC, PBar, Patm, *use_pH, useEOSmix,
+        kk
+        //  H, OH, AC,
+        // NH3, H2BO3, HCO3, CO3, HS, H3SiO4, H2SiO4, H4SiO4,
+        // CO2aq, H2Saq, HAcaq,
+        // yCO2, yH2S,
+        // &yCH4, rho_Mix
+    );
 
     CalculatedTDSMix[kk] = TDS;
 
@@ -8516,7 +8550,7 @@ void ReadInputPartC(int kk,
         TDS = CalculateTDSDen / (1 + CalculateTDSDen) * rho25c * 1000000.0;  // TDS in unit of mg/L,  numerator=(Kgsalt/KgH2O), denometer=(1+Kgsalt/KgH2O)=(Kgsoln/KgH2O);density Kgsoln/Lsoln
         CalculatedTDSMix[kk] = TDS;
     }
-label100: ;
+label100:;
 }
 /********************************************************************************************************/
 
@@ -8732,7 +8766,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         // Alk, TAc, TH2Saq, TFe, TCO2,
                         // TNH4, TH3BO3, TH4SiO4,
                         // pH, pHMeterReading
-                        );
+                    );
 
                     // ******重新分配 CO2aq、HCO3、CO3、H2Saq、HS 并重新计算离子强度
                     fmn();
@@ -8744,7 +8778,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         // Alk, TAc, TH2Saq, TFe, TCO2,
                         // TNH4, TH3BO3, TH4SiO4,
                         // pH, pHMeterReading
-                        );
+                    );
 
                     pHMeterReading = pH - DpHj;
                     goto label_3003;
@@ -9065,7 +9099,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
         if (useEOS == 3) {
             // 仅在给定天然气和石油产量时运行 useEOS；第一次迭代涵盖 usedryHC=0 或 1
-            pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, yCO2, 
+            pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, yCO2,
                 yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
 
             if (feed_Composition[0] < 0.0000001) {
@@ -9091,7 +9125,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
                 while (mol_w3 <= 0) { // 确保添加足够的水以开始迭代
                     mol_W = mol_W * 1.1;
-                    pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, yCO2, 
+                    pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, yCO2,
                         yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
 
                     MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
@@ -9442,7 +9476,7 @@ label_123:
 void B2_ReadinAllData(SampleData* data)
 {
     //
-    
+
     // 声明并初始化所有需要的变量
     double mt = 0.0;
     int Run10TestCases = 0, Loop10 = 0, Run_Seawater_Mixing = 0, LoopMixing = 0;
@@ -9452,17 +9486,17 @@ void B2_ReadinAllData(SampleData* data)
     rhoOld = 0;
     rhoSSE = 0.00000002;
     Iteration = 0;
-    
+
     double TDS = 0.0, yH2S = 0.0, yCO2 = 0.0;
     int Iteration2 = 0;
     //
 
     if (Read_InputII == 1) nob = nob_Input;
-    if (Run1000Cases == 1) nob = nob_Input; 
+    if (Run1000Cases == 1) nob = nob_Input;
 
-    for (int iRead = 0; iRead < nob; iRead++){
+    for (int iRead = 0; iRead < nob; iRead++) {
         printf("%d", iRead);
-        if (Run1000Cases == 1){
+        if (Run1000Cases == 1) {
             CaseCount[iRead] = LoopTP1000Cases;
         }
         j = CaseCount[iRead];
@@ -9470,20 +9504,20 @@ void B2_ReadinAllData(SampleData* data)
         ReadInputPartA(kk, data);
     }
 
-    for (int iRead = 0; iRead < nob; iRead++){
+    for (int iRead = 0; iRead < nob; iRead++) {
         j = CaseCount[iRead];
         kk = iRead;
         ReadInputPartB(kk, data);
     }
 
-    for (int iRead = 0; iRead < nob; iRead++){
+    for (int iRead = 0; iRead < nob; iRead++) {
         j = CaseCount[iRead];
         kk = iRead;
         ReadInputPartC(kk, &mt,
-                  Run_MixingTwoWells, RunMultiMix, LoopResChem, RunStatMix,
-                  &Iteration2,
-                  &use_pH, usepHmix, &UseH2Sgas, UseH2SgasMix
-                );
+            Run_MixingTwoWells, RunMultiMix, LoopResChem, RunStatMix,
+            &Iteration2,
+            &use_pH, usepHmix, &UseH2Sgas, UseH2SgasMix
+        );
         if (RunStat == 0)
         {
             if (RunH2SGUI != 1)
@@ -9783,7 +9817,7 @@ int main()
     //               &use_pH, usepHmix, &UseH2Sgas, UseH2SgasMix
     //               );
     // ReadInputPartD(kk, j, &data);
-    
+
     printf("ReadInputPartC ended\n");
     printf("Calc Result: TDS = %f, yCO2 = %f, yH2S = %f\n", TDS, yCO2, yH2S);
     printf("Alkalinity Alk = %f, Tatal Ac TAc = %f\n", Alk, TAc);
