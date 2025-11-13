@@ -1615,10 +1615,12 @@ double SArea;
 double QBrineFlow;
 double radiusC[11];
 double radiusA[12];
-//int iCa, iSr, iBa, iFe, iHCO3, iHS, iCO3, iSO4;   -以注释，用define描述    by彭非
 
+//PartB新加入的两个全局变量，目前单组份用不到，先保留
+double PipeID = 0, PipeL = 0;
 
-
+double fTPFunc(int iTP);   //PartB要使用，在这声明了
+double fH2ODensity(double TK, double PBar);
 
 void ReadInputPartB(int kk, SampleData* data)
 {
@@ -1646,13 +1648,14 @@ void ReadInputPartB(int kk, SampleData* data)
         }
     }
 
-    if (Run_Seawater_Mixing == 1 && LoopMixing == 1 && kk == 1)
+    if (Run_Seawater_Mixing == 1 && LoopMixing == 1 && kk == 0)
     {
-        VwSW1 = VwMix[1];
-        VgSW1 = VgTPMix[1];
-        VoSW1 = VoMix[1];
-        VMeOHSW1 = VMeOHMix[1];
-        VMEGSW1 = VMEGMix[1];
+        //offset:VwSW1 = VwMix(1): VgSW1 = VgTPMix(1): VoSW1 = VoMix(1): VMeOHSW1 = VMeOHMix(1): VMEGSW1 = VMEGMix(1)
+        VwSW1 = VwMix[0];
+        VgSW1 = VgTPMix[0];
+        VoSW1 = VoMix[0];
+        VMeOHSW1 = VMeOHMix[0];
+        VMEGSW1 = VMEGMix[0];
     }
 
     // 舍弃此字段
@@ -1686,7 +1689,7 @@ void ReadInputPartB(int kk, SampleData* data)
     {
         VwMix[kk] = VwSW1 * MixFrac[kk];
 
-        if (kk == 1)
+        if (kk == 0)
         {
             VoMix[kk] = VoSW1 * MixFrac[kk];
             VgTPMix[kk] = VgSW1 * MixFrac[kk];
@@ -1750,25 +1753,25 @@ void ReadInputPartB(int kk, SampleData* data)
 
     if (UseTPVolMix[kk] == 0)
     {
-        // mt = fTPFunc(0); // STP condition
+        fTPFunc(0); // STP condition  mt = fTPFunc(0)
 
         GasDensityMix[kk] = gasSpGravMix[kk] *
             (Patm * 28.97 / (0.08206 * TK)); // kg/m^3
 
-        // 调用外部函数，暂时忽略fH2ODensity
-        //OilDensityMix[kk] = (141.5 / (oilAPIgravMix[kk] + 131.5)) *
-        //    (fH2ODensity(TK, PBar) / 1000.0);
+        // OilDensityMix(kk) = (141.5 / (oilAPIgravMix(kk) + 131.5)) * (fH2ODensity(TK, PBar) / 1000) 'conver density from API gravity
+        OilDensityMix[kk] = (141.5 / (oilAPIgravMix[kk] + 131.5)) *
+            (fH2ODensity(TK, PBar) / 1000.0);
     }
     else
     { // UseTPVolMix == 1
 
-        // mt = fTPFunc(1); // Use actual T, P
+        fTPFunc(1); // Use actual T, P
 
         GasDensityMix[kk] = gasSpGravMix[kk] *
             (Patm * 28.97 / (0.08206 * TK)); // kg/m^3
         // 调用外部函数，暂时忽略fH2ODensity
-        //OilDensityMix[kk] = (141.5 / (oilAPIgravMix[kk] + 131.5)) *
-        //    (fH2ODensity(TK, PBar) / 1000.0);
+        OilDensityMix[kk] = (141.5 / (oilAPIgravMix[kk] + 131.5)) *
+            (fH2ODensity(TK, PBar) / 1000.0);
     }
 
     // If volume of gas is equal to zero, then add one mL of gas
@@ -1807,7 +1810,7 @@ void ReadInputPartB(int kk, SampleData* data)
     QBrineFlow = VwMix[kk] * 159.0 * 1000.0 / 86400.0;
 
     // Calculate Surface Area contacted by brine, cm²
-    // SArea = M_PI * PipeID * PipeL;  无M_PI参数
+    SArea = pi * PipeID * PipeL;
 
     // Define hydrated cationic radii (Angstroms)
     radiusC[iCa] = 4.12;
