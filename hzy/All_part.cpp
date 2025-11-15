@@ -551,7 +551,7 @@ double TDSSSE, TDSOld;
 const int MaxMix = 100, MaxSpecies = 13, MaxComponents = 100, MaxCat = 100, MaxNeut = 100, MaxAnion = 100;
 /********************************************************************************************************/
 
-
+// 针对Shell Input Excel表格的样品数据结构体
 typedef struct
 {
 
@@ -598,8 +598,8 @@ typedef struct
     double Density_STP;         // Excel row 30
     double CO2_pct_g;           // Excel row 31
     int Option_Use_H2Sg;        // Excel row 32
-    double H2S_pct_g;           // Excel row 
-    double H2S_aq;              // Excel row 33
+    double H2S_pct_g;           // Excel row 33
+    double H2S_aq;              // Excel row
     double pH_STP;              // Excel row 34
     double Q_Gas;               // Excel row 35
     double Q_Oil;               // Excel row 36
@@ -617,10 +617,10 @@ typedef struct
     double StrongAcid_aq;   // Excel row 47
     double StrongBase_aq;   // Excel row 48
     double Conc_Multiplier; // Excel row 49
-    double T_pH;
-    double P_pH;
-    double T_Q;
-    double P_Q;
+    double T_pH;            // Excel row 58
+    double P_pH;            // Excel row 59
+    double T_Q;             // Excel row 60
+    double P_Q;             // Excel row 61
 
     /* ---------- sample_oil_phase_information ---------- */
     double C1_o;    // Excel row 66
