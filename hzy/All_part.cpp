@@ -4312,7 +4312,7 @@ double fAphicalc()
 }
 
 
-
+// b0,b1,b2 在C2_Pitzer2019里面计算
 void fBtermcalc(double** bterm, double gX14, double gX12)
 {
     int m, a;
@@ -4348,7 +4348,30 @@ void fBtermcalc(double** bterm, double gX14, double gX12)
             }
         }
     }
-
+    printf("\nb2:\n");
+    for (m = 0; m < NumCat; ++m)
+    {
+        printf("[");
+        for (a = 0; a < NumAn; ++a)
+        {
+            printf("%lf,", b2[m][a]);
+        }
+        printf("]\n");
+    }
+    // b0也有不同
+    // b1也有不同
+    // b2也有不同
+    // bterm
+    // 不同点坐标：
+    // [0,8],
+    // [1,2],[1,5],[1,6],[1,8],[1,9],
+    // [2,2],[2,5],[2,8],[2,9],
+    // [3,6],[3,8],
+    // [4,0],[4,4],[4,6],[4,8],[4,13]
+    // [5,3],[5,8],
+    // [6,0],[6,8]
+    // [7,0],[7,3],[7,4],[7,12]
+    // [8,0],[8,1],[8,5],[8,6],[8,8]
 }
 
 
