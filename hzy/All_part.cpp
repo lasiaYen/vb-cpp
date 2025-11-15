@@ -3111,41 +3111,6 @@ void C2_Pitzer2019() {
     CPhi[iFe][iSO4] = -0.05;
     b0[iFe][iAc] = -0.5; b1[iFe][iAc] = -5; b2[iFe][iAc] = 0; CPhi[iFe][iAc] = -0.05;
 
-
-    printf("\nb0:\n");
-    for (m = 0; m < 15; ++m)
-    {
-        printf("[");
-        for (int a = 0; a < 15; ++a)
-        {
-            printf("%lf,", b0[m][a]);
-        }
-        printf("]\n");
-    }
-
-    printf("\nb1:\n");
-    for (m = 0; m < 15; ++m)
-    {
-        printf("[");
-        for (int a = 0; a < 15; ++a)
-        {
-            printf("%lf,", b1[m][a]);
-        }
-        printf("]\n");
-    }
-
-    printf("\nb2:\n");
-    for (m = 0; m < 15; ++m)
-    {
-        printf("[");
-        for (int a = 0; a < 15; ++a)
-        {
-            printf("%lf,", b2[m][a]);
-        }
-        printf("]\n");
-    }
-
-
 }
 
 
@@ -4353,6 +4318,7 @@ void fBtermcalc(double** bterm, double gX14, double gX12)
 {
     int m, a;
     double X20, gX20;
+    int c = 13;  //用于占位
 
     for (m = 0; m < NumCat; ++m)
     {
@@ -4369,7 +4335,7 @@ void fBtermcalc(double** bterm, double gX14, double gX12)
                 // 特例 Na–SO4, K–SO4
                 // 注意：VB 原代码使用 c=2,3，这里推测应为 m==1-based索引，对应 m=1,2。  
                 // c在原代码里用了，但是不知道是什么
-                if ((m == 1 && a == 5) || (m == 2 && a == 5))  // 转成 0-based 索引
+                if ((c == 1 && a == 5) || (c == 2 && a == 5))  // 转成 0-based 索引
                     X20 = 1.4 * sqrt(Ist);
 
                 gX20 = 2.0 * (1.0 - (1.0 + X20) * exp(-X20)) / (X20 * X20);
@@ -4386,30 +4352,16 @@ void fBtermcalc(double** bterm, double gX14, double gX12)
             }
         }
     }
-    printf("\nb2:\n");
-    for (m = 0; m < NumCat; ++m)
-    {
-        printf("[");
-        for (a = 0; a < NumAn; ++a)
-        {
-            printf("%lf,", b2[m][a]);
-        }
-        printf("]\n");
-    }
-    // b0也有不同
-    // b1也有不同
-    // b2也有不同
-    // bterm
-    // 不同点坐标：
-    // [0,8],
-    // [1,2],[1,5],[1,6],[1,8],[1,9],
-    // [2,2],[2,5],[2,8],[2,9],
-    // [3,6],[3,8],
-    // [4,0],[4,4],[4,6],[4,8],[4,13]
-    // [5,3],[5,8],
-    // [6,0],[6,8]
-    // [7,0],[7,3],[7,4],[7,12]
-    // [8,0],[8,1],[8,5],[8,6],[8,8]
+    //printf("\nbterm:\n");
+    //for (m = 0; m < NumCat; ++m)
+    //{
+    //    printf("[");
+    //    for (a = 0; a < NumAn; ++a)
+    //    {
+    //        printf("%lf,", bterm[m][a]);
+    //    }
+    //    printf("]\n");
+    //}
 }
 
 
@@ -4480,7 +4432,7 @@ double CalcRhoTP(double TK, double TC, double PBar, double Patm) {
     // 增加压力并重新计算
     PBar = PBar + 0.000001;
     Patm = PBar / 1.013254;
-    // Ppsia = PBar * 14.503774; // 注释掉，如果不需要可以删除
+    Ppsia = PBar * 14.503774; // 注释掉，如果不需要可以删除
 
     C2_Pitzer2019();
 
@@ -9529,10 +9481,414 @@ label_123:
 
 
 
+void C2_PitzerActCoefsConstants()
+{
+    b0[iH][iBr] = 0.2085; b0[iNa][iAc] = 0.1426; b0[iNa][iHS] = -0.103;
+    b0[iNa][iBr] = 0.0973; b0[iNa][iH2BO3] = -0.0427;
+
+    b0[iK][iAc] = 0.15298; b0[iK][iBr] = 0.0569; b0[iK][iH2BO3] = 0.035;
+
+    b0[iMg][iHS] = 0.466; b0[iMg][iBr] = 0.5769 * 3.0 / 4.0;
+
+    b0[iCa][iOH] = -0.1747; b0[iCa][iCO3] = 0.16; b0[iCa][iHS] = 0.069;
+    b0[iCa][iBr] = 0.5088 * 3.0 / 4.0;
+
+    b0[iSr][iHCO3] = 0.12; b0[iSr][iCO3] = 0;
+    b0[iSr][iBr] = 0.4415 * 3.0 / 4.0;
+
+    b0[iBa][iOH] = 0.17175; b0[iBa][iBr] = 0.4194 * 3.0 / 4.0;
+
+    b0[iFe][iOH] = 0.17175; b0[iFe][iCl] = 0.35011;
+    b0[iFe][iAc] = 0.28725; b0[iFe][iCO3] = 1.919;
+    b0[iFe][iSO4] = 0.2568;
+
+    b0[iZn][iOH] = 0.17175; b0[iZn][iCl] = 0.0887;
+    b0[iZn][iSO4] = 0.18404;
+
+    b0[iZn][iBr] = 0.6213 * 3.0 / 4.0;
+    b0[iZn][iHS] = -0.5; b0[iZn][iCl] = -0.5;
+
+    b1[iH][iBr] = 0.3477; b1[iNa][iAc] = 0.3237; b1[iNa][iHS] = 0.884;
+    b1[iNa][iBr] = 0.2791; b1[iNa][iH2BO3] = 0.089;
+
+    b1[iK][iAc] = 0.34195; b1[iK][iBr] = 0.2212; b1[iK][iH2BO3] = 0.14;
+
+    b1[iMg][iHS] = 2.264; b1[iMg][iBr] = 2.337 * 3.0 / 4.0;
+
+    b1[iCa][iOH] = -0.2303; b1[iCa][iCO3] = 2.1;
+    b1[iCa][iHS] = 2.264; b1[iCa][iBr] = 2.151 * 3.0 / 4.0;
+
+    b1[iSr][iBr] = 2.282 * 3.0 / 4.0;
+
+    b1[iBa][iOH] = 1.2; b1[iBa][iBr] = 2.093 * 3.0 / 4.0;
+
+    b1[iFe][iCl] = 1.40092; b1[iFe][iHCO3] = 14.76;
+    b1[iFe][iCO3] = -5.134; b1[iFe][iSO4] = 3.063;
+
+    b1[iZn][iSO4] = 3.031; b1[iZn][iBr] = 2.179 * 3.0 / 4.0;
+    b1[iZn][iOH] = 4.72441418675659e-02;
+    b1[iZn][iCl] = -6.03067094634178; b1[iZn][iHS] = -7.44795278611779;
+
+    b2[iCa][iOH] = -5.72; b2[iCa][iCO3] = -69;
+    b2[iFe][iCO3] = -274; b2[iFe][iSO4] = -42;
+    b2[iZn][iSO4] = -27.709;
+
+    CPhi[iH][iBr] = 0.00152;
+
+    CPhi[iNa][iAc] = -0.00629; CPhi[iNa][iBr] = 0.00116;
+    CPhi[iNa][iH2BO3] = 0.0114;
+
+    CPhi[iK][iAc] = -0.00474; CPhi[iK][iHCO3] = -0.008;
+    CPhi[iK][iCO3] = -0.0015; CPhi[iK][iCO3] = 0.0005;
+
+    CPhi[iK][iBr] = -0.0018;
+
+    CPhi[iMg][iBr] = 0.00589 * 0.5303;
+
+    CPhi[iFe][iCl] = -0.01412; CPhi[iFe][iSO4] = 0.0209;
+
+    CPhi[iZn][iSO4] = 0.03286;
+    CPhi[iZn][iHS] = 0.5; CPhi[iZn][iCl] = -0.5;
+
+    CPhi[iCa][iBr] = -0.00485 * 0.5303;
+    CPhi[iSr][iBr] = 0.00231 * 0.5303;
+    CPhi[iBa][iBr] = -0.03009 * 0.5303;
+    CPhi[iZn][iBr] = -0.2035 * 0.5303;
+
+    Tccp[iH][iNa] = 0.036; Tccp[iNa][iH] = 0.036;
+    Tccp[iH][iK] = 0.005; Tccp[iK][iH] = 0.005;
+    Tccp[iH][iMg] = 0.005; Tccp[iMg][iH] = 0.005;
+    Tccp[iH][iCa] = 0.092; Tccp[iCa][iH] = 0.092;
+    Tccp[iH][iSr] = 0.07; Tccp[iSr][iH] = 0.07;
+
+    Tccp[iNa][iK] = -0.012; Tccp[iK][iNa] = -0.012;
+    Tccp[iNa][iMg] = 0.07; Tccp[iMg][iNa] = 0.07;
+
+    Tccp[iK][iCa] = 0.032; Tccp[iCa][iK] = 0.032;
+    Tccp[iMg][iCa] = 0.1244; Tccp[iCa][iMg] = 0.1244;
+
+    Yccpa[iH][iNa][iCl] = -0.004; Yccpa[iNa][iH][iCl] = -0.004;
+    Yccpa[iH][iK][iCl] = -0.011; Yccpa[iK][iH][iCl] = -0.011;
+    Yccpa[iH][iK][iSO4] = 0.197; Yccpa[iK][iH][iSO4] = 0.197;
+    Yccpa[iH][iMg][iCl] = -0.011; Yccpa[iMg][iH][iCl] = -0.011;
+    Yccpa[iH][iMg][iSO4] = -0.0178; Yccpa[iMg][iH][iSO4] = -0.0178;
+    Yccpa[iH][iCa][iCl] = -0.015; Yccpa[iCa][iH][iCl] = -0.015;
+    Yccpa[iH][iSr][iCl] = 0.01; Yccpa[iSr][iH][iCl] = 0.01;
+    Yccpa[iH][iSr][iSO4] = 0.03; Yccpa[iSr][iH][iSO4] = 0.03;
+
+    Yccpa[iNa][iK][iCl] = -0.0018; Yccpa[iK][iNa][iCl] = -0.0018;
+    Yccpa[iNa][iK][iHCO3] = -0.003; Yccpa[iK][iNa][iHCO3] = -0.003;
+    Yccpa[iNa][iK][iCO3] = 0.003; Yccpa[iK][iNa][iCO3] = 0.003;
+    Yccpa[iNa][iK][iSO4] = -0.01; Yccpa[iK][iNa][iSO4] = -0.01;
+
+    Yccpa[iNa][iMg][iCl] = -0.008; Yccpa[iMg][iNa][iCl] = -0.008;
+    Yccpa[iNa][iMg][iSO4] = -0.015; Yccpa[iMg][iNa][iSO4] = -0.015;
+
+    Yccpa[iNa][iCa][iSO4] = -0.055; Yccpa[iCa][iNa][iSO4] = -0.055;
+
+    Yccpa[iK][iMg][iCl] = -0.022; Yccpa[iMg][iK][iCl] = -0.022;
+    Yccpa[iK][iMg][iSO4] = -0.048; Yccpa[iMg][iK][iSO4] = -0.048;
+
+    Yccpa[iK][iCa][iCl] = -0.025; Yccpa[iCa][iK][iCl] = -0.025;
+
+    Yccpa[iMg][iCa][iCl] = -0.0238; Yccpa[iCa][iMg][iCl] = -0.0238;
+    Yccpa[iMg][iCa][iSO4] = 0.024; Yccpa[iCa][iMg][iSO4] = 0.024;
+
+    Taap[iOH][iCl] = -0.05; Taap[iCl][iOH] = -0.05;
+    Taap[iOH][iCO3] = 0.1; Taap[iCO3][iOH] = 0.1;
+    Taap[iOH][iSO4] = -0.013; Taap[iSO4][iOH] = -0.013;
+
+    Taap[iCl][iHCO3] = 0.0359; Taap[iHCO3][iCl] = 0.0359;
+    Taap[iCl][iCO3] = -0.053; Taap[iCO3][iCl] = -0.053;
+    Taap[iHCO3][iCO3] = -0.04; Taap[iCO3][iHCO3] = -0.04;
+
+    Taap[iHCO3][iSO4] = 0.01; Taap[iSO4][iHCO3] = 0.01;
+    Taap[iCO3][iSO4] = 0.02; Taap[iSO4][iCO3] = 0.02;
+
+    Taap[iH2BO3][iCl] = -0.065; Taap[iCl][iH2BO3] = -0.065;
+    Taap[iH2BO3][iSO4] = -0.012; Taap[iSO4][iH2BO3] = -0.012;
+
+    Yaapc[iOH][iCl][iNa] = -0.006; Yaapc[iCl][iOH][iNa] = -0.006;
+    Yaapc[iOH][iCl][iK] = -0.006; Yaapc[iCl][iOH][iK] = -0.006;
+
+    Yaapc[iOH][iCl][iCa] = -0.025; Yaapc[iCl][iOH][iCa] = -0.025;
+
+    Yaapc[iOH][iCO3][iNa] = -0.017; Yaapc[iCO3][iOH][iNa] = -0.017;
+    Yaapc[iOH][iCO3][iK] = -0.01; Yaapc[iCO3][iOH][iK] = -0.01;
+
+    Yaapc[iOH][iSO4][iNa] = -0.009; Yaapc[iSO4][iOH][iNa] = -0.009;
+    Yaapc[iOH][iSO4][iK] = -0.05; Yaapc[iSO4][iOH][iK] = -0.05;
+
+    Yaapc[iCl][iHCO3][iK] = -0.006; Yaapc[iHCO3][iCl][iK] = -0.006;
+    Yaapc[iCl][iHCO3][iMg] = -0.025; Yaapc[iHCO3][iCl][iMg] = -0.025;
+
+    Yaapc[iCl][iCO3][iNa] = 0.016; Yaapc[iCO3][iCl][iNa] = 0.016;
+
+    Yaapc[iCl][iCO3][iK] = 0.004; Yaapc[iCO3][iCl][iK] = 0.004;
+
+    Yaapc[iCl][iSO4][iMg] = -0.004; Yaapc[iSO4][iCl][iMg] = -0.004;
+    Yaapc[iCl][iSO4][iCa] = -0.018; Yaapc[iSO4][iCl][iCa] = -0.018;
+
+    Yaapc[iHCO3][iCO3][iNa] = 0.002; Yaapc[iCO3][iHCO3][iNa] = 0.002;
+    Yaapc[iHCO3][iCO3][iK] = 0.012; Yaapc[iCO3][iHCO3][iK] = 0.012;
+
+    Yaapc[iHCO3][iSO4][iNa] = -0.005; Yaapc[iSO4][iHCO3][iNa] = -0.005;
+    Yaapc[iHCO3][iSO4][iMg] = -0.161; Yaapc[iSO4][iHCO3][iMg] = -0.161;
+
+    Yaapc[iCO3][iSO4][iNa] = -0.005; Yaapc[iSO4][iCO3][iNa] = -0.005;
+    Yaapc[iCO3][iSO4][iK] = -0.009; Yaapc[iSO4][iCO3][iK] = -0.009;
+
+    Yaapc[iH2BO3][iCl][iNa] = -0.0073; Yaapc[iCl][iH2BO3][iNa] = -0.0073;
+
+    Lnc[iH3BO3][iNa] = -0.097;
+
+    Lna[iHAcaq][iCl] = 0.076;
+    Lna[iH3BO3][iCl] = 0.091;
+    Lna[iH3BO3][iSO4] = 0.018;
+}
 
 
+void B1_InitializeIndices()
+{
+    mf_ParametersWereRead = false;
+    //nComponents = 15;
+    int i;
+
+    NumCat = 12;
+    NumAn = 13;
+    NumNeut = 8;
+    int NumMean = 6;
+
+    /* ----------- Cation charge array ----------- */
+    ChCat[iH] = 1;
+    ChCat[iNa] = 1;
+    ChCat[iK] = 1;
+    ChCat[iMg] = 2;
+    ChCat[iCa] = 2;
+    ChCat[iSr] = 2;
+    ChCat[iBa] = 2;
+    ChCat[iFe] = 2;
+    ChCat[iZn] = 2;
+    ChCat[iPb] = 2;
+    ChCat[iNH4] = 1;
+    ChCat[iRa] = 2;
+
+    /* ----------- Anion charge array ----------- */
+    ChAn[iOH] = -1;
+    ChAn[iCl] = -1;
+    ChAn[iAc] = -1;
+    ChAn[iHCO3] = -1;
+    ChAn[iCO3] = -2;
+    ChAn[iSO4] = -2;
+    ChAn[iHS] = -1;
+    ChAn[intF] = -1;
+    ChAn[iBr] = -1;
+    ChAn[iH2BO3] = -1;
+    ChAn[iH3SiO4] = -1;
+    ChAn[iH2SiO4] = -2;
+    ChAn[iSion] = -2;
+
+    /* ----------- Neutral aquatic indexes ----------- */
+    /* (You already offset these so direct assignment is OK) */
+
+    /* ----------- Set multiplicities gNCat, gNAn etc. ----------- */
+    for (i = 0; i < NumCat; i++)  gNCat[i] = 1;
+    for (i = 0; i < NumAn; i++)  gNAn[i] = 1;
+    for (i = 0; i < NumNeut; i++)  gNNeut[i] = 1;
+    for (i = 0; i < NumMean; i++)  gNMean[i] = 1;
+
+    //dSIMeOHBar = 0;
+    //dSIMEGBar = 0;
+    //dSIMeOHcal = 0;
+    //dSIMEGcal = 0;
+    //dSIMeOHHal = 0;
+    //dSIMEGHal = 0;
+
+    aNH2O = 1;
+
+    C2_PitzerActCoefsConstants();
+
+    gL[iCO2o] = 1;
+    gL[iCH4o] = 1;
+    gL[iH2So] = 1;
+
+    /* ----------- Water EOS constants (IAPWS IF-97) ----------- */
+    //rgas_water = 461.526;
+    //tc_water = 647.096;
+    //pc_water = 220.64;
+    //dc_water = 322.0;
 
 
+    /* ---------- MW of ions ---------- */
+    MWCat[iH] = 1.008;
+    MWCat[iNa] = 22.99;
+    MWCat[iK] = 39.102;
+    MWCat[iMg] = 24.305;
+    MWCat[iCa] = 40.08;
+    MWCat[iSr] = 87.62;
+    MWCat[iBa] = 137.33;
+    MWCat[iFe] = 55.847;
+    MWCat[iZn] = 65.38;
+    MWCat[iPb] = 207.2;
+    MWCat[iNH4] = 18.039;
+    MWCat[iRa] = 226.0254;
+
+    MWAn[iOH] = 17.007;
+    MWAn[iCl] = 35.45;
+    MWAn[iAc] = 59.054;
+    MWAn[iHCO3] = 61.019;
+    MWAn[iCO3] = 60.019;
+    MWAn[iSO4] = 96.064;
+    MWAn[iHS] = 33.073;
+    MWAn[intF] = 18.998;
+    MWAn[iBr] = 79.904;
+    MWAn[iH2BO3] = 60.825;
+    MWAn[iH3SiO4] = 59.07;
+    MWAn[iH2SiO4] = 58.06;
+    MWAn[iSion] = 32.065;
+
+    MWNeut[iCH4aq] = 16;
+    MWNeut[iCO2aq] = 62.03;
+    MWNeut[iH2Saq] = 34.08;
+    MWNeut[iHAcaq] = 60.054;
+    MWNeut[iH4SiO4aq] = 60.08;
+    MWNeut[iFeSaq] = 87.912;
+    MWNeut[iH3BO3] = 61.833;
+    MWNeut[iNH3] = 17.031;
+
+    /* ---------- Partial molar volumes ---------- */
+    V0_c[iH] = 0;
+    V0_c[iNa] = -1.21;
+    V0_c[iK] = 9.02;
+    V0_c[iMg] = -21.17;
+    V0_c[iCa] = -17.85;
+    V0_c[iNH4] = 17.87;
+    V0_c[iSr] = -18.16;
+    V0_c[iBa] = -12.47;
+    V0_c[iFe] = -24.7;
+    V0_c[iZn] = -21.6;
+    V0_c[iPb] = -15.5;
+    V0_c[iRa] = -12.47;
+
+    V0_a[iOH] = -4.04;
+    V0_a[iCl] = 17.83;
+    V0_a[iAc] = 40.46;
+    V0_a[iHCO3] = 23.4;
+    V0_a[iCO3] = -4.3;
+    V0_a[iSO4] = 35.67;
+    V0_a[iHS] = 20.71;
+    V0_a[intF] = -1.16;
+    V0_a[iBr] = 24.71;
+    V0_a[iH2BO3] = 21.84;
+    V0_a[iSion] = -8.2;
+
+    V0_n[iHAcaq] = 51.94;
+    V0_n[iCO2aq] = 50.78;
+    V0_n[iH2Saq] = 35.71;
+    V0_n[iCH4aq] = 0;
+    V0_n[iH4SiO4aq] = 0;
+    V0_n[iNH3] = 19.74;
+    V0_n[iH3BO3] = 31.6;
+    V0_n[iFeSaq] = 35.71;
+
+    /* ---------- bi(...) assignments ---------- */
+    /*
+    for (i = 0; i < 11; i++) {
+        bi[i][1] = -1.09852;
+        bi[i][2] = 947.26074;
+        bi[i][3] = 0.11604;
+        bi[i][4] = 0.10637;
+    }
+
+    for (i = 11; i < 14; i++) {
+        bi[i][1] = -1.09052;
+        bi[i][2] = 1128.54873;
+        bi[i][3] = 0.16117;
+        bi[i][4] = 0.1664;
+    }
+
+    bi[14][1] = -0.88889;
+    bi[14][2] = 1060.77063;
+    bi[14][3] = 0.0058;
+    bi[14][4] = 0.14347;
+
+    for (i = 15; i < 18; i++) {
+        bi[i][1] = -1.91121;
+        bi[i][2] = 2112.54073;
+        bi[i][3] = -0.03065;
+        bi[i][4] = 0.1278;
+    }
+
+    bi[0][0] = -1.54021;
+    bi[1][0] = -1.34794;
+    bi[2][0] = -1.3758;
+    bi[3][0] = -1.34399;
+    bi[4][0] = -1.12207;
+    bi[5][0] = -1.34495;
+    bi[6][0] = -2.1112;
+    bi[7][0] = -1.85606;
+    bi[8][0] = -1.63406;
+    bi[9][0] = -1.64298;
+    bi[10][0] = -1.31222;
+    bi[11][0] = -2.40229;
+    bi[12][0] = -2.60203;
+    bi[13][0] = -2.51562;
+    bi[14][0] = -1.69223;
+    bi[15][0] = -2.46339;
+    bi[16][0] = -2.68192;
+    bi[17][0] = -2.46894;
+    bi[18][0] = -1.512;
+
+
+    ci[0][0] = -0.8592;   ci[0][1] = -1.871;   ci[0][2] = 702.5264;  ci[0][3] = 0.32;  ci[0][4] = 0.13;
+    ci[1][0] = -0.7779;   ci[1][1] = -1.255;   ci[1][2] = 645.7227;  ci[1][3] = 0.16;  ci[1][4] = 0.27;
+    ci[2][0] = -0.9406;   ci[2][1] = -0.943;   ci[2][2] = 319.4692;  ci[2][3] = 0.26;  ci[2][4] = 0.29;
+    ci[3][0] = -5.2447;   ci[3][1] = -0.8143;  ci[3][2] = 1775.0323; ci[3][3] = 0.22;  ci[3][4] = 0.27;
+    ci[5][0] = -1.1879;   ci[5][1] = -1.9919;  ci[5][2] = 956.1444;  ci[5][3] = 0.32;  ci[5][4] = 0.14;
+    ci[11][0] = -1.9439;  ci[11][1] = -1.4624; ci[11][2] = 1299.3775; ci[11][3] = 0.07; ci[11][4] = 0.27;
+    ci[12][0] = -2.4594;  ci[12][1] = -1.5937; ci[12][2] = 1651.1601; ci[12][3] = 0.06; ci[12][4] = 0.33;
+    ci[14][0] = -0.2386;  ci[14][1] = -1.87;   ci[14][2] = 980.1616;  ci[14][3] = 0.02; ci[14][4] = 0.2;
+    ci[15][0] = -0.3512;  ci[15][1] = -1.8329; ci[15][2] = 1027.0341; ci[15][3] = 0.02; ci[15][4] = 0.2;
+    ci[16][0] = -0.0514;  ci[16][1] = -1.1846; ci[16][2] = 479.2197;  ci[16][3] = 0.02; ci[16][4] = 0.2;
+    ci[10][0] = -0.9734;  ci[10][1] = -1.871;  ci[10][2] = 702.5264;  ci[10][3] = 0.32; ci[10][4] = 0.13;
+
+    ai[3][0] = -1.981;
+    ai[3][1] = -1.552;
+    ai[3][2] = 968.6;
+    ai[3][3] = 0.102;
+    ai[3][4] = 0.137;
+
+    gi[3][0] = -1.4815;
+    gi[3][1] = 0;
+    gi[3][2] = 241.8075;
+    gi[3][3] = 0.0908;
+    gi[3][4] = 0.1843;
+
+    celi[2][0] = -1.478;
+    celi[2][1] = -1.845;
+    celi[2][2] = 1218.91;
+
+    celi[11][0] = 0.1994;
+    celi[11][1] = -1.846;
+    celi[11][2] = 602.42;
+
+    celi[16][0] = -1.1569;
+    celi[16][1] = -2.212;
+    celi[16][2] = 1160.87;
+
+    EaRInh[0] = 8064.9;   LnAInh[0] = 6.761;
+    EaRInh[1] = 5524.5;   LnAInh[1] = 0.01131;
+    EaRInh[2] = 8064.9;   LnAInh[2] = 6.761;
+    EaRInh[3] = 5524.5;   LnAInh[3] = 0.01131;
+    EaRInh[5] = 4872.3;   LnAInh[5] = -1.469;
+    EaRInh[11] = 9936.7;  LnAInh[11] = 8.327;
+    EaRInh[12] = 12120;   LnAInh[12] = 14.51;
+    EaRInh[14] = 8064.9;  LnAInh[14] = 6.761;
+    EaRInh[15] = 4872.3;  LnAInh[15] = -1.469;
+    EaRInh[16] = 2822.5;  LnAInh[16] = -8.586;
+    EaRInh[18] = 8064.9;  LnAInh[18] = 6.761;
+    */
+}
 
 
 void B2_ReadinAllData(SampleData* data)
@@ -9871,14 +10227,8 @@ int main()
     initData();
     pointerInit_pf();
     mockData_sheetInput(&data);
+    B1_InitializeIndices();  //  初始化
     B2_ReadinAllData(&data);
-    // ReadInputPartA(kk, &data);
-    // ReadInputPartC(kk, &mt,
-    //               Run_MixingTwoWells, RunMultiMix, LoopResChem, RunStatMix,
-    //               &Iteration2,
-    //               &use_pH, usepHmix, &UseH2Sgas, UseH2SgasMix
-    //               );
-    // ReadInputPartD(kk, j, &data);
 
     printf("ReadInputPartC ended\n");
     printf("Calc Result: TDS = %f, yCO2 = %f, yH2S = %f\n", TDS, yCO2, yH2S);
