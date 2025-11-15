@@ -551,7 +551,7 @@ double TDSSSE, TDSOld;
 const int MaxMix = 100, MaxSpecies = 13, MaxComponents = 100, MaxCat = 100, MaxNeut = 100, MaxAnion = 100;
 /********************************************************************************************************/
 
-
+// 针对Shell Input Excel表格的样品数据结构体
 typedef struct
 {
 
@@ -598,8 +598,8 @@ typedef struct
     double Density_STP;         // Excel row 30
     double CO2_pct_g;           // Excel row 31
     int Option_Use_H2Sg;        // Excel row 32
-    double H2S_pct_g;           // Excel row 
-    double H2S_aq;              // Excel row 33
+    double H2S_pct_g;           // Excel row 33
+    double H2S_aq;              // Excel row
     double pH_STP;              // Excel row 34
     double Q_Gas;               // Excel row 35
     double Q_Oil;               // Excel row 36
@@ -617,10 +617,10 @@ typedef struct
     double StrongAcid_aq;   // Excel row 47
     double StrongBase_aq;   // Excel row 48
     double Conc_Multiplier; // Excel row 49
-    double T_pH;
-    double P_pH;
-    double T_Q;
-    double P_Q;
+    double T_pH;            // Excel row 58
+    double P_pH;            // Excel row 59
+    double T_Q;             // Excel row 60
+    double P_Q;             // Excel row 61
 
     /* ---------- sample_oil_phase_information ---------- */
     double C1_o;    // Excel row 66
@@ -3110,6 +3110,42 @@ void C2_Pitzer2019() {
     b2[iFe][iSO4] = -0.5 * pow(10, (-0.8398 - 0.895 * log10(TK) + 0.012 * TK));
     CPhi[iFe][iSO4] = -0.05;
     b0[iFe][iAc] = -0.5; b1[iFe][iAc] = -5; b2[iFe][iAc] = 0; CPhi[iFe][iAc] = -0.05;
+
+
+    printf("\nb0:\n");
+    for (m = 0; m < 15; ++m)
+    {
+        printf("[");
+        for (int a = 0; a < 15; ++a)
+        {
+            printf("%lf,", b0[m][a]);
+        }
+        printf("]\n");
+    }
+
+    printf("\nb1:\n");
+    for (m = 0; m < 15; ++m)
+    {
+        printf("[");
+        for (int a = 0; a < 15; ++a)
+        {
+            printf("%lf,", b1[m][a]);
+        }
+        printf("]\n");
+    }
+
+    printf("\nb2:\n");
+    for (m = 0; m < 15; ++m)
+    {
+        printf("[");
+        for (int a = 0; a < 15; ++a)
+        {
+            printf("%lf,", b2[m][a]);
+        }
+        printf("]\n");
+    }
+
+
 }
 
 
@@ -4312,7 +4348,7 @@ double fAphicalc()
 }
 
 
-
+// b0,b1,b2 在C2_Pitzer2019里面计算
 void fBtermcalc(double** bterm, double gX14, double gX12)
 {
     int m, a;
@@ -4331,11 +4367,13 @@ void fBtermcalc(double** bterm, double gX14, double gX12)
                 X20 = 2.0 * sqrt(Ist);
 
                 // 特例 Na–SO4, K–SO4
-                // 注意：VB 原代码使用 c=2,3，这里推测应为 m==1-based索引，对应 m=1,2。
+                // 注意：VB 原代码使用 c=2,3，这里推测应为 m==1-based索引，对应 m=1,2。  
+                // c在原代码里用了，但是不知道是什么
                 if ((m == 1 && a == 5) || (m == 2 && a == 5))  // 转成 0-based 索引
                     X20 = 1.4 * sqrt(Ist);
 
                 gX20 = 2.0 * (1.0 - (1.0 + X20) * exp(-X20)) / (X20 * X20);
+                //b0b1b2在更高一层的B1、C2_PitzerActCoefsConstants被赋值过，若要使bterm保持一致，必须引入！！
                 bterm[m][a] = b0[m][a] + b1[m][a] * gX20 + b2[m][a] * gX12;
             }
 
@@ -4348,8 +4386,33 @@ void fBtermcalc(double** bterm, double gX14, double gX12)
             }
         }
     }
-
+    printf("\nb2:\n");
+    for (m = 0; m < NumCat; ++m)
+    {
+        printf("[");
+        for (a = 0; a < NumAn; ++a)
+        {
+            printf("%lf,", b2[m][a]);
+        }
+        printf("]\n");
+    }
+    // b0也有不同
+    // b1也有不同
+    // b2也有不同
+    // bterm
+    // 不同点坐标：
+    // [0,8],
+    // [1,2],[1,5],[1,6],[1,8],[1,9],
+    // [2,2],[2,5],[2,8],[2,9],
+    // [3,6],[3,8],
+    // [4,0],[4,4],[4,6],[4,8],[4,13]
+    // [5,3],[5,8],
+    // [6,0],[6,8]
+    // [7,0],[7,3],[7,4],[7,12]
+    // [8,0],[8,1],[8,5],[8,6],[8,8]
 }
+
+
 
 
 double CalcRhoTP(double TK, double TC, double PBar, double Patm) {
@@ -4400,10 +4463,9 @@ double CalcRhoTP(double TK, double TC, double PBar, double Patm) {
     }
 
 
-
-
     //mt = fBtermcalc();
     //传到fBtermcalc里赋值
+    //由于b0、b1、b2的问题，此函数必然会出现不同的情况，可能要B1、C2函数的结果
     fBtermcalc(bterm, gX14, gX12);
 
 
