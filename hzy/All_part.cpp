@@ -2456,7 +2456,7 @@ void C1_ThermodynamicEquilConsts()
 
 
 
-double fV0(double q1, double q2, double q3, double q4, double q5, double q6, double q7, double q8,
+double fV0(double TK, double PBar, double q1, double q2, double q3, double q4, double q5, double q6, double q7, double q8,
     double q9, double q10, double q11, double q12, double q13, double q14, double q15, double q16, double q17, double q18)
 {
     double result = 0.0;
@@ -2476,10 +2476,10 @@ double fV0(double q1, double q2, double q3, double q4, double q5, double q6, dou
 }
 
 
-void V0TP()
+void V0TP(double TK, double PBar)
 {
     // Na
-    V0_c[iNa] = fV0(
+    V0_c[iNa] = fV0(TK, PBar,
         8.76686173829976, 10.7463747460684, -3.94438220704875E-02,
         6.24254747432051E-05, -270.67565216552, 3.71906197249154,
         -0.548144793641968, 60.4681423698375, 1.6487628506002E-03,
@@ -2488,42 +2488,42 @@ void V0TP()
         1.85284769422731E-09, 2.33307684437836E-04, -8.30091414725064E-03);
 
     // K
-    V0_c[iK] = fV0(
+    V0_c[iK] = fV0(TK, PBar,
         1365.58178, -146187.60179, -4.00314, 0.004292463,
         0.0, -18894.00317, -6.66675, 715.61054, 0.019742057,
         -0.000020810979, 0.0, 81.91098, 0.00534941, -0.573121,
         -0.0000158576885, 0.0000000166987, 0.0, -0.0649312);
 
     // Mg
-    V0_c[iMg] = fV0(
+    V0_c[iMg] = fV0(TK, PBar,
         15.5470319999999, 18848.33832, -0.380047233, 0.00100500148,
         -761.133887, -22952.60934, -1.27205782, 142.833027,
         0.00343937874, -0.00000368366162, 0.0, 36.3788742,
         0.0, 0.0, 0.000000400785822, 0.0, 0.0, -0.0429183805);
 
     // Ca
-    V0_c[iCa] = fV0(
+    V0_c[iCa] = fV0(TK, PBar,
         136.567817, 3135.53072, -0.68264817, 0.0012917585,
         -761.133887, -22952.60934, -1.6506531, 162.991634,
         0.0048786976, -0.00000616046222, 0.0, 71.877495,
         0.0, 0.0, 0.000000400785822, 0.0, 0.0, -0.0429183805);
 
     // Ba
-    V0_c[iBa] = fV0(
+    V0_c[iBa] = fV0(TK, PBar,
         131.77473, 3135.53072, -0.65074076, 0.0012917585,
         -761.133887, -22952.60934, -1.6506531, 162.991634,
         0.0048786976, -0.00000616046222, 0.0, 71.877495,
         0.0, 0.0, 0.000000400785822, 0.0, 0.0, -0.0429183805);
 
     // Sr
-    V0_c[iSr] = fV0(
+    V0_c[iSr] = fV0(TK, PBar,
         131.475189, 3135.53072, -0.66249868, 0.0012917585,
         -761.133887, -22952.60934, -1.6506531, 167.104986,
         0.0048786976, -0.00000616046222, 0.0, 69.810131,
         0.0, 0.0, 0.000000400785822, 0.0, 0.0, -0.0429183805);
 
     // Cl
-    V0_a[iCl] = fV0(
+    V0_a[iCl] = fV0(TK, PBar,
         195.93822, -23046.39821, -0.29604, 0.000299867,
         0.0, -13674.59683, -0.20212, 19.60946, 0.000482443,
         -0.000000766921, 0.0, 21.30102, 0.0, 0.0,
@@ -2657,8 +2657,8 @@ double  fPZ_DL_6(double TK, double Patm, double z1, double z2, double z3, double
 
 
 //存在不知有何用的变量//Lnn[iCO2aq][iCO2aq]，已经舍弃
-void C2_Pitzer2019() {
-    V0TP();
+void C2_Pitzer2019(double TK, double TC, double PBar, double Patm) {
+    V0TP(TK, PBar);
 
     // b0(iH, iCl) = 0.1769 + -0.0914 * Log(fH2ODensity(TK, PBar) / 997.048) + 0 * (fH2ODensity(TK, PBar) - 997.048) / 1 + -0.0004034 * (TC - 25) / 1 + 0.000062 * (PBar - 1) / 10 'Holmes et al. 1987_Model I_BP
     b0[iH][iCl] = 0.1769 - 0.0914 * log(fH2ODensity(TK, PBar) / 997.048) + 0 * (fH2ODensity(TK, PBar) - 997.048) / 1 - 0.0004034 * (TC - 25) / 1 + 0.000062 * (PBar - 1) / 10;
@@ -3201,7 +3201,7 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
         fgammaN();
     }
 
-    C2_Pitzer2019();
+    C2_Pitzer2019(TK, TC, PBar, Patm);
 
     double U1 = 342.79;
     double U2 = -0.0050866;
@@ -4287,7 +4287,7 @@ void fmn() {
 }
 
 
-double fAphicalc()
+double fAphicalc(double TK, double PBar)
 {
     double U1 = 342.79, U2 = -0.0050866, U3 = 0.0000009469;
     double U4 = -2.0525, U5 = 3115.9, U6 = -182.89;
@@ -4376,8 +4376,8 @@ double CalcRhoTP(double TK, double TC, double PBar, double Patm) {
     int m, a, c, n, iden;
 
 
-    C2_Pitzer2019();
-    AphiP = fAphicalc();
+    C2_Pitzer2019(TK, TC, PBar, Patm);
+    AphiP = fAphicalc(TK, PBar);
 
     // 计算各种X值和对应的gX、gpX
     X14 = 1.4 * sqrt(Ist); // For 2:(-2) pairs or ions
@@ -4414,12 +4414,10 @@ double CalcRhoTP(double TK, double TC, double PBar, double Patm) {
         bterm[i] = (double*)malloc(15 * sizeof(double));
     }
 
-
     //mt = fBtermcalc();
     //传到fBtermcalc里赋值
     //由于b0、b1、b2的问题，此函数必然会出现不同的情况，可能要B1、C2函数的结果
     fBtermcalc(bterm, gX14, gX12);
-
 
     // 保存当前bterm和CPhi值
     for (m = 0; m < NumCat; m++) {
@@ -4434,9 +4432,9 @@ double CalcRhoTP(double TK, double TC, double PBar, double Patm) {
     Patm = PBar / 1.013254;
     Ppsia = PBar * 14.503774; // 注释掉，如果不需要可以删除
 
-    C2_Pitzer2019();
+    C2_Pitzer2019(TK, TC, PBar, Patm);
 
-    AphiPPlus = fAphicalc();
+    AphiPPlus = fAphicalc(TK, PBar);
     fBtermcalc(bterm, gX14, gX12);
 
     // 保存增加压力后的值
@@ -4450,9 +4448,9 @@ double CalcRhoTP(double TK, double TC, double PBar, double Patm) {
     // 恢复原始压力
     PBar = PBar - 0.000001;
     Patm = PBar / 1.013254;
-    // Ppsia = PBar * 14.503774;
+    Ppsia = PBar * 14.503774;
 
-    V0TP(); // 在T,P下重新计算V0
+    V0TP(TK, PBar); // 在T,P下重新计算V0
 
     // 计算体积相关项
     Av = -4 * RBar * TK * (AphiPPlus - AphiP) / 0.000001;
