@@ -2965,7 +2965,7 @@ void C2_Pitzer2019(double TK, double TC, double PBar, double Patm) {
     Lna[iCO2aq][iCl] = fPP(TK, 0.01919, -0.00527, 0.00000164, 492.38, 2.7967, 0);
 
     // Lna(iCO2aq, iBr) = fPP(TK, 0.01919, -0.00527, 0.00000164, 492.38, 2.7967, 0)
-    Lna[iCO2aq][iCl] = fPP(TK, 0.01919, -0.00527, 0.00000164, 492.38, 2.7967, 0);  // 假设iBr = iCl或类似
+    Lna[iCO2aq][iBr] = fPP(TK, 0.01919, -0.00527, 0.00000164, 492.38, 2.7967, 0);
 
     // Lna(iCO2aq, iSO4) = fPP(TK, 0.19003, 0.0295, -0.0000215, 1970.8, 0, 0)
     Lna[iCO2aq][iSO4] = fPP(TK, 0.19003, 0.0295, -0.0000215, 1970.8, 0, 0);
