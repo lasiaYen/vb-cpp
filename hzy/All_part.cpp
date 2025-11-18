@@ -324,6 +324,9 @@ iZnHS2 = 9: iZnHS3 = 10: iPbCl = 11: iPbCl2 = 12: iPbCl3 = 13: iPbCl4 = 14: iPbH
 #define iPbCl4   13	 // PbCl₄²⁻络离子（四氯合铅离子）
 #define iPbHS2   14  // Pb(HS)₂中性分子（二硫氢合铅）
 #define iPbHS3   15  // Pb(HS)₃⁻络离子（三硫氢合铅离子）
+#define iOHDot  16
+#define iZnOH  17
+#define iZnOH2  18
 
 // 气体组分索引定义
 #define iCH4g    0
@@ -397,7 +400,7 @@ double KspChrysotile = 0, KspDiopside = 0, KspGreenalite = 0, KspQuartz = 0, Ksp
 double DRaBarite = 0, DRaCelestite = 0, DRaAnhydrite = 0, GammaSolidRaBarite = 0, GammaSolidRaCelestite = 0, GammaSolidRaAnhydrite = 0;//确认仅在C1被赋值，因此在C1首次调用，生命周期似乎很简单
 double KstFeSaq = 0;//确认仅在C1被赋值，因此在C1首次调用
 
-double BetaDot[16] = { 0 };// 
+double BetaDot[20] = { 0 };// 
 
 double xMEG = 0;
 double aH2O = 0;
@@ -1964,6 +1967,7 @@ double PsatH2O(double tk)
  * 计算考虑了温度、压力和离子强度的影响，适用于地球化学模拟。
  *
  */
+double DRaCalcite; //--注：C1特有的变量，在C1里被赋值但从未被任何地方调用
 void C1_ThermodynamicEquilConsts()
 {
     double dk;
@@ -2407,7 +2411,7 @@ void C1_ThermodynamicEquilConsts()
     DRaBarite = pow(10, (428.2 / TK - 1.181));
     DRaCelestite = pow(10, (1438 / TK - 2.375));
     DRaAnhydrite = pow(10, (1930 / TK - 3.57));
-    //DRaCalcite = pow(10, (40.53 / TK - 0.2221));         --主：被赋值但从未被调用
+    DRaCalcite = pow(10, (40.53 / TK - 0.2221));         //--注：DRaCalcite被赋值但从未被调用
 
     GammaSolidRaBarite = 266.6258 / 1.987 / TK;
     GammaSolidRaCelestite = 1950.176 / 1.987 / TK;
@@ -2441,11 +2445,14 @@ void C1_ThermodynamicEquilConsts()
         + 6.262392E-11 * pow(TK, 5));
 
     // ---------------------- Zn & Pb HS complexes ----------------------
-    q1 = -896.5577; q2 = 22674.5156; q3 = 164.5225; q4 = -0.4194; q5 = 0.000198;
-    BetaDot[iZnHS2] = pow(10, q1 + q2 / TK + q3 * log(TK) + q4 * TK + q5 * pow(TK, 2));
+    q1 = 848.820711081324; q2 = 8523.81138931672; q3 = -200.318510598844; q4 = 1.12515623321474; q5 = -6.87407323192827e-04;
+    BetaDot[iZnHS2] = pow(10.0, q1 + q2 / TK + q3 * log(TK) + q4 * TK + q5 * (TK * TK));
 
-    q1 = -919.4104; q2 = 24289.7072; q3 = 168.7472; q4 = -0.4308; q5 = 0.000202;
-    BetaDot[iZnHS3] = pow(10, q1 + q2 / TK + q3 * log(TK) + q4 * TK + q5 * pow(TK, 2));
+    q1 = 14.7708017586138; q2 = -19.937638657592; q3 = 0.877588609670279; q4 = -2.29953487957037e-02; q5 = 7.70611430037756e-06;
+    BetaDot[iZnHS3] = pow(10.0, q1 + q2 / TK + q3 * log(TK) + q4 * TK + q5 * (TK * TK));
+
+    q1 = 24.303146180657; q2 = -7.41314320085126; q3 = -1.11914072688766; q4 = -2.55711457549767e-02; q5 = 4.86459072972289e-05;
+    BetaDot[iZnOH2] = pow(10.0, q1 + q2 / TK + q3 * log(TK) + q4 * TK + q5 * (TK * TK));
 
     q1 = -1622.2843; q2 = 42144.5235; q3 = 297.1852; q4 = -0.7658; q5 = 0.000345;
     BetaDot[iPbHS2] = pow(10, q1 + q2 / TK + q3 * log(TK) + q4 * TK + q5 * pow(TK, 2));
@@ -3193,14 +3200,16 @@ void fgammaN() {
  * 注意：函数依赖外部数组和全局变量（如mc, ma, b0, b1等），这些需在调用前定义。
  * 特殊处理：对于某些离子对（如Na-SO4, K-SO4, Ca-SO4）使用自定义alpha值。
  */
-void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC, double PBar, double Patm) {
+void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double tk, double tc, double pBar, double patm) {
 
     if (xMeOH > 0 || xMEG > 0) {
         //mt = fgammaN();//在该函数中只调用了一次
         fgammaN();
     }
 
-    C2_Pitzer2019(TK, TC, PBar, Patm);
+    int a, c, m;
+
+    C2_Pitzer2019(tk, tc, pBar, patm);  //此函数不修改这四个值
 
     double U1 = 342.79;
     double U2 = -0.0050866;
@@ -3211,16 +3220,16 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
     double U7 = -8032.5;
     double U8 = 4214200;
     double U9 = 2.1417;
-    double D1000 = U1 * exp(U2 * TK + U3 * pow(TK, 2));
-    double cc = U4 + U5 / (U6 + TK);
-    double b = U7 + U8 / TK + U9 * TK;
-    double Dielec = D1000 + cc * log((b + PBar) / (b + 1000));
+    double D1000 = U1 * exp(U2 * tk + U3 * pow(tk, 2));
+    double cc = U4 + U5 / (U6 + tk);
+    double b = U7 + U8 / tk + U9 * tk;
+    double Dielec = D1000 + cc * log((b + pBar) / (b + 1000));
 
-    // dens0 等系数用于密度计算，但后续直接调用 fH2ODensity(TK, PBar)，因此此处计算被覆盖。
-    double dens = fH2ODensity(TK, PBar);
+    // dens0 等系数用于密度计算，但后续直接调用 fH2ODensity(tk, pBar)，因此此处计算被覆盖。
+    double dens = fH2ODensity(tk, pBar);
 
     // APhi 计算：Debye-Hückel 参数
-    double APhi = (1.0 / 3.0) * pow((2 * pi * NAv * dens), 0.5) * pow((eElec * eElec / (4 * pi * eps0 * Dielec * kBoltz * TK)), 1.5);
+    double APhi = (1.0 / 3.0) * pow((2 * pi * NAv * dens), 0.5) * pow((eElec * eElec / (4 * pi * eps0 * Dielec * kBoltz * tk)), 1.5);
 
     // 计算 gX 和 gpX 函数（依赖离子强度 Ist）
     double X14 = 1.4 * sqrt(Ist);  // 对于 2:(-2) 对或离子
@@ -3241,55 +3250,58 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
     double gpXCaSO4 = -2 * (1 - (1 + xCaSO4 + 0.5 * xCaSO4 * xCaSO4) * exp(-xCaSO4)) / (xCaSO4 * xCaSO4);
 
     // 计算 JX 和 JpX 函数（同电荷但不同离子，如 1:2 或 -1:-2）
-    double X12_temp = 6 * 1 * 2 * APhi * sqrt(Ist);
-    double JX12 = X12_temp / (4 + 4.581 * pow(X12_temp, -0.7237) * exp(-0.012 * pow(X12_temp, 0.528)));
-    double X12_delta = 1.001 * X12_temp;
-    double JX12delta = X12_delta / (4 + 4.581 * pow(X12_delta, -0.7237) * exp(-0.012 * pow(X12_delta, 0.528)));
-    double JpX12 = (JX12delta - JX12) / (0.001 * X12_temp);
+    X12 = 6 * 1 * 2 * APhi * sqrt(Ist);
+    double JX12 = X12 / (4 + 4.581 * pow(X12, -0.7237) * exp(-0.012 * pow(X12, 0.528)));
+    X12 = 1.001 * X12;
+    double JX12delta = X12 / (4 + 4.581 * pow(X12, -0.7237) * exp(-0.012 * pow(X12, 0.528)));
+    X12 = X12 / 1.001;
+    double JpX12 = (JX12delta - JX12) / (0.001 * X12);
 
     double X11 = 6 * 1 * 1 * APhi * sqrt(Ist);
     double JX11 = X11 / (4 + 4.581 * pow(X11, -0.7237) * exp(-0.012 * pow(X11, 0.528)));
-    double X11_delta = 1.001 * X11;
-    double JX11delta = X11_delta / (4 + 4.581 * pow(X11_delta, -0.7237) * exp(-0.012 * pow(X11_delta, 0.528)));
+    X11 = 1.001 * X11;
+    double JX11delta = X11 / (4 + 4.581 * pow(X11, -0.7237) * exp(-0.012 * pow(X11, 0.528)));
+    X11 = X11 / 1.001;
     double JpX11 = (JX11delta - JX11) / (0.001 * X11);
 
     double X22 = 6 * 2 * 2 * APhi * sqrt(Ist);
     double JX22 = X22 / (4 + 4.581 * pow(X22, -0.7237) * exp(-0.012 * pow(X22, 0.528)));
-    double X22_delta = 1.001 * X22;
-    double JX22delta = X22_delta / (4 + 4.581 * pow(X22_delta, -0.7237) * exp(-0.012 * pow(X22_delta, 0.528)));
+    X22 = 1.001 * X22;
+    double JX22delta = X22 / (4 + 4.581 * pow(X22, -0.7237) * exp(-0.012 * pow(X22, 0.528)));
+    X22 = X22 / 1.001;
     double JpX22 = (JX22delta - JX22) / (0.001 * X22);
 
     double ETh = (0.5 / Ist) * (JX12 - 0.5 * (JX11 + JX22));
-    double EThp = (0.25 / (Ist * Ist)) * (X12_temp * JpX12 - 0.5 * (X11 * JpX11 + X22 * JpX22)) - ETh / Ist;
+    double EThp = (0.25 / (Ist * Ist)) * (X12 * JpX12 - 0.5 * (X11 * JpX11 + X22 * JpX22)) - ETh / Ist;
     double Phip = EThp;
 
     // 计算 f_gamma（渗透系数部分）
     double f_gamma = -APhi * (sqrt(Ist) / (1 + 1.2 * sqrt(Ist)) + (2 / 1.2) * log(1 + 1.2 * sqrt(Ist)));
-    for (int c = 0; c < NumCat; c++) {
-        for (int a = 0; a < NumAn; a++) {
+    for (c = 0; c < NumCat; c++) {
+        for (a = 0; a < NumAn; a++) {
             double Bpca = b1[c][a] * gpX14 / Ist + b2[c][a] * gpX12 / Ist;
             // Holmes and Dai 特殊处理
             if (ChCat[c] == 1) {
                 X20 = 2 * sqrt(Ist);
-                if (c == 2 && a == 6) X20 = 1.4 * sqrt(Ist);  // Na-SO4
-                if (c == 3 && a == 6) X20 = 1.4 * sqrt(Ist);  // K-SO4
+                if (c == 1 && a == 5) X20 = 1.4 * sqrt(Ist);  // Na-SO4
+                if (c == 2 && a == 5) X20 = 1.4 * sqrt(Ist);  // K-SO4
                 gpX20 = -2 * (1 - (1 + X20 + 0.5 * X20 * X20) * exp(-X20)) / (X20 * X20);
                 Bpca = b1[c][a] * gpX20 / Ist + b2[c][a] * gpX12 / Ist;
             }
             if (ChCat[c] == 2 && ChAn[a] == -1) {
-                X20 = (2 - 0.00181 * (TK - 298.15)) * sqrt(Ist);
+                X20 = (2 - 0.00181 * (tk - 298.15)) * sqrt(Ist);
                 gpX20 = -2 * (1 - (1 + X20 + 0.5 * X20 * X20) * exp(-X20)) / (X20 * X20);
                 Bpca = b1[c][a] * gpX20 / Ist + b2[c][a] * gpX12 / Ist;
             }
             // 添加 by GD 20191021：针对 Ca-SO4
-            if (c == 5 && a == 6) {
+            if (c == 4 && a == 5) {
                 Bpca = b1[c][a] * gpX14 / Ist + b2[c][a] * gpXCaSO4 / Ist;
             }
             f_gamma += mc[c] * ma[a] * Bpca;
         }
     }
 
-    for (int c = 0; c < NumCat - 1; c++) {
+    for (c = 0; c < NumCat - 1; c++) {
         for (int cp = c + 1; cp < NumCat; cp++) {
             if (ChCat[c] != ChCat[cp]) {
                 f_gamma += mc[c] * mc[cp] * Phip;
@@ -3297,7 +3309,7 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
         }
     }
 
-    for (int a = 0; a < NumAn - 1; a++) {
+    for (a = 0; a < NumAn - 1; a++) {
         for (int ap = a + 1; ap < NumAn; ap++) {
             if (ChAn[a] != ChAn[ap]) {
                 f_gamma += ma[a] * ma[ap] * Phip;
@@ -3306,27 +3318,27 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
     }
 
     // 阳离子活性系数循环
-    for (int m = 0; m < NumCat; m++) {
+    for (m = 0; m < NumCat; m++) {
         double term1 = pow(ChCat[m], 2) * f_gamma;  // D-H 项
 
         double term2 = 0;
-        for (int a = 0; a < NumAn; a++) {
+        for (a = 0; a < NumAn; a++) {
             double BMa = b0[m][a] + b1[m][a] * gX14 + b2[m][a] * gX12;
             // Holmes and Dai 特殊处理（注意：此处 c 应为 m）
             if (ChCat[m] == 1) {
                 X20 = 2 * sqrt(Ist);
-                if (m == 2 && a == 6) X20 = 1.4 * sqrt(Ist);  // Na-SO4
-                if (m == 3 && a == 6) X20 = 1.4 * sqrt(Ist);  // K-SO4
+                if (c == 1 && a == 5) X20 = 1.4 * sqrt(Ist);  // Na-SO4
+                if (c == 2 && a == 5) X20 = 1.4 * sqrt(Ist);  // K-SO4
                 gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
                 BMa = b0[m][a] + b1[m][a] * gX20 + b2[m][a] * gX12;
             }
             if (ChCat[m] == 2 && ChAn[a] == -1) {
-                X20 = (2 - 0.00181 * (TK - 298.15)) * sqrt(Ist);
+                X20 = (2 - 0.00181 * (tk - 298.15)) * sqrt(Ist);
                 gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
                 BMa = b0[m][a] + b1[m][a] * gX20 + b2[m][a] * gX12;
             }
             // 添加 by GD 20191021：针对 Ca-SO4
-            if (m == 5 && a == 6) {
+            if (m == 4 && a == 5) {
                 BMa = b0[m][a] + b1[m][a] * gX14 + b2[m][a] * gXCaSO4;
             }
             double CMa = CPhi[m][a] / (2 * sqrt(fabs(ChCat[m] * ChAn[a])));
@@ -3334,26 +3346,26 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
         }
 
         double term3 = 0;
-        for (int c = 0; c < NumCat; c++) {
+        for (c = 0; c < NumCat; c++) {
             double PhiMc = Tccp[m][c];
             if (ChCat[m] != ChCat[c]) PhiMc = Tccp[m][c] + ETh;
             double SumYMca = 0;
-            for (int a = 0; a < NumAn; a++) {
+            for (a = 0; a < NumAn; a++) {
                 SumYMca += ma[a] * Yccpa[m][c][a];
             }
             term3 += mc[c] * (2 * PhiMc + SumYMca);
         }
 
         double term4 = 0;
-        for (int a = 0; a < NumAn - 1; a++) {
+        for (a = 0; a < NumAn - 1; a++) {
             for (int ap = a + 1; ap < NumAn; ap++) {
                 term4 += ma[a] * ma[ap] * Yaapc[a][ap][m];
             }
         }
 
         double term5 = 0;
-        for (int c = 0; c < NumCat; c++) {
-            for (int a = 0; a < NumAn; a++) {
+        for (c = 0; c < NumCat; c++) {
+            for (a = 0; a < NumAn; a++) {
                 double Cca = CPhi[c][a] / (2 * sqrt(fabs(ChCat[c] * ChAn[a])));
                 term5 += mc[c] * ma[a] * Cca;
             }
@@ -3367,7 +3379,7 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
 
         double term7 = 0;
         for (int n = 0; n < NumNeut; n++) {
-            for (int a = 1; a <= NumAn; a++) {
+            for (a = 0; a < NumAn; a++) {
                 // pH = pH;  // VB调试语句，忽略
                 term7 += 6 * mn[n] * ma[a] * zeta[n][m][a];
             }
@@ -3388,7 +3400,7 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
         double term1 = pow(ChAn[iPz], 2) * f_gamma;  // D-H 项
 
         double term2 = 0;
-        for (int c = 0; c < NumCat; c++) {
+        for (c = 0; c < NumCat; c++) {
             double BcX = b0[c][iPz] + b1[c][iPz] * gX14 + b2[c][iPz] * gX12;
             // Holmes and Dai 特殊处理
             if (ChCat[c] == 1) {
@@ -3399,12 +3411,12 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
                 BcX = b0[c][iPz] + b1[c][iPz] * gX20 + b2[c][iPz] * gX12;
             }
             if (ChCat[c] == 2 && ChAn[iPz] == -1) {
-                X20 = (2 - 0.00181 * (TK - 298.15)) * sqrt(Ist);
+                X20 = (2 - 0.00181 * (tk - 298.15)) * sqrt(Ist);
                 gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
                 BcX = b0[c][iPz] + b1[c][iPz] * gX20 + b2[c][iPz] * gX12;
             }
             // 添加 by GD 20191021：针对 Ca-SO4
-            if (c == 5 && iPz == 6) {
+            if (c == 4 && iPz == 5) {
                 BcX = b0[c][iPz] + b1[c][iPz] * gX14 + b2[c][iPz] * gXCaSO4;
             }
             double CcX = CPhi[c][iPz] / (2 * sqrt(fabs(ChAn[iPz] * ChCat[c])));
@@ -3412,26 +3424,26 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
         }
 
         double term3 = 0;
-        for (int a = 0; a < NumAn; a++) {
+        for (a = 0; a < NumAn; a++) {
             double PhiXa = Taap[iPz][a];
             if (ChAn[iPz] != ChAn[a]) PhiXa = Taap[iPz][a] + ETh;
             double SumYXac = 0;
-            for (int c = 0; c < NumCat; c++) {
+            for (c = 0; c < NumCat; c++) {
                 SumYXac += mc[c] * Yaapc[iPz][a][c];
             }
             term3 += ma[a] * (2 * PhiXa + SumYXac);
         }
 
         double term4 = 0;
-        for (int c = 0; c < NumCat - 1; c++) {
-            for (int cp = c + 1; cp <= NumCat; cp++) {
+        for (c = 0; c < NumCat - 1; c++) {
+            for (int cp = c + 1; cp < NumCat; cp++) {
                 term4 += mc[c] * mc[cp] * Yccpa[c][cp][iPz];
             }
         }
 
         double term5 = 0;
-        for (int c = 0; c < NumCat; c++) {
-            for (int a = 0; a < NumAn; a++) {
+        for (c = 0; c < NumCat; c++) {
+            for (a = 0; a < NumAn; a++) {
                 double Cca = CPhi[c][a] / (2 * sqrt(fabs(ChCat[c] * ChAn[a])));
                 term5 += mc[c] * ma[a] * Cca;
             }
@@ -3445,7 +3457,7 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
 
         double term7 = 0;
         for (int n = 0; n < NumNeut; n++) {
-            for (int c = 0; c < NumCat; c++) {
+            for (c = 0; c < NumCat; c++) {
                 // pH = pH;  // VB调试语句，忽略
                 term7 += 6 * mn[n] * mc[c] * zeta[n][c][iPz];
             }
@@ -3460,10 +3472,10 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
     // 中性化合物活性系数
     for (int n = 0; n < NumNeut; n++) {
         double termn = 0;
-        for (int c = 0; c < NumCat; c++) {
+        for (c = 0; c < NumCat; c++) {
             termn += mc[c] * 2 * Lnc[n][c];
         }
-        for (int a = 0; a < NumAn; a++) {
+        for (a = 0; a < NumAn; a++) {
             termn += ma[a] * 2 * Lna[n][a];
         }
         //if (n == 2)
@@ -3472,9 +3484,9 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
         //Lnn(15, 15)
         termn += 2 * mn[n] * Lnn[n][n];
 
-        for (int c = 0; c < NumCat; c++) {
-            for (int a = 0; a < NumAn; a++) {
-                if (c == 2 && a == 2) pH = pH;
+        for (c = 0; c < NumCat; c++) {
+            for (a = 0; a < NumAn; a++) {
+                if (c == 1 && a == 1) pH = pH;
                 // pH = pH;  // VB调试语句，忽略
                 termn += mc[c] * ma[a] * zeta[n][c][a];
             }
@@ -3488,27 +3500,27 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
     gNeut[iHAcaq] = gNeut[iCO2aq];
     gNeut[iNH3] = gNeut[iCO2aq];
     gNeut[iFeSaq] = gNeut[iH2Saq];
-    gNeut[iH4SiO4aq] = pow(10, (0.00978 * pow(10, 280 / TK) * Ist));  // Solmineq 88 page 46
+    gNeut[iH4SiO4aq] = pow(10, (0.00978 * pow(10, 280 / tk) * Ist));  // Solmineq 88 page 46
 
     // 水的渗透系数 PhiH2O 和活性 aH2O
     double term1 = -APhi * pow(Ist, 1.5) / (1 + 1.2 * sqrt(Ist));
     double term2 = 0;
-    for (int c = 0; c < NumCat; c++) {
-        for (int a = 0; a < NumAn; a++) {
+    for (c = 0; c < NumCat; c++) {
+        for (a = 0; a < NumAn; a++) {
             double BPhica = b0[c][a] + b1[c][a] * exp(-1.4 * sqrt(Ist)) + b2[c][a] * exp(-12 * sqrt(Ist));
             // 修正 by GD 20191021
             if (ChCat[c] == 1) {
                 X20 = 2 * sqrt(Ist);
-                if (c == 2 && a == 6) X20 = 1.4 * sqrt(Ist);  // Na-SO4
-                if (c == 3 && a == 6) X20 = 1.4 * sqrt(Ist);  // K-SO4
+                if (c == 1 && a == 5) X20 = 1.4 * sqrt(Ist);  // Na-SO4
+                if (c == 2 && a == 5) X20 = 1.4 * sqrt(Ist);  // K-SO4
                 BPhica = b0[c][a] + b1[c][a] * exp(-X20) + b2[c][a] * exp(-12 * sqrt(Ist));
             }
             if (ChCat[c] == 2 && ChAn[a] == -1) {
-                X20 = (2 - 0.00181 * (TK - 298.15)) * sqrt(Ist);
+                X20 = (2 - 0.00181 * (tk - 298.15)) * sqrt(Ist);
                 BPhica = b0[c][a] + b1[c][a] * exp(-X20) + b2[c][a] * exp(-12 * sqrt(Ist));
             }
             // 添加 by GD 20191021：针对 Ca-SO4
-            if (c == 5 && a == 6) {
+            if (c == 4 && a == 5) {
                 BPhica = b0[c][a] + b1[c][a] * exp(-1.4 * sqrt(Ist)) + b2[c][a] * exp(-xCaSO4);
             }
             double Cca = CPhi[c][a] / (2 * sqrt(fabs(ChCat[c] * ChAn[a])));
@@ -3517,7 +3529,7 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
     }
 
     double term3 = 0;
-    for (int c = 0; c < NumCat - 1; c++) {
+    for (c = 0; c < NumCat - 1; c++) {
         for (int cp = c + 1; cp < NumCat; cp++) {
             double PhiPhiccp = Tccp[c][cp];
             if (ChCat[c] != ChCat[cp]) PhiPhiccp = Tccp[c][cp] + ETh + Ist * EThp;
@@ -3530,12 +3542,12 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
     }
 
     double term4 = 0;
-    for (int a = 0; a < NumAn - 1; a++) {
+    for (a = 0; a < NumAn - 1; a++) {
         for (int ap = a + 1; ap < NumAn; ap++) {
             double PhiPhiaap = Taap[a][ap];
             if (ChAn[a] != ChAn[ap]) PhiPhiaap = Taap[a][ap] + ETh + Ist * EThp;
             double Sumaapc = 0;
-            for (int c = 1; c <= NumCat; c++) {
+            for (c = 0; c < NumCat; c++) {
                 Sumaapc += mc[c] * Yaapc[a][ap][c];
             }
             term4 += ma[a] * ma[ap] * (PhiPhiaap + Sumaapc);
@@ -3544,22 +3556,22 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
 
     double term5 = 0;
     for (int n = 0; n < NumNeut; n++) {
-        for (int c = 0; c < NumCat; c++) {
+        for (c = 0; c < NumCat; c++) {
             term5 += mn[n] * mc[c] * Lnc[n][c];
         }
     }
 
     double term6 = 0;
     for (int n = 0; n < NumNeut; n++) {
-        for (int a = 0; a < NumAn; a++) {
+        for (a = 0; a < NumAn; a++) {
             term6 += mn[n] * ma[a] * Lna[n][a];
         }
     }
 
     double term7 = 0;
     for (int n = 0; n < NumNeut; n++) {
-        for (int c = 0; c < NumCat; c++) {
-            for (int a = 0; a < NumAn; a++) {
+        for (c = 0; c < NumCat; c++) {
+            for (a = 0; a < NumAn; a++) {
                 // pH = pH;  // VB调试语句，忽略
                 term7 += mn[n] * mc[c] * ma[a] * zeta[n][c][a];
             }
@@ -3574,32 +3586,67 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double TK, double TC
     }
 
     // Bdot 参数用于 Zn 和 Pb 络合物（基于 Solmineq）
-    double B_dot = 0.03804695 + 0.0001031039 * TC + 0.0000007119498 * pow(TC, 2) - 0.00000001968215 * pow(TC, 3) + 1.276773E-10 * pow(TC, 4) - 2.71893E-13 * pow(TC, 5);
-    double B_gamma = (50.29158649 * sqrt(0.001 * dens)) / sqrt(Dielec * TK);
+    double B_dot = 0.03804695 + 0.0001031039 * tc + 0.0000007119498 * pow(tc, 2) - 0.00000001968215 * pow(tc, 3) + 1.276773E-10 * pow(tc, 4) - 2.71893E-13 * pow(tc, 5);
+    double B_gamma = (50.29158649 * sqrt(0.001 * dens)) / sqrt(Dielec * tk);
     double Lambda_gamma = -log10(1 + 0.0180153 * mtotal);
 
     // a0 参数设置
     double a0[20] = { 0 };
     a0[iClDot] = 3; a0[iZnDot] = 6; a0[iPbDot] = 4.5; a0[iHSDot] = 3; a0[iZnCl] = 4; a0[iZnCl2] = 0; a0[iZnCl3] = 4; a0[iZnCl4] = 5;
     a0[iPbCl] = 4; a0[iPbCl2] = 0; a0[iPbCl3] = 4; a0[iPbCl4] = 5; a0[iZnHS2] = 0; a0[iZnHS3] = 4; a0[iPbHS2] = 0; a0[iPbHS3] = 4;
+    a0[iZnOH] = 4; a0[iZnOH2] = 0; a0[iOHDot] = 3.5;
 
-    // gDot 计算（基于 Solmineq Pg 51 和 Ananthaswamy & Atkinson 1984）
-    gDot[iClDot] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iClDot] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iZnDot] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iZnDot] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iPbDot] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iPbDot] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iHSDot] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iHSDot] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iZnCl] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iZnCl] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iZnCl2] = 1;
-    gDot[iZnCl3] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iZnCl3] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iZnCl4] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iZnCl4] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iZnHS2] = 1;
-    gDot[iZnHS3] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iZnHS3] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iPbCl] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iPbCl] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iPbCl2] = 1;
-    gDot[iPbCl3] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iPbCl3] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iPbCl4] = pow(10, (-3 / log(10) * APhi * 4 * sqrt(Ist) / (1 + a0[iPbCl4] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
-    gDot[iPbHS2] = 1;
-    gDot[iPbHS3] = pow(10, (-3 / log(10) * APhi * 1 * sqrt(Ist) / (1 + a0[iPbHS3] * B_gamma * sqrt(Ist)) + Lambda_gamma + B_dot * Ist));
+    /* 优化：提前计算，防止重复调用log和sqrt */
+    double sqrtI = sqrt(Ist);
+    double LOG10 = log(10.0);
+
+    gDot[iClDot] = pow(10.0,
+        -3.0 / LOG10 * APhi * 1.0 * sqrtI / (1.0 + a0[iClDot] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+    gDot[iZnDot] = pow(10.0,
+        -3.0 / LOG10 * APhi * 4.0 * sqrtI / (1.0 + a0[iZnDot] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+    gDot[iPbDot] = pow(10.0,
+        -3.0 / LOG10 * APhi * 4.0 * sqrtI / (1.0 + a0[iPbDot] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+    gDot[iHSDot] = pow(10.0,
+        -3.0 / LOG10 * APhi * 4.0 * sqrtI / (1.0 + a0[iHSDot] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+    gDot[iOHDot] = pow(10.0,
+        -3.0 / LOG10 * APhi * 4.0 * sqrtI / (1.0 + a0[iOHDot] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+
+    /* Zn-Cl complexes */
+    gDot[iZnCl] = pow(10.0,
+        -3.0 / LOG10 * APhi * 1.0 * sqrtI / (1.0 + a0[iZnCl] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+    gDot[iZnCl2] = 1.0;
+    gDot[iZnCl3] = pow(10.0,
+        -3.0 / LOG10 * APhi * 1.0 * sqrtI / (1.0 + a0[iZnCl3] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+
+    gDot[iZnCl4] = pow(10.0,
+        -3.0 / LOG10 * APhi * 4.0 * sqrtI / (1.0 + a0[iZnCl4] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+
+    /* Zn–HS complexes */
+    gDot[iZnHS2] = 1.0;
+    gDot[iZnHS3] = pow(10.0,
+        -3.0 / LOG10 * APhi * 1.0 * sqrtI / (1.0 + a0[iZnHS3] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+
+    /* Pb–Cl complexes */
+    gDot[iPbCl] = pow(10.0,
+        -3.0 / LOG10 * APhi * 1.0 * sqrtI / (1.0 + a0[iPbCl] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+    gDot[iPbCl2] = 1.0;
+    gDot[iPbCl3] = pow(10.0,
+        -3.0 / LOG10 * APhi * 1.0 * sqrtI / (1.0 + a0[iPbCl3] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+    gDot[iPbCl4] = pow(10.0,
+        -3.0 / LOG10 * APhi * 4.0 * sqrtI / (1.0 + a0[iPbCl4] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+
+    /* Pb–HS complexes */
+    gDot[iPbHS2] = 1.0;
+    gDot[iPbHS3] = pow(10.0,
+        -3.0 / LOG10 * APhi * 1.0 * sqrtI / (1.0 + a0[iPbHS3] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+
+    /* Zn-OH complexes */
+    gDot[iZnOH] = pow(10.0,
+        -3.0 / LOG10 * APhi * 1.0 * sqrtI / (1.0 + a0[iZnOH] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
+    gDot[iZnOH2] = 1.0;
+
+    for (int i = 0; i < 20; i++) printf("%.8f, ", gDot[i]);
+
 }
 
 
