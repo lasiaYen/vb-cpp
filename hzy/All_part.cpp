@@ -3405,8 +3405,8 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double tk, double tc
             // Holmes and Dai 特殊处理
             if (ChCat[c] == 1) {
                 X20 = 2 * sqrt(Ist);
-                if (c == 2 && iPz == 6) X20 = 1.4 * sqrt(Ist);  // Na-SO4
-                if (c == 3 && iPz == 6) X20 = 1.4 * sqrt(Ist);  // K-SO4
+                if (c == 1 && iPz == 5) X20 = 1.4 * sqrt(Ist);  // Na-SO4
+                if (c == 2 && iPz == 5) X20 = 1.4 * sqrt(Ist);  // K-SO4
                 gX20 = 2 * (1 - (1 + X20) * exp(-X20)) / (X20 * X20);
                 BcX = b0[c][iPz] + b1[c][iPz] * gX20 + b2[c][iPz] * gX12;
             }
@@ -3645,8 +3645,6 @@ void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double tk, double tc
         -3.0 / LOG10 * APhi * 1.0 * sqrtI / (1.0 + a0[iZnOH] * B_gamma * sqrtI) + Lambda_gamma + B_dot * Ist);
     gDot[iZnOH2] = 1.0;
 
-    for (int i = 0; i < 20; i++) printf("%.8f, ", gDot[i]);
-
 }
 
 
@@ -3855,29 +3853,12 @@ void PengRobinson3() {
  * @param pHMeterReading [输出] pH计读数
  * @param errmsg [输出] 错误信息数组
  */
-void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
-    // double TK, double Ppsia, double* yCO2, double* yH2S,
-    // double Alk, double TAc, double TH2Saq, double TFe, double TCO2
-    // double TNH4, double TH3BO3, double TH4SiO4,
-    // double pH
-    // , double pHMeterReading
-) {
+double fMeSSpeciation(int im, int igas);  //C5需要用的函数，声明在这里
+void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
 
     // 局部变量声明
-    double aH, H, OH, CO2aq, HCO3, CO3, H2Saq, HS, S;
-    double AC, HAcaq, H2BO3, NH3, H2SiO4, H3SiO4, H4SiO4;
-    double hydHS, hydAc, hydH2BO3, hydNH3, hydH2SiO4;
-    double tHCO3, tCO3, faH;
-    double pHHigh, pHLow;
+    double tHCO3, tCO3;
     int k;
-
-    // // 获取活度系数和水活度（这些应该是全局变量或通过参数传递）
-    // extern double gCat[], gNCat[], gAn[], gNAn[], gNeut[], gNNeut[];
-    // extern double gGas[];
-    // extern double KgwCO2, KgwH2S, K1H2CO3, K2HCO3, K1H2S, K2HS;
-    // extern double KHAc, KH3BO3, KNH4, KH4SiO4, KH3SiO3, aH2O;
-    // extern double KstFeSaq, DpHj;
-    // extern double mc[], mn[];
 
     // 情况1: 使用P-CO2和碱度计算pH (use_pH = 0, UseH2Sgas = 0)
     if (use_pH == 0 && UseH2Sgas == 0 && useEOS == 0) {
@@ -3905,9 +3886,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS
             HS = TH2Saq / hydHS;
 
             // // 金属硫化物形态计算
-            // if (TH2Saq > 0) {
-            //     fMeSSpeciation(2, 2);  // 计算Fe, Zn, Pb的形态
-            // }
+            if (TH2Saq > 0) fMeSSpeciation(1, 2);  // 源代码是(2, 2)，因为第一个参数im涉及到索引，做一个偏移
 
             H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
             S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
@@ -6370,6 +6349,8 @@ double fMeSSpeciation(int im, int igas) {
     // 计算ZP7 - Pb-HS配合物参数
     double ZP7 = BetaDot[iPbHS3] * gDot[iPbDot] * hs_term_cb / gDot[iPbHS3];
 
+    double ZP9 = BetaDot[iZnOH2] * gDot[iZnDot] * gDot[iOHDot] * gDot[iOHDot] / gDot[iZnOH2];
+
     /* ------- 根据是否有沉淀 (ppt) 来计算初始溶解相浓度 mc[] ------- */
        /* Fe */
     if (im == iFe && igas == 3) { /* FeS 正在沉淀 */
@@ -7875,12 +7856,7 @@ void D2_CalcDensitypH(int i,
     PengRobinson3();
 
     // Call C5_CalcpHPCO2PH2SSTP 'CO2, H2S, FeSaq speciation
-    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-        //  TK, Ppsia, yCO2, yH2S,
-        //  Alk, TAc, TH2Saq, TFe, TCO2,
-        //  TNH4, TH3BO3, TH4SiO4,
-        //  pH, pHMeterReading
-    );
+    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
 
     mc[iH] = H;
     ma[iOH] = OH;
@@ -8764,7 +8740,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
     //mt = fTotalCO2H2Smoles(); //计算每种气体成分的总摩尔数（无论是在气体中还是在油或水中）
     fTotalCO2H2Smoles();
-    // 请注意，VgTP 的单位是 m^3，当 Vg 的单位是 MMCF 时，829 是从 He 的系数 78740 转换而来的。
+    //请注意，VgTP 的单位是 m^3，当 Vg 的单位是 MMCF 时，829 是从 He 的系数 78740 转换而来的。
 
     yCO2Mix[kk] = yCO2;
     yCH4Mix[kk] = yCH4;
