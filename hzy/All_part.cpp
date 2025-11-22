@@ -3706,7 +3706,7 @@ void PengRobinson3() {
     int iNG, jNG;
     double aPrmix, bPRmix, AStarPR, BStarPr;
     double coef1, coef2, coef3, coef4;
-    double root1, root2, root3, Znew, VolGasMolar;
+    double root1, root2, root3, VolGasMolar;
     double Sum_aijPR[3];
     double term1, term2, term3, term4;
 
@@ -8524,9 +8524,16 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         if (RunMultiMix == 1) useEOSmix[kk] = 0;
 
         //注意，由于 ZMix (kk,i) 在下面重新分配，因此值将从此 Sub 开头的输入表中重新读取。
-        for (iNG = 0; iNG < 14; iNG++) {
-            //待定：zMix(kk, iNG) = Worksheets(mySheet).Cells(65 + iNG, j + 2) / 100:
-        }
+        //for (iNG = 0; iNG < 14; iNG++) {
+        //    //待定：zMix(kk, iNG) = Worksheets(mySheet).Cells(65 + iNG, j + 2) / 100:
+        //}
+        zMix[kk][0] = data->C1_o / 100.0;       zMix[kk][1] = data->CO2_o / 100.0;
+        zMix[kk][2] = data->H2S_o / 100.0;      zMix[kk][3] = data->C2_o / 100.0;
+        zMix[kk][4] = data->C3_o / 100.0;       zMix[kk][5] = data->iC4_o / 100.0;
+        zMix[kk][6] = data->nC4_o / 100.0;      zMix[kk][7] = data->iC5_o / 100.0;
+        zMix[kk][8] = data->nC5_o / 100.0;      zMix[kk][9] = data->C6_o / 100.0;
+        zMix[kk][10] = data->C7_C12_o / 100.0;    zMix[kk][11] = data->C13_C25_o / 100.0;
+        zMix[kk][12] = data->C26_C80_o / 100.0;   zMix[kk][13] = data->N2_o / 100.0;
         zMix[kk][14] = 0.0;
     }
 
@@ -8555,10 +8562,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
     yCO2 = yCO2Mix[kk], yH2S = yH2SMix[kk], yCH4 = yCH4Mix[kk];   // Local variable values; in this loop only.
 
-    int useEOS = useEOSmix[kk]; int use_pH = usepHmix[kk]; int UseH2Sgas = UseH2SgasMix[kk];
-
-    void* mt;
-
+    useEOS = useEOSmix[kk]; use_pH = usepHmix[kk]; UseH2Sgas = UseH2SgasMix[kk];
 
     TFe = mc[iFe];
 
@@ -8595,12 +8599,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
     CalcIonicStrength();
     C2_PitzerActCoefs_T_P_ISt(gNeut, &aH2O, TK, TC, PBar, Patm);
-    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-        // TK, Ppsia, &yCO2, &yH2S,
-        // Alk, TAc, TH2Saq, TFe, TCO2,
-        // TNH4, TH3BO3, TH4SiO4,
-        // pH, pHMeterReading
-    );
+    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
 
     //使用温度 TVol 和 PVol 下计算的水密度
     if (UseTPVolMix[kk] == 1) WaterDensityMix[kk] = CalcRhoTP(TK, TC, PBar, Patm);
@@ -8640,20 +8639,24 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     //If useEOS <> 0 Then
     if (useEOS != 0)
     {
-        if (useEOS == 3) {
-            mol_o = 1000 * Mass_o / (mw_oil); // moles of oil per day
+        if (useEOS == 3)
+        {
+            mol_o = 1000 * Mass_o / mw_oil; // moles of oil per day
             mol_g = VgTP * PBar * 1000 / (Znew * RBar * TK); // moles of gas per day
-            mol_HC = (mol_o)+(mol_g);
+            mol_HC = mol_o + mol_g;
 
-            if ((VoMix[kk] == (1.0 / 159.0 / 1000.0)) && (VgTP == 0.000001)) { // 当气体和油都为零并混合水时
-                if (nob == 1) {
+            if ((VoMix[kk] == (1.0 / 159.0 / 1000.0)) && (VgTP == 0.000001)) // 当气体和油都为零并混合水时
+            {
+                if (nob == 1)
+                {
                     errmsg[13] = 14;
                     useEOS = 0;
                     goto label_3003;
                 }
-                else {
-                    z_before_precipitation[1] = nTCO2Mix[kk] / (mol_W);
-                    z_before_precipitation[2] = nTH2SMix[kk] / (mol_W);
+                else
+                {
+                    z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;
+                    z_before_precipitation[2] = nTH2SMix[kk] / mol_W;
                     z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
                     Total_molesMix[kk] = (mol_W);
                     nTCO2MixEOS[kk] = nTCO2;
@@ -8670,52 +8673,50 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     PengRobinson3();
 
                     // ***注意，如果 useEOSmix[kk]!=0，则省略此 pH 计算步骤。换句话说，如果此处 useEOS!=0，则不会运行 pH 和形态分析。形态分析已在 ReadInputPartC 中完成。
-                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-                        // TK, Ppsia, &yCO2, &yH2S,
-                        // Alk, TAc, TH2Saq, TFe, TCO2,
-                        // TNH4, TH3BO3, TH4SiO4,
-                        // pH, pHMeterReading
-                    );
+                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
 
                     // ******重新分配 CO2aq、HCO3、CO3、H2Saq、HS 并重新计算离子强度
                     fmn();
                     CalcIonicStrength();
                     C2_PitzerActCoefs_T_P_ISt(gNeut, &aH2O, TK, TC, PBar, Patm);
 
-                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-                        // TK, Ppsia, &yCO2, &yH2S,
-                        // Alk, TAc, TH2Saq, TFe, TCO2,
-                        // TNH4, TH3BO3, TH4SiO4,
-                        // pH, pHMeterReading
-                    );
+                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
 
                     pHMeterReading = pH - DpHj;
                     goto label_3003;
                 }
             }
         }
-        if (useEOS == 1 || useEOS == 2) {
-            if (SumofZMix[kk] == 0) {       // 仅当给出碳氢化合物成分时，才运行 HC 调节
-                if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1) {
+        if (useEOS == 1 || useEOS == 2)
+        {
+            if (SumofZMix[kk] == 0)
+            {       // 仅当给出碳氢化合物成分时，才运行 HC 调节
+                if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+                {
                     goto label_3002;
                 }
-                else {
-                    if (nob == 1) {
+                else
+                {
+                    if (nob == 1)
+                    {
                         errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                         useEOS = 0;
                         goto label_3003;
                     }
-                    else {
-                        if (mol_W > 0) {
-                            z_before_precipitation[1] = nTCO2Mix[kk] / (mol_W);  // 原下标2对应索引1
-                            z_before_precipitation[2] = nTH2SMix[kk] / (mol_W);  // 原下标3对应索引2
+                    else
+                    {
+                        if (mol_W > 0)
+                        {
+                            z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;  // 原下标2对应索引1
+                            z_before_precipitation[2] = nTH2SMix[kk] / mol_W;  // 原下标3对应索引2
                             z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];  // 原下标15对应索引14
-                            Total_molesMix[kk] = (mol_W);
+                            Total_molesMix[kk] = mol_W;
                             nTCO2MixEOS[kk] = nTCO2;
                             nTH2SMixEOS[kk] = nTH2S;
                             goto label_3003;
                         }
-                        else {
+                        else
+                        {
                             errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                             useEOS = 0;
                             goto label_3003;
@@ -8723,124 +8724,46 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     }
                 }
             }
-            else {
+            else
+            {
                 total_moles = 1;
                 //Compr(3)  beta(3)
                 MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, z, tempgNeut,
                     aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
 
-                if (beta[0] > 0 && beta[1] > 0) {
-                    if (VoMix[kk] > 1.0 / 159.0 / 1000.0) { // key to oil if vo is greater than 0
+                if (beta[0] > 0 && beta[1] > 0)
+                {
+                    if (VoMix[kk] > 1.0 / 159.0 / 1000.0)
+                    { // key to oil if vo is greater than 0
                         mass_o_Mix[kk] = 159 * VoMix[kk] * density[1]; // Kg
-                        mol_o = mass_o_Mix[kk] * 1000 / (MW_Phase)[1];
-                        mol_g = (mol_o) / beta[1] * beta[0];
+                        mol_o = mass_o_Mix[kk] * 1000 / MW_Phase[1];
+                        mol_g = mol_o / beta[1] * beta[0];
                     }
-                    else if (VgTP > 0.000001) {    // 仅当 Vg 大于 0 且 Vo=0 时才允许
+                    else if (VgTP > 0.000001)
+                    {    // 仅当 Vg 大于 0 且 Vo=0 时才允许
                         mol_g = VgTP * PBar * 1000 / (Compr[0] * RBar * TK);
-                        mol_o = (mol_g) / beta[0] * beta[1];
+                        mol_o = mol_g / beta[0] * beta[1];
                     }
-                    else { // 当没有给出油气体积时，只允许计算混合
-                        if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1) {
+                    else
+                    { // 当没有给出油气体积时，只允许计算混合
+                        if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+                        {
                             goto label_3002;
                         }
-                        else {
-                            if (nob == 1) {
+                        else
+                        {
+                            if (nob == 1)
+                            {
                                 mol_g = 0;
                                 mol_o = 0;
                                 errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
                                 useEOS = 0;
                                 goto label_3003;
                             }
-                            else {
-                                if (mol_W > 0) {
-                                    z_before_precipitation[1] = nTCO2Mix[kk] / (mol_W);
-                                    z_before_precipitation[2] = nTH2SMix[kk] / (mol_W);
-                                    z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
-                                    Total_molesMix[kk] = (mol_W);
-                                    nTCO2MixEOS[kk] = nTCO2;
-                                    nTH2SMixEOS[kk] = nTH2S;
-                                    goto label_3003;
-                                }
-                                else {
-                                    errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
-                                    useEOS = 0;
-                                    goto label_3003;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (beta[0] > 0 && beta[1] == 0) { // 仅存在气相
-                    if (VoMix[kk] > 1.0 / 159.0 / 1000.0) { // 如果存在石油量，则石油的关键
-                        if ((z[7] + z[8] + z[9] + z[10] + z[11] + z[12]) > 0) { // 只有当 HC 大于 C4 时，才是石油的关键
-                            mass_o_Mix[kk] = 159 * VoMix[kk] * density[0]; // Kg
-                            (mol_o) = mass_o_Mix[kk] * 1000 / (MW_Phase)[0];
-                            (mol_g) = 0;
-                        }
-                        else {
-                            (mol_g) = VgTP * PBar * 1000 / (Compr[0] * RBar * TK); // 如果不存在大于 C4 的 HC，则为气体键
-                            (mol_o) = 0;
-                        }
-                    }
-                    else if (VgTP > 0.000001) { // key to gas if vol of oil=0
-                        (mol_g) = VgTP * PBar * 1000 / (Compr[0] * RBar * TK);
-                        (mol_o) = 0;
-                    }
-                    else { // 如果没有给出石油或天然气产量
-                        if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1) {
-                            goto label_3002;
-                        }
-                        else {
-                            if (nob == 1) {
-                                mol_g = 0;
-                                mol_o = 0;
-                                errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
-                                useEOS = 0;
-                                goto label_3003;
-                            }
-                            else {
-                                if ((mol_W) > 0) {
-                                    z_before_precipitation[1] = nTCO2Mix[kk] / (mol_W);
-                                    z_before_precipitation[2] = nTH2SMix[kk] / (mol_W);
-                                    z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
-                                    Total_molesMix[kk] = (mol_W);
-                                    nTCO2MixEOS[kk] = nTCO2;
-                                    nTH2SMixEOS[kk] = nTH2S;
-                                    goto label_3003;
-                                }
-                                else {
-                                    errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
-                                    useEOS = 0;
-                                    goto label_3003;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (beta[0] == 0 && beta[1] > 0) {
-                    if (VoMix[kk] > 1.0 / 159.0 / 1000.0) { // key to oil if vol of oil is present
-                        mass_o_Mix[kk] = 159 * VoMix[kk] * density[1]; // Kg
-                        (mol_o) = mass_o_Mix[kk] * 1000 / (MW_Phase)[1];
-                        (mol_g) = 0;
-                    }
-                    else if (VgTP > 0.000001) { // key to gas if vol of oil=0
-                        (mol_g) = VgTP * PBar * 1000 / (Compr[1] * RBar * TK);
-                        (mol_o) = 0;
-                    }
-                    else { // if neither oil or gas vol is given
-                        if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1) {
-                            goto label_3002;
-                        }
-                        else {
-                            if (nob == 1) {
-                                errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
-                                useEOS = 0;
-                                goto label_3003;
-                            }
-                            else {
-                                if (mol_W > 0) {
+                            else
+                            {
+                                if (mol_W > 0)
+                                {
                                     z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;
                                     z_before_precipitation[2] = nTH2SMix[kk] / mol_W;
                                     z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
@@ -8849,7 +8772,115 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                                     nTH2SMixEOS[kk] = nTH2S;
                                     goto label_3003;
                                 }
-                                else {
+                                else
+                                {
+                                    errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                    useEOS = 0;
+                                    goto label_3003;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (beta[0] > 0 && beta[1] == 0)
+                { // 仅存在气相
+                    if (VoMix[kk] > 1.0 / 159.0 / 1000.0)
+                    { // 如果存在石油量，则石油的关键
+                        if ((z[7] + z[8] + z[9] + z[10] + z[11] + z[12]) > 0) { // 只有当 HC 大于 C4 时，才是石油的关键
+                            mass_o_Mix[kk] = 159 * VoMix[kk] * density[0]; // Kg
+                            mol_o = mass_o_Mix[kk] * 1000 / (MW_Phase)[0];
+                            mol_g = 0;
+                        }
+                        else
+                        {
+                            mol_g = VgTP * PBar * 1000 / (Compr[0] * RBar * TK); // 如果不存在大于 C4 的 HC，则为气体键
+                            mol_o = 0;
+                        }
+                    }
+                    else if (VgTP > 0.000001) { // key to gas if vol of oil=0
+                        mol_g = VgTP * PBar * 1000 / (Compr[0] * RBar * TK);
+                        mol_o = 0;
+                    }
+                    else
+                    { // 如果没有给出石油或天然气产量
+                        if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+                        {
+                            goto label_3002;
+                        }
+                        else
+                        {
+                            if (nob == 1)
+                            {
+                                mol_g = 0;
+                                mol_o = 0;
+                                errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                useEOS = 0;
+                                goto label_3003;
+                            }
+                            else
+                            {
+                                if (mol_W > 0)
+                                {
+                                    z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;
+                                    z_before_precipitation[2] = nTH2SMix[kk] / mol_W;
+                                    z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
+                                    Total_molesMix[kk] = mol_W;
+                                    nTCO2MixEOS[kk] = nTCO2;
+                                    nTH2SMixEOS[kk] = nTH2S;
+                                    goto label_3003;
+                                }
+                                else
+                                {
+                                    errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                    useEOS = 0;
+                                    goto label_3003;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (beta[0] == 0 && beta[1] > 0)
+                {
+                    if (VoMix[kk] > 1.0 / 159.0 / 1000.0)
+                    { // key to oil if vol of oil is present
+                        mass_o_Mix[kk] = 159 * VoMix[kk] * density[1]; // Kg
+                        mol_o = mass_o_Mix[kk] * 1000 / MW_Phase[1];
+                        mol_g = 0;
+                    }
+                    else if (VgTP > 0.000001) { // key to gas if vol of oil=0
+                        mol_g = VgTP * PBar * 1000 / (Compr[1] * RBar * TK);
+                        mol_o = 0;
+                    }
+                    else
+                    { // if neither oil or gas vol is given
+                        if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+                        {
+                            goto label_3002;
+                        }
+                        else
+                        {
+                            if (nob == 1)
+                            {
+                                errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                useEOS = 0;
+                                goto label_3003;
+                            }
+                            else
+                            {
+                                if (mol_W > 0)
+                                {
+                                    z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;
+                                    z_before_precipitation[2] = nTH2SMix[kk] / mol_W;
+                                    z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
+                                    Total_molesMix[kk] = mol_W;
+                                    nTCO2MixEOS[kk] = nTCO2;
+                                    nTH2SMixEOS[kk] = nTH2S;
+                                    goto label_3003;
+                                }
+                                else
+                                {
                                     errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
                                     useEOS = 0;
                                     goto label_3003;
@@ -8889,11 +8920,14 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             } // end SumofZ>0
         }
 
-        if (VW == 1.0 / 159.0 / 1000.0) {               // if water volume=0, skip Flash
-            if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1) {
+        if (VW == 1.0 / 159.0 / 1000.0)
+        {               // if water volume=0, skip Flash
+            if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+            {
                 goto label_3002;
             }
-            else {
+            else
+            {
                 errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                 useEOS = 0;
                 goto label_3003;
@@ -8901,33 +8935,40 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         }
         //'*****使用EOS选项1或2
         //仅当给定实际的G/O/W体积时才允许进行Flash计算，例外情况是混合两口井和海水
-        if (useEOS == 1 || useEOS == 2) {
+        if (useEOS == 1 || useEOS == 2)
+        {
             // 首先利用气相中的纯水蒸气计算储层成分
-            if (usedryHC == 0) { // 湿烃情况，总水量=输入水量+HC中的水量
+            if (usedryHC == 0)
+            { // 湿烃情况，总水量=输入水量+HC中的水量
                 mol_w3 = 0;
-                while (mol_w3 <= 0) { // 确保添加足够的水以开始迭代
+                while (mol_w3 <= 0)
+                { // 确保添加足够的水以开始迭代
                     mol_W = mol_W * 1.1;
 
                     true_composition(TK, PBar, mol_HC, mol_W, aH2O, tempgNeut, nTCO2EOS, nTH2sEOS, useEOS, z, feed_Composition, &total_moles);
 
-                    if (feed_Composition[0] < 0.0000001) {  // 原feed_Composition(1)对应feed_Composition[0]
+                    if (feed_Composition[0] < 0.0000001)
+                    {  // 原feed_Composition(1)对应feed_Composition[0]
                         feed_Composition[0] = 0;
                     }
 
                     MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
                         tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
 
-                    if (compositions[14][3] > 0.5) {  // 原compositions(15,4)对应compositions[14][3]
+                    if (compositions[14][3] > 0.5)
+                    {  // 原compositions(15,4)对应compositions[14][3]
                         mol_w3 = total_moles * beta[2] * compositions[14][3]; // H2O moles in aqueous phase
                     }
-                    else {
+                    else
+                    {
                         mol_w3 = 0;
                     }
                 }
 
-                if (mol_w3 > 0) {
+                if (mol_w3 > 0)
+                {
                     if (compositions[14][3] > 0.5) {
-                        while (((mol_w3 - mol_w_Orig) / mol_w_Orig) * ((mol_w3 - mol_w_Orig) / (mol_w_Orig)) > 0.0001) {
+                        while (((mol_w3 - mol_w_Orig) / mol_w_Orig) * ((mol_w3 - mol_w_Orig) / mol_w_Orig) > 0.0001) {
                             mol_W = mol_W - mol_w3 + mol_w_Orig;
                             total_moles = mol_HC + mol_W;
                             true_composition(TK, PBar, mol_HC, mol_W, aH2O, tempgNeut, nTCO2EOS, nTH2sEOS, useEOS, z, feed_Composition, &total_moles);
@@ -8937,22 +8978,26 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                             mol_w3 = total_moles * beta[2] * compositions[14][3];
                         }
                     }
-                    else {
+                    else
+                    {
                         errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                         useEOS = 0;
                         goto label_3003;
                     }
                 }
-                else {
+                else
+                {
                     errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                     useEOS = 0;
                     goto label_3003;
                 }
             }
-            else if (usedryHC == 1) { // dry hydrocarbon, only water from Input
+            else if (usedryHC == 1)
+            { // dry hydrocarbon, only water from Input
                 true_composition(TK, PBar, mol_HC, mol_W, aH2O, tempgNeut, nTCO2EOS, nTH2sEOS, useEOS, z, feed_Composition, &total_moles);
 
-                if (feed_Composition[0] < 0.0000001) {
+                if (feed_Composition[0] < 0.0000001)
+                {
                     feed_Composition[0] = 0;
                 }
 
@@ -8966,19 +9011,22 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             Total_molesMix[kk] = total_moles;
             mass_w_Mix[kk] = mass_w;
 
-            if (No_Phases == 3) { // Output oil and gas density from flash calculation if useEOS=1 or useEOS=2
+            if (No_Phases == 3)
+            { // Output oil and gas density from flash calculation if useEOS=1 or useEOS=2
                 GasDensityMix[kk] = density[0] * 1000;  // 原density(1)对应density[0]
                 OilDensityMix[kk] = density[1];         // 原density(2)对应density[1]
             }
 
-            if (No_Phases == 2) { // Only g/o, G/W or O/W phases exist
-                if (beta[2] == 0) {
+            if (No_Phases == 2)
+            { // Only g/o, G/W or O/W phases exist
+                if (beta[2] == 0)
+                {
                     //本例中不存在水相。增加水量并重新运行。程序中止。
                     printf("Aqueous phase does not existed in this case. Increase water volume and run again. Program abort.\n"); // Aqueous phase does not exist
                     exit(1);  // 替代VB的End
                 }
-                else {
-
+                else
+                {
                     if (density[0] > 0 && density[0] < 0.3) GasDensityMix[kk] = density[0] * 1000;// phase 1 is gas
 
                     else if (density[0] > 0 && density[0] > 0.3) OilDensityMix[kk] = density[0]; // phase 1 is oil
@@ -8990,7 +9038,8 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                 }
             }
 
-            if (No_Phases == 1) {
+            if (No_Phases == 1)
+            {
                 if (density[0] > 0 && compositions[14][1] < 0.8) { // hydrocarbon phase
                     printf("Aqueous phase does not existed in this case. Increase water volume and run again. Program abort.\n");
                     exit(1);
@@ -9006,7 +9055,8 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             }
         }
 
-        if (useEOS == 3) {
+        if (useEOS == 3)
+        {
             // 仅在给定天然气和石油产量时运行 useEOS；第一次迭代涵盖 usedryHC=0 或 1
             pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, yCO2,
                 yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
@@ -9029,10 +9079,12 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             MultiPhaseFlash(0, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition, tempgNeut,
                 aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
 
-            if (usedryHC == 0) {
+            if (usedryHC == 0)
+            {
                 mol_w3 = total_moles * beta[2] * compositions[14][3];
 
-                while (mol_w3 <= 0) { // 确保添加足够的水以开始迭代
+                while (mol_w3 <= 0)
+                { // 确保添加足够的水以开始迭代
                     mol_W = mol_W * 1.1;
                     pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, yCO2,
                         yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
@@ -9045,13 +9097,16 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
                 }
 
-                if (mol_w3 > 0) {
-                    while (((mol_w3 - mol_w_Orig) / (mol_w_Orig)) * ((mol_w3 - (mol_w_Orig)) / (mol_w_Orig)) > 0.0001) {
+                if (mol_w3 > 0)
+                {
+                    while (((mol_w3 - mol_w_Orig) / mol_w_Orig) * ((mol_w3 - mol_w_Orig) / mol_w_Orig) > 0.0001)
+                    {
                         mol_W = mol_W - mol_w3 + mol_w_Orig;
                         total_moles = total_moles - mol_w3 + mol_w_Orig;
 
                         // recalculate z(i) into reservoir composition to use true_composition sub
-                        for (iNG = 0; iNG < 14; iNG++) {
+                        for (iNG = 0; iNG < 14; iNG++)
+                        {
                             z[iNG] = zOutput[iNG] / (1 - zOutput[14]);
                         }
 
@@ -9087,14 +9142,14 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             zMix[kk][iz] = zOutput[iz];
         }
 
-        if (usedryHC == 1) {  // 如果假设碳氢化合物为干碳氢化合物，则重新计算 T、P 处的真实水浓度
+        if (usedryHC == 1)
+        {
+            // 如果假设碳氢化合物为干碳氢化合物，则重新计算 T、P 处的真实水浓度
             for (int c = 0; c < NumCat; c++) mc[c] = mc[c] * mol_w_Orig * 0.01801528 / mass_w;
 
             for (int a = 0; a < NumAn; a++)  ma[a] = ma[a] * mol_w_Orig * 0.01801528 / mass_w;
 
-
             for (int n = 0; n < NumNeut; n++) mn[n] = mn[n] * mol_w_Orig * 0.01801528 / mass_w;
-
 
             Alk = Alk * mol_w_Orig * 0.01801528 / mass_w;
             TAc = TAc * mol_w_Orig * 0.01801528 / mass_w;
@@ -9103,7 +9158,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             TH2Saq = TH2Saq * mol_w_Orig * 0.01801528 / mass_w;
             TH4SiO4 = TH4SiO4 * mol_w_Orig * 0.01801528 / mass_w;
 
-            HstpMix[kk] = mc[iH];  // 假设iH等是1-based索引
+            HstpMix[kk] = mc[iH];
             NaMix[kk] = mc[iNa];
             KMix[kk] = mc[iK];
             MgMix[kk] = mc[iMg];
@@ -9267,21 +9322,24 @@ label_3003:
 
 
     // ***** QC calculation
-    if (RunStat == 1) {
+    if (RunStat == 1)
+    {
         if (RunQualityControlChecks == 1) {
             // Worksheets(mySheet).Activate 
             QualityControlCalculations(kk, j);
         }
     }
-    else {
-        if (RunQualityControlChecks == 1 && kk <= nob_Input) { // only run QC if requested from Input Sheet.
+    else
+    {
+        // kk在vb中是1开始的，这里我们的kk是从0开始，导致了 nob_input=1时，kk为0和1都符合条件，因此手动进行偏移
+        if (RunQualityControlChecks == 1 && kk + 1 <= nob_Input) { // only run QC if requested from Input Sheet.
             // Worksheets(mySheet).Activate
             QualityControlCalculations(kk, j);
             if (kk == nob) {
                 goto label_123;   // Last Brine QC has been printed to Input Sheet; exit calculations.
             }
         }
-        if (RunQualityControlChecks_II == 1 && kk >= nob_Input) { // only run QC if requested from InputII Sheet.
+        if (RunQualityControlChecks_II == 1 && kk + 1 >= nob_Input) { // only run QC if requested from InputII Sheet.
             // Worksheets(mySheet).Activate
             QualityControlCalculations(kk, j);
             if (kk == nob_Input + nob_InputII) {
@@ -9298,9 +9356,11 @@ label_3003:
             if (Run_CalcConcFactor == 1) {
                 // 在C中，可能需要调用特定的输出函数
                 //待定：Worksheets(MySheetMix).Cells(34, 8) = pHMeterReading
+                int bbba = pHMeterReading;
             }
             else {
                 //待定： Worksheets(mySheet).Cells(34, j + 2) = pHMeterReading
+                int bbba = pHMeterReading;
             }
         }
     }
