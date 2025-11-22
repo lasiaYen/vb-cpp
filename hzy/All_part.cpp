@@ -552,6 +552,35 @@ double rhoOld, rhoSSE;
 double TDSSSE, TDSOld;
 
 const int MaxMix = 100, MaxSpecies = 13, MaxComponents = 100, MaxCat = 100, MaxNeut = 100, MaxAnion = 100;
+
+double VgTPWI[40][10];
+double VoWI[40][10];
+double VwWI[40][10];
+double VwSW1;
+double VoSW1;
+double VgSW1;
+double VMeOHSW1;
+double VMEGSW1;
+int RunMultiMixSlb;
+double TpH;
+double PpH;
+double TVol;
+double Pvol;
+double CO2aqOld;
+double TCO2SSE;
+double TCO2Old;
+// string mt;
+double Patm;
+double PBar;
+double TK;
+
+double SArea;
+double QBrineFlow;
+double radiusC[11];
+double radiusA[12];
+
+//PartB新加入的两个全局变量，目前单组份用不到，先保留
+double PipeID = 0, PipeL = 0;
 /********************************************************************************************************/
 
 // 针对Shell Input Excel表格的样品数据结构体
@@ -1593,35 +1622,6 @@ void ReadInputPartA(int kk, SampleData* data)
 }
 
 
-double VgTPWI[40][10];
-double VoWI[40][10];
-double VwWI[40][10];
-double VwSW1;
-double VoSW1;
-double VgSW1;
-double VMeOHSW1;
-double VMEGSW1;
-int RunMultiMixSlb;
-double TpH;
-double PpH;
-double TVol;
-double Pvol;
-double CO2aqOld;
-double TCO2SSE;
-double TCO2Old;
-// string mt;
-double Patm;
-double PBar;
-double TK;
-
-double SArea;
-double QBrineFlow;
-double radiusC[11];
-double radiusA[12];
-
-//PartB新加入的两个全局变量，目前单组份用不到，先保留
-double PipeID = 0, PipeL = 0;
-
 double fTPFunc(int iTP);   //PartB要使用，在这声明了
 double fH2ODensity(double TK, double PBar);
 
@@ -1827,9 +1827,6 @@ void ReadInputPartB(int kk, SampleData* data)
     radiusA[iCO3] = 3.94;
     radiusA[iSO4] = 3.79;
 }
-
-
-
 
 
 /**
@@ -7769,10 +7766,7 @@ void QualityControlCalculations(int kk, int j)
  * @param pHMeterStpMix pH 测量值
  * @param rho25c [输入/输出] 25°C密度
  */
-void D2_CalcDensitypH(int i,
-    int Iteration,
-    double* mt, int use_pH
-) {
+void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
     // Call CalcIonicStrength 'before CO2, H2S, FeSaq speciation
     CalcIonicStrength();
 
