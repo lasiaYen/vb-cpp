@@ -552,6 +552,35 @@ double rhoOld, rhoSSE;
 double TDSSSE, TDSOld;
 
 const int MaxMix = 100, MaxSpecies = 13, MaxComponents = 100, MaxCat = 100, MaxNeut = 100, MaxAnion = 100;
+
+double VgTPWI[40][10];
+double VoWI[40][10];
+double VwWI[40][10];
+double VwSW1;
+double VoSW1;
+double VgSW1;
+double VMeOHSW1;
+double VMEGSW1;
+int RunMultiMixSlb;
+double TpH;
+double PpH;
+double TVol;
+double Pvol;
+double CO2aqOld;
+double TCO2SSE;
+double TCO2Old;
+// string mt;
+double Patm;
+double PBar;
+double TK;
+
+double SArea;
+double QBrineFlow;
+double radiusC[11];
+double radiusA[12];
+
+//PartB新加入的两个全局变量，目前单组份用不到，先保留
+double PipeID = 0, PipeL = 0;
 /********************************************************************************************************/
 
 // 针对Shell Input Excel表格的样品数据结构体
@@ -1593,35 +1622,6 @@ void ReadInputPartA(int kk, SampleData* data)
 }
 
 
-double VgTPWI[40][10];
-double VoWI[40][10];
-double VwWI[40][10];
-double VwSW1;
-double VoSW1;
-double VgSW1;
-double VMeOHSW1;
-double VMEGSW1;
-int RunMultiMixSlb;
-double TpH;
-double PpH;
-double TVol;
-double Pvol;
-double CO2aqOld;
-double TCO2SSE;
-double TCO2Old;
-// string mt;
-double Patm;
-double PBar;
-double TK;
-
-double SArea;
-double QBrineFlow;
-double radiusC[11];
-double radiusA[12];
-
-//PartB新加入的两个全局变量，目前单组份用不到，先保留
-double PipeID = 0, PipeL = 0;
-
 double fTPFunc(int iTP);   //PartB要使用，在这声明了
 double fH2ODensity(double TK, double PBar);
 
@@ -1827,9 +1827,6 @@ void ReadInputPartB(int kk, SampleData* data)
     radiusA[iCO3] = 3.94;
     radiusA[iSO4] = 3.79;
 }
-
-
-
 
 
 /**
@@ -7769,10 +7766,7 @@ void QualityControlCalculations(int kk, int j)
  * @param pHMeterStpMix pH 测量值
  * @param rho25c [输入/输出] 25°C密度
  */
-void D2_CalcDensitypH(int i,
-    int Iteration,
-    double* mt, int use_pH
-) {
+void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
     // Call CalcIonicStrength 'before CO2, H2S, FeSaq speciation
     CalcIonicStrength();
 
@@ -8594,12 +8588,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     PengRobinson3();
     //注意，如果 useEOSmix(kk)<>0，则省略此 pH 计算步骤。换句话说，如果此处 useEOS<>0，则不会运行 pH 和形态分析。形态分析已在 ReadInputPartC 中完成
     //C5_CalcpHPCO2PH2SSTP();
-    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-        // TK, Ppsia, &yCO2, &yH2S,
-        // Alk, TAc, TH2Saq, TFe, TCO2,
-        // TNH4, TH3BO3, TH4SiO4,
-        // pH, pHMeterReading
-    );
+    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
     //重新分配 CO2aq、HCO3、CO3、H2Saq、HS 并重新计算离子强度
     //mt = fmn();
     fmn();
