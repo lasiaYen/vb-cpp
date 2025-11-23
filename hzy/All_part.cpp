@@ -8595,12 +8595,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
     CalcIonicStrength();
     C2_PitzerActCoefs_T_P_ISt(gNeut, &aH2O, TK, TC, PBar, Patm);
-    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-        // TK, Ppsia, &yCO2, &yH2S,
-        // Alk, TAc, TH2Saq, TFe, TCO2,
-        // TNH4, TH3BO3, TH4SiO4,
-        // pH, pHMeterReading
-    );
+    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
 
     //使用温度 TVol 和 PVol 下计算的水密度
     if (UseTPVolMix[kk] == 1) WaterDensityMix[kk] = CalcRhoTP(TK, TC, PBar, Patm);
@@ -8670,24 +8665,14 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     PengRobinson3();
 
                     // ***注意，如果 useEOSmix[kk]!=0，则省略此 pH 计算步骤。换句话说，如果此处 useEOS!=0，则不会运行 pH 和形态分析。形态分析已在 ReadInputPartC 中完成。
-                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-                        // TK, Ppsia, &yCO2, &yH2S,
-                        // Alk, TAc, TH2Saq, TFe, TCO2,
-                        // TNH4, TH3BO3, TH4SiO4,
-                        // pH, pHMeterReading
-                    );
+                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
 
                     // ******重新分配 CO2aq、HCO3、CO3、H2Saq、HS 并重新计算离子强度
                     fmn();
                     CalcIonicStrength();
                     C2_PitzerActCoefs_T_P_ISt(gNeut, &aH2O, TK, TC, PBar, Patm);
 
-                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS
-                        // TK, Ppsia, &yCO2, &yH2S,
-                        // Alk, TAc, TH2Saq, TFe, TCO2,
-                        // TNH4, TH3BO3, TH4SiO4,
-                        // pH, pHMeterReading
-                    );
+                    C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
 
                     pHMeterReading = pH - DpHj;
                     goto label_3003;
