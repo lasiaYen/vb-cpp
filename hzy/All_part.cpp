@@ -3,6 +3,7 @@
 #include<stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include<float.h>
 #pragma warning(disable:4996)
 
 
@@ -5537,7 +5538,7 @@ void Initialization(double zGlobalWater, int NonZeroNumGases, int MaxBeta, const
 
 
 
-void EQCalculation(const double* beta, const double** lnPHI, const double* zGlobal,
+void EQCalculation(double* beta, double** lnPHI, double* zGlobal,
     double* E, double* Q, int NumGases, int MaxBeta)
 {
     int i, k;
@@ -6740,7 +6741,7 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
         Numbeta = 0;//原代码无这个，这里赋值防止传入未初始化的值。
         phaseName = NULL;//原代码无这个，这里赋值防止传入未初始化的值。
 
-        TrueFlash(EOS, mf_TK, mf_PBar, NonZeroNumGases, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr, Omega, MWgas, kPr, c0, c1, &Numbeta, phaseName, mf_beta, mf_compositions, mf_phi, mf_Compr, mf_density,
+        TrueFlash(EOS, mf_TK, mf_PBar, NonZeroNumGases, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr, Omega, MWgas, kPr, c0, c1, &Numbeta, &phaseName, mf_beta, mf_compositions, mf_phi, mf_Compr, mf_density,
             &counterEquilibrium_final, &iter_final, &counter_final, zOut);
     }
     else if (NonZeroNumGases == 1)//纯组分情况下的性质计算
@@ -8937,72 +8938,6 @@ void QualityControlCalculations(int kk, int j)
  * 包括离子强度计算、pH调整、密度迭代、浓度修正，以及热力学平衡常数和活度系数的计算。
  * 适用于电解质溶液的密度和pH计算，处理CO2、H2S、FeSaq等物种的物种分布。
  *
- * @param i 当前混合物索引
- * @param pH [输出] pH值
- * @param Ist [输入/输出] 离子强度
- * @param rhoOld [输入/输出] 旧密度值
- * @param Iteration [输入/输出] 迭代次数
- * @param rhoSSE [输入/输出] 密度平方误差
- * @param TK 绝对温度（K）
- * @param TC 摄氏温度（°C）
- * @param PBar 压力（bar）
- * @param Patm 大气压力（bar）
- * @param mc 阳离子摩尔浓度数组 [MaxSpecies]
- * @param ma 阴离子摩尔浓度数组 [MaxSpecies]
- * @param mn 中性物种摩尔浓度数组 [MaxSpecies]
- * @param Alk [输入/输出] 碱度
- * @param TAc [输入/输出] 总醋酸浓度
- * @param TCO2 [输入/输出] 总CO2浓度
- * @param TNH4 [输入/输出] 总NH4浓度
- * @param TH3BO3 [输入/输出] 总H3BO3浓度
- * @param TH2Saq [输入/输出] 总H2S(aq)浓度
- * @param TH4SiO4 [输入/输出] 总H4SiO4浓度
- * @param TFe [输入/输出] 总Fe浓度
- * @param TDS 总溶解固体（mg/L）
- * @param NumCat 阳离子数量
- * @param NumAn 阴离子数量
- * @param NumNeut 中性物种数量
- * @param iH H+ 索引
- * @param iOH OH- 索引
- * @param iAc Ac- 索引
- * @param iNH3 NH3 索引
- * @param iH2BO3 H2BO3- 索引
- * @param iHCO3 HCO3- 索引
- * @param iCO3 CO3^2- 索引
- * @param iHS HS- 索引
- * @param iH3SiO4 H3SiO4- 索引
- * @param iH2SiO4 H2SiO4^2- 索引
- * @param iH4SiO4aq H4SiO4(aq) 索引
- * @param iNH4 NH4+ 索引
- * @param iCO2aq CO2(aq) 索引
- * @param iH2Saq H2S(aq) 索引
- * @param iHAcaq HAc(aq) 索引
- * @param useEOSmix [数组] EOS混合标志 [MaxMix]
- * @param kk 当前EOS索引
- * @param gNeut 中性活度系数数组 [MaxNeut]
- * @param aH2O [输出] 水活度
- * @param DpHj pH校正
- * @param H [输入] H+ 浓度（从C5_CalcpHPCO2PH2SSTP）
- * @param OH [输入] OH- 浓度
- * @param AC [输入] Ac- 浓度
- * @param NH3 [输入] NH3 浓度
- * @param H2BO3 [输入] H2BO3- 浓度
- * @param HCO3 [输入] HCO3- 浓度
- * @param CO3 [输入] CO3^2- 浓度
- * @param HS [输入] HS- 浓度
- * @param H3SiO4 [输入] H3SiO4- 浓度
- * @param H2SiO4 [输入] H2SiO4^2- 浓度
- * @param H4SiO4 [输入] H4SiO4 浓度
- * @param CO2aq [输入] CO2(aq) 浓度
- * @param H2Saq [输入] H2S(aq) 浓度
- * @param HAcaq [输入] HAc(aq) 浓度
- * @param xMeOH [输出] 甲醇摩尔分数
- * @param xMEG [输出] 乙二醇摩尔分数
- * @param IStCosolvent [输出] 共溶剂离子强度
- * @param mt [输出] 温度压力函数值
- * @param use_pH pH使用选项
- * @param pHMeterStpMix pH 测量值
- * @param rho25c [输入/输出] 25°C密度
  */
 void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
     // Call CalcIonicStrength 'before CO2, H2S, FeSaq speciation
@@ -9116,107 +9051,6 @@ void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
  * 支持摩尔浓度（UseMolal=0）和直接计算（UseMolal=1）两种模式。
  * 在摩尔浓度模式下，进行TDS迭代；在直接模式下，计算离子强度、活度系数和物种分布。
  *
- * @param i 当前混合物索引
- * @param HCO3stpMix [数组] 标准条件下HCO3-浓度 [MaxMix]
- * @param AlkMix [数组] 碱度混合 [MaxMix]
- * @param ACstpMix [数组] 标准条件下Ac-浓度 [MaxMix]
- * @param TAcMix [数组] 总Ac混合 [MaxMix]
- * @param HstpMix [数组] 标准条件下H+浓度 [MaxMix]
- * @param OHstpMix [数组] 标准条件下OH-浓度 [MaxMix]
- * @param CO3stpMix [数组] 标准条件下CO3^2-浓度 [MaxMix]
- * @param HSstpMix [数组] 标准条件下HS-浓度 [MaxMix]
- * @param NH4STPMix [数组] 标准条件下NH4+浓度 [MaxMix]
- * @param TNH4Mix [数组] 总NH4混合 [MaxMix]
- * @param H2BO3stpMix [数组] 标准条件下H2BO3-浓度 [MaxMix]
- * @param Iteration2 [输入/输出] 迭代2计数
- * @param mc 阳离子摩尔浓度数组 [MaxSpecies]
- * @param ma 阴离子摩尔浓度数组 [MaxSpecies]
- * @param mn 中性物种摩尔浓度数组 [MaxSpecies]
- * @param iH H+ 索引
- * @param iNa Na+ 索引
- * @param iK K+ 索引
- * @param iMg Mg^2+ 索引
- * @param iCa Ca^2+ 索引
- * @param TCa [输出] 总Ca浓度
- * @param iSr Sr^2+ 索引
- * @param iBa Ba^2+ 索引
- * @param iFe Fe^2+ 索引
- * @param iZn Zn^2+ 索引
- * @param iPb Pb^2+ 索引
- * @param iOH OH- 索引
- * @param iCl Cl- 索引
- * @param iAc Ac- 索引
- * @param iNH4 NH4+ 索引
- * @param iH2BO3 H2BO3- 索引
- * @param iHCO3 HCO3- 索引
- * @param iCO3 CO3^2- 索引
- * @param iH3SiO4 H3SiO4- 索引
- * @param iH2SiO4 H2SiO4^2- 索引
- * @param iSO4 SO4^2- 索引
- * @param iHS HS- 索引
- * @param intF F- 索引
- * @param iBr Br- 索引
- * @param Alk [输入/输出] 碱度
- * @param TAc [输入/输出] 总醋酸浓度
- * @param TH2Saq [输入/输出] 总H2S(aq)浓度
- * @param TH4SiO4 [输入/输出] 总H4SiO4浓度
- * @param TH3BO3 [输入/输出] 总H3BO3浓度
- * @param TNH4 [输入/输出] 总NH4浓度
- * @param iNH3 NH3 索引
- * @param iH3BO3 H3BO3 索引
- * @param iH4SiO4aq H4SiO4(aq) 索引
- * @param TFe [输入/输出] 总Fe浓度
- * @param TDSMix [数组] TDS混合 [MaxMix]
- * @param TDSOld [输入/输出] 旧TDS值
- * @param TDS [输入/输出] 总溶解固体（mg/L）
- * @param TDSSSE [输入/输出] TDS平方误差
- * @param UseMolal 使用摩尔浓度标志
- * @param rho25c [输入/输出] 25°C密度
- * @param CalculateTDSDen [输入/输出] 计算TDS密度
- * @param NumCat 阳离子数量
- * @param NumAn 阴离子数量
- * @param NumNeut 中性物种数量
- * @param MWCat 阳离子分子量数组 [MaxCat]
- * @param MWAn 阴离子分子量数组 [MaxAnion]
- * @param MWNeut 中性物种分子量数组 [MaxNeut]
- * @param xMeOH 甲醇摩尔分数
- * @param xMEG 乙二醇摩尔分数
- * @param IStCosolvent 共溶剂离子强度
- * @param Ist [输入/输出] 离子强度
- * @param mt [输出] 温度压力函数值
- * @param pH [输出] pH值
- * @param pHMeterStpMix pH 测量值
- * @param DpHj pH校正
- * @param gNeut 中性活度系数数组 [MaxNeut]
- * @param aH2O [输出] 水活度
- * @param TK 绝对温度（K）
- * @param TC 摄氏温度（°C）
- * @param PBar 压力（bar）
- * @param Patm 大气压力（bar）
- * @param use_pH pH使用选项
- * @param useEOSmix [数组] 使用EOS混合 [MaxMix]
- * @param kk 当前EOS索引
- * @param H [输入] H+ 浓度（从C5_CalcpHPCO2PH2SSTP）
- * @param OH [输入] OH- 浓度
- * @param AC [输入] Ac- 浓度
- * @param NH3 [输入] NH3 浓度
- * @param H2BO3 [输入] H2BO3- 浓度
- * @param HCO3 [输入] HCO3- 浓度
- * @param CO3 [输入] CO3^2- 浓度
- * @param HS [输入] HS- 浓度
- * @param H3SiO4 [输入] H3SiO4- 浓度
- * @param H2SiO4 [输入] H2SiO4^2- 浓度
- * @param H4SiO4 [输入] H4SiO4 浓度
- * @param CO2aq [输入] CO2(aq) 浓度
- * @param H2Saq [输入] H2S(aq) 浓度
- * @param HAcaq [输入] HAc(aq) 浓度
- * @param iCO2aq CO2(aq) 索引
- * @param iH2Saq H2S(aq) 索引
- * @param iHAcaq HAc(aq) 索引
- * @param yCO2 [输入/输出] CO2气体摩尔分数
- * @param yH2S [输入/输出] H2S气体摩尔分数
- * @param yCH4 [输入/输出] CH4气体摩尔分数
- * @param rho_Mix [数组] 密度混合 [MaxMix]
  */
 void D1_CalcDensity(int i, int* Iteration2, double* mt) {
 
@@ -9415,128 +9249,6 @@ label10:;
  * 计算密度和TDS，更新各种浓度数组，并处理摩尔浓度到TDS的转换。
  * 适用于电解质溶液混合物的输入处理，支持多种运行模式（如测试案例、海水混合等）。
  *
- * @param kk 当前混合物索引
- * @param mt [输出] 温度压力函数值
- * @param UseTPpHMix [数组] 使用TpH混合标志 [MaxMix]
- * @param Run10TestCases 运行10测试案例标志
- * @param Loop10 循环10计数
- * @param Run_Seawater_Mixing 海水混合运行标志
- * @param LoopMixing 混合循环计数
- * @param Run_MixingTwoWells 运行两个井混合标志
- * @param RunMultiMix 多混合运行标志
- * @param LoopResChem 残余化学循环计数
- * @param RunStatMix 统计混合运行标志
- * @param HCO3stpMix [数组] 标准条件下HCO3-浓度 [MaxMix]
- * @param AlkMix [数组] 碱度混合 [MaxMix]
- * @param ACstpMix [数组] 标准条件下Ac-浓度 [MaxMix]
- * @param TAcMix [数组] 总Ac混合 [MaxMix]
- * @param HstpMix [数组] 标准条件下H+浓度 [MaxMix]
- * @param OHstpMix [数组] 标准条件下OH-浓度 [MaxMix]
- * @param CO3stpMix [数组] 标准条件下CO3^2-浓度 [MaxMix]
- * @param HSstpMix [数组] 标准条件下HS-浓度 [MaxMix]
- * @param NH4STPMix [数组] 标准条件下NH4+浓度 [MaxMix]
- * @param TNH4Mix [数组] 总NH4混合 [MaxMix]
- * @param H2BO3stpMix [数组] 标准条件下H2BO3-浓度 [MaxMix]
- * @param TDS [输出] 总溶解固体（mg/L）
- * @param yH2S [输入/输出] H2S气体摩尔分数
- * @param yCO2 [输入/输出] CO2气体摩尔分数
- * @param Iteration2 迭代2计数
- * @param mc 阳离子摩尔浓度数组 [MaxSpecies]
- * @param ma 阴离子摩尔浓度数组 [MaxSpecies]
- * @param mn 中性物种摩尔浓度数组 [MaxSpecies]
- * @param iH H+ 索引
- * @param iNa Na+ 索引
- * @param iK K+ 索引
- * @param iMg Mg^2+ 索引
- * @param iCa Ca^2+ 索引
- * @param iSr Sr^2+ 索引
- * @param iBa Ba^2+ 索引
- * @param iFe Fe^2+ 索引
- * @param iZn Zn^2+ 索引
- * @param iPb Pb^2+ 索引
- * @param iRa Ra^2+ 索引
- * @param iOH OH- 索引
- * @param iCl Cl- 索引
- * @param iAc Ac- 索引
- * @param iNH4 NH4+ 索引
- * @param iH2BO3 H2BO3- 索引
- * @param iHCO3 HCO3- 索引
- * @param iCO3 CO3^2- 索引
- * @param iH3SiO4 H3SiO4- 索引
- * @param iH2SiO4 H2SiO4^2- 索引
- * @param iSO4 SO4^2- 索引
- * @param iHS HS- 索引
- * @param intF F- 索引
- * @param iBr Br- 索引
- * @param Alk [输入/输出] 碱度
- * @param TAc [输入/输出] 总醋酸浓度
- * @param TH2Saq [输入/输出] 总H2S(aq)浓度
- * @param TH4SiO4 [输入/输出] 总H4SiO4浓度
- * @param TH3BO3 [输入/输出] 总H3BO3浓度
- * @param TNH4 [输入/输出] 总NH4浓度
- * @param TFe [输入/输出] 总Fe浓度
- * @param TPb [输入/输出] 总Pb浓度
- * @param TZn [输入/输出] 总Zn浓度
- * @param iNH3 NH3 索引
- * @param iH3BO3 H3BO3 索引
- * @param iH4SiO4aq H4SiO4(aq) 索引
- * @param use_pH [输入/输出] pH使用选项
- * @param usepHmix [数组] pH混合使用 [MaxMix]
- * @param UseH2Sgas [输入/输出] 使用H2S气体标志
- * @param UseH2SgasMix [数组] H2S气体混合使用 [MaxMix]
- * @param TCO2 [输入/输出] 总CO2浓度
- * @param TCO2Mix [数组] 总CO2混合 [MaxMix]
- * @param yCO2Mix [数组] CO2气体摩尔分数混合 [MaxMix]
- * @param yH2SMix [数组] H2S气体摩尔分数混合 [MaxMix]
- * @param useEOSmix [数组] 使用EOS混合 [MaxMix]
- * @param SumofZMix [数组] Z混合总和 [MaxMix]
- * @param zMix [数组] Z混合 [MaxMix][MaxComponents]
- * @param CalculatedTDSMix [数组] 计算TDS混合 [MaxMix]
- * @param NaMix [数组] Na混合 [MaxMix]
- * @param KMix [数组] K混合 [MaxMix]
- * @param MgMix [数组] Mg混合 [MaxMix]
- * @param CaMix [数组] Ca混合 [MaxMix]
- * @param TCa [输出] 总Ca
- * @param SrMix [数组] Sr混合 [MaxMix]
- * @param BaMix [数组] Ba混合 [MaxMix]
- * @param FeMix [数组] Fe混合 [MaxMix]
- * @param ZnMix [数组] Zn混合 [MaxMix]
- * @param PbMix [数组] Pb混合 [MaxMix]
- * @param RaMix [数组] Ra混合 [MaxMix]
- * @param ClMix [数组] Cl混合 [MaxMix]
- * @param SO4Mix [数组] SO4混合 [MaxMix]
- * @param FMix [数组] F混合 [MaxMix]
- * @param BrMix [数组] Br混合 [MaxMix]
- * @param rho25CMix [数组] 25°C密度混合 [MaxMix]
- * @param H3SiO4Mix [数组] H3SiO4混合 [MaxMix]
- * @param H2SiO4Mix [数组] H2SiO4混合 [MaxMix]
- * @param NH3Mix [数组] NH3混合 [MaxMix]
- * @param H4SiO4Mix [数组] H4SiO4混合 [MaxMix]
- * @param H3BO3Mix [数组] H3BO3混合 [MaxMix]
- * @param CO2aqMix [数组] CO2(aq)混合 [MaxMix]
- * @param H2SaqMix [数组] H2S(aq)混合 [MaxMix]
- * @param HACaqMix [数组] HAc(aq)混合 [MaxMix]
- * @param AlkMix [数组] 碱度混合 [MaxMix]
- * @param TAcMix [数组] 总Ac混合 [MaxMix]
- * @param TH2SaqMix [数组] 总H2S(aq)混合 [MaxMix]
- * @param TH4SiO4Mix [数组] 总H4SiO4混合 [MaxMix]
- * @param TNH4Mix [数组] 总NH4混合 [MaxMix]
- * @param TH3BO3Mix [数组] 总H3BO3混合 [MaxMix]
- * @param yCH4Mix [数组] CH4气体摩尔分数混合 [MaxMix]
- * @param UseTPVolMix [数组] 使用TpV混合 [MaxMix]
- * @param WaterDensityMix [数组] 水密度混合 [MaxMix]
- * @param rho25c [输入] 25°C密度
- * @param UseMolal 使用摩尔浓度标志
- * @param CalculateTDSDen [输出] 计算TDS密度
- * @param NumCat 阳离子数量
- * @param NumAn 阴离子数量
- * @param NumNeut 中性物种数量
- * @param MWCat 阳离子分子量数组 [MaxCat]
- * @param MWAn 阴离子分子量数组 [MaxAnion]
- * @param MWNeut 中性物种分子量数组 [MaxNeut]
- * @param iCO2aq CO2(aq) 索引
- * @param iH2Saq H2S(aq) 索引
- * @param iHAcaq HAc(aq) 索引
  */
 void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     *mt = fTPFunc(0);  // Densitym TDS, and m calculated at STP condition
@@ -9619,8 +9331,8 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
 
     // If yCH4 < 0 Then yCH4 = 0  '?????????????????????????????????????????????????????????????
 
-    if (useEOSmix[kk] == 1 && yCO2 == 0 && SumofZMix[kk] > 0) yCO2 = zMix[kk][2];  // if UseEOS=1 then set YCO2 and YH2S to reservoir condition to calculate density and TDS only if the reservoir fluid comp is given
-    if (useEOSmix[kk] == 1 && yH2S == 0 && SumofZMix[kk] > 0) yH2S = zMix[kk][3];
+    if (useEOSmix[kk] == 1 && yCO2 == 0 && SumofZMix[kk] > 0) yCO2 = zMix[kk][1];  // if UseEOS=1 then set YCO2 and YH2S to reservoir condition to calculate density and TDS only if the reservoir fluid comp is given
+    if (useEOSmix[kk] == 1 && yH2S == 0 && SumofZMix[kk] > 0) yH2S = zMix[kk][2];
 
     // Call C1_ThermodynamicEquilConsts  'Only function of T,P, does not recalculate in D1_CalcDensity
     // Call PengRobinson3
