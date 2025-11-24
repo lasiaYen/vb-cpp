@@ -497,7 +497,8 @@ double S, hydAc, AC, HAcaq, hydH2BO3, H2BO3, hydNH3, NH3, hydH2SiO4, H2SiO4, H3S
 double pptAmSilica;
 double faH;
 
-
+//TrueFlash新加入的全局变量
+double* E;
 
 //----QualityControlCalculations
 int UseH2Sgas;
@@ -5363,9 +5364,1247 @@ void OrderPhases(double*** compositions, double*** phi, double** beta, double** 
     free(idx_dens);
 }
 
-/*double* mf_TCr = NULL, * mf_PCr = NULL, * mf_Omega = NULL, * mf_MWgas = NULL, * mf_c0 = NULL, * mf_c1 = NULL;
-double** mf_kPr;// 默认都是6
-*/
+
+int myLimitIndex(const char* max_or_min, const double* composition, const double* property, int k)
+{
+    int i;
+    double lastProperty;
+    double tol = 1e-6;
+    int index = -1; /* 初始化返回值，未找到有效元素时返回 -1 */
+
+    if (strcmp(max_or_min, "max") == 0)
+    {
+        lastProperty = -DBL_MAX; /* 非常小的初始值 */
+        for (i = 0; i < k; ++i)
+        { /* C 数组从 0 开始 */
+            if ((property[i] > lastProperty) && (composition[i] > tol))
+            {
+                lastProperty = property[i];
+                index = i;
+            }
+        }
+    }
+    else if (strcmp(max_or_min, "min") == 0)
+    {
+        lastProperty = DBL_MAX; /* 非常大的初始值 */
+        for (i = 0; i < k; ++i)
+        {
+            if ((property[i] < lastProperty) && (composition[i] > tol))
+            {
+                lastProperty = property[i];
+                index = i;
+            }
+        }
+    }
+    return index;
+}
+
+void InitialBeta(int eqVapor, int eqAqueous, double TK, double PBar,
+    int NonZeroNumGases, double* z, double* TCr, double* PCr, double* MWgas,
+    double* beta, int NumGases, int MaxBeta, bool* betaexists)
+{
+    int m, j;
+    double sumBeta;
+
+    /* 初始猜测 */
+    if (MaxBeta >= 2)
+    {
+        beta[0] = 0.5;
+        beta[1] = 0.5;
+    }
+
+    /* 检查水是否存在 (最后一个组分) */
+    if (z[NumGases - 1] > 0.0)
+    {
+        if (TK < TCr[NumGases - 1] && (PBar > PsatH2O(TK)))
+        { /* 调用外部函数 PsatH2O */
+            if (MaxBeta > 2)
+            {
+                beta[0] = (1.0 - z[NumGases - 1]) / 2.0;
+                beta[1] = (1.0 - z[NumGases - 1]) / 2.0;
+                beta[MaxBeta - 1] = z[NumGases - 1];
+            }
+            else
+            {
+                beta[0] = 1.0 - z[NumGases - 1];
+                beta[MaxBeta - 1] = z[NumGases - 1];
+            }
+        }
+        else
+        {
+            if (MaxBeta > 2)
+            {
+                beta[0] = (1.0 - z[NumGases - 1]) / 2.0 + z[NumGases - 1];
+                beta[1] = (1.0 - z[NumGases - 1]) / 2.0;
+                beta[MaxBeta - 1] = 0.0;
+            }
+            else
+            {
+                beta[0] = 1.0;
+                beta[MaxBeta - 1] = 0.0;
+            }
+        }
+
+        if (NonZeroNumGases == 2)
+        {
+            /* VB 中 ReDim beta(MaxBeta) 等价于重置，此处仅重新赋值 */
+            if (MaxBeta >= 2)
+            {
+                beta[0] = 0.5;
+                beta[MaxBeta - 1] = 0.5;
+            }
+        }
+    }
+}
+
+
+void Initialization(double zGlobalWater, int NonZeroNumGases, int MaxBeta, const char* EOS,
+    const double* MWgas, const double* TCr, const double* PCr, const double* Omega,
+    double TK, double PBar, double** logphi3phase, int NumGases)
+{
+    int i, j;
+    double correction;
+    double* lnKi = (double*)malloc(NumGases * sizeof(double));
+
+    /* Wilson approximation for phase equilibrium constant */
+    for (i = 0; i < NumGases; ++i)
+    {
+        lnKi[i] = log(PCr[i] / PBar) + 5.373 * (1.0 + Omega[i]) * (1.0 - TCr[i] / TK);
+    }
+
+    /* Initialize logphi3phase */
+    for (i = 0; i < NumGases; ++i)
+    {
+        logphi3phase[i][0] = 0.0; /* phase 1 = vapor (ideal gas) */
+
+        for (j = 1; j < MaxBeta; ++j)
+        {
+            logphi3phase[i][j] = lnKi[i]; /* phase j = hydrocarbon liquids */
+
+            if (zGlobalWater > 0.0 && NonZeroNumGases == 2 && MWgas[i] >= 210.0)
+            {
+                logphi3phase[i][j] = lnKi[i] + 10.0;
+            }
+        }
+    }
+
+    /* Heuristic correction if water is present */
+    if (zGlobalWater > 0.0)
+    {
+
+        if (MaxBeta > 2 && NonZeroNumGases > 2)
+        {
+            for (j = 1; j < MaxBeta - 1; ++j)
+            {
+                logphi3phase[NumGases - 1][j] = lnKi[NumGases - 1] + 5.0; /* Water in organic liquids */
+            }
+        }
+
+        for (i = 0; i < NumGases - 1; ++i)
+        {
+            if (MWgas[i] < 45.0)
+            {
+                logphi3phase[i][MaxBeta - 1] = lnKi[i] + 5.0; /* Light species in aqueous phase */
+            }
+            else
+            {
+                correction = MWgas[i] / 3.8261;
+                logphi3phase[i][MaxBeta - 1] = lnKi[i] + correction; /* Heavy species in aqueous phase */
+            }
+        }
+
+        /*
+         * SSP special corrections (Henry's law) are commented out
+         * Example:
+         * logphi3phase[0][MaxBeta-1] = logKHenry_CH4(TK) - log(PBar);
+         */
+    }
+
+    /* Minimum value threshold to avoid numerical instability */
+    for (j = 0; j < MaxBeta; ++j)
+    {
+        for (i = 0; i < NumGases; ++i)
+        {
+            if (logphi3phase[i][j] < -20.0)
+            {
+                logphi3phase[i][j] = -20.0;
+            }
+        }
+    }
+
+    free(lnKi);
+}
+
+
+
+void EQCalculation(const double* beta, const double** lnPHI, const double* zGlobal,
+    double* E, double* Q, int NumGases, int MaxBeta)
+{
+    int i, k;
+    double Qphase = 0.0;
+    double Qcomp = 0.0;
+
+    /* 计算辅助向量 E[i] */
+    for (i = 0; i < NumGases; ++i)
+    {
+        E[i] = 0.0;
+        for (k = 0; k < MaxBeta; ++k)
+        {
+            if (beta[k] > 0.0 && zGlobal[i] > 0.0)
+            {
+                E[i] += beta[k] / exp(lnPHI[i][k]); /* lnPHI[i][k] -> e^(-lnPHI) */
+            }
+        }
+    }
+
+    /* 计算 Qphase */
+    for (k = 0; k < MaxBeta; ++k)
+    {
+        Qphase += beta[k];
+    }
+
+    /* 计算 Qcomp */
+    for (i = 0; i < NumGases; ++i)
+    {
+        if (zGlobal[i] > 0.0)
+        {
+            Qcomp += zGlobal[i] * log(E[i]);
+        }
+    }
+
+    *Q = Qphase - Qcomp;
+}
+
+
+void Gauss(double** a, double* b, int n, double* xs)
+{
+    int i, j, k, kMax;
+    double** AB;
+    double* rowmax;
+    double max, sum;
+
+    // 动态分配增广矩阵 AB[n][n+1]
+    AB = (double**)malloc(n * sizeof(double*));
+    for (i = 0; i < n; i++)
+        AB[i] = (double*)malloc((n + 1) * sizeof(double));
+
+    rowmax = (double*)malloc((n + 1) * sizeof(double));
+
+    // 构建增广矩阵 AB = [A|b]
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < n; j++)
+        {
+            AB[i][j] = a[i][j];
+        }
+        AB[i][n] = b[i];
+    }
+
+    // Gauss 消元法
+    for (j = 0; j < n; j++)
+    {
+        max = 0.0;
+        kMax = j;
+
+        // 部分主元选取
+        for (k = j; k < n; k++)
+        {
+            if (fabs(AB[k][j]) > max)
+            {
+                max = fabs(AB[k][j]);
+                kMax = k;
+            }
+        }
+
+        // 交换行
+        for (k = 0; k < n + 1; k++)
+        {
+            rowmax[k] = AB[kMax][k];
+            AB[kMax][k] = AB[j][k];
+            AB[j][k] = rowmax[k];
+        }
+
+        // 上三角化
+        for (i = j + 1; i < n; i++)
+        {
+            for (k = n; k >= j; k--)
+            {
+                AB[i][k] = AB[i][k] - AB[i][j] / AB[j][j] * AB[j][k];
+            }
+        }
+    }
+
+    // 回代求解
+    xs[n - 1] = AB[n - 1][n] / AB[n - 1][n - 1];
+    for (j = n - 2; j >= 0; j--)
+    {
+        sum = 0.0;
+        for (k = j + 1; k < n; k++)
+        {
+            sum += AB[j][k] * xs[k];
+        }
+        xs[j] = (AB[j][n] - sum) / AB[j][j];
+    }
+
+    // 释放动态内存
+    for (i = 0; i < n; i++)
+        free(AB[i]);
+    free(AB);
+    free(rowmax);
+}
+
+
+double myMin(double* property, int n)
+{
+    int i;
+    double minVal;
+
+    if (n <= 0)
+        return 0.0; // 数组为空时返回 0，调用前需确保 n > 0
+
+    minVal = property[0]; // 初始最小值为第一个元素
+    for (i = 1; i < n; i++)
+    {
+        if (property[i] < minVal)
+        {
+            minVal = property[i];
+        }
+    }
+
+    return minVal;
+}
+
+
+void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
+    double* beta, bool* betaexists, double** compositions,
+    bool* continue_flash, int* counterEquilibrium_final,
+    int* iter_final, int* counter_final,
+    int NumGases, int MaxBeta)
+{
+    bool converged = false;
+    long iter = 0, itermax = 1000, counter = 0, counterEquilibrium = 0;
+
+    double* g = (double*)malloc(MaxBeta * sizeof(double));
+    double* gcopy = (double*)malloc(MaxBeta * sizeof(double));
+    double* gsolve = (double*)malloc(MaxBeta * sizeof(double));
+    double* alpha0 = (double*)malloc(MaxBeta * sizeof(double));
+    double* betanew = (double*)malloc(MaxBeta * sizeof(double));
+    double* w = (double*)malloc(MaxBeta * sizeof(double));
+    double* Enew = (double*)malloc(NumGases * sizeof(double));
+
+    double** Hessian = (double**)malloc(MaxBeta * sizeof(double*));
+    for (int i = 0; i < MaxBeta; ++i)
+        Hessian[i] = (double*)malloc(MaxBeta * sizeof(double));
+
+    double alpha0used, Er2, tol, Difference, epsilon, Qnew;
+
+    // 错误处理标志
+    *continue_flash = true;
+
+    do
+    {
+        Er2 = 1.0;
+        tol = 1e-12;
+        iter = 0;
+        itermax = 1000;
+        counterEquilibrium++;
+
+        if (counterEquilibrium > 2000)
+            goto ErrHandler;
+
+        do
+        {
+            iter++;
+            if (iter > itermax)
+                goto ErrHandler;
+
+            // 计算 g 向量
+            for (int k = 0; k < MaxBeta; ++k)
+            {
+                g[k] = 0.0;
+                for (int i = 0; i < NumGases; ++i)
+                {
+                    if (zGlobal[i] > 0.0)
+                    {
+                        g[k] += zGlobal[i] / E[i] / exp(logphi3phase[i][k]);
+                    }
+                }
+                g[k] = 1.0 - g[k];
+                gcopy[k] = g[k];
+                gsolve[k] = -g[k];
+            }
+
+            // 构建 Hessian
+            for (int k = 0; k < MaxBeta; ++k)
+            {
+                for (int L = 0; L < MaxBeta; ++L)
+                {
+                    Hessian[k][L] = 0.0;
+                    for (int i = 0; i < NumGases; ++i)
+                    {
+                        if (zGlobal[i] > 0.0)
+                        {
+                            Hessian[k][L] += zGlobal[i] / (E[i] * E[i] * exp(logphi3phase[i][L] + logphi3phase[i][k]));
+                        }
+                    }
+                }
+                if (NumGases < MaxBeta)
+                    Hessian[k][k] += 1e-10;
+            }
+
+            // 处理不存在的相
+            for (int j = 0; j < MaxBeta; ++j)
+            {
+                if (!betaexists[j])
+                {
+                    gsolve[j] = 0.0;
+                    for (int k = 0; k < MaxBeta; ++k)
+                    {
+                        Hessian[j][k] = 0.0;
+                        Hessian[k][j] = 0.0;
+                    }
+                    Hessian[j][j] = 1.0;
+                }
+            }
+
+            // 未定义函数：Gauss(Hessian, gsolve, MaxBeta, w)
+            Gauss(Hessian, gsolve, MaxBeta, w);
+
+            for (int k = 0; k < MaxBeta; ++k)
+            {
+                if (w[k] != 0.0)
+                {
+                    alpha0[k] = -beta[k] / w[k];
+                    if (alpha0[k] <= 0.0)
+                        alpha0[k] = 1000.0;
+                }
+                else
+                {
+                    alpha0[k] = 1000.0;
+                }
+            }
+
+            // 未定义函数：myMin(alpha0)
+            alpha0used = myMin(alpha0, MaxBeta);
+            if (alpha0used > 1.0)
+                alpha0used = 1.0;
+
+            Difference = 1.0;
+            epsilon = 1e-8;
+            counter = 0;
+
+            do
+            {
+                counter++;
+                if (counter > 10000)
+                    goto ErrHandler;
+
+                for (int k = 0; k < MaxBeta; ++k)
+                {
+                    betanew[k] = beta[k] + alpha0used * w[k] * pow(0.5, counter - 1);
+                    if (betanew[k] <= 0.0)
+                        betanew[k] = 0.0;
+                }
+
+                // 调用已翻译函数 EQCalculation
+                EQCalculation(betanew, logphi3phase, zGlobal, Enew, &Qnew, NumGases, MaxBeta);
+
+                Difference = Qnew - *Q;
+            } while (Difference > epsilon);
+
+            *Q = Qnew;
+
+            for (int i = 0; i < NumGases; ++i)
+                E[i] = Enew[i];
+            for (int j = 0; j < MaxBeta; ++j)
+                beta[j] = betanew[j];
+
+            for (int i = 0; i < MaxBeta; ++i)
+            {
+                if (beta[i] < 1e-10)
+                {
+                    beta[i] = 0.0;
+                    betaexists[i] = false;
+                }
+            }
+
+            Er2 = 0.0;
+            for (int k = 0; k < MaxBeta; ++k)
+                Er2 += fabs(w[k]);
+
+        } while (Er2 > tol);
+
+        converged = true;
+
+        // 检查是否需要恢复相
+        for (int k = 0; k < MaxBeta; ++k)
+        {
+            if (!betaexists[k] && converged)
+            {
+                if (gcopy[k] <= -tol || gcopy[k] == 0.0)
+                {
+                    if (fabs(gcopy[k] - myMin(gcopy, MaxBeta)) < tol)
+                    {
+                        betaexists[k] = true;
+                        converged = false;
+                    }
+                }
+            }
+        }
+
+    } while (!converged);
+
+    // 计算 compositions
+    for (int i = 0; i < NumGases; ++i)
+    {
+        compositions[i][0] = zGlobal[i];
+        for (int k = 0; k < MaxBeta; ++k)
+        {
+            if (zGlobal[i] > 0.0)
+            {
+                compositions[i][k + 1] = zGlobal[i] / E[i] / exp(logphi3phase[i][k]);
+            }
+        }
+    }
+
+    *counterEquilibrium_final = counterEquilibrium;
+    *iter_final = iter;
+    *counter_final = counter;
+
+    // 释放动态数组
+    for (int i = 0; i < MaxBeta; ++i)
+        free(Hessian[i]);
+    free(Hessian);
+    free(g);
+    free(gcopy);
+    free(gsolve);
+    free(alpha0);
+    free(betanew);
+    free(w);
+    free(Enew);
+    return;
+
+ErrHandler:
+    *continue_flash = false;
+    *counterEquilibrium_final = counterEquilibrium;
+    *iter_final = iter;
+    *counter_final = counter;
+
+    // 计算 compositions 即使出错
+    for (int i = 0; i < NumGases; ++i)
+    {
+        compositions[i][0] = zGlobal[i];
+        for (int k = 0; k < MaxBeta; ++k)
+        {
+            if (zGlobal[i] > 0.0)
+            {
+                compositions[i][k + 1] = zGlobal[i] / E[i] / exp(logphi3phase[i][k]);
+            }
+        }
+    }
+
+    for (int i = 0; i < MaxBeta; ++i)
+        free(Hessian[i]);
+    free(Hessian);
+    free(g);
+    free(gcopy);
+    free(gsolve);
+    free(alpha0);
+    free(betanew);
+    free(w);
+    free(Enew);
+    return;
+}
+
+
+
+int isVapor(int eqVapor, double* composition, double* globalComposition, double TK, double PBar,
+    double* TCr, double* PCr, int lightest, int NumGases)
+{
+    double composition_ratio = 1.0; // 组分比率阈值
+    double tol = 0.00001;           // 容差
+    double total_dry = 0.0;
+    double total_comp_dry = 0.0;
+    double dry_composition_Lightest = 0.0;
+    double dry_global_comp_Lightest = 0.0;
+
+    // 计算除水或最轻组分外的干物质总量
+    for (int i = 0; i < NumGases - 1; i++)
+    {
+        total_dry += globalComposition[i];
+        total_comp_dry += composition[i];
+    }
+
+    dry_global_comp_Lightest = globalComposition[lightest] / total_dry;
+    dry_composition_Lightest = composition[lightest] / total_comp_dry;
+
+    if ((dry_composition_Lightest - composition_ratio * dry_global_comp_Lightest) > 0.0)
+    {
+        return 1; // 气相
+    }
+    else if (eqVapor && fabs(dry_composition_Lightest - composition_ratio * dry_global_comp_Lightest) < tol)
+    {
+        return 1; // 气相
+    }
+
+    return 0; // 非气相
+}
+
+
+void normalize2Darray(double** x, int nRows, int nCols)
+{
+    int i, j;
+    double* sum = (double*)calloc(nCols, sizeof(double)); // 存储每列的和
+
+    // 计算每列的和
+    for (j = 0; j < nCols; j++)
+        for (i = 0; i < nRows; i++)
+            sum[j] += x[i][j];
+
+    // 对每列进行归一化
+    for (j = 0; j < nCols; j++)
+        if (sum[j] > 0.0)
+            for (i = 0; i < nRows; i++)
+                x[i][j] /= sum[j];
+
+    free(sum); // 释放动态分配的内存
+}
+
+
+bool equalArrays(double tolerance, double* array1, double* array2, int nElements)
+{
+    int i;
+    double D1, D2;
+    double sumError = 0.0;
+    int sumResultArray = 0;
+
+    for (i = 0; i < nElements; i++)
+    {
+        D1 = array1[i];
+        D2 = array2[i];
+
+        if (D1 > D2)
+        {
+            if (fabs(D1 - D2) / fabs(D1) < tolerance)
+                sumResultArray += 0;
+            else
+                sumResultArray += 1;
+            sumError += fabs(D1 - D2) / fabs(D1);
+        }
+        else if (D1 < D2)
+        {
+            if (fabs(D1 - D2) / fabs(D2) < tolerance)
+                sumResultArray += 0;
+            else
+                sumResultArray += 1;
+            sumError += fabs(D1 - D2) / fabs(D2);
+        }
+        else
+            sumResultArray += 0;
+    }
+
+    if (sumResultArray == 0 || (sumError / nElements) < tolerance)
+        return true;
+    else
+        return false;
+}
+
+
+double myMax(double* property, int nElements)
+{
+    int i;
+    double maxVal = property[0]; // C语言数组从0开始
+    for (i = 1; i < nElements; i++)
+    {
+        if (property[i] > maxVal)
+            maxVal = property[i];
+    }
+    return maxVal;
+}
+
+
+void normalizeWithoutWater(double** x, int nRows, int nCols)
+{
+    int i, j;
+    double* sum = (double*)calloc(nCols, sizeof(double)); // 存储每列的和
+
+    // 计算每列（不包括最后一行）的和
+    for (j = 0; j < nCols; j++)
+    {
+        for (i = 0; i < nRows - 1; i++)
+            sum[j] += x[i][j];
+    }
+
+    // 对每列（不包括最后一行）进行归一化
+    for (j = 0; j < nCols; j++)
+    {
+        if (sum[j] > 0.0)
+        {
+            for (i = 0; i < nRows - 1; i++)
+                x[i][j] /= sum[j];
+        }
+    }
+
+    free(sum); // 释放动态分配的内存
+}
+
+
+void indexBubbleSrt(bool ascending, double* ArrayIn, int* index, int nElements)
+{
+    int i, j;
+    double tempVal;
+    int tempIdx;
+
+    if (ascending) {
+        for (i = 0; i < nElements - 1; i++) {
+            for (j = i + 1; j < nElements; j++) {
+                if (ArrayIn[i] > ArrayIn[j]) {
+                    // 交换 ArrayIn 元素
+                    tempVal = ArrayIn[j];
+                    ArrayIn[j] = ArrayIn[i];
+                    ArrayIn[i] = tempVal;
+
+                    // 交换对应索引
+                    tempIdx = index[j];
+                    index[j] = index[i];
+                    index[i] = tempIdx;
+                }
+            }
+        }
+    }
+    else {
+        for (i = 0; i < nElements - 1; i++) {
+            for (j = i + 1; j < nElements; j++) {
+                if (ArrayIn[i] < ArrayIn[j]) {
+                    // 交换 ArrayIn 元素
+                    tempVal = ArrayIn[j];
+                    ArrayIn[j] = ArrayIn[i];
+                    ArrayIn[i] = tempVal;
+
+                    // 交换对应索引
+                    tempIdx = index[j];
+                    index[j] = index[i];
+                    index[i] = tempIdx;
+                }
+            }
+        }
+    }
+}
+
+
+void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, bool eqAqueous,
+    int NonZeroComponents, double* beta, double* density, double* Compr, double** compositions,
+    double** logPHI, char** phase, int* nPhases, char** phaseName, int maxPhases, int nComponents)
+{
+    int i, j, k, m, n;
+    int aqueousPhase = -1;
+    double composition_ratio = 1.001;
+    double tol = composition_ratio - 1.0;
+    bool* equalPhases = (bool*)calloc(maxPhases * maxPhases, sizeof(bool));
+    double* relativeComposition_Water = (double*)calloc(maxPhases, sizeof(double));
+    double* compoPhaseA = (double*)calloc(nComponents, sizeof(double));
+    double* compoPhaseB = (double*)calloc(nComponents, sizeof(double));
+    bool* uniquePhase = (bool*)calloc(maxPhases, sizeof(bool));
+    int* phaseIndex = (int*)calloc(maxPhases, sizeof(int));
+    int* phaseOrder = (int*)calloc(maxPhases, sizeof(int));
+    double* variable_sorted = (double*)calloc(maxPhases, sizeof(double));
+    double sumBeta = 0.0;
+    bool vaporExists = false;
+    bool aqueousExists = false;
+    int nonAqueousPhases;
+
+    // 复制 compositions 到 relativeCompositions 并归一化
+    double** relativeCompositions = (double**)malloc(nComponents * sizeof(double*));
+    for (i = 0; i < nComponents; i++)
+    {
+        relativeCompositions[i] = (double*)malloc((maxPhases + 1) * sizeof(double));
+        for (j = 0; j <= maxPhases; j++)
+            relativeCompositions[i][j] = compositions[i][j];
+    }
+    normalize2Darray(relativeCompositions, nComponents, maxPhases + 1);
+
+    // 判断相是否相等
+    double tolerance = 0.03; // 3%
+    int totalEqualPhases = 0;
+    for (m = 0; m < maxPhases; m++)
+    {
+        for (n = 0; n < m; n++)
+        {
+            for (i = 0; i < nComponents; i++)
+            {
+                compoPhaseA[i] = relativeCompositions[i][m + 1];
+                compoPhaseB[i] = relativeCompositions[i][n + 1];
+            }
+            if (equalArrays(tolerance, compoPhaseA, compoPhaseB, nComponents))
+            {
+                equalPhases[m * maxPhases + n] = true;
+                equalPhases[n * maxPhases + m] = true;
+                if (m != n)
+                    totalEqualPhases++;
+            }
+        }
+        equalPhases[m * maxPhases + m] = true;
+    }
+
+    // 找水相
+    if (compositions[nComponents - 1][0] > 0)
+    {
+        for (j = 0; j < maxPhases; j++)
+            relativeComposition_Water[j] = relativeCompositions[nComponents - 1][j + 1];
+
+        int maxWater_Phase = myLimitIndex("max", relativeComposition_Water, relativeComposition_Water, maxPhases);
+        if (maxWater_Phase >= 0)
+        {
+            if (relativeComposition_Water[maxWater_Phase] > 0.5 && density[maxWater_Phase] > 0.5)
+            {
+                if (relativeComposition_Water[maxWater_Phase] - composition_ratio * relativeCompositions[nComponents - 1][0] > 0)
+                    aqueousPhase = maxWater_Phase;
+                else if (relativeComposition_Water[maxWater_Phase] > 0.9)
+                    aqueousPhase = maxWater_Phase;
+                else if (eqAqueous && fabs(myMax(relativeComposition_Water, maxPhases) - relativeCompositions[nComponents - 1][0]) <= tol * relativeCompositions[nComponents - 1][0])
+                    aqueousPhase = maxWater_Phase;
+            }
+        }
+        // 除水外归一化
+        normalizeWithoutWater(relativeCompositions, nComponents, maxPhases + 1);
+    }
+
+    // 判断非零组分数
+    NonZeroComponents = 0;
+    for (i = 0; i < nComponents; i++)
+        if (compositions[i][0] > 0)
+            NonZeroComponents++;
+
+    // 唯一相检测
+    for (n = 0; n < maxPhases; n++)
+    {
+        bool found = false;
+        int m_min = -1;
+        for (m = 0; m <= n; m++)
+        {
+            if (equalPhases[n * maxPhases + m] && beta[m] > 0)
+            {
+                if (!found)
+                {
+                    uniquePhase[m] = true;
+                    found = true;
+                    m_min = m;
+                }
+                else
+                {
+                    beta[m_min] += beta[m];
+                }
+            }
+        }
+    }
+
+    // 统计唯一相
+    int nUniquePhases = 0;
+    for (j = 0; j < maxPhases; j++)
+        if (uniquePhase[j])
+            nUniquePhases++;
+
+    // 生成 phaseIndex
+    for (j = 0; j < maxPhases; j++)
+        phaseIndex[j] = j;
+
+    // 排序 lightest 分量
+    for (j = 0; j < maxPhases; j++)
+        variable_sorted[j] = relativeCompositions[lightest][j + 1];
+    indexBubbleSrt(false, variable_sorted, phaseIndex, maxPhases);
+
+    nonAqueousPhases = nUniquePhases - (aqueousPhase >= 0 ? 1 : 0);
+
+    // Vapor 相判定
+    if (nonAqueousPhases == 1 && density[phaseIndex[0]] < 0.2)
+    {
+        vaporExists = true;
+    }
+    else if (nUniquePhases == 1 && aqueousPhase >= 0)
+    {
+        vaporExists = false;
+    }
+    else
+    {
+        if (density[phaseIndex[0]] < 0.2)
+            vaporExists = true;
+        else
+            vaporExists = false;
+    }
+
+    // 分配 beta, density, Compr, compositions, logPHI
+    for (j = 0; j < maxPhases; j++)
+    {
+        if (uniquePhase[j])
+        {
+            for (i = 0; i < nComponents; i++)
+                ; // 这里可以复制 compositions[i][j+1] -> 新数组，保持原逻辑
+        }
+    }
+
+    // Phase 名称分配
+    int mPhase = 1;
+    for (j = 0; j < maxPhases; j++)
+    {
+        if (beta[j] > 0)
+        {
+            double* x = (double*)malloc(nComponents * sizeof(double));
+            for (i = 0; i < nComponents; i++)
+                x[i] = compositions[i][j + 1];
+
+            if (aqueousPhase >= 0 && isAqueous_2016(eqAqueous, x, relativeCompositions[0]))
+                strcpy(phaseName[j], "Aqueous");
+            else
+            {
+                char buf[32];
+                sprintf(buf, "Phase %d", mPhase++);
+                strcpy(phaseName[j], buf);
+            }
+            free(x);
+        }
+    }
+
+    // 释放动态数组
+    free(equalPhases);
+    free(relativeComposition_Water);
+    free(compoPhaseA);
+    free(compoPhaseB);
+    free(uniquePhase);
+    free(phaseIndex);
+    free(phaseOrder);
+    free(variable_sorted);
+    for (i = 0; i < nComponents; i++)
+        free(relativeCompositions[i]);
+    free(relativeCompositions);
+}
+
+
+void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PBar, int NonZeroNumGases, double* zGlobal,
+    double* gNeut, double aH2O, double* TCr, double* PCr, double* Omega, double* MWgas, double** kPr, double* c0, double* c1,
+    double* Q, int* Numbeta, char** phaseName, double* beta, double** compositions, double** phi, double* Compr, double* density,
+    int* counterEquilibrium_final, int* iter_final, int* counter_final, double* zOutput)
+{
+
+    int i, j, k;
+    int NumGases, MaxBeta;
+    int iter = 0, itermax = 30;
+    int lightest, heaviest;
+    bool continue_flash = true;
+    bool vaporFound;
+    bool highErr = true;
+    double pseudoTCr_mix, pseudoPCr_mix;
+    double sumorganic, Er, tol, MWsum;
+    double Sz, errNet, Er_old, errRate;
+    double sumOld, sumNew;
+    double maxErrorLogPhi;
+    double Gibbs;
+    double temp;
+    bool testTemp = false;
+
+    // 获取组分和相数
+    NumGases = NonZeroNumGases; // UBound(zGlobal) → 非零组分数
+    MaxBeta = *Numbeta;         // UBound(beta)
+
+    // 动态分配主要数组
+    double* Ki = (double*)calloc(NumGases, sizeof(double));
+    double** logphi3phase = (double**)malloc(NumGases * sizeof(double*));
+    double** logphi3phase_new = (double**)malloc(NumGases * sizeof(double*));
+    double* logphi3phase_newphase = (double*)malloc(NumGases * sizeof(double));
+    double* x = (double*)calloc(NumGases, sizeof(double));
+    double* z = (double*)calloc(NumGases, sizeof(double));
+    double* everyLogPHI = (double*)calloc(MaxBeta, sizeof(double));
+    double** errorLogPhi = (double**)malloc(NumGases * sizeof(double*));
+    for (i = 0; i < NumGases; i++) {
+        logphi3phase[i] = (double*)calloc(MaxBeta, sizeof(double));
+        logphi3phase_new[i] = (double*)calloc(MaxBeta, sizeof(double));
+        //logphi3phase_newphase[i] = (double*)calloc(MaxBeta, sizeof(double));
+        errorLogPhi[i] = (double*)calloc(MaxBeta, sizeof(double));
+    }
+
+    bool* betaexists = (bool*)calloc(MaxBeta, sizeof(bool));
+    char** phase = (char**)malloc(MaxBeta * sizeof(char*));
+    for (j = 0; j < MaxBeta; j++) {
+        phase[j] = (char*)malloc(16 * sizeof(char)); // 每个相名最长16字符
+    }
+
+    // 归一化全局摩尔组成
+    Sz = 0.0;
+    for (i = 0; i < NumGases; i++) Sz += zGlobal[i];
+    for (i = 0; i < NumGases; i++) {
+        z[i] = zGlobal[i] / Sz;
+        zOutput[i] = z[i];
+    }
+
+    // 找出最轻/最重组分 (排除水)
+    lightest = myLimitIndex("min", z, TCr, NumGases - 1);
+    heaviest = myLimitIndex("max", z, TCr, NumGases - 1);
+
+    // 初始相分数估计
+    InitialBeta(*eqVapor, *eqAqueous, TK, PBar, NonZeroNumGases, z, TCr, PCr, MWgas, beta, NumGases, MaxBeta, betaexists);
+
+    // 初始 logphi 计算
+    Initialization(zGlobal[NumGases - 1], NonZeroNumGases, MaxBeta, EOS, MWgas, TCr, PCr, Omega, TK, PBar, logphi3phase, NumGases);
+
+    // 避免数值不稳定：把零组分的 logphi 设置为 0
+    for (j = 0; j < MaxBeta; j++) {
+        for (i = 0; i < NumGases; i++) {
+            if (zGlobal[i] == 0.0) {
+                logphi3phase[i][j] = 0.0;
+            }
+        }
+    }
+
+    // 迭代初值
+    Er = 100.0;
+    errNet = 100.0;
+    Er_old = 1.0;
+    errRate = 100.0;
+    tol = 0.0002;
+
+    if (PBar < 1.02) {
+        testTemp = true;
+    }
+
+    // 主循环
+    while ((errNet > tol && iter < itermax) &&
+        ((errRate > 5 && highErr) || Er > 200 * tol)) {
+        iter++;
+
+        EQCalculation(beta, logphi3phase, z, E, Q, NumGases, MaxBeta);
+
+        Equilibrium(z, logphi3phase, E, Q, beta, betaexists, compositions,
+            &continue_flash, counterEquilibrium_final, iter_final, counter_final, NumGases, MaxBeta);
+
+        vaporFound = false;
+
+        for (k = 0; k < MaxBeta; k++) {
+            everyLogPHI[k] = 0.0;
+            for (i = 0; i < NumGases; i++) {
+                x[i] = compositions[i][k + 1];
+                everyLogPHI[k] += fabs(logphi3phase[i][k]);
+            }
+
+            if (everyLogPHI[k] < 0.1) {
+                strcpy(phase[k], "vapor");
+                vaporFound = true;
+            }
+            else if (isAqueous_2016(*eqAqueous, x, z)) {
+                strcpy(phase[k], "liquid");
+            }
+            else if (isVapor(*eqVapor, x, z, TK, PBar, TCr, PCr, lightest, NumGases)) {
+                strcpy(phase[k], "vapor");
+                vaporFound = true;
+            }
+            else if (!vaporFound && (NonZeroNumGases == 2) && (z[NumGases - 1] > 0) &&
+                ((z[0] > 0 || z[1] > 0 || z[2] > 0 || z[3] > 0) ||
+                    (z[NumGases - 2] > 0 && MWgas[NumGases - 2] < 29))) {
+                strcpy(phase[k], "vapor");
+                vaporFound = true;
+            }
+            else {
+                strcpy(phase[k], "liquid");
+            }
+
+            phi_calc(*eqVapor, *eqAqueous, EOS, phase[k], TK, PBar, x, z, gNeut, aH2O,
+                TCr, PCr, Omega, c0, c1, kPr, logphi3phase_newphase, &Compr[k], NumGases);
+
+            for (i = 0; i < NumGases; i++) {
+                logphi3phase_new[i][k] = logphi3phase_newphase[i];
+            }
+        }
+
+        if (!continue_flash) {
+            break; // exit_flash
+        }
+
+        errRate = 100.0 * fabs(Er - Er_old) / Er_old;
+        if (Er > 0.2) highErr = true;
+        Er_old = Er;
+        Er = 0.0;
+
+        sumOld = 0.0;
+        sumNew = 0.0;
+        errNet = 0.0;
+
+        for (i = 0; i < NumGases; i++) {
+            for (k = 0; k < MaxBeta; k++) {
+                if (z[i] > 0.00001) {
+                    Er += fabs(logphi3phase_new[i][k] - logphi3phase[i][k]);
+                    sumNew += fabs(logphi3phase_new[i][k]);
+                    sumOld += fabs(logphi3phase[i][k]);
+
+                    if (fabs(logphi3phase_new[i][k]) > 0) {
+                        errorLogPhi[i][k] = fabs((logphi3phase_new[i][k] - logphi3phase[i][k]) /
+                            logphi3phase_new[i][k]);
+                    }
+                }
+
+                logphi3phase[i][k] = logphi3phase_new[i][k];
+                phi[i][k] = exp(logphi3phase[i][k]);
+            }
+        }
+
+        errNet = fabs(sumOld - sumNew);
+    }
+
+    // 计算各相分子量与密度
+    for (j = 0; j < MaxBeta; j++) {
+        if (beta[j] > 0) {
+            MWsum = 0.0;
+            for (i = 0; i < NumGases; i++) {
+                MWsum += MWgas[i] * compositions[i][j + 1];
+            }
+            if (Compr[j] > 0) {
+                density[j] = MWsum * PBar / RBar / Compr[j] / TK;
+            }
+            else {
+                density[j] = 0.0;
+                beta[j] = 0.0;
+            }
+        }
+        else {
+            density[j] = 0.0;
+            Compr[j] = 0.0;
+        }
+    }
+
+    // 修正相的排列与赋值
+    Fix_Position_Phases(true, lightest, heaviest, *eqAqueous,
+        NonZeroNumGases, beta, density, Compr,
+        compositions, phi, phase, Numbeta, phaseName, MaxBeta, NumGases);
+
+    // 内存释放
+    for (i = 0; i < NumGases; i++) {
+        free(logphi3phase[i]);
+        free(logphi3phase_new[i]);
+        //free(logphi3phase_newphase[i]);
+        free(errorLogPhi[i]);
+    }
+    free(logphi3phase);
+    free(logphi3phase_new);
+    free(logphi3phase_newphase);
+    free(errorLogPhi);
+    free(Ki);
+    free(x);
+    free(z);
+    free(everyLogPHI);
+    free(betaexists);
+    for (j = 0; j < MaxBeta; j++) {
+        free(phase[j]);
+    }
+    free(phase);
+
+}
+
+
+
+void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, double* zGlobal, double* gNeut,
+    double aH2O, double* TCr, double* PCr, double* Omega, double* MWgas, double** kPr, double* c0, double* c1,
+    int* Numbeta, char** phaseName, double* beta, double** compositions, double** phi, double* Compr,
+    double* density, int* counterEquilibrium_final, int* iter_final, int* counter_final, double* zOutput)
+{
+    int i, j;
+    int NumGases, MaxBeta;
+    double Q = 0.0, Q_alt = 0.0;
+
+    // Alternative solution containers
+    int numBeta_alt = 0;
+    char** phaseName_alt = NULL;
+    double* beta_alt = NULL;
+    double** compositions_alt = NULL;
+    double** phi_alt = NULL;
+    double* zOutput_alt = NULL;
+    double* Compr_alt = NULL;
+    double* density_alt = NULL;
+    int counterEquilibrium_final_alt = 0, iter_final_alt = 0, counter_final_alt = 0;
+
+    // sizes
+    NumGases = NonZeroNumGases;       // In VB: UBound(zGlobal)
+
+    MaxBeta = 3;                      // In VB: UBound(beta)，3或2，由于c语言没有UBound这样得到数组长度的函数，此处作标记
+
+    // allocate arrays
+    Compr = (double*)malloc(MaxBeta * sizeof(double));
+    beta = (double*)malloc(MaxBeta * sizeof(double));
+    density = (double*)malloc(MaxBeta * sizeof(double));
+    phi = (double**)malloc(NumGases * sizeof(double*));
+    compositions = (double**)malloc(NumGases * sizeof(double*));
+    zOutput = (double*)malloc(NumGases * sizeof(double));
+    for (i = 0; i < NumGases; i++)
+    {
+        phi[i] = (double*)malloc(MaxBeta * sizeof(double));
+        compositions[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
+    }
+
+    Compr_alt = (double*)malloc(MaxBeta * sizeof(double));
+    beta_alt = (double*)malloc(MaxBeta * sizeof(double));
+    density_alt = (double*)malloc(MaxBeta * sizeof(double));
+    phi_alt = (double**)malloc(NumGases * sizeof(double*));
+    compositions_alt = (double**)malloc(NumGases * sizeof(double*));
+    zOutput_alt = (double*)malloc(NumGases * sizeof(double));
+    for (i = 0; i < NumGases; i++)
+    {
+        phi_alt[i] = (double*)malloc(MaxBeta * sizeof(double));
+        compositions_alt[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
+    }
+
+    // conditions
+    bool eqVapor = false, eqAqueous = false;
+    if ((zGlobal[NumGases - 1] > 0.99) || ((zGlobal[NumGases - 1] > 0) && (NonZeroNumGases < 4) && (NumGases < 7))) {
+        eqVapor = false;
+        eqAqueous = true;
+    }
+
+    // First Flash
+    Flash(&eqVapor, &eqAqueous, EOS, TK, PBar, NonZeroNumGases, zGlobal, gNeut, aH2O,
+        TCr, PCr, Omega, MWgas, kPr, c0, c1,
+        &Q, Numbeta, phaseName, beta, compositions, phi, Compr, density,
+        counterEquilibrium_final, iter_final, counter_final, zOutput);
+
+    if (*Numbeta < 3) {
+        eqVapor = true;
+        eqAqueous = false;
+        if ((zGlobal[NumGases - 1] > 0.99) || ((zGlobal[NumGases - 1] > 0) && (NonZeroNumGases < 4) && (NumGases < 7))) {
+            eqVapor = false;
+            eqAqueous = false;
+        }
+
+        Flash(&eqVapor, &eqAqueous, EOS, TK, PBar, NonZeroNumGases, zGlobal, gNeut, aH2O,
+            TCr, PCr, Omega, MWgas, kPr, c0, c1,
+            &Q_alt, &numBeta_alt, phaseName_alt, beta_alt, compositions_alt, phi_alt, Compr_alt, density_alt,
+            &counterEquilibrium_final_alt, &iter_final_alt, &counter_final_alt, zOutput_alt);
+
+        if (Q > Q_alt) {
+            *Numbeta = numBeta_alt;
+
+            for (j = 0; j < MaxBeta; j++) {
+                phaseName[j] = phaseName_alt[j];
+                beta[j] = beta_alt[j];
+                Compr[j] = Compr_alt[j];
+                density[j] = density_alt[j];
+
+                for (i = 0; i < NumGases; i++) {
+                    compositions[i][j + 1] = compositions_alt[i][j + 1];
+                    phi[i][j] = phi_alt[i][j];
+                    zOutput[i] = zOutput_alt[i];
+                }
+            }
+        }
+    }
+
+    // free alternative arrays
+    for (i = 0; i < NumGases; i++) {
+        free(phi_alt[i]);
+        free(compositions_alt[i]);
+    }
+    free(phi_alt);
+    free(compositions_alt);
+    free(zOutput_alt);
+    free(beta_alt);
+    free(Compr_alt);
+    free(density_alt);
+}
+
 
 // MultiPhaseFlash。  变量mf_Vg不知道有什么用，暂时当作局部变量。
 void MultiPhaseFlash(bool* mf_ParametersWereRead, double* TCr, double* PCr, double* Omega, double* MWgas, double** kPr, double* c0, double* c1,
@@ -5501,9 +6740,8 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
         Numbeta = 0;//原代码无这个，这里赋值防止传入未初始化的值。
         phaseName = NULL;//原代码无这个，这里赋值防止传入未初始化的值。
 
-        //怎么调用待定
-        //TrueFlash(EOS, mf_TK, mf_PBar, NonZeroNumGases, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr, Omega, MWgas, kPr, c0, c1, &Numbeta, phaseName, mf_beta, mf_compositions, mf_phi, mf_Compr, mf_density,
-        //    &counterEquilibrium_final, &iter_final, &counter_final, zOut);
+        TrueFlash(EOS, mf_TK, mf_PBar, NonZeroNumGases, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr, Omega, MWgas, kPr, c0, c1, &Numbeta, phaseName, mf_beta, mf_compositions, mf_phi, mf_Compr, mf_density,
+            &counterEquilibrium_final, &iter_final, &counter_final, zOut);
     }
     else if (NonZeroNumGases == 1)//纯组分情况下的性质计算
     {
