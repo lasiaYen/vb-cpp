@@ -872,7 +872,7 @@ void mockData_sheetInput(SampleData* data)
     data->Option_Defined_TP = 0;
     data->Option_TP_for_pH = 0;
     data->Option_TP_for_Q = 0;
-    data->Option_EoS = 0;
+    data->Option_EoS = 1;
     data->Option_Water_HC = 0;
 }
 
@@ -3872,7 +3872,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             H = aH / (gCat[iH] * gNCat[iH]);
             OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
-            // 计算碳酸系统物种
+            // 计算碳酸系统物种 gGas 小数点后第五位不一致
             CO2aq = KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
             HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
                 (aH * gAn[iHCO3] * gNAn[iHCO3]);
@@ -4582,6 +4582,11 @@ void fTotalCO2H2Smoles() {
             RatioOilBPoints * KgoCH4 * Mass_o / gL[iCH4g]));
 
     // 计算总H2S摩尔数（包括HS-和FeS配合物）
+    // nTH2S vb 536.894123326537 cpp 537.8953812802223
+    // vb yH2S 5.41442967642879E-05 cpp 5.4245428347734764e-05
+    // mc[iFe] vb 0.000219991780725818 cpp 0.00011386369818347661 QualityControlCalculations D1_CalcDensity C5_CalcpHPCO2PH2SSTP
+    // gAn[iHS] vb 0.645200696723431 cpp 0.64535500358708076
+    // gCat[iFe] vb 0.111366817290854 cpp 0.1113832023689522
     nTH2S = Patm * 14.696 * yH2S * (829.0 * VgTP / (Znew * TK) +
         gGas[iH2Sg] * (KgwH2S * mass_w / gNeut[iH2Saq] / gNNeut[iH2Saq] +
             RatioOilBPoints * KgoH2S * Mass_o / gL[iH2So])) +
@@ -9477,13 +9482,13 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         //for (iNG = 0; iNG < 14; iNG++) {
         //    //待定：zMix(kk, iNG) = Worksheets(mySheet).Cells(65 + iNG, j + 2) / 100:
         //}
-        zMix[kk][0] = data->C1_o / 100.0;       zMix[kk][1] = data->CO2_o / 100.0;
-        zMix[kk][2] = data->H2S_o / 100.0;      zMix[kk][3] = data->C2_o / 100.0;
-        zMix[kk][4] = data->C3_o / 100.0;       zMix[kk][5] = data->iC4_o / 100.0;
-        zMix[kk][6] = data->nC4_o / 100.0;      zMix[kk][7] = data->iC5_o / 100.0;
-        zMix[kk][8] = data->nC5_o / 100.0;      zMix[kk][9] = data->C6_o / 100.0;
-        zMix[kk][10] = data->C7_C12_o / 100.0;    zMix[kk][11] = data->C13_C25_o / 100.0;
-        zMix[kk][12] = data->C26_C80_o / 100.0;   zMix[kk][13] = data->N2_o / 100.0;
+        zMix[kk][0] = data->C1_o / 100.0;           zMix[kk][1] = data->CO2_o / 100.0;
+        zMix[kk][2] = data->H2S_o / 100.0;          zMix[kk][3] = data->C2_o / 100.0;
+        zMix[kk][4] = data->C3_o / 100.0;           zMix[kk][5] = data->iC4_o / 100.0;
+        zMix[kk][6] = data->nC4_o / 100.0;          zMix[kk][7] = data->iC5_o / 100.0;
+        zMix[kk][8] = data->nC5_o / 100.0;          zMix[kk][9] = data->C6_o / 100.0;
+        zMix[kk][10] = data->C7_C12_o / 100.0;      zMix[kk][11] = data->C13_C25_o / 100.0;
+        zMix[kk][12] = data->C26_C80_o / 100.0;     zMix[kk][13] = data->N2_o / 100.0;
         zMix[kk][14] = 0.0;
     }
 
@@ -9571,7 +9576,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
     nTCO2Mix[kk] = nTCO2;
     nTCH4Mix[kk] = nTCH4;
-    nTH2SMix[kk] = nTH2S;
+    nTH2SMix[kk] = nTH2S;// vb 536.894123326537 cpp 537.8953812802223
 
     double YH2O = PsatH2O(TK) / PBar;
 
