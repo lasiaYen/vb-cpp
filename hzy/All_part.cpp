@@ -447,7 +447,7 @@ double pHMeterReading = 0;
 double total_moles;
 
 //Run10TestCases = 1, 
-int Run_MassTransfer = 1, RunShellMultiflash = 1;
+int Run_MassTransfer = 1, RunShellMultiflash = 0;
 
 
 
@@ -829,7 +829,7 @@ void mockData_sheetInput(SampleData* data)
     data->Option_Use_H2Sg = 0;
     data->H2S_pct_g = 4.32;
     data->H2S_aq = 1.2;
-    data->pH_STP = 7.61618535964846;
+    data->pH_STP = 7.61618544407364;
     data->Q_Gas = 8500.0;
     data->Q_Oil = 1000.0;
     data->Q_Water = 100.0;
