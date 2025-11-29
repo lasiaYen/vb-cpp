@@ -1095,16 +1095,23 @@ void initData()
 }
 
 void pointerInit_pf() {
-    mf_TCr = (double*)malloc(6 * sizeof(double));
-    mf_PCr = (double*)malloc(6 * sizeof(double));
-    mf_Omega = (double*)malloc(6 * sizeof(double));
-    mf_MWgas = (double*)malloc(6 * sizeof(double));
-    mf_c0 = (double*)malloc(6 * sizeof(double));
-    mf_c1 = (double*)malloc(6 * sizeof(double));
-    mf_kPr = (double**)malloc(6 * sizeof(double*));
-    for (int i = 0; i < 6; i++) {
-        mf_kPr[i] = (double*)malloc(6 * sizeof(double));
-    }
+    //mf_TCr = (double*)malloc(6 * sizeof(double));
+    //mf_PCr = (double*)malloc(6 * sizeof(double));
+    //mf_Omega = (double*)malloc(6 * sizeof(double));
+    //mf_MWgas = (double*)malloc(6 * sizeof(double));
+    //mf_c0 = (double*)malloc(6 * sizeof(double));
+    //mf_c1 = (double*)malloc(6 * sizeof(double));
+    //mf_kPr = (double**)malloc(6 * sizeof(double*));
+    //for (int i = 0; i < 6; i++) {
+    //    mf_kPr[i] = (double*)malloc(6 * sizeof(double));
+    //}
+    mf_TCr = NULL;
+    mf_PCr = NULL;
+    mf_Omega = NULL;
+    mf_MWgas = NULL;
+    mf_c0 = NULL;
+    mf_c1 = NULL;
+    mf_kPr = NULL;
 
 
     mass_phase = (double*)malloc(3 * sizeof(double));
@@ -2076,8 +2083,8 @@ void C1_ThermodynamicEquilConsts()
     KgoH2S = pow(10, -1 * (1.57 + 0.005043 * TF - 0.000005311 * pow(TF, 2) + 0.000038 * Ppsia));
 
     // ================= Henry's constant for H2S (Kassa) =================
-    double ln_H_T_H2S = (13788 / TK - 185.19 + 29.087 * log(TK)
-        - 0.027637 * TK - 1445200 / pow(TK, 2));
+    double ln_H_T_H2S = (13788.0 / TK - 185.19 + 29.087 * log(TK)
+        - 0.027637 * TK - 1445200.0 / pow(TK, 2));
 
     dV = (33.18 + 0.092661 * TC - 0.00054853 * pow(TC, 2)
         + 0.0000015354 * pow(TC, 3) - 0.0000000015459 * pow(TC, 4)) * 0.001;
@@ -2589,7 +2596,6 @@ double fH2ODensity(double tk, double pBar) {
 
     for (igammapireg = 0; igammapireg < 34; igammapireg++) {
         gammapireg1 = gammapireg1 - nreg1[igammapireg] * ireg1[igammapireg] * pow(7.1 - piDen, ireg1[igammapireg] - 1.0) * pow(tau - 1.222, jreg1[igammapireg]);
-
     }
 
     volreg1 = rgas_water * tk * piDen * gammapireg1 / (pBar * 100000.0);
@@ -4658,7 +4664,10 @@ void InitialPreparationSSP(
         if (*mf_kPr) {
             // 我们无法知道之前分配的行数是多少；尝试以 NumGases 为上限安全释放
             for (i = 0; i < NumGases; ++i) {
-                if ((*mf_kPr)[i]) { free((*mf_kPr)[i]); (*mf_kPr)[i] = NULL; }
+                if ((*mf_kPr)[i]) {
+                    free((*mf_kPr)[i]);
+                    (*mf_kPr)[i] = NULL;
+                }
             }
             free(*mf_kPr);
             *mf_kPr = NULL;
@@ -6665,17 +6674,15 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     //这表明，如果没有水，就不应该存在水相
     z[max_NumGases - 1] > 0 ? MaxBeta = 3 : MaxBeta = 2;
     //ReDim mf_gNeut(UBound(gNeut)), zInput(max_NumGases)  vb源码：gNeut(15)。 到底是谁写的UBound(gNeut)？为什么不直接写15
-    double* mf_gNeut = (double*)malloc(max_NumGases * sizeof(double));
+    double* mf_gNeut = (double*)malloc(2 * sizeof(double));
     double* zInput = (double*)malloc(max_NumGases * sizeof(double));
 
     //将值从外部变体类型变量输出传递到双精度类型变量
     double mf_TK = TK, mf_PBar = PBar, mf_aH2O = aH2O;
-
-    for (i = 0; i < max_NumGases; i++)
-    {
-        zInput[i] = z[i];
+    for (i = 0; i < 2; i++)
         mf_gNeut[i] = gNeut[i];
-    }
+    for (i = 0; i < max_NumGases; i++)
+        zInput[i] = z[i];
 
     mf_NumGases = 6;
     NonZeroNumGases = 0;
@@ -9447,7 +9454,6 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     for (iNG = 0; iNG < 2; iNG++)
         density[iNG] = 0;
 
-    //此处是局部变量，但是赋值已经注释了，就给了个默认的值；
     int usedryHC = 0;
 
     if (RunStat == 0) {
@@ -9468,7 +9474,8 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         }
 
 
-        //待定：usedryHC = Worksheets(mySheet).Cells(56, j + 2).Value
+        //usedryHC = Worksheets(mySheet).Cells(56, j + 2).Value
+        usedryHC = data->Option_Water_HC;
 
         if (RunShellMultiflash == 1) useEOSmix[kk] = 0;
 
