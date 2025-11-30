@@ -4683,7 +4683,7 @@ void InitialPreparationSSP(
         *mf_kPr = (double**)malloc(NumGases * sizeof(double*));
         for (i = 0; i < NumGases; i++)
             (*mf_kPr)[i] = (double*)malloc(NumGases * sizeof(double));
-
+        /*
         for (i = 0; i < NumGases; i++) {
             // mf_MWgas[i] = Worksheets("Input").Cells[4 + iFlash[i]][24];
             // mf_TCr[i]   = Worksheets("Input").Cells[4 + iFlash[i]][26];
@@ -4704,7 +4704,185 @@ void InitialPreparationSSP(
                 // mf_kPr[i][j] = Worksheets("Input").Cells[4 + iFlash[i]][34 + iFlash[j]];
             }
         }
+        */
+        //手动模拟上面的输入
+        (*mf_MWgas)[0] = 16.03;
+        (*mf_TCr)[0] = 190.6;
+        (*mf_PCr)[0] = 46;
+        (*mf_Omega)[0] = 0.008;
 
+        (*mf_MWgas)[1] = 44.01;
+        (*mf_TCr)[1] = 304.2;
+        (*mf_PCr)[1] = 73.76;
+        (*mf_Omega)[1] = 0.225;
+
+        (*mf_MWgas)[2] = 34.08;
+        (*mf_TCr)[2] = 373.5;
+        (*mf_PCr)[2] = 89.63;
+        (*mf_Omega)[2] = 0.094;
+
+        (*mf_MWgas)[3] = 30.07;
+        (*mf_TCr)[3] = 305.5;
+        (*mf_PCr)[3] = 48.84;
+        (*mf_Omega)[3] = 0.098;
+
+        (*mf_MWgas)[4] = 44.094;
+        (*mf_TCr)[4] = 369.9;
+        (*mf_PCr)[4] = 42.46;
+        (*mf_Omega)[4] = 0.152;
+
+        (*mf_MWgas)[5] = 58.124;
+        (*mf_TCr)[5] = 408.2;
+        (*mf_PCr)[5] = 36.48;
+        (*mf_Omega)[5] = 0.176;
+
+        (*mf_MWgas)[6] = 58.124;
+        (*mf_TCr)[6] = 425.3;
+        (*mf_PCr)[6] = 38;
+        (*mf_Omega)[6] = 0.193;
+
+        (*mf_MWgas)[7] = 72.151;
+        (*mf_TCr)[7] = 460.45;
+        (*mf_PCr)[7] = 33.84;
+        (*mf_Omega)[7] = 0.227;
+
+        (*mf_MWgas)[8] = 72.151;
+        (*mf_TCr)[8] = 469.6;
+        (*mf_PCr)[8] = 33.74;
+        (*mf_Omega)[8] = 0.251;
+
+        (*mf_MWgas)[9] = 86.178;
+        (*mf_TCr)[9] = 507.5;
+        (*mf_PCr)[9] = 29.69;
+        (*mf_Omega)[9] = 0.296;
+
+        (*mf_MWgas)[10] = 108.46355910141;
+        (*mf_TCr)[10] = 575.5;
+        (*mf_PCr)[10] = 26.26;
+        (*mf_Omega)[10] = 0.545;
+
+        (*mf_MWgas)[11] = 203.768522560204;
+        (*mf_TCr)[11] = 708.6;
+        (*mf_PCr)[11] = 16.76;
+        (*mf_Omega)[11] = 0.857;
+
+        (*mf_MWgas)[12] = 321.359072235909;
+        (*mf_TCr)[12] = 945.6;
+        (*mf_PCr)[12] = 13.36;
+        (*mf_Omega)[12] = 1.248;
+
+        (*mf_MWgas)[13] = 28.013;
+        (*mf_TCr)[13] = 126.2;
+        (*mf_PCr)[13] = 33.94;
+        (*mf_Omega)[13] = 0.040;
+
+        (*mf_MWgas)[14] = 18;
+        (*mf_TCr)[14] = 647.1;
+        (*mf_PCr)[14] = 220.55;
+        (*mf_Omega)[14] = 0.345;
+
+        if (strcmp(EOS, "PR") == 0) {
+            (*mf_c0)[0] = -5.19998589998324;
+            (*mf_c1)[0] = 0.0;
+
+            (*mf_c0)[1] = -1.90887591231191;
+            (*mf_c1)[1] = 0.0;
+
+            (*mf_c0)[2] = -3.92;
+            (*mf_c0)[3] = -5.80;
+            (*mf_c0)[4] = -6.35;
+            (*mf_c0)[5] = -7.18;
+            (*mf_c0)[6] = -6.49;
+            (*mf_c0)[7] = -6.20;
+            (*mf_c0)[8] = -5.12;
+            (*mf_c0)[9] = -3.48;
+            (*mf_c0)[10] = -14.86;
+            (*mf_c0)[11] = -29.83;
+            (*mf_c0)[12] = 5.78;
+            (*mf_c0)[13] = -4.23;
+            (*mf_c0)[14] = 3.01;
+
+            (*mf_c1)[2] = 0.0;
+            (*mf_c1)[3] = 0.0;
+            (*mf_c1)[4] = 0.0;
+            (*mf_c1)[5] = 0.0;
+            (*mf_c1)[6] = 0.0;
+            (*mf_c1)[7] = 0.0;
+            (*mf_c1)[8] = 0.0;
+            (*mf_c1)[9] = 0.0;
+            (*mf_c1)[10] = -0.01;
+            (*mf_c1)[11] = 0.10;
+            (*mf_c1)[12] = 0.28;
+            (*mf_c1)[13] = 0.0;
+            (*mf_c1)[14] = 0.01;
+        }
+        if (strcmp(EOS, "SRK") == 0) {
+            // ??
+        }
+        for (i = 0; i < NumGases; i++)
+            for (j = 0; j < NumGases; j++)
+                (*mf_kPr)[i][j] = 0;
+
+        (*mf_kPr)[0][0] = 0;
+
+        (*mf_kPr)[1][0] = 0.12;
+
+        (*mf_kPr)[2][0] = 0.08;
+        (*mf_kPr)[2][1] = 0.12;
+
+        (*mf_kPr)[3][1] = 0.15;
+        (*mf_kPr)[3][2] = 0.07;
+
+        (*mf_kPr)[4][1] = 0.15;
+        (*mf_kPr)[4][2] = 0.07;
+
+        (*mf_kPr)[5][1] = 0.15;
+        (*mf_kPr)[5][2] = 0.06;
+
+        (*mf_kPr)[6][1] = 0.15;
+        (*mf_kPr)[6][2] = 0.06;
+
+        (*mf_kPr)[7][1] = 0.15;
+        (*mf_kPr)[7][2] = 0.06;
+
+        (*mf_kPr)[8][1] = 0.15;
+        (*mf_kPr)[8][2] = 0.06;
+
+        (*mf_kPr)[9][1] = 0.15;
+        (*mf_kPr)[9][2] = 0.05;
+
+        (*mf_kPr)[10][1] = 0.15;
+        (*mf_kPr)[10][2] = 0.05;
+
+        (*mf_kPr)[11][1] = 0.15;
+        (*mf_kPr)[11][2] = 0.05;
+
+        (*mf_kPr)[12][1] = 0.15;
+        (*mf_kPr)[12][2] = 0.05;
+
+        (*mf_kPr)[13][0] = 0.02;
+        (*mf_kPr)[13][3] = 0.06;
+        (*mf_kPr)[13][4] = 0.08;
+        (*mf_kPr)[13][5] = 0.08;
+        (*mf_kPr)[13][6] = 0.08;
+        (*mf_kPr)[13][7] = 0.08;
+        (*mf_kPr)[13][8] = 0.08;
+        (*mf_kPr)[13][9] = 0.08;
+        (*mf_kPr)[13][10] = 0.08;
+        (*mf_kPr)[13][11] = 0.08;
+        (*mf_kPr)[13][12] = 0.08;
+
+        (*mf_kPr)[14][0] = 0.45;
+        (*mf_kPr)[14][3] = 0.45;
+        (*mf_kPr)[14][4] = 0.53;
+        (*mf_kPr)[14][5] = 0.52;
+        (*mf_kPr)[14][6] = 0.52;
+        (*mf_kPr)[14][7] = 0.5;
+        (*mf_kPr)[14][8] = 0.5;
+        (*mf_kPr)[14][9] = 0.5;
+        (*mf_kPr)[14][10] = 0.5;
+        (*mf_kPr)[14][11] = 0.5;
+        (*mf_kPr)[14][12] = 0.5;
         *mf_ParametersWereRead = true;
     }
 
@@ -5419,7 +5597,7 @@ void InitialBeta(int eqVapor, int eqAqueous, double TK, double PBar,
     double* beta, int NumGases, int MaxBeta, bool* betaexists)
 {
     int m, j;
-    double sumBeta;
+    double sumBeta = 0;
 
     /* 初始猜测 */
     if (MaxBeta >= 2)
@@ -5470,6 +5648,13 @@ void InitialBeta(int eqVapor, int eqAqueous, double TK, double PBar,
             }
         }
     }
+    for (j = 0; j < MaxBeta; j++)
+        sumBeta += beta[j];
+    for (j = 0; j < MaxBeta; j++)
+        beta[j] /= sumBeta;
+    for (j = 0; j < MaxBeta; j++)
+        if (beta[j] > 0)
+            betaexists[j] = true;
 }
 
 
@@ -5553,21 +5738,27 @@ void Initialization(double zGlobalWater, int NonZeroNumGases, int MaxBeta, const
 
 
 void EQCalculation(double* beta, double** lnPHI, double* zGlobal,
-    double* E, double* Q, int NumGases, int MaxBeta)
+    double** E, double* Q, int NumGases, int MaxBeta)
 {
     int i, k;
     double Qphase = 0.0;
     double Qcomp = 0.0;
+    if (*E) {
+        free(*E);
+        *E = NULL;
+    }
+
+    *E = (double*)malloc(NumGases * sizeof(double));
 
     /* 计算辅助向量 E[i] */
     for (i = 0; i < NumGases; ++i)
     {
-        E[i] = 0.0;
+        (*E)[i] = 0.0;
         for (k = 0; k < MaxBeta; ++k)
         {
             if (beta[k] > 0.0 && zGlobal[i] > 0.0)
             {
-                E[i] += beta[k] / exp(lnPHI[i][k]); /* lnPHI[i][k] -> e^(-lnPHI) */
+                (*E)[i] += beta[k] / exp(lnPHI[i][k]); /* lnPHI[i][k] -> e^(-lnPHI) */
             }
         }
     }
@@ -5583,7 +5774,7 @@ void EQCalculation(double* beta, double** lnPHI, double* zGlobal,
     {
         if (zGlobal[i] > 0.0)
         {
-            Qcomp += zGlobal[i] * log(E[i]);
+            Qcomp += zGlobal[i] * log((*E)[i]);
         }
     }
 
@@ -5619,7 +5810,7 @@ void Gauss(double** a, double* b, int n, double* xs)
     for (j = 0; j < n; j++)
     {
         max = 0.0;
-        kMax = j;
+        kMax = 1;
 
         // 部分主元选取
         for (k = j; k < n; k++)
@@ -5716,7 +5907,7 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
     // 错误处理标志
     *continue_flash = true;
 
-    do
+    while (!converged && counterEquilibrium < 100)
     {
         Er2 = 1.0;
         tol = 1e-12;
@@ -5727,7 +5918,7 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
         if (counterEquilibrium > 2000)
             goto ErrHandler;
 
-        do
+        while (Er2 > tol && iter < itermax)
         {
             iter++;
             if (iter > itermax)
@@ -5808,7 +5999,7 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
             epsilon = 1e-8;
             counter = 0;
 
-            do
+            while (Difference > epsilon && counter < 10000)
             {
                 counter++;
                 if (counter > 10000)
@@ -5822,10 +6013,10 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
                 }
 
                 // 调用已翻译函数 EQCalculation
-                EQCalculation(betanew, logphi3phase, zGlobal, Enew, &Qnew, NumGases, MaxBeta);
+                EQCalculation(betanew, logphi3phase, zGlobal, &Enew, &Qnew, NumGases, MaxBeta);
 
                 Difference = Qnew - *Q;
-            } while (Difference > epsilon);
+            }
 
             *Q = Qnew;
 
@@ -5847,7 +6038,7 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
             for (int k = 0; k < MaxBeta; ++k)
                 Er2 += fabs(w[k]);
 
-        } while (Er2 > tol);
+        }
 
         converged = true;
 
@@ -5867,7 +6058,7 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
             }
         }
 
-    } while (!converged);
+    }
 
     // 计算 compositions
     for (int i = 0; i < NumGases; ++i)
@@ -6297,11 +6488,11 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
 void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PBar, int NonZeroNumGases, double* zGlobal,
     double* gNeut, double aH2O, double* TCr, double* PCr, double* Omega, double* MWgas, double** kPr, double* c0, double* c1,
     double* Q, int* Numbeta, char** phaseName, double* beta, double** compositions, double** phi, double* Compr, double* density,
-    int* counterEquilibrium_final, int* iter_final, int* counter_final, double* zOutput)
+    int* counterEquilibrium_final, int* iter_final, int* counter_final, double* zOutput,
+    int NumGases, int MaxBeta)
 {
 
     int i, j, k;
-    int NumGases, MaxBeta;
     int iter = 0, itermax = 30;
     int lightest, heaviest;
     bool continue_flash = true;
@@ -6317,8 +6508,8 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
     bool testTemp = false;
 
     // 获取组分和相数
-    NumGases = NonZeroNumGases; // UBound(zGlobal) → 非零组分数
-    MaxBeta = *Numbeta;         // UBound(beta)
+    //NumGases = NonZeroNumGases; // UBound(zGlobal) → 非零组分数
+    //MaxBeta = *Numbeta;         // UBound(beta)
 
     // 动态分配主要数组
     double* Ki = (double*)calloc(NumGases, sizeof(double));
@@ -6385,7 +6576,7 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
         ((errRate > 5 && highErr) || Er > 200 * tol)) {
         iter++;
 
-        EQCalculation(beta, logphi3phase, z, E, Q, NumGases, MaxBeta);
+        EQCalculation(beta, logphi3phase, z, &E, Q, NumGases, MaxBeta);
 
         Equilibrium(z, logphi3phase, E, Q, beta, betaexists, compositions,
             &continue_flash, counterEquilibrium_final, iter_final, counter_final, NumGases, MaxBeta);
@@ -6516,10 +6707,10 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
 void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, double* zGlobal, double* gNeut,
     double aH2O, double* TCr, double* PCr, double* Omega, double* MWgas, double** kPr, double* c0, double* c1,
     int* Numbeta, char** phaseName, double* beta, double** compositions, double** phi, double* Compr,
-    double* density, int* counterEquilibrium_final, int* iter_final, int* counter_final, double* zOutput)
+    double* density, int* counterEquilibrium_final, int* iter_final, int* counter_final, double* zOutput, int NumGases, int MaxBeta)
 {
     int i, j;
-    int NumGases, MaxBeta;
+    //int NumGases, MaxBeta;
     double Q = 0.0, Q_alt = 0.0;
 
     // Alternative solution containers
@@ -6534,22 +6725,22 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
     int counterEquilibrium_final_alt = 0, iter_final_alt = 0, counter_final_alt = 0;
 
     // sizes
-    NumGases = NonZeroNumGases;       // In VB: UBound(zGlobal)
+    //NumGases;       // In VB: UBound(zGlobal)
 
-    MaxBeta = 3;                      // In VB: UBound(beta)，3或2，由于c语言没有UBound这样得到数组长度的函数，此处作标记
+    //MaxBeta = 3;                   
 
     // allocate arrays
-    Compr = (double*)malloc(MaxBeta * sizeof(double));
-    beta = (double*)malloc(MaxBeta * sizeof(double));
-    density = (double*)malloc(MaxBeta * sizeof(double));
-    phi = (double**)malloc(NumGases * sizeof(double*));
-    compositions = (double**)malloc(NumGases * sizeof(double*));
-    zOutput = (double*)malloc(NumGases * sizeof(double));
-    for (i = 0; i < NumGases; i++)
-    {
-        phi[i] = (double*)malloc(MaxBeta * sizeof(double));
-        compositions[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
-    }
+    //Compr = (double*)malloc(MaxBeta * sizeof(double));
+    //beta = (double*)malloc(MaxBeta * sizeof(double));
+    //density = (double*)malloc(MaxBeta * sizeof(double));
+    //phi = (double**)malloc(NumGases * sizeof(double*));
+    //compositions = (double**)malloc(NumGases * sizeof(double*));
+    //zOutput = (double*)malloc(NumGases * sizeof(double));
+    //for (i = 0; i < NumGases; i++)
+    //{
+    //    phi[i] = (double*)malloc(MaxBeta * sizeof(double));
+    //    compositions[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
+    //}
 
     Compr_alt = (double*)malloc(MaxBeta * sizeof(double));
     beta_alt = (double*)malloc(MaxBeta * sizeof(double));
@@ -6574,7 +6765,8 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
     Flash(&eqVapor, &eqAqueous, EOS, TK, PBar, NonZeroNumGases, zGlobal, gNeut, aH2O,
         TCr, PCr, Omega, MWgas, kPr, c0, c1,
         &Q, Numbeta, phaseName, beta, compositions, phi, Compr, density,
-        counterEquilibrium_final, iter_final, counter_final, zOutput);
+        counterEquilibrium_final, iter_final, counter_final, zOutput,
+        NumGases, MaxBeta);
 
     if (*Numbeta < 3) {
         eqVapor = true;
@@ -6587,7 +6779,8 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
         Flash(&eqVapor, &eqAqueous, EOS, TK, PBar, NonZeroNumGases, zGlobal, gNeut, aH2O,
             TCr, PCr, Omega, MWgas, kPr, c0, c1,
             &Q_alt, &numBeta_alt, phaseName_alt, beta_alt, compositions_alt, phi_alt, Compr_alt, density_alt,
-            &counterEquilibrium_final_alt, &iter_final_alt, &counter_final_alt, zOutput_alt);
+            &counterEquilibrium_final_alt, &iter_final_alt, &counter_final_alt, zOutput_alt,
+            NumGases, MaxBeta);
 
         if (Q > Q_alt) {
             *Numbeta = numBeta_alt;
@@ -6754,7 +6947,7 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
         phaseName = NULL;//原代码无这个，这里赋值防止传入未初始化的值。
 
         TrueFlash(EOS, mf_TK, mf_PBar, NonZeroNumGases, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr, Omega, MWgas, kPr, c0, c1, &Numbeta, &phaseName, mf_beta, mf_compositions, mf_phi, mf_Compr, mf_density,
-            &counterEquilibrium_final, &iter_final, &counter_final, zOut);
+            &counterEquilibrium_final, &iter_final, &counter_final, zOut, mf_NumGases, MaxBeta);
     }
     else if (NonZeroNumGases == 1)//纯组分情况下的性质计算
     {
