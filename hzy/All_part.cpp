@@ -4921,14 +4921,14 @@ double PsatCO2(double TK)
 
 //---------------------------------------------闫师兄的：
 
-bool isAqueous_2016(bool eqAqueous, const double composition[], const double globalComposition[])
+bool isAqueous_2016(bool eqAqueous, const double composition[], const double globalComposition[], int NumGases)
 {
     double composition_ratio = 1.001; // 用于比较的比例因子
     double tol = composition_ratio - 1.0;
     double total_dry = 0.0, total_comp_dry = 0.0;
     double global_comp_Water = 0.0, composition_Water = 0.0;
     int NonWaterComponents = 0;
-    int i, nComponents = 16; //sizeof(composition) / sizeof(composition[0]); // 数组长度由调用方控制
+    int i, nComponents = NumGases; //sizeof(composition) / sizeof(composition[0]); // 数组长度由调用方控制
 
     if (globalComposition[nComponents - 1] > 0)
     { // 如果全局水组分大于0
@@ -5113,6 +5113,141 @@ void cubic(double a3, double a2, double a1, double a0, const char* min_or_max,
 }
 
 
+double logKHenry_CH4(double TK)
+{
+    const double TC = 647.096;   // Tc for water Kelvin
+    const double a = -10.44708;
+    const double b = 4.66491;
+    const double c = 12.12986;
+
+    double Tr, tau;
+
+    Tr = TK / TC;
+    tau = 1.0 - Tr;
+
+    return log(PsatH2O(TK)) +
+        (a / Tr +
+            b * pow(tau, 0.355) / Tr +
+            c * pow(Tr, -0.41) * exp(tau));
+}
+
+
+double KH_CO2(double TK, double PBar)
+{
+    double dV, RBar;
+    RBar = 0.083144;
+
+    double KH_CO2_val;
+
+    KH_CO2_val = 55.508 / exp(
+        log(PsatH2O(TK))
+        - 9.14122 / (TK / 647.096)
+        + 2.8192 * pow(1.0 - TK / 647.096, 0.355) / (TK / 647.096)
+        + 11.28516 * pow(TK / 647.096, -0.41) * exp(1.0 - TK / 647.096)
+        - 0.8066
+    );
+
+    dV =
+        (37.88
+            - 0.14442 * (TK - 273.15)
+            + 0.001243 * pow(TK - 273.15, 2)
+            - 0.0000044738 * pow(TK - 273.15, 3)
+            + 0.000000005726 * pow(TK - 273.15, 4)) * 0.001;
+
+    if (TK <= 373.15)
+    {
+        KH_CO2_val = KH_CO2_val * pow(
+            exp(dV * (PBar - 1.0) / RBar / TK
+                + 0.0000067 / (2.0 * RBar * TK) * pow(PBar - 1.0, 2)),
+            -1.0);
+    }
+    else
+    {
+        KH_CO2_val = KH_CO2_val * pow(
+            exp(dV * (PBar - PsatH2O(TK)) / RBar / TK
+                + 0.0000067 / (2.0 * RBar * TK) * pow(PBar - PsatH2O(TK), 2)),
+            -1.0);
+    }
+
+    return KH_CO2_val;
+}
+
+
+double KH_H2S(double TK, double PBar)
+{
+    double dV, ln_H_T_H2S, RBar;
+    RBar = 0.083144;
+
+    ln_H_T_H2S =
+        (13788.0 / TK
+            - 185.19
+            + 29.087 * log(TK)
+            - 0.027637 * TK
+            - 1445200.0 / pow(TK, 2));
+
+    dV =
+        (33.18
+            + 0.092661 * (TK - 273.15)
+            - 0.00054853 * pow(TK - 273.15, 2)
+            + 0.0000015354 * pow(TK - 273.15, 3)
+            - 0.0000000015459 * pow(TK - 273.15, 4)) * 0.001;
+
+    if (TK <= 373.15)
+    {
+        return pow(exp(ln_H_T_H2S) * exp(dV * (PBar - 1.0) / RBar / TK), -1.0);
+    }
+    else
+    {
+        return pow(exp(ln_H_T_H2S) * exp(dV * (PBar - PsatH2O(TK)) / RBar / TK), -1.0);
+    }
+}
+
+
+double logKHenry_C2H6(double TK)
+{
+    const double TC = 647.096;
+    const double a = -19.67563;
+    const double b = 4.51222;
+    const double c = 20.62567;
+
+    double Tr = TK / TC;
+    double tau = 1.0 - Tr;
+
+    return log(PsatH2O(TK)) +
+        (a / Tr
+            + b * pow(tau, 0.355) / Tr
+            + c * pow(Tr, -0.41) * exp(tau));
+}
+
+double KH_CH4(double TK, double PBar)
+{
+    double TF;
+    TF = ((9.0 / 5.0) * (TK - 273.15)) + 32.0;
+
+    return 14.504 * pow(10.0,
+        -1.0 * (3.798
+            + 0.004136 * TF
+            - 0.000009486 * pow(TF, 2)
+            - 0.000038 * PBar * 14.504));
+}
+
+double logKHenry_N2(double TK)
+{
+    const double TC = 647.096;
+    const double a = -9.67578;
+    const double b = 4.72162;
+    const double c = 11.70585;
+
+    double Tr = TK / TC;
+    double tau = 1.0 - Tr;
+
+    return log(PsatH2O(TK)) +
+        (a / Tr
+            + b * pow(tau, 0.355) / Tr
+            + c * pow(Tr, -0.41) * exp(tau));
+}
+
+
 void phi_calc(
     bool eqVapor, bool eqAqueous, const char* EOS, const char* phase,
     double TK, double PBar, double x[], double xGlobal[],
@@ -5121,7 +5256,7 @@ void phi_calc(
     double lnPHI[], double* z, int NumGases)
 {
     //注意：源代码中是Const RBar As Double = 83.14 ，这个RBar和全局的那个重名但数值不一样，这里改成temp_RBar
-    const double temp_RBar = 83.14; // cm3·bar/(mol·K)
+    const double RBar = 83.14; // cm3·bar/(mol·K)
     double* Tr = (double*)malloc(NumGases * sizeof(double));
 
     double* aPR = (double*)malloc(NumGases * sizeof(double));
@@ -5134,7 +5269,8 @@ void phi_calc(
     double sigma, epsilon, sigmaP, epsilonP, S;
     double a0, a1, a2, a3, asum, ai_bar, qi_bar, ii, Z_Peneloux;
     int i, j, k, comp;
-
+    double sum_X = 0;
+    double Peneloux_yes_no = 1;
     // 初始化混合物 a 和 b
     for (i = 0; i < NumGases; i++)
     {
@@ -5142,130 +5278,159 @@ void phi_calc(
         bPR[i] = 0.0;
         lnPHI[i] = 0.0;
         lnPHI_Peneloux[i] = 0.0;
-        Tr[i] = TK / TCr[i];
     }
 
-    // 计算各组分 a、b 以及混合物 bm、cm
-    for (k = 0; k < NumGases; k++)
-    {
-        if (xGlobal[k] > 0.0)
-        {
-            if (strcmp(EOS, "SRK") == 0)
-            {
-                aPR[k] = 0.42748 * temp_RBar * temp_RBar * TCr[k] * TCr[k] / PCr[k];
-                F_Omega = 0.48 + 1.574 * Omega[k] - 0.176 * Omega[k] * Omega[k];
-                bPR[k] = 0.08664 * temp_RBar * TCr[k] / PCr[k];
-            }
-            else if (strcmp(EOS, "PR") == 0)
-            {
-                aPR[k] = 0.45724 * temp_RBar * temp_RBar * TCr[k] * TCr[k] / PCr[k];
-                F_Omega = 0.37464 + 1.54226 * Omega[k] - 0.26992 * Omega[k] * Omega[k];
-                bPR[k] = 0.07779 * temp_RBar * TCr[k] / PCr[k];
-            }
-
-            aPR[k] = aPR[k] * pow(1.0 + F_Omega * (1.0 - sqrt(Tr[k])), 2.0);
-            bm += x[k] * bPR[k];
-            cm += x[k] * (c0[k] + c1[k] * (TK - 288.15));
-        }
-    }
-
-    // 计算混合物 aPrmix
-    aPrmix = 0.0;
     for (i = 0; i < NumGases; i++)
+        sum_X += x[i];
+
+    if (sum_X > 1e-20)
     {
-        for (j = 0; j < i; j++)
+        // 计算各组分 a、b 以及混合物 bm、cm
+        for (k = 0; k < NumGases; k++)
         {
-            aPrmix += 2.0 * x[i] * x[j] * sqrt(aPR[i] * aPR[j]) * (1.0 - kPr[i][j]);
-        }
-        aPrmix += x[i] * x[i] * aPR[i];
-    }
-
-    // 计算 BStarPr 和 QQ
-    BStarPr = bm * PBar / (temp_RBar * TK);
-    QQ = aPrmix / (bm * temp_RBar * TK);
-
-    // EOS 系数 sigma, epsilon
-    if (strcmp(EOS, "SRK") == 0)
-    {
-        sigma = 1.0;
-        epsilon = 0.0;
-    }
-    else if (strcmp(EOS, "PR") == 0)
-    {
-        sigma = 1.0 + sqrt(2.0);
-        epsilon = 1.0 - sqrt(2.0);
-    }
-
-    epsilonP = epsilon;
-    sigmaP = sigma;
-    S = 1.0;
-
-    // 三次方程求 z
-    a3 = 1.0;
-    a2 = (epsilonP + sigmaP) * BStarPr - 1.0 - S * BStarPr;
-    a1 = (epsilonP * sigmaP) * BStarPr * BStarPr - (epsilonP + sigmaP) * BStarPr - (epsilonP + sigmaP) * S * BStarPr * BStarPr + QQ * BStarPr;
-    a0 = -sigmaP * epsilonP * BStarPr * BStarPr - sigmaP * epsilonP * BStarPr * BStarPr * BStarPr * S - QQ * S * BStarPr * BStarPr;
-
-    if (strcmp(phase, "vapor") == 0)
-    {
-        cubic(a3, a2, a1, a0, "max", z, bm, PBar, TK);
-    }
-    else if (strcmp(phase, "liquid") == 0)
-    {
-        cubic(a3, a2, a1, a0, "min", z, bm, PBar, TK);
-    }
-
-    Z_Peneloux = *z - cm * PBar / (temp_RBar * TK); // Peneloux 修正
-
-    // 计算各组分 ln(phi)
-    for (comp = 0; comp < NumGases; comp++)
-    {
-        if (xGlobal[comp] > 0)
-        {
-            asum = 0.0;
-            for (k = 0; k < NumGases; k++)
+            if (xGlobal[k] > 0.0)
             {
-                if (k > comp)
+                Tr[k] = TK / TCr[k];
+                if (strcmp(EOS, "SRK") == 0)
                 {
-                    asum += x[k] * sqrt(aPR[comp] * aPR[k]) * (1.0 - kPr[k][comp]);
+                    aPR[k] = 0.42748 * RBar * RBar * TCr[k] * TCr[k] / PCr[k];
+                    F_Omega = 0.48 + 1.574 * Omega[k] - 0.176 * Omega[k] * Omega[k];
+                    bPR[k] = 0.08664 * RBar * TCr[k] / PCr[k];
                 }
-                else
+                else if (strcmp(EOS, "PR") == 0)
                 {
-                    asum += x[k] * sqrt(aPR[comp] * aPR[k]) * (1.0 - kPr[comp][k]);
+                    aPR[k] = 0.45724 * RBar * RBar * TCr[k] * TCr[k] / PCr[k];
+                    F_Omega = 0.37464 + 1.54226 * Omega[k] - 0.26992 * Omega[k] * Omega[k];
+                    bPR[k] = 0.07779 * RBar * TCr[k] / PCr[k];
                 }
+
+                aPR[k] = aPR[k] * pow(1.0 + F_Omega * (1.0 - sqrt(Tr[k])), 2.0);
+                bm += x[k] * bPR[k];
+                cm += x[k] * (c0[k] + c1[k] * (TK - 288.15));
+            }
+        }
+        // 计算混合物 aPrmix
+        aPrmix = 0.0;
+        for (i = 0; i < NumGases; i++)
+        {
+            for (j = 0; j < i; j++)
+            {
+                aPrmix += 2.0 * x[i] * x[j] * sqrt(aPR[i] * aPR[j]) * (1.0 - kPr[i][j]);
+            }
+            aPrmix += x[i] * x[i] * aPR[i];
+        }
+
+        // 计算 BStarPr 和 QQ
+        BStarPr = bm * PBar / (RBar * TK);
+        QQ = aPrmix / (bm * RBar * TK);
+        // EOS 系数 sigma, epsilon
+        if (strcmp(EOS, "SRK") == 0)
+        {
+            sigma = 1.0;
+            epsilon = 0.0;
+        }
+        else if (strcmp(EOS, "PR") == 0)
+        {
+            sigma = 1.0 + sqrt(2.0);
+            epsilon = 1.0 - sqrt(2.0);
+        }
+
+        epsilonP = epsilon;
+        sigmaP = sigma;
+        S = 1.0;
+
+        // 三次方程求 z
+        a3 = 1.0;
+        a2 = (epsilonP + sigmaP) * BStarPr - 1.0 - S * BStarPr;
+        a1 = (epsilonP * sigmaP) * BStarPr * BStarPr - (epsilonP + sigmaP) * BStarPr - (epsilonP + sigmaP) * S * BStarPr * BStarPr + QQ * BStarPr;
+        a0 = -sigmaP * epsilonP * BStarPr * BStarPr - sigmaP * epsilonP * BStarPr * BStarPr * BStarPr * S - QQ * S * BStarPr * BStarPr;
+
+        if (strcmp(phase, "vapor") == 0)
+        {
+            cubic(a3, a2, a1, a0, "max", z, bm, PBar, TK);
+        }
+        else if (strcmp(phase, "liquid") == 0)
+        {
+            cubic(a3, a2, a1, a0, "min", z, bm, PBar, TK);
+        }
+
+        Z_Peneloux = *z - Peneloux_yes_no * cm * PBar / (RBar * TK); // Peneloux 修正
+
+        // 计算各组分 ln(phi)
+        for (comp = 0; comp < NumGases; comp++)
+        {
+            if (xGlobal[comp] > 0)
+            {
+                asum = 0.0;
+                for (k = 0; k < NumGases; k++)
+                {
+                    if (k > comp)
+                    {
+                        asum += x[k] * sqrt(aPR[comp] * aPR[k]) * (1.0 - kPr[k][comp]);
+                    }
+                    else
+                    {
+                        asum += x[k] * sqrt(aPR[comp] * aPR[k]) * (1.0 - kPr[comp][k]);
+                    }
+                }
+
+                ai_bar = 2.0 * asum - aPrmix;
+                qi_bar = QQ * (1.0 + ai_bar / aPrmix - bPR[comp] / bm);
+                ii = 1.0 / (sigma - epsilon) * log((*z + sigma * BStarPr) / (*z + epsilon * BStarPr));
+
+                lnPHI[comp] = bPR[comp] / bm * (*z - 1.0) - log(*z - BStarPr) - qi_bar * ii;
+                lnPHI_Peneloux[comp] = lnPHI[comp] - Peneloux_yes_no * (c0[comp] + c1[comp] * (TK - 288.15)) * PBar / (RBar * TK);
+                lnPHI[comp] = lnPHI_Peneloux[comp];
+            }
+        }
+        // 修正水相逸度系数   -这里暂时没有进去
+        if (strcmp(phase, "liquid") == 0 && isAqueous_2016(eqAqueous, x, xGlobal, NumGases))
+        {
+            if (xGlobal[0] > 0)
+                lnPHI[0] = logKHenry_CH4(TK) - log(PBar) + (34.5) * (PBar - 1) / (RBar * TK);
+
+            if (xGlobal[1] > 0) {
+                lnPHI[1] = log(gNeut[0] * (1000.0 / (18.015 * x[NumGases - 1])) / (PBar * KH_CO2(TK, PBar)));
             }
 
-            ai_bar = 2.0 * asum - aPrmix;
-            qi_bar = QQ * (1.0 + ai_bar / aPrmix - bPR[comp] / bm);
-            ii = 1.0 / (sigma - epsilon) * log((*z + sigma * BStarPr) / (*z + epsilon * BStarPr));
+            if (xGlobal[2] > 0) {
+                lnPHI[2] = log(gNeut[1] * (1000.0 / (18.015 * x[NumGases - 1])) / (PBar * KH_H2S(TK, PBar)));
+            }
 
-            lnPHI[comp] = bPR[comp] / bm * (*z - 1.0) - log(*z - BStarPr) - qi_bar * ii;
-            lnPHI_Peneloux[comp] = lnPHI[comp] - (c0[comp] + c1[comp] * (TK - 288.15)) * PBar / (temp_RBar * TK);
-            lnPHI[comp] = lnPHI_Peneloux[comp];
+            if (xGlobal[3] > 0) {
+                lnPHI[3] = logKHenry_C2H6(TK) - log(PBar) + (52.9) * (PBar - 1) / (RBar * TK);
+            }
+
+            if (xGlobal[NumGases - 1] > 0) {
+                lnPHI[NumGases - 1] = logKHenry_N2(TK) - log(PBar) + (35.7) * (PBar - 1) / (RBar * TK);
+            }
+
+            double Psat = PsatH2O(TK);
+            double qW = aPR[NumGases - 1] / (bPR[NumGases - 1] * RBar * TK);
+            double BStarW = bPR[NumGases - 1] * Psat / (RBar * TK);
+            double ZW, iW, lnPHIWsat;
+
+            a3 = 1.0;
+            a2 = (epsilonP + sigmaP) * BStarW - 1.0 - S * BStarW;
+            a1 = (epsilonP * sigmaP) * BStarW * BStarW - (epsilonP + sigmaP) * BStarW - (epsilonP + sigmaP) * S * BStarW * BStarW + qW * BStarW;
+            a0 = -sigmaP * epsilonP * BStarW * BStarW - sigmaP * epsilonP * BStarW * BStarW * BStarW * S - qW * S * BStarW * BStarW;
+
+            cubic(a3, a2, a1, a0, "min", &ZW, bPR[NumGases - 1], Psat, TK);
+            iW = log((ZW + sigmaP * BStarW) / (ZW + epsilonP * BStarW)) / (sigmaP - epsilonP);
+            lnPHIWsat = ZW - 1.0 - log(ZW - BStarW) - qW * iW;
+
+            lnPHI[NumGases - 1] = log(aH2O * Psat / (x[NumGases - 1] * PBar)) + lnPHIWsat + ZW * (1.0 - Psat / PBar);
         }
+        *z = Z_Peneloux;
     }
-
-    // 修正水相逸度系数
-    if (strcmp(phase, "liquid") == 0 && isAqueous_2016(eqAqueous, x, xGlobal))
+    else
     {
-        double Psat = PsatH2O(TK);
-        double qW = aPR[NumGases - 1] / (bPR[NumGases - 1] * temp_RBar * TK);
-        double BStarW = bPR[NumGases - 1] * Psat / (temp_RBar * TK);
-        double ZW, iW, lnPHIWsat;
-
-        a3 = 1.0;
-        a2 = (epsilonP + sigmaP) * BStarW - 1.0 - S * BStarW;
-        a1 = (epsilonP * sigmaP) * BStarW * BStarW - (epsilonP + sigmaP) * BStarW - (epsilonP + sigmaP) * S * BStarW * BStarW + qW * BStarW;
-        a0 = -sigmaP * epsilonP * BStarW * BStarW - sigmaP * epsilonP * BStarW * BStarW * BStarW * S - qW * S * BStarW * BStarW;
-
-        cubic(a3, a2, a1, a0, "min", &ZW, bPR[NumGases - 1], Psat, TK);
-        iW = log((ZW + sigmaP * BStarW) / (ZW + epsilonP * BStarW)) / (sigmaP - epsilonP);
-        lnPHIWsat = ZW - 1.0 - log(ZW - BStarW) - qW * iW;
-
-        lnPHI[NumGases - 1] = log(aH2O * Psat / (x[NumGases - 1] * PBar)) + lnPHIWsat + ZW * (1.0 - Psat / PBar);
+        for (i = 0; i < NumGases; i++)
+            lnPHI[i] = 0;
     }
 
-    *z = Z_Peneloux;
+
+
 
     free(Tr);
     free(aPR);
@@ -6306,7 +6471,8 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
     int aqueousPhase = -1;
     double composition_ratio = 1.001;
     double tol = composition_ratio - 1.0;
-    bool* equalPhases = (bool*)calloc(maxPhases * maxPhases, sizeof(bool));
+    bool** equalPhases = (bool**)calloc(maxPhases, sizeof(bool*));
+    for (i = 0; i < maxPhases; i++) equalPhases[i] = (bool*)calloc(maxPhases, sizeof(bool));;
     double* relativeComposition_Water = (double*)calloc(maxPhases, sizeof(double));
     double* compoPhaseA = (double*)calloc(nComponents, sizeof(double));
     double* compoPhaseB = (double*)calloc(nComponents, sizeof(double));
@@ -6318,17 +6484,40 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
     bool vaporExists = false;
     bool aqueousExists = false;
     int nonAqueousPhases;
+    double* beta_prime = (double*)malloc(maxPhases * sizeof(double));
+    double* density_prime = (double*)malloc(maxPhases * sizeof(double));
+    double* Compr_prime = (double*)malloc(maxPhases * sizeof(double));
+    char** phase_prime = (char**)malloc(maxPhases * sizeof(char*));
+    for (i = 0; i < maxPhases; i++)
+        phase_prime[i] = (char*)malloc(15 * sizeof(char));
+    //compo_prime(nComponents, maxPhases + 1), logPHI_prime(nComponents, maxPhases)
+    double** compo_prime = (double**)malloc(nComponents * sizeof(double*));
+    double** logPHI_prime = (double**)malloc(nComponents * sizeof(double*));
 
+    for (i = 0; i < maxPhases; i++)
+    {
+        beta_prime[i] = 0;
+        density_prime[i] = 0;
+        Compr_prime[i] = 0;
+    }
     // 复制 compositions 到 relativeCompositions 并归一化
     double** relativeCompositions = (double**)malloc(nComponents * sizeof(double*));
     for (i = 0; i < nComponents; i++)
     {
         relativeCompositions[i] = (double*)malloc((maxPhases + 1) * sizeof(double));
+        compo_prime[i] = (double*)malloc((maxPhases + 1) * sizeof(double));
+        logPHI_prime[i] = (double*)malloc(maxPhases * sizeof(double));
         for (j = 0; j <= maxPhases; j++)
             relativeCompositions[i][j] = compositions[i][j];
     }
+    for (i = 0; i < nComponents; i++)
+        for (j = 0; j < maxPhases; j++)
+            logPHI[i][j] = 0;
     normalize2Darray(relativeCompositions, nComponents, maxPhases + 1);
 
+    for (i = 0; i < maxPhases; i++)
+        for (j = 0; j < maxPhases; j++)
+            equalPhases[i][j] = false;
     // 判断相是否相等
     double tolerance = 0.03; // 3%
     int totalEqualPhases = 0;
@@ -6343,13 +6532,13 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
             }
             if (equalArrays(tolerance, compoPhaseA, compoPhaseB, nComponents))
             {
-                equalPhases[m * maxPhases + n] = true;
-                equalPhases[n * maxPhases + m] = true;
+                equalPhases[m][n] = true;
+                equalPhases[n][m] = true;
                 if (m != n)
                     totalEqualPhases++;
             }
         }
-        equalPhases[m * maxPhases + m] = true;
+        equalPhases[m][m] = true;
     }
 
     // 找水相
@@ -6381,6 +6570,16 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
         if (compositions[i][0] > 0)
             NonZeroComponents++;
 
+    for (j = 0; j < maxPhases; j++)
+    {
+        if (aqueousPhase > 0 && !aqueousExists)
+            if (beta[j] > 0 && equalPhases[j][aqueousPhase])
+            {
+                aqueousExists = true;
+                aqueousPhase = j;
+            }
+    }
+
     // 唯一相检测
     for (n = 0; n < maxPhases; n++)
     {
@@ -6388,7 +6587,7 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
         int m_min = -1;
         for (m = 0; m <= n; m++)
         {
-            if (equalPhases[n * maxPhases + m] && beta[m] > 0)
+            if (equalPhases[n][m] && beta[m] > 0)
             {
                 if (!found)
                 {
@@ -6404,73 +6603,206 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
         }
     }
 
-    // 统计唯一相
-    int nUniquePhases = 0;
+    *nPhases = 0;
+    //Finds the existing unique phases, creates a copy the current properties values
     for (j = 0; j < maxPhases; j++)
-        if (uniquePhase[j])
-            nUniquePhases++;
+    {
+        /* This loop nullifies fugacity coefficients for non-existing components */
+        for (i = 0; i < nComponents; i++)
+        {
+            if (compositions[i][0] == 0.0)
+            {
+                logPHI[i][j] = 0.0;
+                compositions[i][j + 1] = 0.0;
+            }
+        }
 
-    // 生成 phaseIndex
+        if (uniquePhase[j] == true)
+        {
+            (*nPhases)++;
+            beta_prime[j] = beta[j];
+            density_prime[j] = density[j];
+            Compr_prime[j] = Compr[j];
+            //phase_prime[j] = phase[j];
+            strcpy(phase_prime[j], phase[j]);
+
+            for (i = 0; i < nComponents; i++)
+            {
+                compo_prime[i][j + 1] = compositions[i][j + 1];
+                compo_prime[i][0] = compositions[i][0];
+                logPHI_prime[i][j] = logPHI[i][j];
+            }
+        }
+    }
+    //relativeCompositionsPrime = compo_prime
+    double** relativeCompositionsPrime = (double**)malloc(nComponents * sizeof(double*));
+    for (i = 0; i < nComponents; i++)
+    {
+        relativeCompositionsPrime[i] = (double*)malloc((maxPhases + 1) * sizeof(double));
+        for (j = 0; j < maxPhases + 1; j++)
+            relativeCompositionsPrime[i][j] = compo_prime[i][j];
+    }
+    normalize2Darray(relativeCompositionsPrime, nComponents, maxPhases + 1);
+    //rel_Compo_Lightest(maxPhases), rel_Compo_Heaviest(maxPhases)
+    double* rel_Compo_Lightest = (double*)malloc(maxPhases * sizeof(double));
+    double* rel_Compo_Heaviest = (double*)malloc(maxPhases * sizeof(double));
+    for (j = 0; j < maxPhases; j++)
+    {
+        rel_Compo_Lightest[j] = relativeCompositionsPrime[lightest][j + 1];
+        rel_Compo_Heaviest[j] = relativeCompositionsPrime[heaviest][j + 1];
+    }
+
+    // 不明意义的Redim行为，暂忽略
+    //ReDim beta(maxPhases), density(maxPhases), Compr(maxPhases)
+    //,compositions(nComponents, maxPhases + 1), logPHI(nComponents, maxPhases)
+
+    //Finds the proper order of the existing phases in a sorted desired property value
     for (j = 0; j < maxPhases; j++)
         phaseIndex[j] = j;
+    bool ascending = false;
+    for (i = 0; i < maxPhases; i++)
+        variable_sorted[i] = rel_Compo_Lightest[i];
 
-    // 排序 lightest 分量
+    indexBubbleSrt(ascending, variable_sorted, phaseIndex, maxPhases);
     for (j = 0; j < maxPhases; j++)
-        variable_sorted[j] = relativeCompositions[lightest][j + 1];
-    indexBubbleSrt(false, variable_sorted, phaseIndex, maxPhases);
+        phaseOrder[j] = phaseIndex[j];
 
-    nonAqueousPhases = nUniquePhases - (aqueousPhase >= 0 ? 1 : 0);
+    //nonAqueousPhases = *nPhases - abs(CLng(aqueousExists))
+    if (aqueousExists)
+        nonAqueousPhases = *nPhases - 1;
+    else
+        nonAqueousPhases = *nPhases;
 
-    // Vapor 相判定
-    if (nonAqueousPhases == 1 && density[phaseIndex[0]] < 0.2)
-    {
+    if (nonAqueousPhases == 1 && density_prime[phaseOrder[0]] < 0.2)
         vaporExists = true;
-    }
-    else if (nUniquePhases == 1 && aqueousPhase >= 0)
+    else if (*nPhases == 1 && aqueousExists)
     {
-        vaporExists = false;
+        /* Do nothing (same as VB's empty ElseIf) */
     }
     else
     {
-        if (density[phaseIndex[0]] < 0.2)
+        if (strcmp(phase_prime[phaseOrder[0]], "vapor") == 0 &&
+            density_prime[phaseOrder[0]] < 0.2)
+        {
             vaporExists = true;
+        }
+        else if ((rel_Compo_Lightest[phaseOrder[0]] *
+            rel_Compo_Heaviest[phaseOrder[1]]) >
+            1000.0 *
+            (rel_Compo_Lightest[phaseOrder[1]] *
+                rel_Compo_Heaviest[phaseOrder[0]]) &&
+            phaseOrder[0] != aqueousPhase)
+        {
+            vaporExists = true;
+        }
+        else if (2.0 * density_prime[phaseOrder[0]] < density_prime[phaseOrder[1]] &&
+            phaseOrder[1] != aqueousPhase)
+        {
+            vaporExists = true;
+        }
         else
+        {
             vaporExists = false;
+        }
     }
+    //z(nComponents)
+    double* z = (double*)malloc(nComponents * sizeof(double));
+    for (i = 0; i < nComponents; i++)
+        z[i] = compo_prime[i][0];
 
-    // 分配 beta, density, Compr, compositions, logPHI
+    k = 1;
+    m = 0;
+
+    double* x = (double*)malloc(nComponents * sizeof(double));
     for (j = 0; j < maxPhases; j++)
     {
-        if (uniquePhase[j])
+        if (beta_prime[phaseOrder[j]] > 0.0)
         {
+            /* If k == 1 And Not vaporExists And nPhases < maxPhases */
+            if (k == 1 && !vaporExists && (*nPhases < maxPhases))
+            {
+                k = 2;
+            }
+
+            m = k;
+
             for (i = 0; i < nComponents; i++)
-                ; // 这里可以复制 compositions[i][j+1] -> 新数组，保持原逻辑
+                x[i] = compo_prime[i][phaseOrder[j] + 1];
+
+            if ((density_prime[phaseOrder[j]] > 0.5 &&
+                aqueousExists &&
+                isAqueous_2016(true, x, z, nComponents))
+                ||
+                (NonZeroComponents == 2 &&
+                    x[nComponents - 1] > 0.5 &&
+                    strcmp(phase[j], "liquid") == 0))
+            {
+                k = maxPhases;
+                m = m - 1;
+            }
+
+            beta[k - 1] = beta_prime[phaseOrder[j]];
+            density[k - 1] = density_prime[phaseOrder[j]];
+            Compr[k - 1] = Compr_prime[phaseOrder[j]];
+            //phase[k - 1] = phase_prime[phaseOrder[j]];
+            strcpy(phase[k - 1], phase_prime[phaseOrder[j]]);
+
+            for (i = 0; i < nComponents; i++)
+            {
+                compositions[i][k] = compo_prime[i][phaseOrder[j] + 1];
+                logPHI[i][k - 1] = logPHI_prime[i][phaseOrder[j]];
+            }
+
+            k = m + 1;
         }
     }
 
-    // Phase 名称分配
-    int mPhase = 1;
+    /* Normalizing phase fractions */
+    sumBeta = 0.0;
     for (j = 0; j < maxPhases; j++)
-    {
-        if (beta[j] > 0)
-        {
-            double* x = (double*)malloc(nComponents * sizeof(double));
-            for (i = 0; i < nComponents; i++)
-                x[i] = compositions[i][j + 1];
+        sumBeta += beta[j];
+    for (j = 0; j < maxPhases; j++)
+        beta[j] = beta[j] / sumBeta;
 
-            if (aqueousPhase >= 0 && isAqueous_2016(eqAqueous, x, relativeCompositions[0]))
-                strcpy(phaseName[j], "Aqueous");
-            else
+
+    /* Naming phases (Vapor, Liquid, Aqueous) */
+
+    m = 1;
+
+    if (*nPhases == 1)
+    {
+        if (vaporExists)
+            strcpy(phaseName[0], "Steam");
+        else if (!aqueousExists)
+            strcpy(phaseName[1], "Liquid");
+        else
+            strcpy(phaseName[maxPhases - 1], "Aqueous");
+    }
+    else
+    {
+        for (j = 0; j < maxPhases; j++)
+        {
+            if (beta[j] > 0.0)
             {
-                char buf[32];
-                sprintf(buf, "Phase %d", mPhase++);
-                strcpy(phaseName[j], buf);
+                for (i = 0; i < nComponents; i++)
+                    x[i] = compositions[i][j + 1];
+
+                if (aqueousExists && isAqueous_2016(eqAqueous, x, z, nComponents))
+                    strcpy(phaseName[j], "Aqueous");
+                else
+                {
+                    /* VB: "Phase " & CStr(m)  (C 要自己格式化字符串) */
+                    char buf[32];
+                    sprintf(buf, "Phase %d", m);
+                    strcpy(phaseName[j], buf);
+                    m = m + 1;
+                }
             }
-            free(x);
         }
     }
 
     // 释放动态数组
+    for (i = 0; i < maxPhases; i++) free(equalPhases[i]);
     free(equalPhases);
     free(relativeComposition_Water);
     free(compoPhaseA);
@@ -6482,6 +6814,25 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
     for (i = 0; i < nComponents; i++)
         free(relativeCompositions[i]);
     free(relativeCompositions);
+    free(beta_prime);
+    free(density_prime);
+    free(Compr_prime);
+    for (i = 0; i < maxPhases; i++) free(phase_prime[i]);
+    free(phase_prime);
+    for (i = 0; i < nComponents; i++) {
+        free(compo_prime[i]);
+        free(logPHI_prime[i]);
+        free(relativeCompositionsPrime[i]);
+    }
+    free(compo_prime);
+    free(logPHI_prime);
+    free(relativeCompositionsPrime);
+    free(rel_Compo_Lightest);
+    free(rel_Compo_Heaviest);
+
+    free(x);
+    free(z);
+
 }
 
 
@@ -6506,6 +6857,8 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
     double Gibbs;
     double temp;
     bool testTemp = false;
+
+    const double RBar = 83.14;
 
     // 获取组分和相数
     //NumGases = NonZeroNumGases; // UBound(zGlobal) → 非零组分数
@@ -6532,6 +6885,24 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
     for (j = 0; j < MaxBeta; j++) {
         phase[j] = (char*)malloc(16 * sizeof(char)); // 每个相名最长16字符
     }
+
+    //12-2号：新增的初始化，不初始化可能导致后面某个地方出错
+    for (i = 0; i < NumGases; i++) {
+        Ki[i] = 0;
+        logphi3phase_newphase[i] = 0;
+        x[i] = 0;
+        z[i] = 0;
+        for (j = 0; j < MaxBeta; j++) {
+            logphi3phase[i][j] = 0;
+            logphi3phase_new[i][j] = 0;
+            errorLogPhi[i][j] = 0;
+        }
+    }
+    for (j = 0; j < MaxBeta; j++) {
+        everyLogPHI[j] = 0;
+        betaexists[j] = false;
+    }
+
 
     // 归一化全局摩尔组成
     Sz = 0.0;
@@ -6584,6 +6955,10 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
         vaporFound = false;
 
         for (k = 0; k < MaxBeta; k++) {
+            //明明只需要MaxBeta个，为什么要Redim成NumGases长度？？
+            // 先注释，保留源语句
+            //if (everyLogPHI) free(everyLogPHI);
+            //everyLogPHI = (double*)malloc(NumGases * sizeof(double));
             everyLogPHI[k] = 0.0;
             for (i = 0; i < NumGases; i++) {
                 x[i] = compositions[i][k + 1];
@@ -6594,7 +6969,7 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
                 strcpy(phase[k], "vapor");
                 vaporFound = true;
             }
-            else if (isAqueous_2016(*eqAqueous, x, z)) {
+            else if (isAqueous_2016(*eqAqueous, x, z, NumGases)) {
                 strcpy(phase[k], "liquid");
             }
             else if (isVapor(*eqVapor, x, z, TK, PBar, TCr, PCr, lightest, NumGases)) {
@@ -6620,7 +6995,7 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
         }
 
         if (!continue_flash) {
-            break; // exit_flash
+            goto exit_flash;
         }
 
         errRate = 100.0 * fabs(Er - Er_old) / Er_old;
@@ -6653,15 +7028,17 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
         errNet = fabs(sumOld - sumNew);
     }
 
+exit_flash:
     // 计算各相分子量与密度
     for (j = 0; j < MaxBeta; j++) {
         if (beta[j] > 0) {
             MWsum = 0.0;
             for (i = 0; i < NumGases; i++) {
                 MWsum += MWgas[i] * compositions[i][j + 1];
+                //printf("\n %.16f \n", compositions[i][j + 1]);
             }
             if (Compr[j] > 0) {
-                density[j] = MWsum * PBar / RBar / Compr[j] / TK;
+                density[j] = (MWsum * PBar) / RBar / Compr[j] / TK;
             }
             else {
                 density[j] = 0.0;
@@ -6703,19 +7080,22 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
 }
 
 
-
+//Compr(MaxBeta), beta(MaxBeta), density(MaxBeta), phi(NumGases, MaxBeta), compositions(NumGases, MaxBeta + 1), zOutput(NumGases)
 void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, double* zGlobal, double* gNeut,
     double aH2O, double* TCr, double* PCr, double* Omega, double* MWgas, double** kPr, double* c0, double* c1,
-    int* Numbeta, char** phaseName, double* beta, double** compositions, double** phi, double* Compr,
-    double* density, int* counterEquilibrium_final, int* iter_final, int* counter_final, double* zOutput, int NumGases, int MaxBeta)
+    int* Numbeta, char** phaseName, double** beta, double*** compositions, double*** phi, double** Compr,
+    double** density, int* counterEquilibrium_final, int* iter_final, int* counter_final, double** zOutput, int NumGases, int* MaxBeta)
 {
     int i, j;
     //int NumGases, MaxBeta;
     double Q = 0.0, Q_alt = 0.0;
 
     // Alternative solution containers
+    int temp_MaxBeta = *MaxBeta;
     int numBeta_alt = 0;
-    char** phaseName_alt = NULL;
+    char** phaseName_alt = (char**)malloc(temp_MaxBeta * sizeof(char*));
+    for (i = 0; i < temp_MaxBeta; i++)
+        phaseName_alt[i] = (char*)malloc(15 * sizeof(char));
     double* beta_alt = NULL;
     double** compositions_alt = NULL;
     double** phi_alt = NULL;
@@ -6742,16 +7122,29 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
     //    compositions[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
     //}
 
-    Compr_alt = (double*)malloc(MaxBeta * sizeof(double));
-    beta_alt = (double*)malloc(MaxBeta * sizeof(double));
-    density_alt = (double*)malloc(MaxBeta * sizeof(double));
+    Compr_alt = (double*)malloc(temp_MaxBeta * sizeof(double));
+    beta_alt = (double*)malloc(temp_MaxBeta * sizeof(double));
+    density_alt = (double*)malloc(temp_MaxBeta * sizeof(double));
     phi_alt = (double**)malloc(NumGases * sizeof(double*));
     compositions_alt = (double**)malloc(NumGases * sizeof(double*));
     zOutput_alt = (double*)malloc(NumGases * sizeof(double));
     for (i = 0; i < NumGases; i++)
     {
-        phi_alt[i] = (double*)malloc(MaxBeta * sizeof(double));
-        compositions_alt[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
+        phi_alt[i] = (double*)malloc(temp_MaxBeta * sizeof(double));
+        compositions_alt[i] = (double*)malloc((temp_MaxBeta + 1) * sizeof(double));
+    }
+    //初始化
+    for (i = 0; i < temp_MaxBeta; i++)
+    {
+        Compr_alt[i] = 0;
+        beta_alt[i] = 0;
+        density_alt[i] = 0;
+    }
+    for (i = 0; i < NumGases; i++)
+    {
+        zOutput_alt[i] = 0;
+        for (j = 0; j < temp_MaxBeta; j++) phi_alt[i][j] = 0;
+        for (j = 0; j < temp_MaxBeta + 1; j++) compositions_alt[i][j] = 0;
     }
 
     // conditions
@@ -6764,9 +7157,9 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
     // First Flash
     Flash(&eqVapor, &eqAqueous, EOS, TK, PBar, NonZeroNumGases, zGlobal, gNeut, aH2O,
         TCr, PCr, Omega, MWgas, kPr, c0, c1,
-        &Q, Numbeta, phaseName, beta, compositions, phi, Compr, density,
-        counterEquilibrium_final, iter_final, counter_final, zOutput,
-        NumGases, MaxBeta);
+        &Q, Numbeta, phaseName, *beta, *compositions, *phi, *Compr, *density,
+        counterEquilibrium_final, iter_final, counter_final, *zOutput,
+        NumGases, temp_MaxBeta);
 
     if (*Numbeta < 3) {
         eqVapor = true;
@@ -6780,26 +7173,67 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
             TCr, PCr, Omega, MWgas, kPr, c0, c1,
             &Q_alt, &numBeta_alt, phaseName_alt, beta_alt, compositions_alt, phi_alt, Compr_alt, density_alt,
             &counterEquilibrium_final_alt, &iter_final_alt, &counter_final_alt, zOutput_alt,
-            NumGases, MaxBeta);
+            NumGases, temp_MaxBeta);
 
         if (Q > Q_alt) {
-            *Numbeta = numBeta_alt;
+            *MaxBeta = 3;
 
-            for (j = 0; j < MaxBeta; j++) {
-                phaseName[j] = phaseName_alt[j];
-                beta[j] = beta_alt[j];
-                Compr[j] = Compr_alt[j];
-                density[j] = density_alt[j];
+            //重新分配空间
+            //ReDim Compr(MaxBeta), beta(MaxBeta), density(MaxBeta), phi(NumGases, MaxBeta), compositions(NumGases, MaxBeta + 1), zOutput(NumGases)
+            free(*Compr); free(*beta); free(*density); free(*zOutput);
+            for (i = 0; i < NumGases; i++)
+            {
+                free((*phi)[i]);
+                free((*compositions)[i]);
+            }
+            free(*phi);  free(*compositions);
+            *Compr = (double*)malloc(*MaxBeta * sizeof(double));
+            *beta = (double*)malloc(*MaxBeta * sizeof(double));
+            *density = (double*)malloc(*MaxBeta * sizeof(double));
+            *zOutput = (double*)malloc(*MaxBeta * sizeof(double));
+            *phi = (double**)malloc(NumGases * sizeof(double*));
+            *compositions = (double**)malloc(NumGases * sizeof(double*));
+            for (i = 0; i < NumGases; i++)
+            {
+                (*phi)[i] = (double*)malloc(*MaxBeta * sizeof(double));
+                (*compositions)[i] = (double*)malloc((*MaxBeta + 1) * sizeof(double));
+            }
+            *Numbeta = numBeta_alt;
+            for (j = 0; j < *MaxBeta; j++) {
+                //phaseName[j] = phaseName_alt[j];
+                if (j != *MaxBeta - 1)
+                {
+                    strcpy(phaseName[j], phaseName_alt[j]);
+                    (*beta)[j] = beta_alt[j];
+                    (*Compr)[j] = Compr_alt[j];
+                    (*density)[j] = density_alt[j];
+                }
+                else
+                {
+                    (*beta)[j] = 0;
+                    (*Compr)[j] = 0;
+                    (*density)[j] = 0;
+                }
 
                 for (i = 0; i < NumGases; i++) {
-                    compositions[i][j + 1] = compositions_alt[i][j + 1];
-                    phi[i][j] = phi_alt[i][j];
-                    zOutput[i] = zOutput_alt[i];
+                    if (j != *MaxBeta - 1)
+                    {
+                        (*compositions)[i][j + 1] = compositions_alt[i][j + 1];
+                        (*phi)[i][j] = phi_alt[i][j];
+                        (*zOutput)[i] = zOutput_alt[i];
+                    }
+                    else
+                    {
+                        (*compositions)[i][j + 1] = 0;
+                        (*phi)[i][j] = 0;
+                        (*zOutput)[i] = 0;
+                    }
                 }
             }
         }
     }
-
+    for (i = 0; i < temp_MaxBeta; i++) free(phaseName_alt[i]);
+    free(phaseName_alt);
     // free alternative arrays
     for (i = 0; i < NumGases; i++) {
         free(phi_alt[i]);
@@ -6860,12 +7294,19 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     /*源代码没有给它默认值，担心会出问题，此处给phase 一个默认的值  */
     phase = (char*)malloc(6); // 分配足够容纳"vapor"及结束符'\0'的空间
     strcpy(phase, "vapor");
-    char* phaseName = NULL;
+    char** phaseName = NULL;
     double logphipureL = 0, ComprL = 0, logphipureV = 0, ComprV = 0;
 
 
     //这表明，如果没有水，就不应该存在水相
     z[max_NumGases - 1] > 0 ? MaxBeta = 3 : MaxBeta = 2;
+    phaseName = (char**)malloc(MaxBeta * sizeof(char*));
+    //先分配内存
+    for (i = 0; i < MaxBeta; i++)
+    {
+        //分配足够的空间   不确定此行为是否多余，保留
+        phaseName[i] = (char*)malloc(15 * sizeof(char));
+    }
     //ReDim mf_gNeut(UBound(gNeut)), zInput(max_NumGases)  vb源码：gNeut(15)。 到底是谁写的UBound(gNeut)？为什么不直接写15
     double* mf_gNeut = (double*)malloc(2 * sizeof(double));
     double* zInput = (double*)malloc(max_NumGases * sizeof(double));
@@ -6923,13 +7364,31 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
         mf_phi[i] = (double*)malloc(MaxBeta * sizeof(double));
         mf_compositions[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
     }
+
+    // 12-2号：新增的初始化函数，不初始化会导致后面某处出错
+    for (i = 0; i < max_NumGases; i++) iFlash[i] = 0;
+    for (i = 0; i < max_NumGases; i++)
+    {
+        mf_beta[i] = 0;
+        mf_Compr[i] = 0;
+        mf_density[i] = 0;
+    }
+    for (i = 0; i < mf_NumGases; i++)
+    {
+        zGlobal[i] = 0;
+        zOut[i] = 0;
+        zGlobal[i] = 0;
+        for (j = 0; j < MaxBeta; j++) mf_phi[i][j] = 0;
+        for (j = 0; j < MaxBeta + 1; j++) mf_compositions[i][j] = 0;
+    }
+
     //ReDim mf_Compr(MaxBeta), mf_density(MaxBeta), mass_phase(MaxBeta)，注，参数列表参数mass_phase的ReDim行为
     if (*mass_phase != NULL) {
         free(*mass_phase);
     }
     *mass_phase = (double*)malloc(MaxBeta * sizeof(double));
     double* x = (double*)malloc(mf_NumGases * sizeof(double));
-
+    for (i = 0; i < max_NumGases; i++) x[i] = 0;
     //获取参数值、缩小组成以适应现有化合物并使其标准化的子程序
     *mf_ParametersWereRead = false;
     //Call InitialPreparationSSP(mf_ParametersWereRead, EOS, zInput, iFlash, zGlobal, TCr, PCr, Omega, MWgas, kPr, c0, c1)
@@ -6944,10 +7403,10 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     if (NonZeroNumGases > 1)
     {
         Numbeta = 0;//原代码无这个，这里赋值防止传入未初始化的值。
-        phaseName = NULL;//原代码无这个，这里赋值防止传入未初始化的值。
+        //phaseName = NULL;//原代码无这个，这里赋值防止传入未初始化的值。
 
-        TrueFlash(EOS, mf_TK, mf_PBar, NonZeroNumGases, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr, Omega, MWgas, kPr, c0, c1, &Numbeta, &phaseName, mf_beta, mf_compositions, mf_phi, mf_Compr, mf_density,
-            &counterEquilibrium_final, &iter_final, &counter_final, zOut, mf_NumGases, MaxBeta);
+        TrueFlash(EOS, mf_TK, mf_PBar, NonZeroNumGases, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr, Omega, MWgas, kPr, c0, c1, &Numbeta, phaseName, &mf_beta, &mf_compositions, &mf_phi, &mf_Compr, &mf_density,
+            &counterEquilibrium_final, &iter_final, &counter_final, &zOut, mf_NumGases, &MaxBeta);
     }
     else if (NonZeroNumGases == 1)//纯组分情况下的性质计算
     {
