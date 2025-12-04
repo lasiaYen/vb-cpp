@@ -3,40 +3,86 @@
 #include<stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include<float.h>
+#include <vector>
+#include <float.h>
 #pragma warning(disable:4996)
 
+class SimulationContext {
+public:
+    SimulationContext() {
+        int len = nob_Input + nob_InputII;
+        NaMix.resize(len, 0);
+        MgMix.resize(len, 0);
+        CaMix.resize(len, 0);
+        SrMix.resize(len, 0);
+        BaMix.resize(len, 0);
+        FeMix.resize(len, 0);
+        ZnMix.resize(len, 0);
+        ClMix.resize(len, 0);
+        PbMix.resize(len, 0);
+        BrMix.resize(len, 0);
+        RaMix.resize(len, 0);
 
-double* NaMix;
-double* MgMix;
-double* CaMix;
-double* SrMix;
-double* BaMix;
-double* FeMix;
-double* ZnMix;
-double* ClMix;
-double* PbMix;
-double* BrMix;
-double* RaMix;
+        NH3Mix.resize(len, 0);
+        H3SiO4Mix.resize(len, 0);
+        H2SiO4Mix.resize(len, 0);
+        H4SiO4Mix.resize(len, 0);
+        H3BO3Mix.resize(len, 0);
+        CO2aqMix.resize(len, 0);
+        H2SaqMix.resize(len, 0);
+        HACaqMix.resize(len, 0);
 
-double* NH3Mix;
-double* H3SiO4Mix;
-double* H2SiO4Mix;
-double* H4SiO4Mix;
-double* H3BO3Mix;
-double* CO2aqMix;
-double* H2SaqMix;
-double* HACaqMix;
+        UseH2SgasMix.resize(len, 0);
+        SO4Mix.resize(len, 0);
+        FMix.resize(len, 0);
+        TDSMix.resize(len, 0);
+        AlkMix.resize(len, 0);
+        TAcMix.resize(len, 0);
+        KMix.resize(len, 0);
+        MixFrac.resize(len, 0);
+    }
+    
+public:
+    std::vector<double> NaMix;
+    std::vector<double> MgMix;
+    std::vector<double> CaMix;
+    std::vector<double> SrMix;
+    std::vector<double> BaMix;
+    std::vector<double> FeMix;
+    std::vector<double> ZnMix;
+    std::vector<double> ClMix;
+    std::vector<double> PbMix;
+    std::vector<double> BrMix;
+    std::vector<double> RaMix;
+
+    std::vector<double> NH3Mix;
+    std::vector<double> H3SiO4Mix;
+    std::vector<double> H2SiO4Mix;
+    std::vector<double> H4SiO4Mix;
+    std::vector<double> H3BO3Mix;
+    std::vector<double> CO2aqMix;
+    std::vector<double> H2SaqMix;
+    std::vector<double> HACaqMix;
+
+    std::vector<int> UseH2SgasMix;
+    std::vector<double> SO4Mix;
+    std::vector<double> FMix;
+    std::vector<double> TDSMix;
+    std::vector<double> AlkMix;
+    std::vector<double> TAcMix;
+    std::vector<double> KMix;
+    std::vector<double> MixFrac;
+
+public:
+    const int nob = 1;
+    const int nob_Input = 1;
+    const int nob_InputII = 0;
+    const int Read_InputII = 0;
+    int Run1000Cases;
+};
+SimulationContext simContext;
 
 // edit by hzy - 改为int类型
-int* UseH2SgasMix;
-double* SO4Mix;
-double* FMix;
-double* TDSMix;
-double* AlkMix;
-double* TAcMix;
-double* KMix;
-double* MixFrac;
 
 double* rho_Mix;
 double* TH2SaqMix;
@@ -977,35 +1023,35 @@ void printSampleData(const SampleData* data)
 void initData()
 {
     int len = nob_Input + nob_InputII;
-    NaMix = (double*)malloc(len * sizeof(double));
-    MgMix = (double*)malloc(len * sizeof(double));
-    CaMix = (double*)malloc(len * sizeof(double));
-    SrMix = (double*)malloc(len * sizeof(double));
-    BaMix = (double*)malloc(len * sizeof(double));
-    FeMix = (double*)malloc(len * sizeof(double));
-    ZnMix = (double*)malloc(len * sizeof(double));
-    ClMix = (double*)malloc(len * sizeof(double));
-    PbMix = (double*)malloc(len * sizeof(double));
-    BrMix = (double*)malloc(len * sizeof(double));
-    RaMix = (double*)malloc(len * sizeof(double));
+    // NaMix = (double*)malloc(len * sizeof(double));
+    // MgMix = (double*)malloc(len * sizeof(double));
+    // CaMix = (double*)malloc(len * sizeof(double));
+    // SrMix = (double*)malloc(len * sizeof(double));
+    // BaMix = (double*)malloc(len * sizeof(double));
+    // FeMix = (double*)malloc(len * sizeof(double));
+    // ZnMix = (double*)malloc(len * sizeof(double));
+    // ClMix = (double*)malloc(len * sizeof(double));
+    // PbMix = (double*)malloc(len * sizeof(double));
+    // BrMix = (double*)malloc(len * sizeof(double));
+    // RaMix = (double*)malloc(len * sizeof(double));
 
-    NH3Mix = (double*)malloc(len * sizeof(double));
-    H3SiO4Mix = (double*)malloc(len * sizeof(double));
-    H2SiO4Mix = (double*)malloc(len * sizeof(double));
-    H4SiO4Mix = (double*)malloc(len * sizeof(double));
-    H3BO3Mix = (double*)malloc(len * sizeof(double));
-    CO2aqMix = (double*)malloc(len * sizeof(double));
-    H2SaqMix = (double*)malloc(len * sizeof(double));
-    HACaqMix = (double*)malloc(len * sizeof(double));
+    // NH3Mix = (double*)malloc(len * sizeof(double));
+    // H3SiO4Mix = (double*)malloc(len * sizeof(double));
+    // H2SiO4Mix = (double*)malloc(len * sizeof(double));
+    // H4SiO4Mix = (double*)malloc(len * sizeof(double));
+    // H3BO3Mix = (double*)malloc(len * sizeof(double));
+    // CO2aqMix = (double*)malloc(len * sizeof(double));
+    // H2SaqMix = (double*)malloc(len * sizeof(double));
+    // HACaqMix = (double*)malloc(len * sizeof(double));
 
-    UseH2SgasMix = (int*)malloc(len * sizeof(int));
-    SO4Mix = (double*)malloc(len * sizeof(double));
-    FMix = (double*)malloc(len * sizeof(double));
-    TDSMix = (double*)malloc(len * sizeof(double));
-    AlkMix = (double*)malloc(len * sizeof(double));
-    TAcMix = (double*)malloc(len * sizeof(double));
-    KMix = (double*)malloc(len * sizeof(double));
-    MixFrac = (double*)malloc(len * sizeof(double));
+    // UseH2SgasMix = (int*)malloc(len * sizeof(int));
+    // SO4Mix = (double*)malloc(len * sizeof(double));
+    // FMix = (double*)malloc(len * sizeof(double));
+    // TDSMix = (double*)malloc(len * sizeof(double));
+    // AlkMix = (double*)malloc(len * sizeof(double));
+    // TAcMix = (double*)malloc(len * sizeof(double));
+    // KMix = (double*)malloc(len * sizeof(double));
+    // MixFrac = (double*)malloc(len * sizeof(double));
 
     rho_Mix = (double*)malloc(len * sizeof(double));
     TH2SaqMix = (double*)malloc(len * sizeof(double));
@@ -1211,28 +1257,28 @@ void ReadInputPartA(int kk, SampleData* data)
 
     //SampleDateMix[kk] = Date;
     //WellNameMix[kk] = WellName;
-    NaMix[kk] = data->Na_aq;
-    KMix[kk] = data->K_aq;
-    MgMix[kk] = data->Mg_aq;
-    CaMix[kk] = data->Ca_aq;
-    SrMix[kk] = data->Sr_aq;
-    BaMix[kk] = data->Ba_aq;
-    FeMix[kk] = data->FeII_aq;
-    ZnMix[kk] = data->Zn_aq;
-    PbMix[kk] = data->Pb_aq;
-    ClMix[kk] = data->Cl_aq;
-    SO4Mix[kk] = data->SO4_aq;
-    FMix[kk] = data->F_aq;
-    BrMix[kk] = data->Br_aq;
+    simContext.NaMix[kk] = data->Na_aq;
+    simContext.KMix[kk] = data->K_aq;
+    simContext.MgMix[kk] = data->Mg_aq;
+    simContext.CaMix[kk] = data->Ca_aq;
+    simContext.SrMix[kk] = data->Sr_aq;
+    simContext.BaMix[kk] = data->Ba_aq;
+    simContext.FeMix[kk] = data->FeII_aq;
+    simContext.ZnMix[kk] = data->Zn_aq;
+    simContext.PbMix[kk] = data->Pb_aq;
+    simContext.ClMix[kk] = data->Cl_aq;
+    simContext.SO4Mix[kk] = data->SO4_aq;
+    simContext.FMix[kk] = data->F_aq;
+    simContext.BrMix[kk] = data->Br_aq;
     TH4SiO4Mix[kk] = data->Si_aq;              // TH4SiO4Mix(kk) = Worksheets(mySheet).Cells(23, j + 2).Value 其中23行对应Silica
     HCO3AlkMix[kk] = data->Alk_Bicarbonate_aq; // HCO3AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value 其中24行对应Total Alkalinity
     CO3AlkMix[kk] = data->Alk_Carbonate_aq;    // CO3AlkMix(kk) = Worksheets(mySheet).Cells(25, j + 2).Value 其中25行对应 CO3 Alkalinity
-    TAcMix[kk] = data->OrgAcid_Acetate_aq;     // TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value 其中26行对应Carboxylates
+    simContext.TAcMix[kk] = data->OrgAcid_Acetate_aq;     // simContext.TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value 其中26行对应Carboxylates
     TNH4Mix[kk] = data->Ammonia_aq;            // TNH4Mix(kk) = Worksheets(mySheet).Cells(27, j + 2).Value其中27行对应 Ammonia
     TH3BO3Mix[kk] = data->B_aq;                // TH3BO3Mix(kk) = Worksheets(mySheet).Cells(28, j + 2).Value其中28行对应Borate;
     yCO2Mix[kk] = data->CO2_pct_g / 100;       // yCO2Mix(kk) = Worksheets(mySheet).Cells(31, j + 2).Value / 100 其中31行对应 Co2 Gas Analysis
-    UseH2SgasMix[kk] = data->Option_Use_H2Sg;  // UseH2SgasMix(kk) = Worksheets(mySheet).Cells(32, j + 2).Value 其中32行对应 Use H2S Gas Analysis
-    if (UseH2SgasMix[kk] == 1)
+    simContext.UseH2SgasMix[kk] = data->Option_Use_H2Sg;  // simContext.UseH2SgasMix(kk) = Worksheets(mySheet).Cells(32, j + 2).Value 其中32行对应 Use H2S Gas Analysis
+    if (simContext.UseH2SgasMix[kk] == 1)
     {
         yH2SMix[kk] = data->H2S_pct_g / 100; // yH2SMix(kk) = Worksheets(mySheet).Cells(33, j + 2).Value / 100 其中33行对应Gas H2S% or H2Saq
         TH2SaqMix[kk] = 0;
@@ -1276,11 +1322,11 @@ void ReadInputPartA(int kk, SampleData* data)
 
     if (RunNORM == 1)
     {
-        // RaMix(kk) = Worksheets(mySheet).Cells(62, j + 2).Value / 1000000000000#表中62行没有字段
+        // simContext.RaMix(kk) = Worksheets(mySheet).Cells(62, j + 2).Value / 1000000000000#表中62行没有字段
     }
     else
     {
-        RaMix[kk] = 0;
+        simContext.RaMix[kk] = 0;
     }
     useTPVol = UseTPVolMix[kk];
     SumofZMix[kk] = 0;
@@ -1324,28 +1370,28 @@ void ReadInputPartA(int kk, SampleData* data)
     {
         if (CaseCountWI[Loop1WI])
         {
-            NaMix[kk] = NaWI[Loop1WI][Loop2WI];
+            simContext.NaMix[kk] = NaWI[Loop1WI][Loop2WI];
         }
         if (CaseCountWI[Loop1WI] == 4)
         {
-            CaMix[kk] = CaWI[Loop1WI][Loop2WI];
+            simContext.CaMix[kk] = CaWI[Loop1WI][Loop2WI];
         }
         if (CaseCountWI[Loop1WI] == 5)
         {
-            SrMix[kk] = SrWI[Loop1WI][Loop2WI];
+            simContext.SrMix[kk] = SrWI[Loop1WI][Loop2WI];
         }
 
         if (CaseCountWI[Loop1WI] == 6)
         {
-            BaMix[kk] = BaWI[Loop1WI][Loop2WI];
+            simContext.BaMix[kk] = BaWI[Loop1WI][Loop2WI];
         }
         if (CaseCountWI[Loop1WI] == 10)
         {
-            ClMix[kk] = ClWI[Loop1WI][Loop2WI];
+            simContext.ClMix[kk] = ClWI[Loop1WI][Loop2WI];
         }
         if (CaseCountWI[Loop1WI] == 11)
         {
-            SO4Mix[kk] = SO4WI[Loop1WI][Loop2WI];
+            simContext.SO4Mix[kk] = SO4WI[Loop1WI][Loop2WI];
         }
         if (CaseCountWI[Loop1WI] == 15)
         {
@@ -1358,7 +1404,7 @@ void ReadInputPartA(int kk, SampleData* data)
         }
         if (CaseCountWI[Loop1WI] == 17)
         {
-            TAcMix[kk] = TACWI[Loop1WI][Loop2WI];
+            simContext.TAcMix[kk] = TACWI[Loop1WI][Loop2WI];
         }
         if (CaseCountWI[Loop1WI] == 19)
         {
@@ -1368,13 +1414,13 @@ void ReadInputPartA(int kk, SampleData* data)
 
         if (CaseCountWI[Loop1WI] == 20)
         {
-            UseH2SgasMix[kk] = 1;
+            simContext.UseH2SgasMix[kk] = 1;
             yH2SMix[kk] = YH2SWI[Loop1WI][Loop2WI] / 100;
         }
 
         if (CaseCountWI[Loop1WI] == 21)
         {
-            UseH2SgasMix[kk] = 1;
+            simContext.UseH2SgasMix[kk] = 1;
             TH2SaqMix[kk] = TH2SaqWI[Loop1WI][Loop2WI] / 100;
         }
 
@@ -1390,65 +1436,65 @@ void ReadInputPartA(int kk, SampleData* data)
         }
     }
 
-    TDSMix[kk] = 0.0000000000;
-    if (TDSMix[kk] == 0) // If TDSMix(kk) = 0 Or TDSMix(kk) = "" Then 这里不对空字符串做判断
+    simContext.TDSMix[kk] = 0.0000000000;
+    if (simContext.TDSMix[kk] == 0) // If simContext.TDSMix(kk) = 0 Or simContext.TDSMix(kk) = "" Then 这里不对空字符串做判断
     {
         //修改   by   -彭非
         if (UseMolal == 0) {
             //for (int iTDS = 0; iTDS < 19; iTDS++);
-                /*TDSMix(kk) = TDSMix(kk) + Worksheets(mySheet).Cells(9 + iTDS, j + 2).Value*/
-            TDSMix[kk] += data->Na_aq;
-            TDSMix[kk] += data->K_aq;
-            TDSMix[kk] += data->Mg_aq;
-            TDSMix[kk] += data->Ca_aq;
-            TDSMix[kk] += data->Sr_aq;
-            TDSMix[kk] += data->Ba_aq;
-            TDSMix[kk] += data->FeII_aq;
-            TDSMix[kk] += data->Zn_aq;
-            TDSMix[kk] += data->Pb_aq;
-            TDSMix[kk] += data->Cl_aq;
-            TDSMix[kk] += data->SO4_aq;
-            TDSMix[kk] += data->F_aq;
-            TDSMix[kk] += data->Br_aq;
-            TDSMix[kk] += data->Si_aq;
-            TDSMix[kk] += data->Alk_Bicarbonate_aq;
-            TDSMix[kk] += data->Alk_Carbonate_aq;
-            TDSMix[kk] += data->OrgAcid_Acetate_aq;
-            TDSMix[kk] += data->Ammonia_aq;
-            TDSMix[kk] += data->B_aq;
+                /*simContext.TDSMix(kk) = simContext.TDSMix(kk) + Worksheets(mySheet).Cells(9 + iTDS, j + 2).Value*/
+            simContext.TDSMix[kk] += data->Na_aq;
+            simContext.TDSMix[kk] += data->K_aq;
+            simContext.TDSMix[kk] += data->Mg_aq;
+            simContext.TDSMix[kk] += data->Ca_aq;
+            simContext.TDSMix[kk] += data->Sr_aq;
+            simContext.TDSMix[kk] += data->Ba_aq;
+            simContext.TDSMix[kk] += data->FeII_aq;
+            simContext.TDSMix[kk] += data->Zn_aq;
+            simContext.TDSMix[kk] += data->Pb_aq;
+            simContext.TDSMix[kk] += data->Cl_aq;
+            simContext.TDSMix[kk] += data->SO4_aq;
+            simContext.TDSMix[kk] += data->F_aq;
+            simContext.TDSMix[kk] += data->Br_aq;
+            simContext.TDSMix[kk] += data->Si_aq;
+            simContext.TDSMix[kk] += data->Alk_Bicarbonate_aq;
+            simContext.TDSMix[kk] += data->Alk_Carbonate_aq;
+            simContext.TDSMix[kk] += data->OrgAcid_Acetate_aq;
+            simContext.TDSMix[kk] += data->Ammonia_aq;
+            simContext.TDSMix[kk] += data->B_aq;
         }
         else {
             //Use corelation of NaCl molal to TDS, initial guess for molality input
             //for (int iTDS = 0; iTDS < 19; iTDS++);
-                //TDSMix(kk) = TDSMix(kk) + Worksheets(mySheet).Cells(9 + iTDS, j + 2).Value * 53459 / 2 
-            TDSMix[kk] += data->Na_aq * 53459 / 2;
-            TDSMix[kk] += data->K_aq * 53459 / 2;
-            TDSMix[kk] += data->Mg_aq * 53459 / 2;
-            TDSMix[kk] += data->Ca_aq * 53459 / 2;
-            TDSMix[kk] += data->Sr_aq * 53459 / 2;
-            TDSMix[kk] += data->Ba_aq * 53459 / 2;
-            TDSMix[kk] += data->FeII_aq * 53459 / 2;
-            TDSMix[kk] += data->Zn_aq * 53459 / 2;
-            TDSMix[kk] += data->Pb_aq * 53459 / 2;
-            TDSMix[kk] += data->Cl_aq * 53459 / 2;
-            TDSMix[kk] += data->SO4_aq * 53459 / 2;
-            TDSMix[kk] += data->F_aq * 53459 / 2;
-            TDSMix[kk] += data->Br_aq * 53459 / 2;
-            TDSMix[kk] += data->Si_aq * 53459 / 2;
-            TDSMix[kk] += data->Alk_Bicarbonate_aq * 53459 / 2;
-            TDSMix[kk] += data->Alk_Carbonate_aq * 53459 / 2;
-            TDSMix[kk] += data->OrgAcid_Acetate_aq * 53459 / 2;
-            TDSMix[kk] += data->Ammonia_aq * 53459 / 2;
-            TDSMix[kk] += data->B_aq * 53459 / 2;
+                //simContext.TDSMix(kk) = simContext.TDSMix(kk) + Worksheets(mySheet).Cells(9 + iTDS, j + 2).Value * 53459 / 2 
+            simContext.TDSMix[kk] += data->Na_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->K_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Mg_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Ca_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Sr_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Ba_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->FeII_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Zn_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Pb_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Cl_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->SO4_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->F_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Br_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Si_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Alk_Bicarbonate_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Alk_Carbonate_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->OrgAcid_Acetate_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->Ammonia_aq * 53459 / 2;
+            simContext.TDSMix[kk] += data->B_aq * 53459 / 2;
         }
     }
 
     //
 
 
-    //If rho_Mix(kk) = 0 Or rho_Mix(kk) = "" Then rho_Mix(kk) = 0.9991 + 0.0000006398 * TDSMix(kk)
+    //If rho_Mix(kk) = 0 Or rho_Mix(kk) = "" Then rho_Mix(kk) = 0.9991 + 0.0000006398 * simContext.TDSMix(kk)
     rho_Mix[kk] = 0.00000000;
-    if (rho_Mix[kk] == 0) rho_Mix[kk] = 0.9991 + 0.0000006398 * TDSMix[kk];
+    if (rho_Mix[kk] == 0) rho_Mix[kk] = 0.9991 + 0.0000006398 * simContext.TDSMix[kk];
 
     //If the cell is leave empty assume a concentration factor=1
     if (ConcFactor[kk] == 0 || ConcFactor[kk] < 0) ConcFactor[kk] = 1;
@@ -1460,66 +1506,66 @@ void ReadInputPartA(int kk, SampleData* data)
 
     if (UseMolal == 0)
     {
-        NaMix[kk] = NaMix[kk] / (22990.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        KMix[kk] = KMix[kk] / (39098.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        MgMix[kk] = MgMix[kk] / (24305.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        CaMix[kk] = CaMix[kk] / (40080.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        SrMix[kk] = SrMix[kk] / (87620.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        BaMix[kk] = BaMix[kk] / (137330.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        FeMix[kk] = FeMix[kk] / (55847.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        ZnMix[kk] = ZnMix[kk] / (65380.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        PbMix[kk] = PbMix[kk] / (207200.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        ClMix[kk] = ClMix[kk] / (35450.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        SO4Mix[kk] = SO4Mix[kk] / (96064.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        FMix[kk] = FMix[kk] / (18998.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        BrMix[kk] = BrMix[kk] / (79904.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        TH4SiO4Mix[kk] = TH4SiO4Mix[kk] / (28085.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        HCO3AlkMix[kk] = HCO3AlkMix[kk] / (61019.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        CO3AlkMix[kk] = CO3AlkMix[kk] / (60019.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        TAcMix[kk] = TAcMix[kk] / (59046.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        TNH4Mix[kk] = TNH4Mix[kk] / (17031.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
-        TH3BO3Mix[kk] = TH3BO3Mix[kk] / (10811.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        simContext.NaMix[kk] = simContext.NaMix[kk] / (22990.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.KMix[kk] = simContext.KMix[kk] / (39098.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.MgMix[kk] = simContext.MgMix[kk] / (24305.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.CaMix[kk] = simContext.CaMix[kk] / (40080.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.SrMix[kk] = simContext.SrMix[kk] / (87620.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.BaMix[kk] = simContext.BaMix[kk] / (137330.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.FeMix[kk] = simContext.FeMix[kk] / (55847.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.ZnMix[kk] = simContext.ZnMix[kk] / (65380.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.PbMix[kk] = simContext.PbMix[kk] / (207200.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.ClMix[kk] = simContext.ClMix[kk] / (35450.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.SO4Mix[kk] = simContext.SO4Mix[kk] / (96064.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.FMix[kk] = simContext.FMix[kk] / (18998.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.BrMix[kk] = simContext.BrMix[kk] / (79904.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        TH4SiO4Mix[kk] = TH4SiO4Mix[kk] / (28085.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        HCO3AlkMix[kk] = HCO3AlkMix[kk] / (61019.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        CO3AlkMix[kk] = CO3AlkMix[kk] / (60019.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.TAcMix[kk] = simContext.TAcMix[kk] / (59046.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        TNH4Mix[kk] = TNH4Mix[kk] / (17031.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        TH3BO3Mix[kk] = TH3BO3Mix[kk] / (10811.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
 
-        if (UseH2SgasMix[kk] == 0)
+        if (simContext.UseH2SgasMix[kk] == 0)
         {
-            TH2SaqMix[kk] = TH2SaqMix[kk] / (34080.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+            TH2SaqMix[kk] = TH2SaqMix[kk] / (34080.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
         }
 
-        HAlkMix[kk] = HAlkMix[kk] / (0.9991 - 0.0000003612 * TDSMix[kk]);
-        OHAlkMix[kk] = OHAlkMix[kk] / (0.9991 - 0.0000003612 * TDSMix[kk]);
-        RaMix[kk] = RaMix[kk] / (226.0 * (0.9991 - 0.0000003612 * TDSMix[kk])) * ConcFactor[kk];
+        HAlkMix[kk] = HAlkMix[kk] / (0.9991 - 0.0000003612 * simContext.TDSMix[kk]);
+        OHAlkMix[kk] = OHAlkMix[kk] / (0.9991 - 0.0000003612 * simContext.TDSMix[kk]);
+        simContext.RaMix[kk] = simContext.RaMix[kk] / (226.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
     }
     else if (UseMolal == 1)
     {
-        NaMix[kk] = NaMix[kk] * ConcFactor[kk]; // Convert mg/L to molality
-        KMix[kk] = KMix[kk] * ConcFactor[kk];
-        MgMix[kk] = MgMix[kk] * ConcFactor[kk];
-        CaMix[kk] = CaMix[kk] * ConcFactor[kk];
-        SrMix[kk] = SrMix[kk] * ConcFactor[kk];
-        BaMix[kk] = BaMix[kk] * ConcFactor[kk];
-        FeMix[kk] = FeMix[kk] * ConcFactor[kk];
-        ZnMix[kk] = ZnMix[kk] * ConcFactor[kk];
-        PbMix[kk] = PbMix[kk] * ConcFactor[kk]; // Pb added
-        ClMix[kk] = ClMix[kk] * ConcFactor[kk];
-        SO4Mix[kk] = SO4Mix[kk] * ConcFactor[kk];
-        FMix[kk] = FMix[kk] * ConcFactor[kk];
-        BrMix[kk] = BrMix[kk] * ConcFactor[kk];           // Br added
+        simContext.NaMix[kk] = simContext.NaMix[kk] * ConcFactor[kk]; // Convert mg/L to molality
+        simContext.KMix[kk] = simContext.KMix[kk] * ConcFactor[kk];
+        simContext.MgMix[kk] = simContext.MgMix[kk] * ConcFactor[kk];
+        simContext.CaMix[kk] = simContext.CaMix[kk] * ConcFactor[kk];
+        simContext.SrMix[kk] = simContext.SrMix[kk] * ConcFactor[kk];
+        simContext.BaMix[kk] = simContext.BaMix[kk] * ConcFactor[kk];
+        simContext.FeMix[kk] = simContext.FeMix[kk] * ConcFactor[kk];
+        simContext.ZnMix[kk] = simContext.ZnMix[kk] * ConcFactor[kk];
+        simContext.PbMix[kk] = simContext.PbMix[kk] * ConcFactor[kk]; // Pb added
+        simContext.ClMix[kk] = simContext.ClMix[kk] * ConcFactor[kk];
+        simContext.SO4Mix[kk] = simContext.SO4Mix[kk] * ConcFactor[kk];
+        simContext.FMix[kk] = simContext.FMix[kk] * ConcFactor[kk];
+        simContext.BrMix[kk] = simContext.BrMix[kk] * ConcFactor[kk];           // Br added
         TH4SiO4Mix[kk] = TH4SiO4Mix[kk] * ConcFactor[kk]; // Input silica as SiO2
         HCO3AlkMix[kk] = HCO3AlkMix[kk] * ConcFactor[kk];
         CO3AlkMix[kk] = CO3AlkMix[kk] * ConcFactor[kk];
-        TAcMix[kk] = TAcMix[kk] * ConcFactor[kk];
+        simContext.TAcMix[kk] = simContext.TAcMix[kk] * ConcFactor[kk];
         TNH4Mix[kk] = TNH4Mix[kk] * ConcFactor[kk];
         TH3BO3Mix[kk] = TH3BO3Mix[kk] * ConcFactor[kk];
 
-        if (UseH2SgasMix[kk] == 0)
+        if (simContext.UseH2SgasMix[kk] == 0)
         {
             TH2SaqMix[kk] = TH2SaqMix[kk] * ConcFactor[kk]; // Used to calculate yH2Sstp
         }
 
         // HAlkMix 和 OHAlkMix 被注释掉，不处理
-        RaMix[kk] = RaMix[kk] * ConcFactor[kk];
+        simContext.RaMix[kk] = simContext.RaMix[kk] * ConcFactor[kk];
     }
-    AlkMix[kk] = HCO3AlkMix[kk] + 2 * CO3AlkMix[kk] - HAlkMix[kk] + OHAlkMix[kk];
+    simContext.AlkMix[kk] = HCO3AlkMix[kk] + 2 * CO3AlkMix[kk] - HAlkMix[kk] + OHAlkMix[kk];
     TCO2Mix[kk] = HCO3AlkMix[kk] + CO3AlkMix[kk];
     if (UseTPCalciteSheet != 1)
     {
@@ -1531,7 +1577,7 @@ void ReadInputPartA(int kk, SampleData* data)
         yCO2Mix[kk] = pow(10.0, -3.5);
         yH2SMix[kk] = 0.0;
         TH2SaqMix[kk] = 0.0;
-        UseH2SgasMix[kk] = 0; // 假设是 int 类型
+        simContext.UseH2SgasMix[kk] = 0; // 假设是 int 类型
     }
     if (UseTPpHMix[kk] == 1)
     {
@@ -1589,7 +1635,7 @@ void ReadInputPartA(int kk, SampleData* data)
         yCH4Mix[kk] = 0;
     }
 
-    if (UseH2SgasMix[kk] != 0 && UseH2SgasMix[kk] != 1)
+    if (simContext.UseH2SgasMix[kk] != 0 && simContext.UseH2SgasMix[kk] != 1)
     {
         // MsgBox("Row 32 is expecting a value of 1 or 0, please enter a vlue of 1 or 0 and rerun")
         //     End
@@ -1691,22 +1737,22 @@ void ReadInputPartB(int kk, SampleData* data)
     }
     if (Run_MixingTwoWells == 1)
     {
-        VgTPMix[kk] = VgTPMix[kk] * MixFrac[kk];
-        VoMix[kk] = VoMix[kk] * MixFrac[kk];
-        VwMix[kk] = VwMix[kk] * MixFrac[kk];
-        VMeOHMix[kk] = VMeOHMix[kk] * MixFrac[kk];
-        VMEGMix[kk] = VMEGMix[kk] * MixFrac[kk];
+        VgTPMix[kk] = VgTPMix[kk] * simContext.MixFrac[kk];
+        VoMix[kk] = VoMix[kk] * simContext.MixFrac[kk];
+        VwMix[kk] = VwMix[kk] * simContext.MixFrac[kk];
+        VMeOHMix[kk] = VMeOHMix[kk] * simContext.MixFrac[kk];
+        VMEGMix[kk] = VMEGMix[kk] * simContext.MixFrac[kk];
     }
     if (Run_Seawater_Mixing == 1)
     {
-        VwMix[kk] = VwSW1 * MixFrac[kk];
+        VwMix[kk] = VwSW1 * simContext.MixFrac[kk];
 
         if (kk == 0)
         {
-            VoMix[kk] = VoSW1 * MixFrac[kk];
-            VgTPMix[kk] = VgSW1 * MixFrac[kk];
-            VMeOHMix[kk] = VMeOHSW1 * MixFrac[kk];
-            VMEGMix[kk] = VMEGSW1 * MixFrac[kk];
+            VoMix[kk] = VoSW1 * simContext.MixFrac[kk];
+            VgTPMix[kk] = VgSW1 * simContext.MixFrac[kk];
+            VMeOHMix[kk] = VMeOHSW1 * simContext.MixFrac[kk];
+            VMEGMix[kk] = VMEGSW1 * simContext.MixFrac[kk];
         }
         else
         {
@@ -9019,44 +9065,44 @@ void QualityControlCalculations(int kk, int j)
 
     if (RunStat == 1) {
         /*
-                AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
-            AlkMix(kk) = AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
-            TAcMix(kk) = Worksheets(mySheet).Cells(30, j + 2).Value / 59.044 'convert to sum of carboxylic acid in meq/L
-            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(31, j + 2).Value / 73.07
-            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(32, j + 2).Value / 87.098
-            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(33, j + 2).Value / 87.11
-            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(34, j + 2).Value / 101.13
-            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(35, j + 2).Value / 101.13
-            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(36, j + 2).Value / 115.16
-            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(37, j + 2).Value / 115.16
-            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(38, j + 2).Value / 129.178
-            TAcMix(kk) = TAcMix(kk) * 59.044 'convert to mg/L as acetate
-            TAcMix(kk) = TAcMix(kk) / (59044 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+                simContext.AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            simContext.AlkMix(kk) = simContext.AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            simContext.TAcMix(kk) = Worksheets(mySheet).Cells(30, j + 2).Value / 59.044 'convert to sum of carboxylic acid in meq/L
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(31, j + 2).Value / 73.07
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(32, j + 2).Value / 87.098
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(33, j + 2).Value / 87.11
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(34, j + 2).Value / 101.13
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(35, j + 2).Value / 101.13
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(36, j + 2).Value / 115.16
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(37, j + 2).Value / 115.16
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(38, j + 2).Value / 129.178
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) * 59.044 'convert to mg/L as acetate
+            simContext.TAcMix(kk) = simContext.TAcMix(kk) / (59044 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
         */
     }
     else {
         if (UseMolal == 0) {
             /*
-            AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
-            AlkMix(kk) = AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
-            AlkMix(kk) = AlkMix(kk) + Worksheets(mySheet).Cells(48, j + 2).Value / (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#)
-            AlkMix(kk) = AlkMix(kk) - Worksheets(mySheet).Cells(47, j + 2).Value / (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#)
-            TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value / (59044 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            simContext.AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            simContext.AlkMix(kk) = simContext.AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            simContext.AlkMix(kk) = simContext.AlkMix(kk) + Worksheets(mySheet).Cells(48, j + 2).Value / (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#)
+            simContext.AlkMix(kk) = simContext.AlkMix(kk) - Worksheets(mySheet).Cells(47, j + 2).Value / (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#)
+            simContext.TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value / (59044 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
             */
         }
         else {
             /*
-            AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value
-            AlkMix(kk) = AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value
-            AlkMix(kk) = AlkMix(kk) + Worksheets(mySheet).Cells(48, j + 2).Value
-            AlkMix(kk) = AlkMix(kk) - Worksheets(mySheet).Cells(47, j + 2).Value
-            TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value
+            simContext.AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value
+            simContext.AlkMix(kk) = simContext.AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value
+            simContext.AlkMix(kk) = simContext.AlkMix(kk) + Worksheets(mySheet).Cells(48, j + 2).Value
+            simContext.AlkMix(kk) = simContext.AlkMix(kk) - Worksheets(mySheet).Cells(47, j + 2).Value
+            simContext.TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value
             */
         }
 
     }
     //double UseH2Sgas;
-    UseH2Sgas = UseH2SgasMix[kk];
+    UseH2Sgas = simContext.UseH2SgasMix[kk];
     SumOfCations = 0.0000001;
     for (int c = 0; c < NumCat; c++)
         SumOfCations += ChCat[c] * mc[c];
@@ -9078,11 +9124,11 @@ void QualityControlCalculations(int kk, int j)
     else {
         // yCO2 = Worksheets(mySheet).Cells(31, j + 2).Value / 100
 
-        if (UseH2SgasMix[kk] == 1) {
+        if (simContext.UseH2SgasMix[kk] == 1) {
             //yH2S = Worksheets(mySheet).Cells(33, j + 2).Value / 100
             TH2Saq = 0;
         }
-        if (UseH2SgasMix[kk] == 0) {
+        if (simContext.UseH2SgasMix[kk] == 0) {
             if (UseMolal == 0) {
                 //TH2Saq = Worksheets(mySheet).Cells(33, j + 2).Value / (34080 * (rho25CMix[kk] - CalculatedTDSMix[kk] / 1000000.0));
                 yH2S = 0;
@@ -9571,7 +9617,7 @@ void QualityControlCalculations(int kk, int j)
 
     // 计算碱度和钠平衡
     Alk_from_QC = (HCO3 + 2 * CO3 + HS + AC + NH3 + H2BO3 + H3SiO4 + 2 * H2SiO4 + OH - H);
-    NaQC = (-SumOfAnions - (SumOfCations - NaMix[kk]));
+    NaQC = (-SumOfAnions - (SumOfCations - simContext.NaMix[kk]));
 
     // 输出结果到相应的工作表
     if (RunStat == 1 && CaseCount[0] == 1) {
@@ -9786,10 +9832,10 @@ void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
  */
 void D1_CalcDensity(int i, int* Iteration2, double* mt) {
 
-    // HCO3stpMix(i) = AlkMix(i): ACstpMix(i) = TAcMix(i): HstpMix(i) = 0.000001: OHstpMix(i) = 0.0000001: CO3stpMix(i) = 0: _
+    // HCO3stpMix(i) = simContext.AlkMix(i): ACstpMix(i) = simContext.TAcMix(i): HstpMix(i) = 0.000001: OHstpMix(i) = 0.0000001: CO3stpMix(i) = 0: _
     // HSstpMix(i) = 0: NH4STPMix(i) = TNH4Mix(i): H2BO3stpMix(i) = 0
-    HCO3stpMix[i] = AlkMix[i];
-    ACstpMix[i] = TAcMix[i];
+    HCO3stpMix[i] = simContext.AlkMix[i];
+    ACstpMix[i] = simContext.TAcMix[i];
     HstpMix[i] = 0.000001;
     OHstpMix[i] = 0.0000001;
     CO3stpMix[i] = 0;
@@ -9800,19 +9846,19 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
     *Iteration2 = 0;
 
     mc[iH] = HstpMix[i];
-    mc[iNa] = NaMix[i];  // 注意：NaMix等需从全局或参数中获取，假设已定义
-    mc[iK] = KMix[i];
-    mc[iMg] = MgMix[i];
-    mc[iCa] = CaMix[i];
+    mc[iNa] = simContext.NaMix[i];  // 注意：NaMix等需从全局或参数中获取，假设已定义
+    mc[iK] = simContext.KMix[i];
+    mc[iMg] = simContext.MgMix[i];
+    mc[iCa] = simContext.CaMix[i];
     TCa = mc[iCa];
-    mc[iSr] = SrMix[i];
-    mc[iBa] = BaMix[i];
-    mc[iFe] = FeMix[i];
-    mc[iZn] = ZnMix[i];
-    mc[iPb] = PbMix[i];
+    mc[iSr] = simContext.SrMix[i];
+    mc[iBa] = simContext.BaMix[i];
+    mc[iFe] = simContext.FeMix[i];
+    mc[iZn] = simContext.ZnMix[i];
+    mc[iPb] = simContext.PbMix[i];
 
     ma[iOH] = OHstpMix[i];
-    ma[iCl] = ClMix[i];
+    ma[iCl] = simContext.ClMix[i];
     ma[iAc] = ACstpMix[i];
     mc[iNH4] = NH4STPMix[i];
     ma[iH2BO3] = H2BO3stpMix[i];
@@ -9822,13 +9868,13 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
     ma[iH3SiO4] = 0;
     ma[iH2SiO4] = 0;
 
-    ma[iSO4] = SO4Mix[i];
+    ma[iSO4] = simContext.SO4Mix[i];
     ma[iHS] = HSstpMix[i];
-    ma[intF] = FMix[i];
-    ma[iBr] = BrMix[i];
+    ma[intF] = simContext.FMix[i];
+    ma[iBr] = simContext.BrMix[i];
 
-    Alk = AlkMix[i];
-    TAc = TAcMix[i];
+    Alk = simContext.AlkMix[i];
+    TAc = simContext.TAcMix[i];
     TH2Saq = TH2SaqMix[i];
     TH4SiO4 = TH4SiO4Mix[i];
     TH3BO3 = TH3BO3Mix[i];
@@ -9840,10 +9886,10 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
     TFe = mc[iFe];
 
     // If use_pH = 3 Then TCO2 = TCO2Mix(i)
-    // TDSOld = TDSMix(i):  rhoOld = rho_Mix(i): TDS = TDSMix(i): TDSSSE = 1:
-    TDSOld = TDSMix[i];
+    // TDSOld = simContext.TDSMix(i):  rhoOld = rho_Mix(i): TDS = simContext.TDSMix(i): TDSSSE = 1:
+    TDSOld = simContext.TDSMix[i];
     rhoOld = rho_Mix[i];  // 假设rhoOld在D2_CalcDensitypH中处理
-    TDS = TDSMix[i];
+    TDS = simContext.TDSMix[i];
     TDSSSE = 1;
 
     // yCO2 = yCO2Mix(i): yH2S = yH2SMix(i): yCH4 = 1 - yCO2 - yH2S
@@ -9992,8 +10038,8 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     if (RunMultiMix == 1 && LoopResChem > 1) goto label100;
     if (RunStatMix == 1 && LoopMixing > 1) goto label100;
 
-    HCO3stpMix[kk] = AlkMix[kk];
-    ACstpMix[kk] = TAcMix[kk];
+    HCO3stpMix[kk] = simContext.AlkMix[kk];
+    ACstpMix[kk] = simContext.TAcMix[kk];
     HstpMix[kk] = 0.000001;
     OHstpMix[kk] = 0.0000001;
     CO3stpMix[kk] = 0;
@@ -10005,20 +10051,20 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     *Iteration2 = 0;
 
     mc[iH] = HstpMix[kk];
-    mc[iNa] = NaMix[kk];
-    mc[iK] = KMix[kk];
-    mc[iMg] = MgMix[kk];
-    mc[iCa] = CaMix[kk];
+    mc[iNa] = simContext.NaMix[kk];
+    mc[iK] = simContext.KMix[kk];
+    mc[iMg] = simContext.MgMix[kk];
+    mc[iCa] = simContext.CaMix[kk];
     TCa = mc[iCa];
-    mc[iSr] = SrMix[kk];
-    mc[iBa] = BaMix[kk];
-    mc[iFe] = FeMix[kk];
-    mc[iZn] = ZnMix[kk];
-    mc[iPb] = PbMix[kk];
-    mc[iRa] = RaMix[kk];
+    mc[iSr] = simContext.SrMix[kk];
+    mc[iBa] = simContext.BaMix[kk];
+    mc[iFe] = simContext.FeMix[kk];
+    mc[iZn] = simContext.ZnMix[kk];
+    mc[iPb] = simContext.PbMix[kk];
+    mc[iRa] = simContext.RaMix[kk];
 
     ma[iOH] = OHstpMix[kk];
-    ma[iCl] = ClMix[kk];
+    ma[iCl] = simContext.ClMix[kk];
     ma[iAc] = ACstpMix[kk];
     mc[iNH4] = NH4STPMix[kk];
     ma[iH2BO3] = H2BO3stpMix[kk];
@@ -10028,28 +10074,28 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     ma[iH3SiO4] = 0;
     ma[iH2SiO4] = 0;
 
-    ma[iSO4] = SO4Mix[kk];
+    ma[iSO4] = simContext.SO4Mix[kk];
     ma[iHS] = HSstpMix[kk];
-    ma[intF] = FMix[kk];
-    ma[iBr] = BrMix[kk];
+    ma[intF] = simContext.FMix[kk];
+    ma[iBr] = simContext.BrMix[kk];
 
-    Alk = AlkMix[kk];
-    TAc = TAcMix[kk];
+    Alk = simContext.AlkMix[kk];
+    TAc = simContext.TAcMix[kk];
     TH2Saq = TH2SaqMix[kk];
     TH4SiO4 = TH4SiO4Mix[kk];
     TH3BO3 = TH3BO3Mix[kk];
     TNH4 = TNH4Mix[kk];
 
-    TFe = FeMix[kk];
-    TPb = PbMix[kk];
-    TZn = ZnMix[kk];
+    TFe = simContext.FeMix[kk];
+    TPb = simContext.PbMix[kk];
+    TZn = simContext.ZnMix[kk];
 
     mn[iNH3] = 0;
     mn[iH3BO3] = TH3BO3;
     mn[iH4SiO4aq] = TH4SiO4;
 
     use_pH = usepHmix[kk];
-    UseH2Sgas = UseH2SgasMix[kk];
+    UseH2Sgas = simContext.UseH2SgasMix[kk];
 
     if (use_pH == 3) {
         TCO2 = TCO2Mix[kk];
@@ -10075,47 +10121,47 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     CalculatedTDSMix[kk] = TDS;
 
     HstpMix[kk] = mc[iH];
-    NaMix[kk] = mc[iNa];
-    KMix[kk] = mc[iK];
-    MgMix[kk] = mc[iMg];
-    CaMix[kk] = mc[iCa];
+    simContext.NaMix[kk] = mc[iNa];
+    simContext.KMix[kk] = mc[iK];
+    simContext.MgMix[kk] = mc[iMg];
+    simContext.CaMix[kk] = mc[iCa];
     TCa = mc[iCa];
 
-    SrMix[kk] = mc[iSr];
-    BaMix[kk] = mc[iBa];
-    FeMix[kk] = TFe;
-    ZnMix[kk] = mc[iZn];
-    PbMix[kk] = mc[iPb];
-    RaMix[kk] = mc[iRa];
+    simContext.SrMix[kk] = mc[iSr];
+    simContext.BaMix[kk] = mc[iBa];
+    simContext.FeMix[kk] = TFe;
+    simContext.ZnMix[kk] = mc[iZn];
+    simContext.PbMix[kk] = mc[iPb];
+    simContext.RaMix[kk] = mc[iRa];
 
     OHstpMix[kk] = ma[iOH];
-    ClMix[kk] = ma[iCl];
+    simContext.ClMix[kk] = ma[iCl];
     ACstpMix[kk] = ma[iAc];
     NH4STPMix[kk] = mc[iNH4];
     H2BO3stpMix[kk] = ma[iH2BO3];
     HCO3stpMix[kk] = ma[iHCO3];
     CO3stpMix[kk] = ma[iCO3];
 
-    SO4Mix[kk] = ma[iSO4];
+    simContext.SO4Mix[kk] = ma[iSO4];
     HSstpMix[kk] = ma[iHS];
-    FMix[kk] = ma[intF];
-    BrMix[kk] = ma[iBr];
+    simContext.FMix[kk] = ma[intF];
+    simContext.BrMix[kk] = ma[iBr];
 
     rho25CMix[kk] = rho25c;
 
-    H3SiO4Mix[kk] = ma[iH3SiO4];
-    H2SiO4Mix[kk] = ma[iH2SiO4];
+    simContext.H3SiO4Mix[kk] = ma[iH3SiO4];
+    simContext.H2SiO4Mix[kk] = ma[iH2SiO4];
 
-    NH3Mix[kk] = mn[iNH3];
-    H4SiO4Mix[kk] = mn[iH4SiO4aq];
-    H3BO3Mix[kk] = mn[iH3BO3];
+    simContext.NH3Mix[kk] = mn[iNH3];
+    simContext.H4SiO4Mix[kk] = mn[iH4SiO4aq];
+    simContext.NH3Mix[kk] = mn[iH3BO3];
 
-    CO2aqMix[kk] = mn[iCO2aq];
-    H2SaqMix[kk] = mn[iH2Saq];
-    HACaqMix[kk] = mn[iHAcaq];
+    simContext.CO2aqMix[kk] = mn[iCO2aq];
+    simContext.H2SaqMix[kk] = mn[iH2Saq];
+    simContext.HACaqMix[kk] = mn[iHAcaq];
 
-    AlkMix[kk] = Alk;
-    TAcMix[kk] = TAc;
+    simContext.AlkMix[kk] = Alk;
+    simContext.TAcMix[kk] = TAc;
     TH2SaqMix[kk] = TH2Saq;
     TH4SiO4Mix[kk] = TH4SiO4;
     TNH4Mix[kk] = TNH4;
@@ -10230,21 +10276,21 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     }
 
     //为该子程序分配局部变量
-    mc[iH] = HstpMix[kk]; mc[iNa] = NaMix[kk]; mc[iK] = KMix[kk]; mc[iMg] = MgMix[kk]; mc[iCa] = CaMix[kk];
+    mc[iH] = HstpMix[kk]; mc[iNa] = simContext.NaMix[kk]; mc[iK] = simContext.KMix[kk]; mc[iMg] = simContext.MgMix[kk]; mc[iCa] = simContext.CaMix[kk];
     double TCa = mc[iCa];
-    mc[iSr] = SrMix[kk]; mc[iBa] = BaMix[kk]; mc[iFe] = FeMix[kk]; mc[iZn] = ZnMix[kk]; mc[iPb] = PbMix[kk]; mc[iRa] = RaMix[kk];
+    mc[iSr] = simContext.SrMix[kk]; mc[iBa] = simContext.BaMix[kk]; mc[iFe] = simContext.FeMix[kk]; mc[iZn] = simContext.ZnMix[kk]; mc[iPb] = simContext.PbMix[kk]; mc[iRa] = simContext.RaMix[kk];
 
-    ma[iOH] = OHstpMix[kk]; ma[iCl] = ClMix[kk]; ma[iAc] = ACstpMix[kk]; mc[iNH4] = NH4STPMix[kk]; ma[iH2BO3] = H2BO3stpMix[kk];
+    ma[iOH] = OHstpMix[kk]; ma[iCl] = simContext.ClMix[kk]; ma[iAc] = ACstpMix[kk]; mc[iNH4] = NH4STPMix[kk]; ma[iH2BO3] = H2BO3stpMix[kk];
     ma[iHCO3] = HCO3stpMix[kk]; ma[iCO3] = CO3stpMix[kk];
-    ma[iSO4] = SO4Mix[kk]; ma[iHS] = HSstpMix[kk]; ma[intF] = FMix[kk]; ma[iBr] = BrMix[kk];
+    ma[iSO4] = simContext.SO4Mix[kk]; ma[iHS] = HSstpMix[kk]; ma[intF] = simContext.FMix[kk]; ma[iBr] = simContext.BrMix[kk];
 
-    Alk = AlkMix[kk]; TAc = TAcMix[kk]; TNH4 = TNH4Mix[kk]; TH3BO3 = TH3BO3Mix[kk]; TH2Saq = TH2SaqMix[kk]; TCO2 = TCO2Mix[kk];
+    Alk = simContext.AlkMix[kk]; TAc = simContext.TAcMix[kk]; TNH4 = TNH4Mix[kk]; TH3BO3 = TH3BO3Mix[kk]; TH2Saq = TH2SaqMix[kk]; TCO2 = TCO2Mix[kk];
 
     VW = VwMix[kk]; VgTP = VgTPMix[kk]; VO = VoMix[kk]; VMeOH = VMeOHMix[kk]; VMEG = VMEGMix[kk]; mass_MeOH = mass_MeOH_mix[kk]; mass_MEG = mass_MEG_mix[kk];
 
     yCO2 = yCO2Mix[kk], yH2S = yH2SMix[kk], yCH4 = yCH4Mix[kk];   // Local variable values; in this loop only.
 
-    useEOS = useEOSmix[kk]; use_pH = usepHmix[kk]; UseH2Sgas = UseH2SgasMix[kk];
+    useEOS = useEOSmix[kk]; use_pH = usepHmix[kk]; UseH2Sgas = simContext.UseH2SgasMix[kk];
 
     TFe = mc[iFe];
 
@@ -10841,44 +10887,44 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             TH4SiO4 = TH4SiO4 * mol_w_Orig * 0.01801528 / mass_w;
 
             HstpMix[kk] = mc[iH];
-            NaMix[kk] = mc[iNa];
-            KMix[kk] = mc[iK];
-            MgMix[kk] = mc[iMg];
-            CaMix[kk] = mc[iCa];
+            simContext.NaMix[kk] = mc[iNa];
+            simContext.KMix[kk] = mc[iK];
+            simContext.MgMix[kk] = mc[iMg];
+            simContext.CaMix[kk] = mc[iCa];
             TCa = mc[iCa];
-            SrMix[kk] = mc[iSr];
-            BaMix[kk] = mc[iBa];
-            ZnMix[kk] = mc[iZn];
-            PbMix[kk] = mc[iPb];
-            RaMix[kk] = mc[iRa];
+            simContext.SrMix[kk] = mc[iSr];
+            simContext.BaMix[kk] = mc[iBa];
+            simContext.ZnMix[kk] = mc[iZn];
+            simContext.PbMix[kk] = mc[iPb];
+            simContext.RaMix[kk] = mc[iRa];
 
             OHstpMix[kk] = ma[iOH];
-            ClMix[kk] = ma[iCl];
+            simContext.ClMix[kk] = ma[iCl];
             ACstpMix[kk] = ma[iAc];
             NH4STPMix[kk] = mc[iNH4];
             H2BO3stpMix[kk] = ma[iH2BO3];
             HCO3stpMix[kk] = ma[iHCO3];
             CO3stpMix[kk] = ma[iCO3];
-            SO4Mix[kk] = ma[iSO4];
+            simContext.SO4Mix[kk] = ma[iSO4];
             HSstpMix[kk] = ma[iHS];
-            FMix[kk] = ma[intF];
-            BrMix[kk] = ma[iBr];
+            simContext.FMix[kk] = ma[intF];
+            simContext.BrMix[kk] = ma[iBr];
 
             rho25CMix[kk] = rho25c;
 
-            H3SiO4Mix[kk] = ma[iH3SiO4];
-            H2SiO4Mix[kk] = ma[iH2SiO4];
+            simContext.H3SiO4Mix[kk] = ma[iH3SiO4];
+            simContext.H2SiO4Mix[kk] = ma[iH2SiO4];
 
-            NH3Mix[kk] = mn[iNH3];
-            H4SiO4Mix[kk] = mn[iH4SiO4aq];
-            H3BO3Mix[kk] = mn[iH3BO3];
+            simContext.NH3Mix[kk] = mn[iNH3];
+            simContext.H4SiO4Mix[kk] = mn[iH4SiO4aq];
+            simContext.H3BO3Mix[kk] = mn[iH3BO3];
 
-            CO2aqMix[kk] = mn[iCO2aq];
-            H2SaqMix[kk] = mn[iH2Saq];
-            HACaqMix[kk] = mn[iHAcaq];
+            simContext.CO2aqMix[kk] = mn[iCO2aq];
+            simContext.H2SaqMix[kk] = mn[iH2Saq];
+            simContext.HACaqMix[kk] = mn[iHAcaq];
 
-            AlkMix[kk] = Alk;
-            TAcMix[kk] = TAc;
+            simContext.AlkMix[kk] = Alk;
+            simContext.TAcMix[kk] = TAc;
             TH2SaqMix[kk] = TH2Saq;
             TH4SiO4Mix[kk] = TH4SiO4;
             TNH4Mix[kk] = TNH4;
@@ -11058,7 +11104,7 @@ label_3003:
         if (RunWhatIf != 1 && RunStat == 0) {
             // 待定： Worksheets(mySheet).Cells(24, j + 2) = Alk * (61019 * (rho25c - TDS / 1000000.0))
         }
-        AlkMix[kk] = Alk;
+        simContext.AlkMix[kk] = Alk;
     }
 
     if (use_pH == 3 && useEOS == 0) {         // use TCO2 to calculate pH
