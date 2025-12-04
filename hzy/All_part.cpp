@@ -6062,10 +6062,29 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
     double* betanew = (double*)malloc(MaxBeta * sizeof(double));
     double* w = (double*)malloc(MaxBeta * sizeof(double));
     double* Enew = (double*)malloc(NumGases * sizeof(double));
+    memset(g, 0, MaxBeta*sizeof(double));
+    memset(gcopy, 0, MaxBeta*sizeof(double));
+    memset(gsolve, 0, MaxBeta*sizeof(double));
+    memset(alpha0, 0, MaxBeta*(sizeof(double)));
+    memset(betanew, 0, MaxBeta*sizeof(double));
+    memset(w, 0, MaxBeta*sizeof(double));
+    memset(Enew, 0, NumGases*sizeof(double));
 
+    // 一次性分配所有内存，保证内存连续
+    double* data = (double*)calloc(MaxBeta * MaxBeta, sizeof(double));
     double** Hessian = (double**)malloc(MaxBeta * sizeof(double*));
-    for (int i = 0; i < MaxBeta; ++i)
-        Hessian[i] = (double*)malloc(MaxBeta * sizeof(double));
+
+    if (data == NULL || Hessian == NULL) {
+        printf("内存分配失败！\n");
+        free(data);
+        free(Hessian);
+        exit(1);
+    }
+
+    // 设置指针指向连续的内存块
+    for (int i = 0; i < MaxBeta; ++i) {
+        Hessian[i] = &data[i * MaxBeta];
+    }
 
     double alpha0used, Er2, tol, Difference, epsilon, Qnew;
 
@@ -6887,21 +6906,17 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
     }
 
     //12-2号：新增的初始化，不初始化可能导致后面某个地方出错
+    memset(Ki, 0, NumGases * sizeof(double));
+    memset(logphi3phase_newphase, 0, NumGases * sizeof(double));
+    memset(x, 0, NumGases * sizeof(double));
+    memset(z, 0, NumGases * sizeof(double));
     for (i = 0; i < NumGases; i++) {
-        Ki[i] = 0;
-        logphi3phase_newphase[i] = 0;
-        x[i] = 0;
-        z[i] = 0;
-        for (j = 0; j < MaxBeta; j++) {
-            logphi3phase[i][j] = 0;
-            logphi3phase_new[i][j] = 0;
-            errorLogPhi[i][j] = 0;
-        }
+        memset(logphi3phase[i], 0, MaxBeta * sizeof(double));
+        memset(logphi3phase_new[i], 0, MaxBeta * sizeof(double));
+        memset(errorLogPhi[i], 0, MaxBeta * sizeof(double));
     }
-    for (j = 0; j < MaxBeta; j++) {
-        everyLogPHI[j] = 0;
-        betaexists[j] = false;
-    }
+    memset(everyLogPHI, 0, MaxBeta * sizeof(double));
+    memset(betaexists, 0, MaxBeta * sizeof(bool));
 
 
     // 归一化全局摩尔组成
@@ -7134,17 +7149,20 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
         compositions_alt[i] = (double*)malloc((temp_MaxBeta + 1) * sizeof(double));
     }
     //初始化
-    for (i = 0; i < temp_MaxBeta; i++)
-    {
-        Compr_alt[i] = 0;
-        beta_alt[i] = 0;
-        density_alt[i] = 0;
-    }
+    memset(Compr_alt, 0, temp_MaxBeta * sizeof(double));
+    memset(beta_alt, 0, temp_MaxBeta * sizeof(double));
+    memset(density_alt, 0, temp_MaxBeta * sizeof(double));
+    // for (i = 0; i < temp_MaxBeta; i++)
+    // {
+    //     Compr_alt[i] = 0;
+    //     beta_alt[i] = 0;
+    //     density_alt[i] = 0;
+    // }
     for (i = 0; i < NumGases; i++)
     {
         zOutput_alt[i] = 0;
-        for (j = 0; j < temp_MaxBeta; j++) phi_alt[i][j] = 0;
-        for (j = 0; j < temp_MaxBeta + 1; j++) compositions_alt[i][j] = 0;
+        memset(phi_alt[i], 0, temp_MaxBeta * sizeof(double));
+        memset(compositions_alt[i], 0, (temp_MaxBeta + 1) * sizeof(double));
     }
 
     // conditions
@@ -7366,20 +7384,24 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     }
 
     // 12-2号：新增的初始化函数，不初始化会导致后面某处出错
-    for (i = 0; i < max_NumGases; i++) iFlash[i] = 0;
-    for (i = 0; i < max_NumGases; i++)
-    {
-        mf_beta[i] = 0;
-        mf_Compr[i] = 0;
-        mf_density[i] = 0;
-    }
+    memset(iFlash, 0, max_NumGases * sizeof(double));
+    memset(mf_beta, 0, MaxBeta * sizeof(double));
+    memset(mf_Compr, 0, MaxBeta * sizeof(double));
+    memset(mf_density, 0, MaxBeta * sizeof(double));
+    // for (i = 0; i < max_NumGases; i++) iFlash[i] = 0;
+    // for (i = 0; i < max_NumGases; i++)
+    // {
+    //     mf_beta[i] = 0;
+    //     mf_Compr[i] = 0;
+    //     mf_density[i] = 0;
+    // }
     for (i = 0; i < mf_NumGases; i++)
     {
         zGlobal[i] = 0;
         zOut[i] = 0;
         zGlobal[i] = 0;
-        for (j = 0; j < MaxBeta; j++) mf_phi[i][j] = 0;
-        for (j = 0; j < MaxBeta + 1; j++) mf_compositions[i][j] = 0;
+        memset(mf_phi[i], 0, MaxBeta * sizeof(double));
+        memset(mf_compositions[i], 0, (MaxBeta + 1) * sizeof(double));
     }
 
     //ReDim mf_Compr(MaxBeta), mf_density(MaxBeta), mass_phase(MaxBeta)，注，参数列表参数mass_phase的ReDim行为
