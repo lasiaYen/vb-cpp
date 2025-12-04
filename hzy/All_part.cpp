@@ -1119,8 +1119,8 @@ void pointerInit_pf() {
     MW_Phase = (double*)malloc(3 * sizeof(double));
     Compr = (double*)malloc(3 * sizeof(double));
 
-    compositions = (double**)malloc(3 * sizeof(double*));
-    phi = (double**)malloc(3 * sizeof(double*));
+    compositions = (double**)malloc(15 * sizeof(double*));
+    phi = (double**)malloc(15 * sizeof(double*));
     for (int i = 0; i < 15; i++) {
         compositions[i] = (double*)malloc(4 * sizeof(double));
         phi[i] = (double*)malloc(3 * sizeof(double));
@@ -4706,7 +4706,7 @@ void InitialPreparationSSP(
         }
         */
         //手动模拟上面的输入
-        (*mf_MWgas)[0] = 16.03;
+        (*mf_MWgas)[0] = 16.043;
         (*mf_TCr)[0] = 190.6;
         (*mf_PCr)[0] = 46;
         (*mf_Omega)[0] = 0.008;
@@ -4788,19 +4788,19 @@ void InitialPreparationSSP(
             (*mf_c0)[1] = -1.90887591231191;
             (*mf_c1)[1] = 0.0;
 
-            (*mf_c0)[2] = -3.92;
-            (*mf_c0)[3] = -5.80;
-            (*mf_c0)[4] = -6.35;
-            (*mf_c0)[5] = -7.18;
-            (*mf_c0)[6] = -6.49;
-            (*mf_c0)[7] = -6.20;
-            (*mf_c0)[8] = -5.12;
-            (*mf_c0)[9] = -3.48;
-            (*mf_c0)[10] = -14.86;
-            (*mf_c0)[11] = -29.83;
-            (*mf_c0)[12] = 5.78;
-            (*mf_c0)[13] = -4.23;
-            (*mf_c0)[14] = 3.01;
+            (*mf_c0)[2] = -3.92147265302369;
+            (*mf_c0)[3] = -5.7950356085208;
+            (*mf_c0)[4] = -6.35369532428396;
+            (*mf_c0)[5] = -7.18062223841032;
+            (*mf_c0)[6] = -6.48762839907065;
+            (*mf_c0)[7] = -6.19849948277172;
+            (*mf_c0)[8] = -5.12105162468565;
+            (*mf_c0)[9] = -3.4814313848538;
+            (*mf_c0)[10] = -14.8622158330974;
+            (*mf_c0)[11] = -29.8260575190994;
+            (*mf_c0)[12] = 5.77517376259963;
+            (*mf_c0)[13] = -4.23208315053643;
+            (*mf_c0)[14] = 3.00773525559068;
 
             (*mf_c1)[2] = 0.0;
             (*mf_c1)[3] = 0.0;
@@ -4810,11 +4810,11 @@ void InitialPreparationSSP(
             (*mf_c1)[7] = 0.0;
             (*mf_c1)[8] = 0.0;
             (*mf_c1)[9] = 0.0;
-            (*mf_c1)[10] = -0.01;
-            (*mf_c1)[11] = 0.10;
-            (*mf_c1)[12] = 0.28;
+            (*mf_c1)[10] = -0.00560031997876096;
+            (*mf_c1)[11] = 0.101896336756916;
+            (*mf_c1)[12] = 0.279177061769215;
             (*mf_c1)[13] = 0.0;
-            (*mf_c1)[14] = 0.01;
+            (*mf_c1)[14] = 0.00873186552687633;
         }
         if (strcmp(EOS, "SRK") == 0) {
             // ??
@@ -5379,7 +5379,7 @@ void phi_calc(
                 ii = 1.0 / (sigma - epsilon) * log((*z + sigma * BStarPr) / (*z + epsilon * BStarPr));
 
                 lnPHI[comp] = bPR[comp] / bm * (*z - 1.0) - log(*z - BStarPr) - qi_bar * ii;
-                lnPHI_Peneloux[comp] = lnPHI[comp] - Peneloux_yes_no * (c0[comp] + c1[comp] * (TK - 288.15)) * PBar / (RBar * TK);
+                lnPHI_Peneloux[comp] = lnPHI[comp] - Peneloux_yes_no * (c0[comp] + c1[comp] * (TK - 288.15)) * PBar / RBar / TK;
                 lnPHI[comp] = lnPHI_Peneloux[comp];
             }
         }
@@ -5546,14 +5546,14 @@ void OrderPhases(double*** compositions, double*** phi, double** beta, double** 
                compositions0(i, k + 1) = compositions(i, L + 1)
                phi0(i, k) = phi(i, L)
             */
-            compositions0[i][k + 1] = (*compositions)[i][L];
-            phi0[i][k] = (*phi)[i][L - 1];
+            compositions0[i][k + 1] = (*compositions)[i][L + 1];
+            phi0[i][k] = (*phi)[i][L];
         }
-        BETA0[k] = (*beta)[L - 1];
-        MW_Phase0[k] = (*MW_Phase)[L - 1];
-        mass_phase0[k] = (*mass_phase)[L - 1];
-        density0[k] = (*density)[L - 1];
-        Compr0[k] = (*Compr)[L - 1];
+        BETA0[k] = (*beta)[L];
+        MW_Phase0[k] = (*MW_Phase)[L];
+        mass_phase0[k] = (*mass_phase)[L];
+        density0[k] = (*density)[L];
+        Compr0[k] = (*Compr)[L];
     }
 
     //确定平衡状态下存在的相类型
@@ -5565,7 +5565,7 @@ void OrderPhases(double*** compositions, double*** phi, double** beta, double** 
         else if (density0[k] == 0)  // 判断double类型是否为0一般不这样写，此处对应原Vb代码。
             zeroPhase = k;
         else {
-            if (HC1 == 0) HC1 = k;
+            if (HC1 == -1) HC1 = k;
             else HC2 = k;
         }
     }
@@ -6519,6 +6519,28 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
         density_prime[i] = 0;
         Compr_prime[i] = 0;
     }
+    for (int k = 0; k < maxPhases; k++)
+    {
+        // C 语言中，VB的 beta(k) 翻译为 beta[k]
+        if (beta[k] <= 0)
+        {
+            beta[k] = 0;
+            density[k] = 0;
+            Compr[k] = 0;
+            phase[k] = 0;
+
+            // VB的 For i = 1 To nComponents 翻译为 i=0 To nComponents-1
+            for (int i = 0; i < nComponents; i++)
+            {
+                // C 语言中，VB的 compositions(i, k + 1) 翻译为 compositions[i][k + 1]
+                compositions[i][k + 1] = 0;
+                // C 语言中，VB的 logPHI(i, k) 翻译为 logPHI[i][k]
+                logPHI[i][k] = 0;
+            }
+        }
+    }
+
+
     // 复制 compositions 到 relativeCompositions 并归一化
     double** relativeCompositions = (double**)malloc(nComponents * sizeof(double*));
     for (i = 0; i < nComponents; i++)
@@ -6529,9 +6551,9 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
         for (j = 0; j <= maxPhases; j++)
             relativeCompositions[i][j] = compositions[i][j];
     }
-    for (i = 0; i < nComponents; i++)
-        for (j = 0; j < maxPhases; j++)
-            logPHI[i][j] = 0;
+    //for (i = 0; i < nComponents; i++)
+    //    for (j = 0; j < maxPhases; j++)
+    //        logPHI[i][j] = 0;
     normalize2Darray(relativeCompositions, nComponents, maxPhases + 1);
 
     for (i = 0; i < maxPhases; i++)
@@ -6936,7 +6958,8 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
 
     // 初始 logphi 计算
     Initialization(zGlobal[NumGases - 1], NonZeroNumGases, MaxBeta, EOS, MWgas, TCr, PCr, Omega, TK, PBar, logphi3phase, NumGases);
-
+    //printf("\n Flash前 phi[2][0]: %.16f", (*phi)[2][0]);
+    //printf("\n Flash前 phi[2][1]: %.16f", (*phi)[2][1]);
     // 避免数值不稳定：把零组分的 logphi 设置为 0
     for (j = 0; j < MaxBeta; j++) {
         for (i = 0; i < NumGases; i++) {
@@ -7023,6 +7046,7 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
         errNet = 0.0;
 
         for (i = 0; i < NumGases; i++) {
+
             for (k = 0; k < MaxBeta; k++) {
                 if (z[i] > 0.00001) {
                     Er += fabs(logphi3phase_new[i][k] - logphi3phase[i][k]);
@@ -7158,9 +7182,14 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
     //     beta_alt[i] = 0;
     //     density_alt[i] = 0;
     // }
+    memset(Compr_alt, 0, temp_MaxBeta * sizeof(double));
+    memset(beta_alt, 0, temp_MaxBeta * sizeof(double));
+    memset(Compr_alt, 0, temp_MaxBeta * sizeof(double));
     for (i = 0; i < NumGases; i++)
     {
         zOutput_alt[i] = 0;
+        memset(phi_alt[i], 0, temp_MaxBeta * sizeof(double));
+        memset(compositions_alt[i], 0, (temp_MaxBeta + 1) * sizeof(double));
         memset(phi_alt[i], 0, temp_MaxBeta * sizeof(double));
         memset(compositions_alt[i], 0, (temp_MaxBeta + 1) * sizeof(double));
     }
@@ -7172,13 +7201,13 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
         eqAqueous = true;
     }
 
+
     // First Flash
     Flash(&eqVapor, &eqAqueous, EOS, TK, PBar, NonZeroNumGases, zGlobal, gNeut, aH2O,
         TCr, PCr, Omega, MWgas, kPr, c0, c1,
         &Q, Numbeta, phaseName, *beta, *compositions, *phi, *Compr, *density,
         counterEquilibrium_final, iter_final, counter_final, *zOutput,
         NumGases, temp_MaxBeta);
-
     if (*Numbeta < 3) {
         eqVapor = true;
         eqAqueous = false;
@@ -7290,7 +7319,6 @@ Dim phase As String
 Dim phaseName() As String
 Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Double
     */
-
     char EOS[] = "PR"; //建立了状态方程为 Peng-Robinson: PR，或 Soave-RK: SRK
     int max_NumGases = 15; //这确定了组件的数量和可能的最大阶段数
 
