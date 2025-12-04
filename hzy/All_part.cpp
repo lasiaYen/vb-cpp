@@ -6055,13 +6055,33 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
     bool converged = false;
     long iter = 0, itermax = 1000, counter = 0, counterEquilibrium = 0;
 
-    double* g = (double*)malloc(MaxBeta * sizeof(double));
-    double* gcopy = (double*)malloc(MaxBeta * sizeof(double));
-    double* gsolve = (double*)malloc(MaxBeta * sizeof(double));
-    double* alpha0 = (double*)malloc(MaxBeta * sizeof(double));
-    double* betanew = (double*)malloc(MaxBeta * sizeof(double));
-    double* w = (double*)malloc(MaxBeta * sizeof(double));
-    double* Enew = (double*)malloc(NumGases * sizeof(double));
+    double* g = NULL;
+    double* gcopy = NULL;
+    double* gsolve = NULL;
+    double* alpha0 = NULL;
+    double* betanew = NULL;
+    double* w = NULL;
+    double* Enew = NULL;
+    double* data = NULL;
+    double** Hessian = NULL;
+    
+    // 错误处理标签
+    int error_code = 0;
+    
+    // 分配内存
+    g = (double*)malloc(MaxBeta * sizeof(double));
+    gcopy = (double*)malloc(MaxBeta * sizeof(double));
+    gsolve = (double*)malloc(MaxBeta * sizeof(double));
+    alpha0 = (double*)malloc(MaxBeta * sizeof(double));
+    betanew = (double*)malloc(MaxBeta * sizeof(double));
+    w = (double*)malloc(MaxBeta * sizeof(double));
+    Enew = (double*)malloc(NumGases * sizeof(double));
+
+    if (!g || !gcopy || !gsolve || !alpha0 || !betanew || !w || !Enew) {
+        error_code = 1;
+        goto ErrHandler;
+    }
+
     memset(g, 0, MaxBeta*sizeof(double));
     memset(gcopy, 0, MaxBeta*sizeof(double));
     memset(gsolve, 0, MaxBeta*sizeof(double));
@@ -6071,24 +6091,22 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
     memset(Enew, 0, NumGases*sizeof(double));
 
     // 一次性分配所有内存，保证内存连续
-    double* data = (double*)calloc(MaxBeta * MaxBeta, sizeof(double));
-    double** Hessian = (double**)malloc(MaxBeta * sizeof(double*));
+    data = (double*)calloc(MaxBeta * MaxBeta, sizeof(double));
+    Hessian = (double**)malloc(MaxBeta * sizeof(double*));
+
+    data = (double*)calloc(MaxBeta * MaxBeta, sizeof(double));
+    Hessian = (double**)malloc(MaxBeta * sizeof(double*));
 
     if (data == NULL || Hessian == NULL) {
-        printf("内存分配失败！\n");
-        free(data);
-        free(Hessian);
-        exit(1);
+        error_code = 2;
+        goto ErrHandler;
     }
 
-    // 设置指针指向连续的内存块
     for (int i = 0; i < MaxBeta; ++i) {
         Hessian[i] = &data[i * MaxBeta];
     }
 
     double alpha0used, Er2, tol, Difference, epsilon, Qnew;
-
-    // 错误处理标志
     *continue_flash = true;
 
     while (!converged && counterEquilibrium < 100)
@@ -6099,14 +6117,22 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
         itermax = 1000;
         counterEquilibrium++;
 
-        if (counterEquilibrium > 2000)
+        if (counterEquilibrium > 2000) {
+            error_code = 3;  // 迭代超时
             goto ErrHandler;
+        }
 
         while (Er2 > tol && iter < itermax)
         {
             iter++;
-            if (iter > itermax)
+            if (iter > itermax) {
+                error_code = 4;  // 内部迭代超时
                 goto ErrHandler;
+            }
+            if (counter > 10000) {
+                error_code = 5;  // 计数器超限
+                goto ErrHandler;
+            }
 
             // 计算 g 向量
             for (int k = 0; k < MaxBeta; ++k)
@@ -6261,48 +6287,40 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
     *iter_final = iter;
     *counter_final = counter;
 
-    // 释放动态数组
-    for (int i = 0; i < MaxBeta; ++i)
-        free(Hessian[i]);
-    free(Hessian);
-    free(g);
-    free(gcopy);
-    free(gsolve);
-    free(alpha0);
-    free(betanew);
-    free(w);
-    free(Enew);
-    return;
-
 ErrHandler:
     *continue_flash = false;
     *counterEquilibrium_final = counterEquilibrium;
     *iter_final = iter;
     *counter_final = counter;
 
-    // 计算 compositions 即使出错
-    for (int i = 0; i < NumGases; ++i)
-    {
-        compositions[i][0] = zGlobal[i];
-        for (int k = 0; k < MaxBeta; ++k)
-        {
-            if (zGlobal[i] > 0.0)
-            {
-                compositions[i][k + 1] = zGlobal[i] / E[i] / exp(logphi3phase[i][k]);
+    if (Hessian) free(Hessian);
+    if (data) free(data);
+    if (g) free(g);
+    if (gcopy) free(gcopy);
+    if (gsolve) free(gsolve);
+    if (alpha0) free(alpha0);
+    if (betanew) free(betanew);
+    if (w) free(w);
+    if (Enew) free(Enew);
+    if (error_code != 0) {
+        *continue_flash = false;
+        
+        // 如果还没有计算结果，尽量计算compositions
+        if (error_code != 1) {  // 如果不是内存分配失败
+            for (int i = 0; i < NumGases; ++i) {
+                compositions[i][0] = zGlobal[i];
+                for (int k = 0; k < MaxBeta; ++k) {
+                    if (zGlobal[i] > 0.0) {
+                        compositions[i][k + 1] = zGlobal[i] / E[i] / exp(logphi3phase[i][k]);
+                    }
+                }
             }
         }
+        
+        *counterEquilibrium_final = counterEquilibrium;
+        *iter_final = iter;
+        *counter_final = counter;
     }
-
-    for (int i = 0; i < MaxBeta; ++i)
-        free(Hessian[i]);
-    free(Hessian);
-    free(g);
-    free(gcopy);
-    free(gsolve);
-    free(alpha0);
-    free(betanew);
-    free(w);
-    free(Enew);
     return;
 }
 
