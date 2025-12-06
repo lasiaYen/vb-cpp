@@ -3,9 +3,21 @@
 #include<stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include<float.h>
 #include <vector>
-#include <float.h>
+#include <iostream>
+#include<string>
 #pragma warning(disable:4996)
+
+template<typename T>
+using Vec = std::vector<T>;
+using DoubleVec = Vec<double>;
+using DoubleMatrix = Vec<Vec<double>>;
+using IntVec = Vec<int>;
+using IntMatrix = Vec<Vec<int>>;
+using BoolVec = Vec<bool>;
+using StrVec = Vec<std::string>;
+
 
 class SimulationContext {
 public:
@@ -40,156 +52,270 @@ public:
         TAcMix.resize(len, 0);
         KMix.resize(len, 0);
         MixFrac.resize(len, 0);
+
+        rho_Mix.resize(len, 0);
+        TH2SaqMix.resize(len, 0);
+        pHMeterStpMix.resize(len, 0);
+        TH4SiO4Mix.resize(len, 0);
+        TNH4Mix.resize(len, 0);
+        TH3BO3Mix.resize(len, 0);
+
+        SampleIDMix.resize(len, 0);
+        SampleDateMix = "";
+        OperatorMix.resize(len, 0);
+        WellNameMix = "";
+        FieldMix.resize(len, 0);
+        StateMix = "";
+
+        VgTPMix.resize(len, 0);
+        VoMix.resize(len, 0);
+        VwMix.resize(len, 0);
+        VMeOHMix.resize(len, 0);
+        VMEGMix.resize(len, 0);
+        oilAPIgravMix.resize(len, 0);
+        gasSpGravMix.resize(len, 0);
+        MixFracGas.resize(len, 0);
+
+        nTCO2Mix.resize(len, 0);
+        nTCH4Mix.resize(len, 0);
+        nTH2SMix.resize(len, 0);
+        mass_w_Mix.resize(len, 0);
+        mass_o_Mix.resize(len, 0);
+        MixFracOil.resize(len, 0);
+
+        mass_MeOH_mix.resize(len, 0);
+        mass_MEG_mix.resize(len, 0);
+        Qheat.resize(len, 0);
+        yCO2Mix.resize(len, 0);
+        yH2SMix.resize(len, 0);
+        yCH4Mix.resize(len, 0);
+
+        YCH4stpmix.resize(len, 0);
+        RatioOilBPointsmix.resize(len, 0);
+        CalculatedTDSMix.resize(len, 0);
+        rho25CMix.resize(len, 0);
+
+        HstpMix.resize(len, 0);
+        OHstpMix.resize(len, 0);
+        HCO3stpMix.resize(len, 0);
+        CO3stpMix.resize(len, 0);
+        ACstpMix.resize(len, 0);
+        HSstpMix.resize(len, 0);
+        NH4STPMix.resize(len, 0);
+        H2BO3stpMix.resize(len, 0);
+
+        HCO3AlkMix.resize(len, 0);
+        CO3AlkMix.resize(len, 0);
+        HAlkMix.resize(len, 0);
+        OHAlkMix.resize(len, 0);
+        ConcFactor.resize(len, 0);
+
+        TCO2Mix.resize(len, 0);
+        TofpH.resize(len, 0);
+        PofpH.resize(len, 0);
+        TofVol.resize(len, 0);
+        PofVol.resize(len, 0);
+
+        OilDensityMix.resize(len, 0);
+        GasDensityMix.resize(len, 0);
+        WaterDensityMix.resize(len, 0);
+        UseTPpHMix.resize(len, 0);
+        UseTPVolMix.resize(len, 0);
+        useEOSmix.resize(len, 0);
+
+        molAlk.resize(len, 0);
+        molTAC.resize(len, 0);
+        molTNH4.resize(len, 0);
+        molTH3BO3.resize(len, 0);
+        molTH2Saq.resize(len, 0);
+        molTH4SiO4.resize(len, 0);
+
+        mol_g_origMix.resize(len, 0);
+        mol_o_OrigMix.resize(len, 0);
+        mol_w_OrigMix.resize(len, 0);
+        mol_g_finalMix.resize(len, 0);
+        mol_o_finalMix.resize(len, 0);
+        mol_w_finalMix.resize(len, 0);
+        mol_w_evapMix.resize(len, 0);
+
+        Total_molesMix.resize(len, 0);
+        SumofZMix.resize(len, 0);
+        nTCO2MixEOS.resize(len, 0);
+        nTH2SMixEOS.resize(len, 0);
+
+        usepHmix.resize(len, 0);
+
+
+        zMix.resize(this->nob_Input + this->nob_InputII, DoubleVec(15, 0));
+
+
+        //---------------------------------
+        CaseCount.resize(2); CaseCount[0] = 1; CaseCount[1] = 2;
+
+        InhName.resize(21, "");
+
     }
-    
-public:
-    std::vector<double> NaMix;
-    std::vector<double> MgMix;
-    std::vector<double> CaMix;
-    std::vector<double> SrMix;
-    std::vector<double> BaMix;
-    std::vector<double> FeMix;
-    std::vector<double> ZnMix;
-    std::vector<double> ClMix;
-    std::vector<double> PbMix;
-    std::vector<double> BrMix;
-    std::vector<double> RaMix;
-
-    std::vector<double> NH3Mix;
-    std::vector<double> H3SiO4Mix;
-    std::vector<double> H2SiO4Mix;
-    std::vector<double> H4SiO4Mix;
-    std::vector<double> H3BO3Mix;
-    std::vector<double> CO2aqMix;
-    std::vector<double> H2SaqMix;
-    std::vector<double> HACaqMix;
-
-    std::vector<int> UseH2SgasMix;
-    std::vector<double> SO4Mix;
-    std::vector<double> FMix;
-    std::vector<double> TDSMix;
-    std::vector<double> AlkMix;
-    std::vector<double> TAcMix;
-    std::vector<double> KMix;
-    std::vector<double> MixFrac;
 
 public:
-    const int nob = 1;
+    DoubleVec NaMix;
+    DoubleVec MgMix;
+    DoubleVec CaMix;
+    DoubleVec SrMix;
+    DoubleVec BaMix;
+    DoubleVec FeMix;
+    DoubleVec ZnMix;
+    DoubleVec ClMix;
+    DoubleVec PbMix;
+    DoubleVec BrMix;
+    DoubleVec RaMix;
+
+    DoubleVec NH3Mix;
+    DoubleVec H3SiO4Mix;
+    DoubleVec H2SiO4Mix;
+    DoubleVec H4SiO4Mix;
+    DoubleVec H3BO3Mix;
+    DoubleVec CO2aqMix;
+    DoubleVec H2SaqMix;
+    DoubleVec HACaqMix;
+
+    IntVec UseH2SgasMix;
+    DoubleVec SO4Mix;
+    DoubleVec FMix;
+    DoubleVec TDSMix;
+    DoubleVec AlkMix;
+    DoubleVec TAcMix;
+    DoubleVec KMix;
+    DoubleVec MixFrac;
+
+    DoubleVec rho_Mix;
+    DoubleVec TH2SaqMix;
+    DoubleVec pHMeterStpMix;
+    DoubleVec TH4SiO4Mix;
+    DoubleVec TNH4Mix;
+    DoubleVec TH3BO3Mix;
+
+    DoubleVec SampleIDMix;
+    std::string SampleDateMix;
+    DoubleVec OperatorMix;
+    std::string WellNameMix;
+    DoubleVec FieldMix;
+    std::string StateMix;
+
+    DoubleVec VgTPMix;
+    DoubleVec VoMix;
+    DoubleVec VwMix;
+    DoubleVec VMeOHMix;
+    DoubleVec VMEGMix;
+    DoubleVec oilAPIgravMix;
+    DoubleVec gasSpGravMix;
+    DoubleVec MixFracGas;
+
+    DoubleVec nTCO2Mix;
+    DoubleVec nTCH4Mix;
+    DoubleVec nTH2SMix;
+    DoubleVec mass_w_Mix;
+    DoubleVec mass_o_Mix;
+    DoubleVec MixFracOil;
+
+    DoubleVec mass_MeOH_mix;
+    DoubleVec mass_MEG_mix;
+    DoubleVec Qheat;
+    DoubleVec yCO2Mix;
+    DoubleVec yH2SMix;
+    DoubleVec yCH4Mix;
+
+    DoubleVec YCH4stpmix;
+    DoubleVec RatioOilBPointsmix;
+    DoubleVec CalculatedTDSMix;
+    DoubleVec rho25CMix;
+
+    DoubleVec HstpMix;
+    DoubleVec OHstpMix;
+    DoubleVec HCO3stpMix;
+    DoubleVec CO3stpMix;
+    DoubleVec ACstpMix;
+    DoubleVec HSstpMix;
+    DoubleVec NH4STPMix;
+    DoubleVec H2BO3stpMix;
+
+    DoubleVec HCO3AlkMix;
+    DoubleVec CO3AlkMix;
+    DoubleVec HAlkMix;
+    DoubleVec OHAlkMix;
+    DoubleVec ConcFactor;
+
+    DoubleVec TCO2Mix;
+    DoubleVec TofpH;
+    DoubleVec PofpH;
+    DoubleVec TofVol;
+    DoubleVec PofVol;
+
+    DoubleVec OilDensityMix;
+    DoubleVec GasDensityMix;
+    DoubleVec WaterDensityMix;
+    DoubleVec UseTPpHMix;
+    DoubleVec UseTPVolMix;
+    DoubleVec useEOSmix;
+
+    DoubleVec molAlk;
+    DoubleVec molTAC;
+    DoubleVec molTNH4;
+    DoubleVec molTH3BO3;
+    DoubleVec molTH2Saq;
+    DoubleVec molTH4SiO4;
+    DoubleVec mol_g_origMix;
+    DoubleVec mol_o_OrigMix;
+    DoubleVec mol_w_OrigMix;
+    DoubleVec mol_g_finalMix;
+    DoubleVec mol_o_finalMix;
+    DoubleVec mol_w_finalMix;
+    DoubleVec mol_w_evapMix;
+
+    DoubleVec Total_molesMix;
+    DoubleVec SumofZMix;
+    DoubleVec nTCO2MixEOS;
+    DoubleVec nTH2SMixEOS;
+
+    // edit by hzy - 改为int类型
+    IntVec usepHmix;
+
+    DoubleMatrix zMix;
+
+public:
+    int nob = 1;
     const int nob_Input = 1;
     const int nob_InputII = 0;
     const int Read_InputII = 0;
     int Run1000Cases;
+    IntVec CaseCount;
+
+    int LoopTP1000Cases;
+
+    int j;
+    int kk;
+
+    StrVec InhName;
+
+public:
+
 };
 SimulationContext simContext;
 
-// edit by hzy - 改为int类型
 
-double* rho_Mix;
-double* TH2SaqMix;
-double* pHMeterStpMix;
-double* TH4SiO4Mix;
-double* TNH4Mix;
-double* TH3BO3Mix;
+//int nob = 1;
+//int nob_Input = 1;
+//int nob_InputII = 0;
+//int Read_InputII = 0;
+//int Run1000Cases;
+//int CaseCount[2] = { 1,2 };
 
-double* SampleIDMix;
-char* SampleDateMix;
-double* OperatorMix;
-char* WellNameMix;
-double* FieldMix;
-char* StateMix;
+//fix: 改为int类型
+//int LoopTP1000Cases;
 
-double* VgTPMix;
-double* VoMix;
-double* VwMix;
-double* VMeOHMix;
-double* VMEGMix;
-double* oilAPIgravMix;
-double* gasSpGravMix;
-double* MixFracGas;
+//int j;
+//int kk;
 
-double* nTCO2Mix;
-double* nTCH4Mix;
-double* nTH2SMix;
-double* mass_w_Mix;
-double* mass_o_Mix;
-double* MixFracOil;
-
-double* mass_MeOH_mix;
-double* mass_MEG_mix;
-double* Qheat;
-double* yCO2Mix;
-double* yH2SMix;
-double* yCH4Mix;
-
-double* YCH4stpmix;
-double* RatioOilBPointsmix;
-double* CalculatedTDSMix;
-double* rho25CMix;
-
-double* HstpMix;
-double* OHstpMix;
-double* HCO3stpMix;
-double* CO3stpMix;
-double* ACstpMix;
-double* HSstpMix;
-double* NH4STPMix;
-double* H2BO3stpMix;
-
-double* HCO3AlkMix;
-double* CO3AlkMix;
-double* HAlkMix;
-double* OHAlkMix;
-double* ConcFactor;
-
-double* TCO2Mix;
-double* TofpH;
-double* PofpH;
-double* TofVol;
-double* PofVol;
-
-double* OilDensityMix;
-double* GasDensityMix;
-double* WaterDensityMix;
-double* UseTPpHMix;
-double* UseTPVolMix;
-double* useEOSmix;
-
-double* molAlk;
-double* molTAC;
-double* molTNH4;
-double* molTH3BO3;
-double* molTH2Saq;
-double* molTH4SiO4;
-
-double* mol_g_origMix;
-double* mol_o_OrigMix;
-double* mol_w_OrigMix;
-double* mol_g_finalMix;
-double* mol_o_finalMix;
-double* mol_w_finalMix;
-double* mol_w_evapMix;
-
-double* Total_molesMix;
-double* SumofZMix;
-double* nTCO2MixEOS;
-double* nTH2SMixEOS;
-
-// edit by hzy - 改为int类型
-int* usepHmix;
-
-int nob = 1;
-int nob_Input = 1;
-int nob_InputII = 0;
-int Read_InputII = 0;
-int Run1000Cases;
-int CaseCount[2] = { 1,2 };
-
-double LoopTP1000Cases;
-
-int j;
-int kk;
-
-double** zMix;
+//double** zMix;
 
 // ????无法确定数据类型
 
@@ -222,7 +348,7 @@ double InhNo1;
 double FracInhNo1;
 double InhNo2;
 
-char InhName[21][50]; // 最长为50，C语言不支持字符串，这一点很要命
+//char InhName[21][50];
 
 double MaxInh;
 double NoRiskcalc;
@@ -453,7 +579,8 @@ double xMEG = 0;
 double aH2O = 0;
 
 double gNeut[15] = { 0 }; double zOutput[15] = { 0 }; double z[20] = { 0 }; double gL[20] = { 0 };
-double density[3] = { 0 }; double mc[15] = { 0 }; double ma[15] = { 0 };
+DoubleVec density(3, 0);
+double mc[15] = { 0 }; double ma[15] = { 0 };
 double ChCat[15] = { 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0 }; double ChAn[15] = { -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -1, -2, -2, 0 ,0 };
 
 double b0[15][15] = { 0 }; double b1[15][15] = { 0 }; double b2[15][15] = { 0 };
@@ -500,23 +627,28 @@ int Run_MassTransfer = 1, RunShellMultiflash = 0;
 bool mf_ParametersWereRead;
 //   以下几个数组，只会被用在MultiPhaseFlash，并且MultiPhaseFlash调用InitialPreparationSSP对它们进行初始化
 //  下面这几个量管理起来非常困难， 其定义、利用、释放对MultiPhaseFlash函数造成重大干扰
-double* mf_TCr = NULL, * mf_PCr = NULL, * mf_Omega = NULL, * mf_MWgas = NULL, * mf_c0 = NULL, * mf_c1 = NULL;
-double** mf_kPr;// 默认都是6
+DoubleVec mf_TCr;
+DoubleVec mf_PCr;
+DoubleVec mf_Omega;
+DoubleVec mf_MWgas;
+DoubleVec mf_c0;
+DoubleVec mf_c1;
+DoubleMatrix mf_kPr;
 
 // 下面这几个变量长度应该是固定的，但是需要弄成指针形式ReDim density(3), compositions(15, 4), phi(15, 3), Compr(3), beta(3), zOutput(15)
-double* mass_phase = NULL; //3
-double** compositions = NULL;  //15*4
-double** phi = NULL;  //15*3
-double* beta = NULL; //3
-double* MW_Phase = NULL; //3
-double* Compr = NULL;    //3
+DoubleVec mass_phase; //3
+DoubleMatrix compositions;  //15*4
+DoubleMatrix phi;  //15*3
+DoubleVec beta; //3
+DoubleVec MW_Phase; //3
+DoubleVec Compr;    //3 class.beta
 
 int No_Phases = 0;
 double SumofZ = 0;
 
 double nTCO2_before_precipitation, nTH2S_before_precipitation, Total_moles_before_precipitation;
 
-double* lnphi_Gas; //这个和pseudo_composition、phi_calc、true_composition有关
+DoubleVec lnphi_Gas; //这个和pseudo_composition、phi_calc、true_composition有关
 
 //----C4
 double ppt;
@@ -545,7 +677,7 @@ double pptAmSilica;
 double faH;
 
 //TrueFlash新加入的全局变量
-double* E;
+DoubleVec E;
 
 //----QualityControlCalculations
 int UseH2Sgas;
@@ -554,7 +686,7 @@ int UseH2Sgas;
 double rhoTP;
 int RunQualityControlChecks_II;
 //molc(NumCat, nob_Input + nob_InputII),mola(NumAn, nob_Input + nob_InputII), moln(NumNeut, nob_Input + nob_InputII)
-double** molc; double** mola; double** moln;
+DoubleMatrix molc; DoubleMatrix mola; DoubleMatrix moln;
 
 //全局变量 -- by 黄志缘
 /********************************************************************************************************/
@@ -1022,211 +1154,27 @@ void printSampleData(const SampleData* data)
 
 void initData()
 {
-    int len = nob_Input + nob_InputII;
-    // NaMix = (double*)malloc(len * sizeof(double));
-    // MgMix = (double*)malloc(len * sizeof(double));
-    // CaMix = (double*)malloc(len * sizeof(double));
-    // SrMix = (double*)malloc(len * sizeof(double));
-    // BaMix = (double*)malloc(len * sizeof(double));
-    // FeMix = (double*)malloc(len * sizeof(double));
-    // ZnMix = (double*)malloc(len * sizeof(double));
-    // ClMix = (double*)malloc(len * sizeof(double));
-    // PbMix = (double*)malloc(len * sizeof(double));
-    // BrMix = (double*)malloc(len * sizeof(double));
-    // RaMix = (double*)malloc(len * sizeof(double));
+    //int len = simContext.nob_Input + simContext.nob_InputII;
 
-    // NH3Mix = (double*)malloc(len * sizeof(double));
-    // H3SiO4Mix = (double*)malloc(len * sizeof(double));
-    // H2SiO4Mix = (double*)malloc(len * sizeof(double));
-    // H4SiO4Mix = (double*)malloc(len * sizeof(double));
-    // H3BO3Mix = (double*)malloc(len * sizeof(double));
-    // CO2aqMix = (double*)malloc(len * sizeof(double));
-    // H2SaqMix = (double*)malloc(len * sizeof(double));
-    // HACaqMix = (double*)malloc(len * sizeof(double));
-
-    // UseH2SgasMix = (int*)malloc(len * sizeof(int));
-    // SO4Mix = (double*)malloc(len * sizeof(double));
-    // FMix = (double*)malloc(len * sizeof(double));
-    // TDSMix = (double*)malloc(len * sizeof(double));
-    // AlkMix = (double*)malloc(len * sizeof(double));
-    // TAcMix = (double*)malloc(len * sizeof(double));
-    // KMix = (double*)malloc(len * sizeof(double));
-    // MixFrac = (double*)malloc(len * sizeof(double));
-
-    rho_Mix = (double*)malloc(len * sizeof(double));
-    TH2SaqMix = (double*)malloc(len * sizeof(double));
-    pHMeterStpMix = (double*)malloc(len * sizeof(double));
-    TH4SiO4Mix = (double*)malloc(len * sizeof(double));
-    TNH4Mix = (double*)malloc(len * sizeof(double));
-    TH3BO3Mix = (double*)malloc(len * sizeof(double));
-    SampleIDMix = (double*)malloc(len * sizeof(double));
-    SampleDateMix = (char*)malloc(len * sizeof(char));
-    OperatorMix = (double*)malloc(len * sizeof(double));
-    WellNameMix = (char*)malloc(len * sizeof(char));
-    FieldMix = (double*)malloc(len * sizeof(double));
-    StateMix = (char*)malloc(len * sizeof(char));
-    VgTPMix = (double*)malloc(len * sizeof(double));
-    VoMix = (double*)malloc(len * sizeof(double));
-    VwMix = (double*)malloc(len * sizeof(double));
-    VMeOHMix = (double*)malloc(len * sizeof(double));
-    VMEGMix = (double*)malloc(len * sizeof(double));
-    oilAPIgravMix = (double*)malloc(len * sizeof(double));
-    gasSpGravMix = (double*)malloc(len * sizeof(double));
-    MixFracGas = (double*)malloc(len * sizeof(double));
-    nTCO2Mix = (double*)malloc(len * sizeof(double));
-    nTCH4Mix = (double*)malloc(len * sizeof(double));
-    nTH2SMix = (double*)malloc(len * sizeof(double));
-    mass_w_Mix = (double*)malloc(len * sizeof(double));
-    mass_o_Mix = (double*)malloc(len * sizeof(double));
-    MixFracOil = (double*)malloc(len * sizeof(double));
-    mass_MeOH_mix = (double*)malloc(len * sizeof(double));
-    mass_MEG_mix = (double*)malloc(len * sizeof(double));
-    Qheat = (double*)malloc(len * sizeof(double));
-    yCO2Mix = (double*)malloc(len * sizeof(double));
-    yH2SMix = (double*)malloc(len * sizeof(double));
-    yCH4Mix = (double*)malloc(len * sizeof(double));
-    YCH4stpmix = (double*)malloc(len * sizeof(double));
-    RatioOilBPointsmix = (double*)malloc(len * sizeof(double));
-    CalculatedTDSMix = (double*)malloc(len * sizeof(double));
-    rho25CMix = (double*)malloc(len * sizeof(double));
-    HstpMix = (double*)malloc(len * sizeof(double));
-    OHstpMix = (double*)malloc(len * sizeof(double));
-    HCO3stpMix = (double*)malloc(len * sizeof(double));
-    CO3stpMix = (double*)malloc(len * sizeof(double));
-    ACstpMix = (double*)malloc(len * sizeof(double));
-    HSstpMix = (double*)malloc(len * sizeof(double));
-    NH4STPMix = (double*)malloc(len * sizeof(double));
-    H2BO3stpMix = (double*)malloc(len * sizeof(double));
-    HCO3AlkMix = (double*)malloc(len * sizeof(double));
-    CO3AlkMix = (double*)malloc(len * sizeof(double));
-    HAlkMix = (double*)malloc(len * sizeof(double));
-    OHAlkMix = (double*)malloc(len * sizeof(double));
-    ConcFactor = (double*)malloc(len * sizeof(double));
-    TCO2Mix = (double*)malloc(len * sizeof(double));
-    TofpH = (double*)malloc(len * sizeof(double));
-    PofpH = (double*)malloc(len * sizeof(double));
-    TofVol = (double*)malloc(len * sizeof(double));
-    PofVol = (double*)malloc(len * sizeof(double));
-    OilDensityMix = (double*)malloc(len * sizeof(double));
-    GasDensityMix = (double*)malloc(len * sizeof(double));
-    WaterDensityMix = (double*)malloc(len * sizeof(double));
-    UseTPpHMix = (double*)malloc(len * sizeof(double));
-    UseTPVolMix = (double*)malloc(len * sizeof(double));
-    useEOSmix = (double*)malloc(len * sizeof(double));
-    molAlk = (double*)malloc(len * sizeof(double));
-    molTAC = (double*)malloc(len * sizeof(double));
-    molTNH4 = (double*)malloc(len * sizeof(double));
-    molTH3BO3 = (double*)malloc(len * sizeof(double));
-    molTH2Saq = (double*)malloc(len * sizeof(double));
-    molTH4SiO4 = (double*)malloc(len * sizeof(double));
-    mol_g_origMix = (double*)malloc(len * sizeof(double));
-    mol_o_OrigMix = (double*)malloc(len * sizeof(double));
-    mol_w_OrigMix = (double*)malloc(len * sizeof(double));
-    mol_g_finalMix = (double*)malloc(len * sizeof(double));
-    mol_o_finalMix = (double*)malloc(len * sizeof(double));
-    mol_w_finalMix = (double*)malloc(len * sizeof(double));
-    mol_w_evapMix = (double*)malloc(len * sizeof(double));
-    Total_molesMix = (double*)malloc(len * sizeof(double));
-    SumofZMix = (double*)malloc(len * sizeof(double));
-    nTCO2MixEOS = (double*)malloc(len * sizeof(double));
-    nTH2SMixEOS = (double*)malloc(len * sizeof(double));
-    // edit by hzy - 改为int类型
-    usepHmix = (int*)malloc(len * sizeof(int));
-
-    zMix = (double**)malloc((nob_Input + nob_InputII) * sizeof(double*));
-    for (int i = 0; i < (nob_Input + nob_InputII); i++)
-    {
-        zMix[i] = (double*)malloc(15 * sizeof(double));
-    }
+    //zMix = (double**)malloc((simContext.nob_Input + simContext.nob_InputII) * sizeof(double*));
+    //for (int i = 0; i < (simContext.nob_Input + simContext.nob_InputII); i++)
+    //{
+    //    zMix[i] = (double*)malloc(15 * sizeof(double));
+    //}
 }
 
 void pointerInit_pf() {
-    //mf_TCr = (double*)malloc(6 * sizeof(double));
-    //mf_PCr = (double*)malloc(6 * sizeof(double));
-    //mf_Omega = (double*)malloc(6 * sizeof(double));
-    //mf_MWgas = (double*)malloc(6 * sizeof(double));
-    //mf_c0 = (double*)malloc(6 * sizeof(double));
-    //mf_c1 = (double*)malloc(6 * sizeof(double));
-    //mf_kPr = (double**)malloc(6 * sizeof(double*));
-    //for (int i = 0; i < 6; i++) {
-    //    mf_kPr[i] = (double*)malloc(6 * sizeof(double));
-    //}
-    mf_TCr = NULL;
-    mf_PCr = NULL;
-    mf_Omega = NULL;
-    mf_MWgas = NULL;
-    mf_c0 = NULL;
-    mf_c1 = NULL;
-    mf_kPr = NULL;
+    mass_phase = DoubleVec(3, 0);
+    beta = DoubleVec(3, 0);
+    MW_Phase = DoubleVec(3, 0);
+    Compr = DoubleVec(3, 0);
 
-
-    mass_phase = (double*)malloc(3 * sizeof(double));
-    beta = (double*)malloc(3 * sizeof(double));
-    MW_Phase = (double*)malloc(3 * sizeof(double));
-    Compr = (double*)malloc(3 * sizeof(double));
-
-    compositions = (double**)malloc(15 * sizeof(double*));
-    phi = (double**)malloc(15 * sizeof(double*));
-    for (int i = 0; i < 15; i++) {
-        compositions[i] = (double*)malloc(4 * sizeof(double));
-        phi[i] = (double*)malloc(3 * sizeof(double));
-    }
-
+    compositions = DoubleMatrix(15, DoubleVec(4, 0));
+    phi = DoubleMatrix(15, DoubleVec(3, 0));
     //----PartD
-    molc = (double**)malloc(NumCat * sizeof(double*));
-    mola = (double**)malloc(NumAn * sizeof(double*));
-    moln = (double**)malloc(NumNeut * sizeof(double*));
-    for (int i = 0; i < NumCat; i++) molc[i] = (double*)malloc((nob_Input + nob_InputII) * sizeof(double));
-    for (int i = 0; i < NumAn; i++) mola[i] = (double*)malloc((nob_Input + nob_InputII) * sizeof(double));
-    for (int i = 0; i < NumNeut; i++) moln[i] = (double*)malloc((nob_Input + nob_InputII) * sizeof(double));
-}
-
-void cleanMemory_pf() {
-    if (mf_TCr) free(mf_TCr);
-    if (mf_PCr) free(mf_PCr);
-    if (mf_Omega) free(mf_Omega);
-    if (mf_MWgas) free(mf_MWgas);
-    if (mf_c0) free(mf_c0);
-    if (mf_c1) free(mf_c1);
-    if (mf_kPr) {
-        for (int i = 0; i < 6; i++)
-            free(mf_kPr[i]);
-        free(mf_kPr);
-    }
-
-
-    if (mass_phase) free(mass_phase);
-    if (beta) free(beta);
-    if (MW_Phase) free(MW_Phase);
-    if (Compr) free(Compr);
-    if (compositions) {
-        for (int i = 0; i < 15; i++)
-            free(compositions[i]);
-        free(compositions);
-    }
-    if (phi) {
-        for (int i = 0; i < 6; i++)
-            free(phi[i]);
-        free(phi);
-    }
-    if (lnphi_Gas) free(lnphi_Gas);
-
-    //----PartD
-    if (molc) {
-        for (int i = 0; i < NumCat; i++)
-            free(molc[i]);
-        free(molc);
-    }
-    if (mola) {
-        for (int i = 0; i < NumAn; i++)
-            free(mola[i]);
-        free(mola);
-    }
-    if (moln) {
-        for (int i = 0; i < NumNeut; i++)
-            free(moln[i]);
-        free(moln);
-    }
+    molc.resize(NumCat, DoubleVec(simContext.nob_Input + simContext.nob_InputII, 0));
+    mola.resize(NumAn, DoubleVec(simContext.nob_Input + simContext.nob_InputII, 0));
+    moln.resize(NumNeut, DoubleVec(simContext.nob_Input + simContext.nob_InputII, 0));
 }
 
 
@@ -1270,39 +1218,39 @@ void ReadInputPartA(int kk, SampleData* data)
     simContext.SO4Mix[kk] = data->SO4_aq;
     simContext.FMix[kk] = data->F_aq;
     simContext.BrMix[kk] = data->Br_aq;
-    TH4SiO4Mix[kk] = data->Si_aq;              // TH4SiO4Mix(kk) = Worksheets(mySheet).Cells(23, j + 2).Value 其中23行对应Silica
-    HCO3AlkMix[kk] = data->Alk_Bicarbonate_aq; // HCO3AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value 其中24行对应Total Alkalinity
-    CO3AlkMix[kk] = data->Alk_Carbonate_aq;    // CO3AlkMix(kk) = Worksheets(mySheet).Cells(25, j + 2).Value 其中25行对应 CO3 Alkalinity
+    simContext.TH4SiO4Mix[kk] = data->Si_aq;              // TH4SiO4Mix(kk) = Worksheets(mySheet).Cells(23, j + 2).Value 其中23行对应Silica
+    simContext.HCO3AlkMix[kk] = data->Alk_Bicarbonate_aq; // HCO3AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value 其中24行对应Total Alkalinity
+    simContext.CO3AlkMix[kk] = data->Alk_Carbonate_aq;    // CO3AlkMix(kk) = Worksheets(mySheet).Cells(25, j + 2).Value 其中25行对应 CO3 Alkalinity
     simContext.TAcMix[kk] = data->OrgAcid_Acetate_aq;     // simContext.TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value 其中26行对应Carboxylates
-    TNH4Mix[kk] = data->Ammonia_aq;            // TNH4Mix(kk) = Worksheets(mySheet).Cells(27, j + 2).Value其中27行对应 Ammonia
-    TH3BO3Mix[kk] = data->B_aq;                // TH3BO3Mix(kk) = Worksheets(mySheet).Cells(28, j + 2).Value其中28行对应Borate;
-    yCO2Mix[kk] = data->CO2_pct_g / 100;       // yCO2Mix(kk) = Worksheets(mySheet).Cells(31, j + 2).Value / 100 其中31行对应 Co2 Gas Analysis
+    simContext.TNH4Mix[kk] = data->Ammonia_aq;            // TNH4Mix(kk) = Worksheets(mySheet).Cells(27, j + 2).Value其中27行对应 Ammonia
+    simContext.TH3BO3Mix[kk] = data->B_aq;                // TH3BO3Mix(kk) = Worksheets(mySheet).Cells(28, j + 2).Value其中28行对应Borate;
+    simContext.yCO2Mix[kk] = data->CO2_pct_g / 100;       // yCO2Mix(kk) = Worksheets(mySheet).Cells(31, j + 2).Value / 100 其中31行对应 Co2 Gas Analysis
     simContext.UseH2SgasMix[kk] = data->Option_Use_H2Sg;  // simContext.UseH2SgasMix(kk) = Worksheets(mySheet).Cells(32, j + 2).Value 其中32行对应 Use H2S Gas Analysis
     if (simContext.UseH2SgasMix[kk] == 1)
     {
-        yH2SMix[kk] = data->H2S_pct_g / 100; // yH2SMix(kk) = Worksheets(mySheet).Cells(33, j + 2).Value / 100 其中33行对应Gas H2S% or H2Saq
-        TH2SaqMix[kk] = 0;
+        simContext.yH2SMix[kk] = data->H2S_pct_g / 100; // yH2SMix(kk) = Worksheets(mySheet).Cells(33, j + 2).Value / 100 其中33行对应Gas H2S% or H2Saq
+        simContext.TH2SaqMix[kk] = 0;
     }
     else
     {
-        TH2SaqMix[kk] = data->H2S_pct_g; // TH2SaqMix(kk) = Worksheets(mySheet).Cells(33, j + 2).Value
-        yH2SMix[kk] = 0;
+        simContext.TH2SaqMix[kk] = data->H2S_pct_g; // TH2SaqMix(kk) = Worksheets(mySheet).Cells(33, j + 2).Value
+        simContext.yH2SMix[kk] = 0;
     }
-    pHMeterStpMix[kk] = data->pH_STP;       // pHMeterStpMix(kk) = Worksheets(mySheet).Cells(34, j + 2).Value其中34行对应pH2 measured;
-    HAlkMix[kk] = data->StrongAcid_aq;      // HAlkMix(kk) = Worksheets(mySheet).Cells(47, j + 2).Value其中47行对应H+(Strong acid);
-    OHAlkMix[kk] = data->StrongBase_aq;     // OHAlkMix(kk) = Worksheets(mySheet).Cells(48, j + 2).Value其中48行对应OH-(Strong base);
-    ConcFactor[kk] = data->Conc_Multiplier; // ConcFactor(kk) = Worksheets(mySheet).Cells(49, j + 2).Value其中49行对应Conc. multiplier;
-    usepHmix[kk] = data->Option_Alk;        // usepHmix(kk) = Worksheets(mySheet).Cells(51, j + 2).Value其中51行对应Four Cal options;
-    if (usepHmix[kk] == 0)            // If usepHmix(kk) = Empty Then usepHmix(kk) = 0这里的Empty设为0
+    simContext.pHMeterStpMix[kk] = data->pH_STP;       // pHMeterStpMix(kk) = Worksheets(mySheet).Cells(34, j + 2).Value其中34行对应pH2 measured;
+    simContext.HAlkMix[kk] = data->StrongAcid_aq;      // HAlkMix(kk) = Worksheets(mySheet).Cells(47, j + 2).Value其中47行对应H+(Strong acid);
+    simContext.OHAlkMix[kk] = data->StrongBase_aq;     // OHAlkMix(kk) = Worksheets(mySheet).Cells(48, j + 2).Value其中48行对应OH-(Strong base);
+    simContext.ConcFactor[kk] = data->Conc_Multiplier; // ConcFactor(kk) = Worksheets(mySheet).Cells(49, j + 2).Value其中49行对应Conc. multiplier;
+    simContext.usepHmix[kk] = data->Option_Alk;        // usepHmix(kk) = Worksheets(mySheet).Cells(51, j + 2).Value其中51行对应Four Cal options;
+    if (simContext.usepHmix[kk] == 0)            // If usepHmix(kk) = Empty Then usepHmix(kk) = 0这里的Empty设为0
     {
-        usepHmix[kk] = 0;
+        simContext.usepHmix[kk] = 0;
     }
-    UseTPpHMix[kk] = data->Option_TP_for_pH; // UseTPpHMix(kk) = Worksheets(mySheet).Cells(53, j + 2).Value其中53行对应T,P for pH;
-    UseTPVolMix[kk] = data->Option_TP_for_Q; // UseTPVolMix(kk) = Worksheets(mySheet).Cells(54, j + 2).Value其中54行对应 T,P for G/O/W;
-    if (nob_Input + nob_InputII == 1)
+    simContext.UseTPpHMix[kk] = data->Option_TP_for_pH; // UseTPpHMix(kk) = Worksheets(mySheet).Cells(53, j + 2).Value其中53行对应T,P for pH;
+    simContext.UseTPVolMix[kk] = data->Option_TP_for_Q; // UseTPVolMix(kk) = Worksheets(mySheet).Cells(54, j + 2).Value其中54行对应 T,P for G/O/W;
+    if (simContext.nob_Input + simContext.nob_InputII == 1)
     {
         UseTPCalciteSheet = data->Option_Defined_TP; // UseTPCalciteSheet = Worksheets(mySheet).Cells(52, j + 2).Value其中52行对应 Use TP on Calcite sheet?;
-        useEOSmix[kk] = data->Option_EoS;            // useEOSmix(kk) = Worksheets(mySheet).Cells(55, j + 2).Value其中55行对应Use Flash Calculator;
+        simContext.useEOSmix[kk] = data->Option_EoS;            // useEOSmix(kk) = Worksheets(mySheet).Cells(55, j + 2).Value其中55行对应Use Flash Calculator;
     }
     else
     {
@@ -1315,10 +1263,10 @@ void ReadInputPartA(int kk, SampleData* data)
     // If UseTPVolMix(kk) = "" Then UseTPVolMix(kk) = 0
     // If useEOSmix(kk) = "" Then useEOSmix(kk) = 0 这里的逻辑判断似乎有问题，因为这些几乎全为double数组，而在判断中判断是否为空字符串;
 
-    TofpH[kk] = data->T_pH; // TofpH(kk) = Worksheets(mySheet).Cells(58, j + 2).Value其中58行对应Temp. for pH meas.;
-    PofpH[kk] = data->P_pH; // PofpH(kk) = Worksheets(mySheet).Cells(59, j + 2).Value其中59行对应Pres. for pH meas.;
-    TofVol[kk] = data->T_Q; // TofVol(kk) = Worksheets(mySheet).Cells(60, j + 2).Value其中60行对应 T for fluids meas.;
-    PofVol[kk] = data->P_Q; // PofVol(kk) = Worksheets(mySheet).Cells(61, j + 2).Value其中61行对P for for fluids meas.;
+    simContext.TofpH[kk] = data->T_pH; // TofpH(kk) = Worksheets(mySheet).Cells(58, j + 2).Value其中58行对应Temp. for pH meas.;
+    simContext.PofpH[kk] = data->P_pH; // PofpH(kk) = Worksheets(mySheet).Cells(59, j + 2).Value其中59行对应Pres. for pH meas.;
+    simContext.TofVol[kk] = data->T_Q; // TofVol(kk) = Worksheets(mySheet).Cells(60, j + 2).Value其中60行对应 T for fluids meas.;
+    simContext.PofVol[kk] = data->P_Q; // PofVol(kk) = Worksheets(mySheet).Cells(61, j + 2).Value其中61行对P for for fluids meas.;
 
     if (RunNORM == 1)
     {
@@ -1328,39 +1276,39 @@ void ReadInputPartA(int kk, SampleData* data)
     {
         simContext.RaMix[kk] = 0;
     }
-    useTPVol = UseTPVolMix[kk];
-    SumofZMix[kk] = 0;
+    useTPVol = simContext.UseTPVolMix[kk];
+    simContext.SumofZMix[kk] = 0;
     // For iNG = 1 To 14
     // zMix(kk, iNG) = Worksheets(mySheet).Cells(65 + iNG, j + 2) / 100:
     // SumofZMix(kk) = SumofZMix(kk) + zMix(kk, iNG) 这里是对原表中66-79行进行读取，对应为 sample_oil_phase_information数据表，这里不采用循环
-    zMix[kk][0] = data->C1_o / 100;
-    zMix[kk][1] = data->CO2_o / 100;
-    zMix[kk][2] = data->H2S_o / 100;
-    zMix[kk][3] = data->C2_o / 100;
-    zMix[kk][4] = data->C3_o / 100;
-    zMix[kk][5] = data->iC4_o / 100;
-    zMix[kk][6] = data->nC4_o / 100;
-    zMix[kk][7] = data->iC5_o / 100;
-    zMix[kk][8] = data->nC5_o / 100;
-    zMix[kk][9] = data->C6_o / 100;
-    zMix[kk][10] = data->C7_C12_o / 100;
-    zMix[kk][11] = data->C13_C25_o / 100;
-    zMix[kk][12] = data->C26_C80_o / 100;
-    zMix[kk][13] = data->N2_o / 100;
+    simContext.zMix[kk][0] = data->C1_o / 100;
+    simContext.zMix[kk][1] = data->CO2_o / 100;
+    simContext.zMix[kk][2] = data->H2S_o / 100;
+    simContext.zMix[kk][3] = data->C2_o / 100;
+    simContext.zMix[kk][4] = data->C3_o / 100;
+    simContext.zMix[kk][5] = data->iC4_o / 100;
+    simContext.zMix[kk][6] = data->nC4_o / 100;
+    simContext.zMix[kk][7] = data->iC5_o / 100;
+    simContext.zMix[kk][8] = data->nC5_o / 100;
+    simContext.zMix[kk][9] = data->C6_o / 100;
+    simContext.zMix[kk][10] = data->C7_C12_o / 100;
+    simContext.zMix[kk][11] = data->C13_C25_o / 100;
+    simContext.zMix[kk][12] = data->C26_C80_o / 100;
+    simContext.zMix[kk][13] = data->N2_o / 100;
 
     for (int i = 0; i < 14; i++)
     {
-        SumofZMix[kk] = SumofZMix[kk] + zMix[kk][i];
+        simContext.SumofZMix[kk] = simContext.SumofZMix[kk] + simContext.zMix[kk][i];
     }
 
-    if (SumofZMix[kk] > 0)
+    if (simContext.SumofZMix[kk] > 0)
     {
         for (int i = 0; i < 14; i++)
         {
-            zMix[kk][i] = zMix[kk][i] / SumofZMix[kk];
+            simContext.zMix[kk][i] = simContext.zMix[kk][i] / simContext.SumofZMix[kk];
         }
     }
-    zMix[kk][14] = 0.0;
+    simContext.zMix[kk][14] = 0.0;
     if (RunH2SGUI != 1)
     {
         // MultiplePpt = Worksheets("Input").Range("S11").Value
@@ -1395,12 +1343,12 @@ void ReadInputPartA(int kk, SampleData* data)
         }
         if (CaseCountWI[Loop1WI] == 15)
         {
-            HCO3AlkMix[kk] = HCO3AlkWI[Loop1WI][Loop2WI];
+            simContext.HCO3AlkMix[kk] = HCO3AlkWI[Loop1WI][Loop2WI];
         }
 
         if (CaseCountWI[Loop1WI] == 16)
         {
-            CO3AlkMix[kk] = CO3AlkWI[Loop1WI][Loop2WI];
+            simContext.CO3AlkMix[kk] = CO3AlkWI[Loop1WI][Loop2WI];
         }
         if (CaseCountWI[Loop1WI] == 17)
         {
@@ -1408,31 +1356,31 @@ void ReadInputPartA(int kk, SampleData* data)
         }
         if (CaseCountWI[Loop1WI] == 19)
         {
-            usepHmix[kk] = 0;
-            yCO2Mix[kk] = YCO2WI[Loop1WI][Loop2WI] / 100;
+            simContext.usepHmix[kk] = 0;
+            simContext.yCO2Mix[kk] = YCO2WI[Loop1WI][Loop2WI] / 100;
         }
 
         if (CaseCountWI[Loop1WI] == 20)
         {
             simContext.UseH2SgasMix[kk] = 1;
-            yH2SMix[kk] = YH2SWI[Loop1WI][Loop2WI] / 100;
+            simContext.yH2SMix[kk] = YH2SWI[Loop1WI][Loop2WI] / 100;
         }
 
         if (CaseCountWI[Loop1WI] == 21)
         {
             simContext.UseH2SgasMix[kk] = 1;
-            TH2SaqMix[kk] = TH2SaqWI[Loop1WI][Loop2WI] / 100;
+            simContext.TH2SaqMix[kk] = TH2SaqWI[Loop1WI][Loop2WI] / 100;
         }
 
         if (CaseCountWI[Loop1WI] == 22)
         {
-            usepHmix[kk] = 1;
-            pHMeterStpMix[kk] = pHMeterSTPWI[Loop1WI][Loop2WI] / 100;
+            simContext.usepHmix[kk] = 1;
+            simContext.pHMeterStpMix[kk] = pHMeterSTPWI[Loop1WI][Loop2WI] / 100;
         }
 
         if (CaseCountWI[Loop1WI] == 32)
         {
-            ConcFactor[kk] = ConcFactorWI[Loop1WI][Loop2WI] / 100;
+            simContext.ConcFactor[kk] = ConcFactorWI[Loop1WI][Loop2WI] / 100;
         }
     }
 
@@ -1493,146 +1441,146 @@ void ReadInputPartA(int kk, SampleData* data)
 
 
     //If rho_Mix(kk) = 0 Or rho_Mix(kk) = "" Then rho_Mix(kk) = 0.9991 + 0.0000006398 * simContext.TDSMix(kk)
-    rho_Mix[kk] = 0.00000000;
-    if (rho_Mix[kk] == 0) rho_Mix[kk] = 0.9991 + 0.0000006398 * simContext.TDSMix[kk];
+    simContext.rho_Mix[kk] = 0.00000000;
+    if (simContext.rho_Mix[kk] == 0) simContext.rho_Mix[kk] = 0.9991 + 0.0000006398 * simContext.TDSMix[kk];
 
     //If the cell is leave empty assume a concentration factor=1
-    if (ConcFactor[kk] == 0 || ConcFactor[kk] < 0) ConcFactor[kk] = 1;
+    if (simContext.ConcFactor[kk] == 0 || simContext.ConcFactor[kk] < 0) simContext.ConcFactor[kk] = 1;
 
-    if (ConcFactor[kk] != 1) {
+    if (simContext.ConcFactor[kk] != 1) {
         Run_CalcConcFactor = 1;
-        VwMix[kk] /= ConcFactor[kk];
+        simContext.VwMix[kk] /= simContext.ConcFactor[kk];
     }
 
     if (UseMolal == 0)
     {
-        simContext.NaMix[kk] = simContext.NaMix[kk] / (22990.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.KMix[kk] = simContext.KMix[kk] / (39098.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.MgMix[kk] = simContext.MgMix[kk] / (24305.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.CaMix[kk] = simContext.CaMix[kk] / (40080.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.SrMix[kk] = simContext.SrMix[kk] / (87620.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.BaMix[kk] = simContext.BaMix[kk] / (137330.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.FeMix[kk] = simContext.FeMix[kk] / (55847.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.ZnMix[kk] = simContext.ZnMix[kk] / (65380.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.PbMix[kk] = simContext.PbMix[kk] / (207200.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.ClMix[kk] = simContext.ClMix[kk] / (35450.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.SO4Mix[kk] = simContext.SO4Mix[kk] / (96064.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.FMix[kk] = simContext.FMix[kk] / (18998.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.BrMix[kk] = simContext.BrMix[kk] / (79904.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        TH4SiO4Mix[kk] = TH4SiO4Mix[kk] / (28085.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        HCO3AlkMix[kk] = HCO3AlkMix[kk] / (61019.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        CO3AlkMix[kk] = CO3AlkMix[kk] / (60019.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        simContext.TAcMix[kk] = simContext.TAcMix[kk] / (59046.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        TNH4Mix[kk] = TNH4Mix[kk] / (17031.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
-        TH3BO3Mix[kk] = TH3BO3Mix[kk] / (10811.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.NaMix[kk] = simContext.NaMix[kk] / (22990.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.KMix[kk] = simContext.KMix[kk] / (39098.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.MgMix[kk] = simContext.MgMix[kk] / (24305.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.CaMix[kk] = simContext.CaMix[kk] / (40080.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.SrMix[kk] = simContext.SrMix[kk] / (87620.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.BaMix[kk] = simContext.BaMix[kk] / (137330.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.FeMix[kk] = simContext.FeMix[kk] / (55847.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.ZnMix[kk] = simContext.ZnMix[kk] / (65380.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.PbMix[kk] = simContext.PbMix[kk] / (207200.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.ClMix[kk] = simContext.ClMix[kk] / (35450.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.SO4Mix[kk] = simContext.SO4Mix[kk] / (96064.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.FMix[kk] = simContext.FMix[kk] / (18998.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.BrMix[kk] = simContext.BrMix[kk] / (79904.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.TH4SiO4Mix[kk] = simContext.TH4SiO4Mix[kk] / (28085.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.HCO3AlkMix[kk] = simContext.HCO3AlkMix[kk] / (61019.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.CO3AlkMix[kk] = simContext.CO3AlkMix[kk] / (60019.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.TAcMix[kk] = simContext.TAcMix[kk] / (59046.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.TNH4Mix[kk] = simContext.TNH4Mix[kk] / (17031.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
+        simContext.TH3BO3Mix[kk] = simContext.TH3BO3Mix[kk] / (10811.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
 
         if (simContext.UseH2SgasMix[kk] == 0)
         {
-            TH2SaqMix[kk] = TH2SaqMix[kk] / (34080.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+            simContext.TH2SaqMix[kk] = simContext.TH2SaqMix[kk] / (34080.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
         }
 
-        HAlkMix[kk] = HAlkMix[kk] / (0.9991 - 0.0000003612 * simContext.TDSMix[kk]);
-        OHAlkMix[kk] = OHAlkMix[kk] / (0.9991 - 0.0000003612 * simContext.TDSMix[kk]);
-        simContext.RaMix[kk] = simContext.RaMix[kk] / (226.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * ConcFactor[kk];
+        simContext.HAlkMix[kk] = simContext.HAlkMix[kk] / (0.9991 - 0.0000003612 * simContext.TDSMix[kk]);
+        simContext.OHAlkMix[kk] = simContext.OHAlkMix[kk] / (0.9991 - 0.0000003612 * simContext.TDSMix[kk]);
+        simContext.RaMix[kk] = simContext.RaMix[kk] / (226.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
     }
     else if (UseMolal == 1)
     {
-        simContext.NaMix[kk] = simContext.NaMix[kk] * ConcFactor[kk]; // Convert mg/L to molality
-        simContext.KMix[kk] = simContext.KMix[kk] * ConcFactor[kk];
-        simContext.MgMix[kk] = simContext.MgMix[kk] * ConcFactor[kk];
-        simContext.CaMix[kk] = simContext.CaMix[kk] * ConcFactor[kk];
-        simContext.SrMix[kk] = simContext.SrMix[kk] * ConcFactor[kk];
-        simContext.BaMix[kk] = simContext.BaMix[kk] * ConcFactor[kk];
-        simContext.FeMix[kk] = simContext.FeMix[kk] * ConcFactor[kk];
-        simContext.ZnMix[kk] = simContext.ZnMix[kk] * ConcFactor[kk];
-        simContext.PbMix[kk] = simContext.PbMix[kk] * ConcFactor[kk]; // Pb added
-        simContext.ClMix[kk] = simContext.ClMix[kk] * ConcFactor[kk];
-        simContext.SO4Mix[kk] = simContext.SO4Mix[kk] * ConcFactor[kk];
-        simContext.FMix[kk] = simContext.FMix[kk] * ConcFactor[kk];
-        simContext.BrMix[kk] = simContext.BrMix[kk] * ConcFactor[kk];           // Br added
-        TH4SiO4Mix[kk] = TH4SiO4Mix[kk] * ConcFactor[kk]; // Input silica as SiO2
-        HCO3AlkMix[kk] = HCO3AlkMix[kk] * ConcFactor[kk];
-        CO3AlkMix[kk] = CO3AlkMix[kk] * ConcFactor[kk];
-        simContext.TAcMix[kk] = simContext.TAcMix[kk] * ConcFactor[kk];
-        TNH4Mix[kk] = TNH4Mix[kk] * ConcFactor[kk];
-        TH3BO3Mix[kk] = TH3BO3Mix[kk] * ConcFactor[kk];
+        simContext.NaMix[kk] = simContext.NaMix[kk] * simContext.ConcFactor[kk]; // Convert mg/L to molality
+        simContext.KMix[kk] = simContext.KMix[kk] * simContext.ConcFactor[kk];
+        simContext.MgMix[kk] = simContext.MgMix[kk] * simContext.ConcFactor[kk];
+        simContext.CaMix[kk] = simContext.CaMix[kk] * simContext.ConcFactor[kk];
+        simContext.SrMix[kk] = simContext.SrMix[kk] * simContext.ConcFactor[kk];
+        simContext.BaMix[kk] = simContext.BaMix[kk] * simContext.ConcFactor[kk];
+        simContext.FeMix[kk] = simContext.FeMix[kk] * simContext.ConcFactor[kk];
+        simContext.ZnMix[kk] = simContext.ZnMix[kk] * simContext.ConcFactor[kk];
+        simContext.PbMix[kk] = simContext.PbMix[kk] * simContext.ConcFactor[kk]; // Pb added
+        simContext.ClMix[kk] = simContext.ClMix[kk] * simContext.ConcFactor[kk];
+        simContext.SO4Mix[kk] = simContext.SO4Mix[kk] * simContext.ConcFactor[kk];
+        simContext.FMix[kk] = simContext.FMix[kk] * simContext.ConcFactor[kk];
+        simContext.BrMix[kk] = simContext.BrMix[kk] * simContext.ConcFactor[kk];           // Br added
+        simContext.TH4SiO4Mix[kk] = simContext.TH4SiO4Mix[kk] * simContext.ConcFactor[kk]; // Input silica as SiO2
+        simContext.HCO3AlkMix[kk] = simContext.HCO3AlkMix[kk] * simContext.ConcFactor[kk];
+        simContext.CO3AlkMix[kk] = simContext.CO3AlkMix[kk] * simContext.ConcFactor[kk];
+        simContext.TAcMix[kk] = simContext.TAcMix[kk] * simContext.ConcFactor[kk];
+        simContext.TNH4Mix[kk] = simContext.TNH4Mix[kk] * simContext.ConcFactor[kk];
+        simContext.TH3BO3Mix[kk] = simContext.TH3BO3Mix[kk] * simContext.ConcFactor[kk];
 
         if (simContext.UseH2SgasMix[kk] == 0)
         {
-            TH2SaqMix[kk] = TH2SaqMix[kk] * ConcFactor[kk]; // Used to calculate yH2Sstp
+            simContext.TH2SaqMix[kk] = simContext.TH2SaqMix[kk] * simContext.ConcFactor[kk]; // Used to calculate yH2Sstp
         }
 
         // HAlkMix 和 OHAlkMix 被注释掉，不处理
-        simContext.RaMix[kk] = simContext.RaMix[kk] * ConcFactor[kk];
+        simContext.RaMix[kk] = simContext.RaMix[kk] * simContext.ConcFactor[kk];
     }
-    simContext.AlkMix[kk] = HCO3AlkMix[kk] + 2 * CO3AlkMix[kk] - HAlkMix[kk] + OHAlkMix[kk];
-    TCO2Mix[kk] = HCO3AlkMix[kk] + CO3AlkMix[kk];
+    simContext.AlkMix[kk] = simContext.HCO3AlkMix[kk] + 2 * simContext.CO3AlkMix[kk] - simContext.HAlkMix[kk] + simContext.OHAlkMix[kk];
+    simContext.TCO2Mix[kk] = simContext.HCO3AlkMix[kk] + simContext.CO3AlkMix[kk];
     if (UseTPCalciteSheet != 1)
     {
         UseTPCalciteSheet = 0;
     }
 
-    if (Run_Seawater_Mixing == 1 && j == 2)
+    if (Run_Seawater_Mixing == 1 && simContext.j == 2)
     {
-        yCO2Mix[kk] = pow(10.0, -3.5);
-        yH2SMix[kk] = 0.0;
-        TH2SaqMix[kk] = 0.0;
+        simContext.yCO2Mix[kk] = pow(10.0, -3.5);
+        simContext.yH2SMix[kk] = 0.0;
+        simContext.TH2SaqMix[kk] = 0.0;
         simContext.UseH2SgasMix[kk] = 0; // 假设是 int 类型
     }
-    if (UseTPpHMix[kk] == 1)
+    if (simContext.UseTPpHMix[kk] == 1)
     {
-        if (TofpH[kk] == 0.0 && UseSI == 0)
-            TofpH[kk] = 77.0;
-        if (PofpH[kk] == 0.0 && UseSI == 0)
-            PofpH[kk] = 14.696;
-        if (TofpH[kk] == 0.0 && UseSI == 1)
-            TofpH[kk] = 25.0;
-        if (PofpH[kk] == 0.0 && UseSI == 1)
-            PofpH[kk] = 1.0;
+        if (simContext.TofpH[kk] == 0.0 && UseSI == 0)
+            simContext.TofpH[kk] = 77.0;
+        if (simContext.PofpH[kk] == 0.0 && UseSI == 0)
+            simContext.PofpH[kk] = 14.696;
+        if (simContext.TofpH[kk] == 0.0 && UseSI == 1)
+            simContext.TofpH[kk] = 25.0;
+        if (simContext.PofpH[kk] == 0.0 && UseSI == 1)
+            simContext.PofpH[kk] = 1.0;
     }
     else
     {
         if (UseSI == 0)
         {
-            TofpH[kk] = 77.0;
-            PofpH[kk] = 14.696; // set to 77 F and 14.696 psia as default for pH calculation
+            simContext.TofpH[kk] = 77.0;
+            simContext.PofpH[kk] = 14.696; // set to 77 F and 14.696 psia as default for pH calculation
         }
         else
         {
-            TofpH[kk] = 25.0;
-            PofpH[kk] = 1.0;
+            simContext.TofpH[kk] = 25.0;
+            simContext.PofpH[kk] = 1.0;
         }
     }
 
-    if (UseTPVolMix[kk] == 1)
+    if (simContext.UseTPVolMix[kk] == 1)
     {
-        if (TofVol[kk] == 0.0 && UseSI == 0)
-            TofVol[kk] = 77.0; // set default to 77 F
-        if (PofVol[kk] == 0.0 && UseSI == 0)
-            PofVol[kk] = 14.696; // set default to 1 atm
-        if (TofVol[kk] == 0.0 && UseSI == 1)
-            TofVol[kk] = 25.0;
-        if (PofVol[kk] == 0.0 && UseSI == 1)
-            PofVol[kk] = 1.013254;
+        if (simContext.TofVol[kk] == 0.0 && UseSI == 0)
+            simContext.TofVol[kk] = 77.0; // set default to 77 F
+        if (simContext.PofVol[kk] == 0.0 && UseSI == 0)
+            simContext.PofVol[kk] = 14.696; // set default to 1 atm
+        if (simContext.TofVol[kk] == 0.0 && UseSI == 1)
+            simContext.TofVol[kk] = 25.0;
+        if (simContext.PofVol[kk] == 0.0 && UseSI == 1)
+            simContext.PofVol[kk] = 1.013254;
     }
     else
     {
         if (UseSI == 0)
         {
-            TofVol[kk] = 77.0;
-            PofVol[kk] = 14.696;
+            simContext.TofVol[kk] = 77.0;
+            simContext.PofVol[kk] = 14.696;
         }
         else
         { // set to 25 C and 1.013254 atm as default for EOS calculation
-            TofVol[kk] = 25.0;
-            PofVol[kk] = 1.013254;
+            simContext.TofVol[kk] = 25.0;
+            simContext.PofVol[kk] = 1.013254;
         }
     }
 
-    yCH4Mix[kk] = 1 - (yCO2Mix[kk] + yH2SMix[kk]);
-    if (yCH4Mix[kk] < 0)
+    simContext.yCH4Mix[kk] = 1 - (simContext.yCO2Mix[kk] + simContext.yH2SMix[kk]);
+    if (simContext.yCH4Mix[kk] < 0)
     {
-        yCH4Mix[kk] = 0;
+        simContext.yCH4Mix[kk] = 0;
     }
 
     if (simContext.UseH2SgasMix[kk] != 0 && simContext.UseH2SgasMix[kk] != 1)
@@ -1641,38 +1589,38 @@ void ReadInputPartA(int kk, SampleData* data)
         //     End
     }
 
-    if (yCO2Mix[kk] > 1.0)
+    if (simContext.yCO2Mix[kk] > 1.0)
     {
         errmsg[0] = 1;  // 源代码：errmsg(1) = 1
-        yCO2Mix[kk] = 1.0;
+        simContext.yCO2Mix[kk] = 1.0;
     }
 
-    if (yCO2Mix[kk] < 0.0)
+    if (simContext.yCO2Mix[kk] < 0.0)
     {
         errmsg[1] = 2;
-        yCO2Mix[kk] = 0.0;
+        simContext.yCO2Mix[kk] = 0.0;
         yCO2 = 0.0;
         CO2aq = 0.0;
         HCO3 = 0.0;
         CO3 = 0.0;
     }
 
-    if (yH2SMix[kk] > 1.0)
+    if (simContext.yH2SMix[kk] > 1.0)
     {
         errmsg[2] = 3;
-        yH2SMix[kk] = 1.0;
+        simContext.yH2SMix[kk] = 1.0;
         yH2S = 1.0;
-        TH2SaqMix[kk] = 0.0; // This will cause the program to use yH2Sstp as the calculation for TH2Saq instead of the input sheet value
+        simContext.TH2SaqMix[kk] = 0.0; // This will cause the program to use yH2Sstp as the calculation for TH2Saq instead of the input sheet value
     }
 
-    if (yH2SMix[kk] < 0.0)
+    if (simContext.yH2SMix[kk] < 0.0)
     {
         errmsg[3] = 4;   //
-        yH2SMix[kk] = 0.0;
+        simContext.yH2SMix[kk] = 0.0;
         yH2S = 0.0;
         HS = 0.0;
         H2Saq = 0.0;
-        TH2SaqMix[kk] = 0.0;
+        simContext.TH2SaqMix[kk] = 0.0;
     }
 }
 
@@ -1682,44 +1630,44 @@ double fH2ODensity(double TK, double PBar);
 
 void ReadInputPartB(int kk, SampleData* data)
 {
-    VgTPMix[kk] = data->Q_Gas;
-    VoMix[kk] = data->Q_Oil;
-    VwMix[kk] = data->Q_Water;
-    oilAPIgravMix[kk] = data->API;
-    gasSpGravMix[kk] = data->SG_g;
-    VMeOHMix[kk] = data->Q_MeOH;
-    VMEGMix[kk] = data->Q_MEG;
+    simContext.VgTPMix[kk] = data->Q_Gas;
+    simContext.VoMix[kk] = data->Q_Oil;
+    simContext.VwMix[kk] = data->Q_Water;
+    simContext.oilAPIgravMix[kk] = data->API;
+    simContext.gasSpGravMix[kk] = data->SG_g;
+    simContext.VMeOHMix[kk] = data->Q_MeOH;
+    simContext.VMEGMix[kk] = data->Q_MEG;
 
     if (RunWhatIf == 1)
     {
         if (CaseCountWI[Loop1WI] == 25)
         {
-            VgTPMix[kk] = VgTPWI[Loop1WI][Loop2WI];
+            simContext.VgTPMix[kk] = VgTPWI[Loop1WI][Loop2WI];
         }
         if (CaseCountWI[Loop1WI] == 26)
         {
-            VoMix[kk] = VoWI[Loop1WI][Loop2WI];
+            simContext.VoMix[kk] = VoWI[Loop1WI][Loop2WI];
         }
         if (CaseCountWI[Loop1WI] == 27)
         {
-            VwMix[kk] = VwWI[Loop1WI][Loop2WI];
+            simContext.VwMix[kk] = VwWI[Loop1WI][Loop2WI];
         }
     }
 
     if (Run_Seawater_Mixing == 1 && LoopMixing == 1 && kk == 0)
     {
         //offset:VwSW1 = VwMix(1): VgSW1 = VgTPMix(1): VoSW1 = VoMix(1): VMeOHSW1 = VMeOHMix(1): VMEGSW1 = VMEGMix(1)
-        VwSW1 = VwMix[0];
-        VgSW1 = VgTPMix[0];
-        VoSW1 = VoMix[0];
-        VMeOHSW1 = VMeOHMix[0];
-        VMEGSW1 = VMEGMix[0];
+        VwSW1 = simContext.VwMix[0];
+        VgSW1 = simContext.VgTPMix[0];
+        VoSW1 = simContext.VoMix[0];
+        VMeOHSW1 = simContext.VMeOHMix[0];
+        VMEGSW1 = simContext.VMEGMix[0];
     }
 
     // 舍弃此字段
     if (Run10TestCases == 1)
     {
-        usepHmix[kk] = 0;
+        simContext.usepHmix[kk] = 0;
         // yCO2Mix(kk) = Worksheets("Calcite").Cells(15 + Loop10, 3) / 100
     }
 
@@ -1737,87 +1685,87 @@ void ReadInputPartB(int kk, SampleData* data)
     }
     if (Run_MixingTwoWells == 1)
     {
-        VgTPMix[kk] = VgTPMix[kk] * simContext.MixFrac[kk];
-        VoMix[kk] = VoMix[kk] * simContext.MixFrac[kk];
-        VwMix[kk] = VwMix[kk] * simContext.MixFrac[kk];
-        VMeOHMix[kk] = VMeOHMix[kk] * simContext.MixFrac[kk];
-        VMEGMix[kk] = VMEGMix[kk] * simContext.MixFrac[kk];
+        simContext.VgTPMix[kk] = simContext.VgTPMix[kk] * simContext.MixFrac[kk];
+        simContext.VoMix[kk] = simContext.VoMix[kk] * simContext.MixFrac[kk];
+        simContext.VwMix[kk] = simContext.VwMix[kk] * simContext.MixFrac[kk];
+        simContext.VMeOHMix[kk] = simContext.VMeOHMix[kk] * simContext.MixFrac[kk];
+        simContext.VMEGMix[kk] = simContext.VMEGMix[kk] * simContext.MixFrac[kk];
     }
     if (Run_Seawater_Mixing == 1)
     {
-        VwMix[kk] = VwSW1 * simContext.MixFrac[kk];
+        simContext.VwMix[kk] = VwSW1 * simContext.MixFrac[kk];
 
         if (kk == 0)
         {
-            VoMix[kk] = VoSW1 * simContext.MixFrac[kk];
-            VgTPMix[kk] = VgSW1 * simContext.MixFrac[kk];
-            VMeOHMix[kk] = VMeOHSW1 * simContext.MixFrac[kk];
-            VMEGMix[kk] = VMEGSW1 * simContext.MixFrac[kk];
+            simContext.VoMix[kk] = VoSW1 * simContext.MixFrac[kk];
+            simContext.VgTPMix[kk] = VgSW1 * simContext.MixFrac[kk];
+            simContext.VMeOHMix[kk] = VMeOHSW1 * simContext.MixFrac[kk];
+            simContext.VMEGMix[kk] = VMEGSW1 * simContext.MixFrac[kk];
         }
         else
         {
-            VoMix[kk] = 0;
-            VgTPMix[kk] = 0;
-            VMeOHMix[kk] = 0;
-            VMEGMix[kk] = 0;
+            simContext.VoMix[kk] = 0;
+            simContext.VgTPMix[kk] = 0;
+            simContext.VMeOHMix[kk] = 0;
+            simContext.VMEGMix[kk] = 0;
         }
     }
 
     if (UseSI == 0)
     {
         // convert 1000 ft^3 to m^3
-        VgTPMix[kk] = VgTPMix[kk] * 28.31685;
+        simContext.VgTPMix[kk] = simContext.VgTPMix[kk] * 28.31685;
     }
     else
     {
         // convert 1000 m^3 to m^3
-        VgTPMix[kk] = VgTPMix[kk] * 1000;
+        simContext.VgTPMix[kk] = simContext.VgTPMix[kk] * 1000;
     }
 
     if (UseSI == 1)
     {
         // Convert m^3 to barrels
-        VoMix[kk] = VoMix[kk] / 0.159;
-        VwMix[kk] = VwMix[kk] / 0.159;
-        VMeOHMix[kk] = VMeOHMix[kk] / 0.159;
-        VMEGMix[kk] = VMEGMix[kk] / 0.159;
+        simContext.VoMix[kk] = simContext.VoMix[kk] / 0.159;
+        simContext.VwMix[kk] = simContext.VwMix[kk] / 0.159;
+        simContext.VMeOHMix[kk] = simContext.VMeOHMix[kk] / 0.159;
+        simContext.VMEGMix[kk] = simContext.VMEGMix[kk] / 0.159;
 
         // Convert temperature from Celsius to Fahrenheit
-        TofVol[kk] = TofVol[kk] * 9.0 / 5.0 + 32.0;
+        simContext.TofVol[kk] = simContext.TofVol[kk] * 9.0 / 5.0 + 32.0;
 
         // Convert pressure from Bar to psia
-        PofVol[kk] = PofVol[kk] * 14.503774;
+        simContext.PofVol[kk] = simContext.PofVol[kk] * 14.503774;
 
         // Same conversions for pH-related data
-        TofpH[kk] = TofpH[kk] * 9.0 / 5.0 + 32.0;
-        PofpH[kk] = PofpH[kk] * 14.503774;
+        simContext.TofpH[kk] = simContext.TofpH[kk] * 9.0 / 5.0 + 32.0;
+        simContext.PofpH[kk] = simContext.PofpH[kk] * 14.503774;
     }
 
-    TpH = TofpH[kk];
-    PpH = PofpH[kk];
-    TVol = TofVol[kk];
-    Pvol = PofVol[kk];
+    TpH = simContext.TofpH[kk];
+    PpH = simContext.PofpH[kk];
+    TVol = simContext.TofVol[kk];
+    Pvol = simContext.PofVol[kk];
 
     // 若为 0 或空字符串则赋默认值
     // 在 C 中不能判断 ""，只能判断是否为 0
-    if (oilAPIgravMix[kk] == 0)
+    if (simContext.oilAPIgravMix[kk] == 0)
     {
-        oilAPIgravMix[kk] = 30.0;
+        simContext.oilAPIgravMix[kk] = 30.0;
     }
-    if (gasSpGravMix[kk] == 0)
+    if (simContext.gasSpGravMix[kk] == 0)
     {
-        gasSpGravMix[kk] = 0.6;
+        simContext.gasSpGravMix[kk] = 0.6;
     }
 
-    if (UseTPVolMix[kk] == 0)
+    if (simContext.UseTPVolMix[kk] == 0)
     {
         fTPFunc(0); // STP condition  mt = fTPFunc(0)
 
-        GasDensityMix[kk] = gasSpGravMix[kk] *
+        simContext.GasDensityMix[kk] = simContext.gasSpGravMix[kk] *
             (Patm * 28.97 / (0.08206 * TK)); // kg/m^3
 
         // OilDensityMix(kk) = (141.5 / (oilAPIgravMix(kk) + 131.5)) * (fH2ODensity(TK, PBar) / 1000) 'conver density from API gravity
-        OilDensityMix[kk] = (141.5 / (oilAPIgravMix[kk] + 131.5)) *
+        simContext.OilDensityMix[kk] = (141.5 / (simContext.oilAPIgravMix[kk] + 131.5)) *
             (fH2ODensity(TK, PBar) / 1000.0);
     }
     else
@@ -1825,33 +1773,33 @@ void ReadInputPartB(int kk, SampleData* data)
 
         fTPFunc(1); // Use actual T, P
 
-        GasDensityMix[kk] = gasSpGravMix[kk] *
+        simContext.GasDensityMix[kk] = simContext.gasSpGravMix[kk] *
             (Patm * 28.97 / (0.08206 * TK)); // kg/m^3
         // 调用外部函数，暂时忽略fH2ODensity
-        OilDensityMix[kk] = (141.5 / (oilAPIgravMix[kk] + 131.5)) *
+        simContext.OilDensityMix[kk] = (141.5 / (simContext.oilAPIgravMix[kk] + 131.5)) *
             (fH2ODensity(TK, PBar) / 1000.0);
     }
 
     // If volume of gas is equal to zero, then add one mL of gas
-    if (VgTPMix[kk] == 0.0)
+    if (simContext.VgTPMix[kk] == 0.0)
     {
-        VgTPMix[kk] = 1.0 / 1000000.0;
+        simContext.VgTPMix[kk] = 1.0 / 1000000.0;
     }
 
     // If no oil is reported, add one ml of oil per day, to avoid singularities
-    if (VoMix[kk] == 0.0)
+    if (simContext.VoMix[kk] == 0.0)
     {
-        VoMix[kk] = 1.0 / 159.0 / 1000.0;
+        simContext.VoMix[kk] = 1.0 / 159.0 / 1000.0;
     }
 
     // If no water is reported, add one ml of water per day, to avoid singularities
-    if (VwMix[kk] == 0.0)
+    if (simContext.VwMix[kk] == 0.0)
     {
-        VwMix[kk] = 1.0 / 159.0 / 1000.0;
+        simContext.VwMix[kk] = 1.0 / 159.0 / 1000.0;
     }
 
     // MeOH and MEG cannot both be > 0
-    if (VMeOHMix[kk] > 0.0 && VMEGMix[kk] > 0.0)
+    if (simContext.VMeOHMix[kk] > 0.0 && simContext.VMEGMix[kk] > 0.0)
     {
         // printf("MeOH and MEG cannot both be > 0. Please check the Input Sheet and try it again.\n");
         // exit(1); // equivalent to VB's 'End'
@@ -1859,13 +1807,13 @@ void ReadInputPartB(int kk, SampleData* data)
     }
 
     // Mass of methanol (Kg)
-    mass_MeOH_mix[kk] = 159.0 * VMeOHMix[kk] * 0.7914;
+    simContext.mass_MeOH_mix[kk] = 159.0 * simContext.VMeOHMix[kk] * 0.7914;
 
     // Mass of MEG (Kg)
-    mass_MEG_mix[kk] = 159.0 * VMEGMix[kk] * 1.1098;
+    simContext.mass_MEG_mix[kk] = 159.0 * simContext.VMEGMix[kk] * 1.1098;
 
     // Brine flow rate, unit: cm3/sec
-    QBrineFlow = VwMix[kk] * 159.0 * 1000.0 / 86400.0;
+    QBrineFlow = simContext.VwMix[kk] * 159.0 * 1000.0 / 86400.0;
 
     // Calculate Surface Area contacted by brine, cm²
     SArea = pi * PipeID * PipeL;
@@ -2724,7 +2672,7 @@ void C2_Pitzer2019(double tk, double tc, double pBar, double patm) {
     b0[iH][iSO4] = fPP(tk, 0.08198, -0.17932, 0.000106, 4655, 49.798, 0);
 
     // b0(iNa, iOH) = 276.33247 + -7310.7724 / (tk) + -49.35997 * Log(tk) + 0.11070737 * (tk) + -0.000041248335 * (tk) ^ 2 + 11.931122 / (tk - 227) + 1.6386916 / (647 - tk) 'from Pabalan and Pitzer 1987
-    b0[iNa][iOH] = 276.33247 - 7310.7724 / tk - 49.35997 * log(tk) + 0.11070737 * tk - 0.000041248335 * pow(tk, 2) + 11.931122 / (tk - 227) + 1.6386916 / (647 - tk);
+    b0[iNa][iOH] = 276.33247 - 7310.7724 / tk - 49.35997 * log(tk) + 0.11070737 * tk - 0.000041248335 * tk * tk + 11.931122 / (tk - 227.0) + 1.6386916 / (647.0 - tk);
 
     // q1 = -656.81518: q2 = 24.8691295: q3 = 0.000053812752667: q4 = -5.58874699E-08: q5 = 6.589326333E-12
     double q1 = -656.81518;
@@ -4159,7 +4107,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
 
         if (TH2Saq == 0.0 && yH2S == 0.0) {
             H2Saq = 0.0; HS = 0.0; TH2Saq = 0.0; yH2S = 0.0;
-            TH2SaqMix[kk] = 0.0; yH2SMix[kk] = 0.0;  // Assuming i is defined elsewhere
+            simContext.TH2SaqMix[simContext.kk] = 0.0; simContext.yH2SMix[simContext.kk] = 0.0;  // Assuming i is defined elsewhere
         }
 
         // 计算其他弱酸物种
@@ -4652,18 +4600,18 @@ void fTotalCO2H2Smoles() {
 
 /*      存在 内存泄露 的可能性  ， 详细查看代码：if (!(*mf_ParametersWereRead))    - 彭非  */
 void InitialPreparationSSP(
-    bool* mf_ParametersWereRead,
+    bool& mf_ParametersWereRead,
     const char* EOS,
-    double* zInput,    // 输入组分
-    int* iFlash,      // 闪蒸索引
-    double* zGlobal,   // 全局组分
-    double** mf_TCr,    //mf_TCr    一维数组的地址
-    double** mf_PCr,    //mf_PCr    一维数组的地址
-    double** mf_Omega,    //mf_Omega    一维数组的地址
-    double** mf_MWgas,    //mf_MWgas    一维数组的地址
-    double*** mf_kPr,       //mf_kPr    二维数组的地址
-    double** mf_c0,    //mf_c0         一维数组的地址
-    double** mf_c1,    //mf_c1      一维数组的地址
+    DoubleVec& zInput,    // 输入组分
+    IntVec& iFlash,      // 闪蒸索引
+    DoubleVec& zGlobal,   // 全局组分
+    DoubleVec& mf_TCr,
+    DoubleVec& mf_PCr,
+    DoubleVec& mf_Omega,
+    DoubleVec& mf_MWgas,
+    DoubleMatrix& mf_kPr,
+    DoubleVec& mf_c0,
+    DoubleVec& mf_c1,
     int max_NumGases,
     int NumGases
 )
@@ -4695,40 +4643,18 @@ void InitialPreparationSSP(
     // 
     // by   - 彭非
     //--------------------------------------------
-    if (!(*mf_ParametersWereRead)) {
+    if (!mf_ParametersWereRead) {
 
         //mf_kPr比较特殊，我不知道它的行列是否一直是同一个数组，如果上次调用MultiPhaseFlash得到的NumGases是6，而这次的NumGases是5，绝对会出现内存泄露。
 
         //源代码：ReDim mf_MWgas(NumGases), mf_TCr(NumGases), mf_PCr(NumGases), mf_Omega(NumGases), mf_c0(NumGases), mf_c1(NumGases), mf_kPr(NumGases, NumGases)
-        if (*mf_MWgas) { free(*mf_MWgas); *mf_MWgas = NULL; }
-        if (*mf_TCr) { free(*mf_TCr);   *mf_TCr = NULL; }
-        if (*mf_PCr) { free(*mf_PCr);   *mf_PCr = NULL; }
-        if (*mf_Omega) { free(*mf_Omega); *mf_Omega = NULL; }
-        if (*mf_c0) { free(*mf_c0);    *mf_c0 = NULL; }
-        if (*mf_c1) { free(*mf_c1);    *mf_c1 = NULL; }
-
-        if (*mf_kPr) {
-            // 我们无法知道之前分配的行数是多少；尝试以 NumGases 为上限安全释放
-            for (i = 0; i < NumGases; ++i) {
-                if ((*mf_kPr)[i]) {
-                    free((*mf_kPr)[i]);
-                    (*mf_kPr)[i] = NULL;
-                }
-            }
-            free(*mf_kPr);
-            *mf_kPr = NULL;
-        }
-
-        *mf_MWgas = (double*)malloc(NumGases * sizeof(double));
-        *mf_TCr = (double*)malloc(NumGases * sizeof(double));
-        *mf_PCr = (double*)malloc(NumGases * sizeof(double));
-        *mf_Omega = (double*)malloc(NumGases * sizeof(double));
-        *mf_c0 = (double*)malloc(NumGases * sizeof(double));
-        *mf_c1 = (double*)malloc(NumGases * sizeof(double));
-
-        *mf_kPr = (double**)malloc(NumGases * sizeof(double*));
-        for (i = 0; i < NumGases; i++)
-            (*mf_kPr)[i] = (double*)malloc(NumGases * sizeof(double));
+        mf_MWgas.resize(NumGases, 0);
+        mf_TCr.resize(NumGases, 0);
+        mf_PCr.resize(NumGases, 0);
+        mf_Omega.resize(NumGases, 0);
+        mf_c0.resize(NumGases, 0);
+        mf_c1.resize(NumGases, 0);
+        mf_kPr = DoubleMatrix(NumGases, DoubleVec(NumGases, 0));
         /*
         for (i = 0; i < NumGases; i++) {
             // mf_MWgas[i] = Worksheets("Input").Cells[4 + iFlash[i]][24];
@@ -4752,184 +4678,181 @@ void InitialPreparationSSP(
         }
         */
         //手动模拟上面的输入
-        (*mf_MWgas)[0] = 16.043;
-        (*mf_TCr)[0] = 190.6;
-        (*mf_PCr)[0] = 46;
-        (*mf_Omega)[0] = 0.008;
+        mf_MWgas[0] = 16.043;
+        mf_TCr[0] = 190.6;
+        mf_PCr[0] = 46;
+        mf_Omega[0] = 0.008;
 
-        (*mf_MWgas)[1] = 44.01;
-        (*mf_TCr)[1] = 304.2;
-        (*mf_PCr)[1] = 73.76;
-        (*mf_Omega)[1] = 0.225;
+        mf_MWgas[1] = 44.01;
+        mf_TCr[1] = 304.2;
+        mf_PCr[1] = 73.76;
+        mf_Omega[1] = 0.225;
 
-        (*mf_MWgas)[2] = 34.08;
-        (*mf_TCr)[2] = 373.5;
-        (*mf_PCr)[2] = 89.63;
-        (*mf_Omega)[2] = 0.094;
+        mf_MWgas[2] = 34.08;
+        mf_TCr[2] = 373.5;
+        mf_PCr[2] = 89.63;
+        mf_Omega[2] = 0.094;
 
-        (*mf_MWgas)[3] = 30.07;
-        (*mf_TCr)[3] = 305.5;
-        (*mf_PCr)[3] = 48.84;
-        (*mf_Omega)[3] = 0.098;
+        mf_MWgas[3] = 30.07;
+        mf_TCr[3] = 305.5;
+        mf_PCr[3] = 48.84;
+        mf_Omega[3] = 0.098;
 
-        (*mf_MWgas)[4] = 44.094;
-        (*mf_TCr)[4] = 369.9;
-        (*mf_PCr)[4] = 42.46;
-        (*mf_Omega)[4] = 0.152;
+        mf_MWgas[4] = 44.094;
+        mf_TCr[4] = 369.9;
+        mf_PCr[4] = 42.46;
+        mf_Omega[4] = 0.152;
 
-        (*mf_MWgas)[5] = 58.124;
-        (*mf_TCr)[5] = 408.2;
-        (*mf_PCr)[5] = 36.48;
-        (*mf_Omega)[5] = 0.176;
+        mf_MWgas[5] = 58.124;
+        mf_TCr[5] = 408.2;
+        mf_PCr[5] = 36.48;
+        mf_Omega[5] = 0.176;
 
-        (*mf_MWgas)[6] = 58.124;
-        (*mf_TCr)[6] = 425.3;
-        (*mf_PCr)[6] = 38;
-        (*mf_Omega)[6] = 0.193;
+        mf_MWgas[6] = 58.124;
+        mf_TCr[6] = 425.3;
+        mf_PCr[6] = 38;
+        mf_Omega[6] = 0.193;
 
-        (*mf_MWgas)[7] = 72.151;
-        (*mf_TCr)[7] = 460.45;
-        (*mf_PCr)[7] = 33.84;
-        (*mf_Omega)[7] = 0.227;
+        mf_MWgas[7] = 72.151;
+        mf_TCr[7] = 460.45;
+        mf_PCr[7] = 33.84;
+        mf_Omega[7] = 0.227;
 
-        (*mf_MWgas)[8] = 72.151;
-        (*mf_TCr)[8] = 469.6;
-        (*mf_PCr)[8] = 33.74;
-        (*mf_Omega)[8] = 0.251;
+        mf_MWgas[8] = 72.151;
+        mf_TCr[8] = 469.6;
+        mf_PCr[8] = 33.74;
+        mf_Omega[8] = 0.251;
 
-        (*mf_MWgas)[9] = 86.178;
-        (*mf_TCr)[9] = 507.5;
-        (*mf_PCr)[9] = 29.69;
-        (*mf_Omega)[9] = 0.296;
+        mf_MWgas[9] = 86.178;
+        mf_TCr[9] = 507.5;
+        mf_PCr[9] = 29.69;
+        mf_Omega[9] = 0.296;
 
-        (*mf_MWgas)[10] = 108.46355910141;
-        (*mf_TCr)[10] = 575.5;
-        (*mf_PCr)[10] = 26.26;
-        (*mf_Omega)[10] = 0.545;
+        mf_MWgas[10] = 108.46355910141;
+        mf_TCr[10] = 575.5;
+        mf_PCr[10] = 26.26;
+        mf_Omega[10] = 0.545;
 
-        (*mf_MWgas)[11] = 203.768522560204;
-        (*mf_TCr)[11] = 708.6;
-        (*mf_PCr)[11] = 16.76;
-        (*mf_Omega)[11] = 0.857;
+        mf_MWgas[11] = 203.768522560204;
+        mf_TCr[11] = 708.6;
+        mf_PCr[11] = 16.76;
+        mf_Omega[11] = 0.857;
 
-        (*mf_MWgas)[12] = 321.359072235909;
-        (*mf_TCr)[12] = 945.6;
-        (*mf_PCr)[12] = 13.36;
-        (*mf_Omega)[12] = 1.248;
+        mf_MWgas[12] = 321.359072235909;
+        mf_TCr[12] = 945.6;
+        mf_PCr[12] = 13.36;
+        mf_Omega[12] = 1.248;
 
-        (*mf_MWgas)[13] = 28.013;
-        (*mf_TCr)[13] = 126.2;
-        (*mf_PCr)[13] = 33.94;
-        (*mf_Omega)[13] = 0.040;
+        mf_MWgas[13] = 28.013;
+        mf_TCr[13] = 126.2;
+        mf_PCr[13] = 33.94;
+        mf_Omega[13] = 0.040;
 
-        (*mf_MWgas)[14] = 18;
-        (*mf_TCr)[14] = 647.1;
-        (*mf_PCr)[14] = 220.55;
-        (*mf_Omega)[14] = 0.345;
+        mf_MWgas[14] = 18;
+        mf_TCr[14] = 647.1;
+        mf_PCr[14] = 220.55;
+        mf_Omega[14] = 0.345;
 
         if (strcmp(EOS, "PR") == 0) {
-            (*mf_c0)[0] = -5.19998589998324;
-            (*mf_c1)[0] = 0.0;
+            mf_c0[0] = -5.19998589998324;
+            mf_c1[0] = 0.0;
 
-            (*mf_c0)[1] = -1.90887591231191;
-            (*mf_c1)[1] = 0.0;
+            mf_c0[1] = -1.90887591231191;
+            mf_c1[1] = 0.0;
 
-            (*mf_c0)[2] = -3.92147265302369;
-            (*mf_c0)[3] = -5.7950356085208;
-            (*mf_c0)[4] = -6.35369532428396;
-            (*mf_c0)[5] = -7.18062223841032;
-            (*mf_c0)[6] = -6.48762839907065;
-            (*mf_c0)[7] = -6.19849948277172;
-            (*mf_c0)[8] = -5.12105162468565;
-            (*mf_c0)[9] = -3.4814313848538;
-            (*mf_c0)[10] = -14.8622158330974;
-            (*mf_c0)[11] = -29.8260575190994;
-            (*mf_c0)[12] = 5.77517376259963;
-            (*mf_c0)[13] = -4.23208315053643;
-            (*mf_c0)[14] = 3.00773525559068;
+            mf_c0[2] = -3.92147265302369;
+            mf_c0[3] = -5.7950356085208;
+            mf_c0[4] = -6.35369532428396;
+            mf_c0[5] = -7.18062223841032;
+            mf_c0[6] = -6.48762839907065;
+            mf_c0[7] = -6.19849948277172;
+            mf_c0[8] = -5.12105162468565;
+            mf_c0[9] = -3.4814313848538;
+            mf_c0[10] = -14.8622158330974;
+            mf_c0[11] = -29.8260575190994;
+            mf_c0[12] = 5.77517376259963;
+            mf_c0[13] = -4.23208315053643;
+            mf_c0[14] = 3.00773525559068;
 
-            (*mf_c1)[2] = 0.0;
-            (*mf_c1)[3] = 0.0;
-            (*mf_c1)[4] = 0.0;
-            (*mf_c1)[5] = 0.0;
-            (*mf_c1)[6] = 0.0;
-            (*mf_c1)[7] = 0.0;
-            (*mf_c1)[8] = 0.0;
-            (*mf_c1)[9] = 0.0;
-            (*mf_c1)[10] = -0.00560031997876096;
-            (*mf_c1)[11] = 0.101896336756916;
-            (*mf_c1)[12] = 0.279177061769215;
-            (*mf_c1)[13] = 0.0;
-            (*mf_c1)[14] = 0.00873186552687633;
+            mf_c1[2] = 0.0;
+            mf_c1[3] = 0.0;
+            mf_c1[4] = 0.0;
+            mf_c1[5] = 0.0;
+            mf_c1[6] = 0.0;
+            mf_c1[7] = 0.0;
+            mf_c1[8] = 0.0;
+            mf_c1[9] = 0.0;
+            mf_c1[10] = -0.00560031997876096;
+            mf_c1[11] = 0.101896336756916;
+            mf_c1[12] = 0.279177061769215;
+            mf_c1[13] = 0.0;
+            mf_c1[14] = 0.00873186552687633;
         }
         if (strcmp(EOS, "SRK") == 0) {
             // ??
         }
-        for (i = 0; i < NumGases; i++)
-            for (j = 0; j < NumGases; j++)
-                (*mf_kPr)[i][j] = 0;
 
-        (*mf_kPr)[0][0] = 0;
+        mf_kPr[0][0] = 0;
 
-        (*mf_kPr)[1][0] = 0.12;
+        mf_kPr[1][0] = 0.12;
 
-        (*mf_kPr)[2][0] = 0.08;
-        (*mf_kPr)[2][1] = 0.12;
+        mf_kPr[2][0] = 0.08;
+        mf_kPr[2][1] = 0.12;
 
-        (*mf_kPr)[3][1] = 0.15;
-        (*mf_kPr)[3][2] = 0.07;
+        mf_kPr[3][1] = 0.15;
+        mf_kPr[3][2] = 0.07;
 
-        (*mf_kPr)[4][1] = 0.15;
-        (*mf_kPr)[4][2] = 0.07;
+        mf_kPr[4][1] = 0.15;
+        mf_kPr[4][2] = 0.07;
 
-        (*mf_kPr)[5][1] = 0.15;
-        (*mf_kPr)[5][2] = 0.06;
+        mf_kPr[5][1] = 0.15;
+        mf_kPr[5][2] = 0.06;
 
-        (*mf_kPr)[6][1] = 0.15;
-        (*mf_kPr)[6][2] = 0.06;
+        mf_kPr[6][1] = 0.15;
+        mf_kPr[6][2] = 0.06;
 
-        (*mf_kPr)[7][1] = 0.15;
-        (*mf_kPr)[7][2] = 0.06;
+        mf_kPr[7][1] = 0.15;
+        mf_kPr[7][2] = 0.06;
 
-        (*mf_kPr)[8][1] = 0.15;
-        (*mf_kPr)[8][2] = 0.06;
+        mf_kPr[8][1] = 0.15;
+        mf_kPr[8][2] = 0.06;
 
-        (*mf_kPr)[9][1] = 0.15;
-        (*mf_kPr)[9][2] = 0.05;
+        mf_kPr[9][1] = 0.15;
+        mf_kPr[9][2] = 0.05;
 
-        (*mf_kPr)[10][1] = 0.15;
-        (*mf_kPr)[10][2] = 0.05;
+        mf_kPr[10][1] = 0.15;
+        mf_kPr[10][2] = 0.05;
 
-        (*mf_kPr)[11][1] = 0.15;
-        (*mf_kPr)[11][2] = 0.05;
+        mf_kPr[11][1] = 0.15;
+        mf_kPr[11][2] = 0.05;
 
-        (*mf_kPr)[12][1] = 0.15;
-        (*mf_kPr)[12][2] = 0.05;
+        mf_kPr[12][1] = 0.15;
+        mf_kPr[12][2] = 0.05;
 
-        (*mf_kPr)[13][0] = 0.02;
-        (*mf_kPr)[13][3] = 0.06;
-        (*mf_kPr)[13][4] = 0.08;
-        (*mf_kPr)[13][5] = 0.08;
-        (*mf_kPr)[13][6] = 0.08;
-        (*mf_kPr)[13][7] = 0.08;
-        (*mf_kPr)[13][8] = 0.08;
-        (*mf_kPr)[13][9] = 0.08;
-        (*mf_kPr)[13][10] = 0.08;
-        (*mf_kPr)[13][11] = 0.08;
-        (*mf_kPr)[13][12] = 0.08;
+        mf_kPr[13][0] = 0.02;
+        mf_kPr[13][3] = 0.06;
+        mf_kPr[13][4] = 0.08;
+        mf_kPr[13][5] = 0.08;
+        mf_kPr[13][6] = 0.08;
+        mf_kPr[13][7] = 0.08;
+        mf_kPr[13][8] = 0.08;
+        mf_kPr[13][9] = 0.08;
+        mf_kPr[13][10] = 0.08;
+        mf_kPr[13][11] = 0.08;
+        mf_kPr[13][12] = 0.08;
 
-        (*mf_kPr)[14][0] = 0.45;
-        (*mf_kPr)[14][3] = 0.45;
-        (*mf_kPr)[14][4] = 0.53;
-        (*mf_kPr)[14][5] = 0.52;
-        (*mf_kPr)[14][6] = 0.52;
-        (*mf_kPr)[14][7] = 0.5;
-        (*mf_kPr)[14][8] = 0.5;
-        (*mf_kPr)[14][9] = 0.5;
-        (*mf_kPr)[14][10] = 0.5;
-        (*mf_kPr)[14][11] = 0.5;
-        (*mf_kPr)[14][12] = 0.5;
-        *mf_ParametersWereRead = true;
+        mf_kPr[14][0] = 0.45;
+        mf_kPr[14][3] = 0.45;
+        mf_kPr[14][4] = 0.53;
+        mf_kPr[14][5] = 0.52;
+        mf_kPr[14][6] = 0.52;
+        mf_kPr[14][7] = 0.5;
+        mf_kPr[14][8] = 0.5;
+        mf_kPr[14][9] = 0.5;
+        mf_kPr[14][10] = 0.5;
+        mf_kPr[14][11] = 0.5;
+        mf_kPr[14][12] = 0.5;
+        mf_ParametersWereRead = true;
     }
 
     // --- 4. 归一化全局摩尔分数 ---
@@ -4967,7 +4890,7 @@ double PsatCO2(double TK)
 
 //---------------------------------------------闫师兄的：
 
-bool isAqueous_2016(bool eqAqueous, const double composition[], const double globalComposition[], int NumGases)
+bool isAqueous_2016(bool eqAqueous, DoubleVec& composition, DoubleVec& globalComposition, int NumGases)
 {
     double composition_ratio = 1.001; // 用于比较的比例因子
     double tol = composition_ratio - 1.0;
@@ -5295,23 +5218,23 @@ double logKHenry_N2(double TK)
 
 
 void phi_calc(
-    bool eqVapor, bool eqAqueous, const char* EOS, const char* phase,
-    double TK, double PBar, double x[], double xGlobal[],
-    double gNeut[], double aH2O, double TCr[], double PCr[],
-    double Omega[], double c0[], double c1[], double** kPr,
-    double lnPHI[], double* z, int NumGases)
+    bool eqVapor, bool eqAqueous, const std::string& EOS, const std::string& phase,
+    double TK, double PBar, DoubleVec& x, DoubleVec& xGlobal,
+    DoubleVec& gNeut, double aH2O, DoubleVec& TCr, DoubleVec& PCr,
+    DoubleVec& Omega, DoubleVec& c0, DoubleVec& c1, DoubleMatrix& kPr,
+    DoubleVec& lnPHI, double* z, int NumGases)
 {
     //注意：源代码中是Const RBar As Double = 83.14 ，这个RBar和全局的那个重名但数值不一样，这里改成temp_RBar
     const double RBar = 83.14; // cm3·bar/(mol·K)
-    double* Tr = (double*)malloc(NumGases * sizeof(double));
+    DoubleVec Tr(NumGases, 0);
 
-    double* aPR = (double*)malloc(NumGases * sizeof(double));
+    DoubleVec aPR(NumGases, 0);
 
-    double* bPR = (double*)malloc(NumGases * sizeof(double));
+    DoubleVec bPR(NumGases, 0);
 
-    double* lnPHI_Peneloux = (double*)malloc(NumGases * sizeof(double));
+    DoubleVec lnPHI_Peneloux(NumGases, 0);
 
-    double aPrmix = 0.0, bm = 0.0, cm = 0.0, F_Omega, BStarPr, QQ;
+    double aPrmix = 0.0, bm = 0.0, cm = 0.0, F_Omega = 0, BStarPr, QQ;
     double sigma, epsilon, sigmaP, epsilonP, S;
     double a0, a1, a2, a3, asum, ai_bar, qi_bar, ii, Z_Peneloux;
     int i, j, k, comp;
@@ -5337,13 +5260,13 @@ void phi_calc(
             if (xGlobal[k] > 0.0)
             {
                 Tr[k] = TK / TCr[k];
-                if (strcmp(EOS, "SRK") == 0)
+                if (EOS == "SRK")
                 {
                     aPR[k] = 0.42748 * RBar * RBar * TCr[k] * TCr[k] / PCr[k];
                     F_Omega = 0.48 + 1.574 * Omega[k] - 0.176 * Omega[k] * Omega[k];
                     bPR[k] = 0.08664 * RBar * TCr[k] / PCr[k];
                 }
-                else if (strcmp(EOS, "PR") == 0)
+                else if (EOS == "PR")
                 {
                     aPR[k] = 0.45724 * RBar * RBar * TCr[k] * TCr[k] / PCr[k];
                     F_Omega = 0.37464 + 1.54226 * Omega[k] - 0.26992 * Omega[k] * Omega[k];
@@ -5370,12 +5293,12 @@ void phi_calc(
         BStarPr = bm * PBar / (RBar * TK);
         QQ = aPrmix / (bm * RBar * TK);
         // EOS 系数 sigma, epsilon
-        if (strcmp(EOS, "SRK") == 0)
+        if (EOS == "SRK")
         {
             sigma = 1.0;
             epsilon = 0.0;
         }
-        else if (strcmp(EOS, "PR") == 0)
+        else if (EOS == "PR")
         {
             sigma = 1.0 + sqrt(2.0);
             epsilon = 1.0 - sqrt(2.0);
@@ -5391,11 +5314,11 @@ void phi_calc(
         a1 = (epsilonP * sigmaP) * BStarPr * BStarPr - (epsilonP + sigmaP) * BStarPr - (epsilonP + sigmaP) * S * BStarPr * BStarPr + QQ * BStarPr;
         a0 = -sigmaP * epsilonP * BStarPr * BStarPr - sigmaP * epsilonP * BStarPr * BStarPr * BStarPr * S - QQ * S * BStarPr * BStarPr;
 
-        if (strcmp(phase, "vapor") == 0)
+        if (phase == "vapor")
         {
             cubic(a3, a2, a1, a0, "max", z, bm, PBar, TK);
         }
-        else if (strcmp(phase, "liquid") == 0)
+        else if (phase == "liquid")
         {
             cubic(a3, a2, a1, a0, "min", z, bm, PBar, TK);
         }
@@ -5430,7 +5353,7 @@ void phi_calc(
             }
         }
         // 修正水相逸度系数   -这里暂时没有进去
-        if (strcmp(phase, "liquid") == 0 && isAqueous_2016(eqAqueous, x, xGlobal, NumGases))
+        if (phase == "liquid" && isAqueous_2016(eqAqueous, x, xGlobal, NumGases))
         {
             if (xGlobal[0] > 0)
                 lnPHI[0] = logKHenry_CH4(TK) - log(PBar) + (34.5) * (PBar - 1) / (RBar * TK);
@@ -5474,19 +5397,11 @@ void phi_calc(
         for (i = 0; i < NumGases; i++)
             lnPHI[i] = 0;
     }
-
-
-
-
-    free(Tr);
-    free(aPR);
-    free(bPR);
-    free(lnPHI_Peneloux);
 }
 
 
 
-int* BubbleSort(int Ascend, double ArrayIn[], int index[], int n)
+IntVec BubbleSort(int Ascend, DoubleVec& ArrayIn, IntVec& index, int n)
 {
     double SrtTemp;
     int indSrtTemp;
@@ -5536,7 +5451,7 @@ int* BubbleSort(int Ascend, double ArrayIn[], int index[], int n)
 //-------------------------------------------------
 
 
-double weighted_mean(double* weight, double* property, int n)
+double weighted_mean(DoubleVec& weight, DoubleVec& property, int n)
 {
     double sum = 0.0;
     double sumW = 0.0;
@@ -5551,62 +5466,59 @@ double weighted_mean(double* weight, double* property, int n)
 }
 
 
-void OrderPhases(double*** compositions, double*** phi, double** beta, double** MW_Phase,
-    double** mass_phase, double** density, double** Compr, int* nComp, int* nPhase)
+void OrderPhases(DoubleMatrix& compositions, DoubleMatrix& phi,
+    DoubleVec& beta, DoubleVec& MW_Phase, DoubleVec& mass_phase,
+    DoubleVec& density, DoubleVec& Compr, int& nComp, int& nPhase)
 {
-    int nC = *nComp;
-    int nP = *nPhase;
+    //int nC = *nComp;
+    //int nP = *nPhase;
     int i, k, L;
 
-    double** compositions0 = (double**)malloc(nC * sizeof(double*));
-    double** phi0 = (double**)malloc(nC * sizeof(double*));
-    for (i = 0; i < nC; i++)
-    {
-        compositions0[i] = (double*)malloc((nP + 1) * sizeof(double));
-        phi0[i] = (double*)malloc(nP * sizeof(double));
-    }
-    double* BETA0 = (double*)malloc(nP * sizeof(double));
-    double* MW_Phase0 = (double*)malloc(nP * sizeof(double));
-    double* mass_phase0 = (double*)malloc(nP * sizeof(double));
-    double* density0 = (double*)malloc(nP * sizeof(double));
-    double* Compr0 = (double*)malloc(nP * sizeof(double));
+    DoubleMatrix compositions0(nComp, DoubleVec(nPhase + 1, 0));
+    DoubleMatrix phi0(nComp, DoubleVec(nPhase, 0));
+
+    DoubleVec BETA0(nPhase, 0);
+    DoubleVec MW_Phase0(nPhase, 0);
+    DoubleVec mass_phase0(nPhase, 0);
+    DoubleVec density0(nPhase, 0);
+    DoubleVec Compr0(nPhase, 0);
 
     //按密度重新排序相
     int ascending = 1;
-    int* idx_dens = (int*)malloc(nP * sizeof(int));
-    for (k = 0; k < nP; k++)
+    IntVec idx_dens(nPhase, 0);
+    for (k = 0; k < nPhase; k++)
     {
-        density0[k] = (*density)[k];
+        density0[k] = density[k];
         idx_dens[k] = k;
     }
-    BubbleSort(ascending, density0, idx_dens, nP);
+    BubbleSort(ascending, density0, idx_dens, nPhase);
 
     //将所有变量分配给临时数组，按密度排序
-    for (k = 0; k < nP; k++)
+    for (k = 0; k < nPhase; k++)
     {
         L = idx_dens[k];
-        for (i = 0; i < nC; i++)
+        for (i = 0; i < nComp; i++)
         {
             /*
             原代码：
                compositions0(i, k + 1) = compositions(i, L + 1)
                phi0(i, k) = phi(i, L)
             */
-            compositions0[i][k + 1] = (*compositions)[i][L + 1];
-            phi0[i][k] = (*phi)[i][L];
+            compositions0[i][k + 1] = compositions[i][L + 1];
+            phi0[i][k] = phi[i][L];
         }
-        BETA0[k] = (*beta)[L];
-        MW_Phase0[k] = (*MW_Phase)[L];
-        mass_phase0[k] = (*mass_phase)[L];
-        density0[k] = (*density)[L];
-        Compr0[k] = (*Compr)[L];
+        BETA0[k] = beta[L];
+        MW_Phase0[k] = MW_Phase[L];
+        mass_phase0[k] = mass_phase[L];
+        density0[k] = density[L];
+        Compr0[k] = Compr[L];
     }
 
     //确定平衡状态下存在的相类型
     //这里将其全部初始化为-1(在vb中是0，即数组最小索引的前一位)
     int gas = -1, oil = -1, aqueous = -1, zeroPhase = -1, HC1 = -1, HC2 = -1, HCPhases = 0;
-    for (k = 0; k < nP; k++) {
-        if (density0[k] >= 0.3 && compositions0[nC - 1][k + 1] > 0.5)
+    for (k = 0; k < nPhase; k++) {
+        if (density0[k] >= 0.3 && compositions0[nComp - 1][k + 1] > 0.5)
             aqueous = k;
         else if (density0[k] == 0)  // 判断double类型是否为0一般不这样写，此处对应原Vb代码。
             zeroPhase = k;
@@ -5636,42 +5548,26 @@ void OrderPhases(double*** compositions, double*** phi, double** beta, double** 
     }
 
     //如果存在水相，则输出三相
-    if (aqueous != -1 && nP != 3) {
+    if (aqueous != -1 && nPhase != 3) {
         /*
         vb原码：nPhase = 3 ,redim compositions(nComp, nPhase + 1)等直接修改了参数列表。
         推测: 使用引用传递
         */
-        nP = 3;
-        *nPhase = 3;
-
-        for (i = 0; i < nC; i++) {
-            free((*compositions)[i]);
-            free((*phi)[i]);
-        }
-        free(*compositions);
-        free(*phi);
-        free(*beta);
-        free(*MW_Phase);
-        free(*mass_phase);
-        free(*density);
-        free(*Compr);
-
-        *compositions = (double**)malloc(nC * sizeof(double*));
-        *phi = (double**)malloc(nC * sizeof(double*));
-        for (i = 0; i < nC; i++) {
-            (*compositions)[i] = (double*)malloc((nP + 1) * sizeof(double));
-            (*phi)[i] = (double*)malloc(nP * sizeof(double));
-        }
-        *beta = (double*)malloc(nP * sizeof(double));
-        *MW_Phase = (double*)malloc(nP * sizeof(double));
-        *mass_phase = (double*)malloc(nP * sizeof(double));
-        *density = (double*)malloc(nP * sizeof(double));
-        *Compr = (double*)malloc(nP * sizeof(double));
+        nPhase = 3;
+        for (auto& row : compositions)
+            row.resize(nPhase);
+        for (auto& row : phi)
+            row.resize(nPhase);
+        beta.resize(nPhase, 0);
+        MW_Phase.resize(nPhase, 0);
+        mass_phase.resize(nPhase, 0);
+        density.resize(nPhase, 0);
+        Compr.resize(nPhase, 0);
     }
 
     // output phases
     L = 0;
-    for (k = 0; k < nP; k++)
+    for (k = 0; k < nPhase; k++)
     {
         if (k == gas) L = 1;//gas由HC赋值，HC由k赋值，因此直接照搬原代码
         else if (k == oil) L = 2;
@@ -5682,27 +5578,27 @@ void OrderPhases(double*** compositions, double*** phi, double** beta, double** 
             if (BETA0[k] > 0)
             {
                 //注：原代码中是beta[L] = BETA0[k]，那么存在beta的第1、2、3个元素存在被修改的情况，C中的第1、2、3个元素，对应的索引为0、1、2，此处注意偏移量。
-                (*beta)[L - 1] = BETA0[k];
-                (*MW_Phase)[L - 1] = MW_Phase0[k];
-                (*mass_phase)[L - 1] = mass_phase0[k];
-                (*density)[L - 1] = density0[k];
-                (*Compr)[L - 1] = Compr0[k];
-                for (i = 0; i < nC; i++)
+                beta[L - 1] = BETA0[k];
+                MW_Phase[L - 1] = MW_Phase0[k];
+                mass_phase[L - 1] = mass_phase0[k];
+                density[L - 1] = density0[k];
+                Compr[L - 1] = Compr0[k];
+                for (i = 0; i < nComp; i++)
                 {
-                    (*compositions)[i][L] = compositions0[i][k + 1];
-                    (*phi)[i][L - 1] = phi0[i][k];
+                    compositions[i][L] = compositions0[i][k + 1];
+                    phi[i][L - 1] = phi0[i][k];
                 }
             }
             else {
-                (*beta)[L - 1] = 0;
-                (*MW_Phase)[L - 1] = 0;
-                (*mass_phase)[L - 1] = 0;
-                (*density)[L - 1] = 0;
-                (*Compr)[L - 1] = 0;
-                for (i = 0; i < nC; i++)
+                beta[L - 1] = 0;
+                MW_Phase[L - 1] = 0;
+                mass_phase[L - 1] = 0;
+                density[L - 1] = 0;
+                Compr[L - 1] = 0;
+                for (i = 0; i < nComp; i++)
                 {
-                    (*compositions)[i][L] = 0;
-                    (*phi)[i][L - 1] = 0;
+                    compositions[i][L] = 0;
+                    phi[i][L - 1] = 0;
                 }
             }
         }
@@ -5710,66 +5606,51 @@ void OrderPhases(double*** compositions, double*** phi, double** beta, double** 
 
     // 从输出中删除任何不存在的阶段。 注释：本质上第一个修改beat[1],对应C语言的就是beta[0].，可以省略L，直接写数字即可，未修改是为了对应vb代码。
     L = 1;
-    if (gas == 0)
+    if (gas == -1)
     {
-        (*beta)[L - 1] = 0;
-        (*MW_Phase)[L - 1] = 0;
-        (*mass_phase)[L - 1] = 0;
-        (*density)[L - 1] = 0;
-        (*Compr)[L - 1] = 0;
-        for (i = 0; i < nC; i++)
+        beta[L - 1] = 0;
+        MW_Phase[L - 1] = 0;
+        mass_phase[L - 1] = 0;
+        density[L - 1] = 0;
+        Compr[L - 1] = 0;
+        for (i = 0; i < nComp; i++)
         {
-            (*compositions)[i][L] = 0;
-            (*phi)[i][L - 1] = 0;
+            compositions[i][L] = 0;
+            phi[i][L - 1] = 0;
         }
     }
     L = 2;
-    if (oil == 0)
+    if (oil == -1)
     {
-        (*beta)[L - 1] = 0;
-        (*MW_Phase)[L - 1] = 0;
-        (*mass_phase)[L - 1] = 0;
-        (*density)[L - 1] = 0;
-        (*Compr)[L - 1] = 0;
-        for (i = 0; i < nC; i++)
+        beta[L - 1] = 0;
+        MW_Phase[L - 1] = 0;
+        mass_phase[L - 1] = 0;
+        density[L - 1] = 0;
+        Compr[L - 1] = 0;
+        for (i = 0; i < nComp; i++)
         {
-            (*compositions)[i][L] = 0;
-            (*phi)[i][L - 1] = 0;
+            compositions[i][L] = 0;
+            phi[i][L - 1] = 0;
         }
     }
     L = 3;
-    if (aqueous == 0 && nP == 3)
+    if (aqueous == -1 && nPhase == 3)
     {
-        (*beta)[L - 1] = 0;
-        (*MW_Phase)[L - 1] = 0;
-        (*mass_phase)[L - 1] = 0;
-        (*density)[L - 1] = 0;
-        (*Compr)[L - 1] = 0;
-        for (i = 0; i < nC; i++)
+        beta[L - 1] = 0;
+        MW_Phase[L - 1] = 0;
+        mass_phase[L - 1] = 0;
+        density[L - 1] = 0;
+        Compr[L - 1] = 0;
+        for (i = 0; i < nComp; i++)
         {
-            (*compositions)[i][L] = 0;
-            (*phi)[i][L - 1] = 0;
+            compositions[i][L] = 0;
+            phi[i][L - 1] = 0;
         }
     }
-
-    // 释放临时开辟的空间
-    for (i = 0; i < nC; i++)
-    {
-        free(compositions0[i]);
-        free(phi0[i]);
-    }
-    free(compositions0);
-    free(phi0);
-    free(BETA0);
-    free(MW_Phase0);
-    free(mass_phase0);
-    free(density0);
-    free(Compr0);
-    free(idx_dens);
 }
 
 
-int myLimitIndex(const char* max_or_min, const double* composition, const double* property, int k)
+int myLimitIndex(const char* max_or_min, DoubleVec& composition, DoubleVec& property, int k)
 {
     int i;
     double lastProperty;
@@ -5803,9 +5684,9 @@ int myLimitIndex(const char* max_or_min, const double* composition, const double
     return index;
 }
 
-void InitialBeta(int eqVapor, int eqAqueous, double TK, double PBar,
-    int NonZeroNumGases, double* z, double* TCr, double* PCr, double* MWgas,
-    double* beta, int NumGases, int MaxBeta, bool* betaexists)
+void InitialBeta(int eqVapor, int eqAqueous, double TK, double PBar, int NonZeroNumGases,
+    DoubleVec& z, DoubleVec& TCr, DoubleVec& PCr, DoubleVec& MWgas,
+    DoubleVec& beta, int NumGases, int MaxBeta, BoolVec& betaexists)
 {
     int m, j;
     double sumBeta = 0;
@@ -5870,12 +5751,12 @@ void InitialBeta(int eqVapor, int eqAqueous, double TK, double PBar,
 
 
 void Initialization(double zGlobalWater, int NonZeroNumGases, int MaxBeta, const char* EOS,
-    const double* MWgas, const double* TCr, const double* PCr, const double* Omega,
-    double TK, double PBar, double** logphi3phase, int NumGases)
+    DoubleVec& MWgas, DoubleVec& TCr, DoubleVec& PCr, DoubleVec& Omega,
+    double TK, double PBar, DoubleMatrix& logphi3phase, int NumGases)
 {
     int i, j;
     double correction;
-    double* lnKi = (double*)malloc(NumGases * sizeof(double));
+    DoubleVec lnKi(NumGases, 0);
 
     /* Wilson approximation for phase equilibrium constant */
     for (i = 0; i < NumGases; ++i)
@@ -5942,70 +5823,57 @@ void Initialization(double zGlobalWater, int NonZeroNumGases, int MaxBeta, const
             }
         }
     }
-
-    free(lnKi);
 }
 
 
 
-void EQCalculation(double* beta, double** lnPHI, double* zGlobal,
-    double** E, double* Q, int NumGases, int MaxBeta)
+void EQCalculation(DoubleVec& beta, DoubleMatrix& lnPHI,
+    DoubleVec& zGlobal, DoubleVec& E, double* Q, int NumGases, int MaxBeta)
 {
     int i, k;
     double Qphase = 0.0;
     double Qcomp = 0.0;
-    if (*E) {
-        free(*E);
-        *E = NULL;
-    }
 
-    *E = (double*)malloc(NumGases * sizeof(double));
+    E.resize(NumGases, 0);
+
 
     /* 计算辅助向量 E[i] */
     for (i = 0; i < NumGases; ++i)
     {
-        (*E)[i] = 0.0;
+        E[i] = 0.0;
         for (k = 0; k < MaxBeta; ++k)
         {
             if (beta[k] > 0.0 && zGlobal[i] > 0.0)
-            {
-                (*E)[i] += beta[k] / exp(lnPHI[i][k]); /* lnPHI[i][k] -> e^(-lnPHI) */
-            }
+                E[i] += beta[k] / exp(lnPHI[i][k]); /* lnPHI[i][k] -> e^(-lnPHI) */
         }
     }
 
     /* 计算 Qphase */
     for (k = 0; k < MaxBeta; ++k)
-    {
         Qphase += beta[k];
-    }
 
     /* 计算 Qcomp */
     for (i = 0; i < NumGases; ++i)
-    {
         if (zGlobal[i] > 0.0)
-        {
-            Qcomp += zGlobal[i] * log((*E)[i]);
-        }
-    }
+            Qcomp += zGlobal[i] * log(E[i]);
 
     *Q = Qphase - Qcomp;
 }
 
 
-void Gauss(double** a, double* b, int n, double* xs)
+void Gauss(DoubleMatrix& a, DoubleVec& b, int n, DoubleVec& xs)
 {
     int i, j, k, kMax;
-    double** AB;
-    double* rowmax;
+    DoubleMatrix AB(n, DoubleVec(n + 1, 0));
+    DoubleVec rowmax(n + 1, 0);
     double max, sum;
 
     // 动态分配增广矩阵 AB[n][n+1]
-    AB = (double**)malloc(n * sizeof(double*));
-    for (i = 0; i < n; i++)
-        AB[i] = (double*)malloc((n + 1) * sizeof(double));
+    //AB = (double**)malloc(n * sizeof(double*));
+    //for (i = 0; i < n; i++)
+    //    AB[i] = (double*)malloc((n + 1) * sizeof(double));
 
-    rowmax = (double*)malloc((n + 1) * sizeof(double));
+    //rowmax = (double*)malloc((n + 1) * sizeof(double));
 
     // 构建增广矩阵 AB = [A|b]
     for (i = 0; i < n; i++)
@@ -6063,15 +5931,10 @@ void Gauss(double** a, double* b, int n, double* xs)
         xs[j] = (AB[j][n] - sum) / AB[j][j];
     }
 
-    // 释放动态内存
-    for (i = 0; i < n; i++)
-        free(AB[i]);
-    free(AB);
-    free(rowmax);
 }
 
 
-double myMin(double* property, int n)
+double myMin(DoubleVec& property, int n)
 {
     int i;
     double minVal;
@@ -6092,68 +5955,28 @@ double myMin(double* property, int n)
 }
 
 
-void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
-    double* beta, bool* betaexists, double** compositions,
-    bool* continue_flash, int* counterEquilibrium_final,
-    int* iter_final, int* counter_final,
-    int NumGases, int MaxBeta)
+void Equilibrium(DoubleVec& zGlobal, DoubleMatrix& logphi3phase, DoubleVec& E, double* Q,
+    DoubleVec& beta, BoolVec& betaexists, DoubleMatrix& compositions,
+    bool* continue_flash, int* counterEquilibrium_final, int* iter_final, int* counter_final, int NumGases, int MaxBeta)
 {
     bool converged = false;
     long iter = 0, itermax = 1000, counter = 0, counterEquilibrium = 0;
 
-    double* g = NULL;
-    double* gcopy = NULL;
-    double* gsolve = NULL;
-    double* alpha0 = NULL;
-    double* betanew = NULL;
-    double* w = NULL;
-    double* Enew = NULL;
-    double* data = NULL;
-    double** Hessian = NULL;
-    
+    DoubleVec g(MaxBeta, 0);
+    DoubleVec gcopy(MaxBeta, 0);
+    DoubleVec gsolve(MaxBeta, 0);
+    DoubleVec alpha0(MaxBeta, 0);
+    DoubleVec betanew(MaxBeta, 0);
+    DoubleVec w(MaxBeta, 0);
+    DoubleVec Enew(NumGases, 0);
+    DoubleMatrix Hessian(MaxBeta, DoubleVec(MaxBeta, 0));
+
+
     // 错误处理标签
     int error_code = 0;
-    
-    // 分配内存
-    g = (double*)malloc(MaxBeta * sizeof(double));
-    gcopy = (double*)malloc(MaxBeta * sizeof(double));
-    gsolve = (double*)malloc(MaxBeta * sizeof(double));
-    alpha0 = (double*)malloc(MaxBeta * sizeof(double));
-    betanew = (double*)malloc(MaxBeta * sizeof(double));
-    w = (double*)malloc(MaxBeta * sizeof(double));
-    Enew = (double*)malloc(NumGases * sizeof(double));
-
-    if (!g || !gcopy || !gsolve || !alpha0 || !betanew || !w || !Enew) {
-        error_code = 1;
-        goto ErrHandler;
-    }
-
-    memset(g, 0, MaxBeta*sizeof(double));
-    memset(gcopy, 0, MaxBeta*sizeof(double));
-    memset(gsolve, 0, MaxBeta*sizeof(double));
-    memset(alpha0, 0, MaxBeta*(sizeof(double)));
-    memset(betanew, 0, MaxBeta*sizeof(double));
-    memset(w, 0, MaxBeta*sizeof(double));
-    memset(Enew, 0, NumGases*sizeof(double));
-
-    // 一次性分配所有内存，保证内存连续
-    data = (double*)calloc(MaxBeta * MaxBeta, sizeof(double));
-    Hessian = (double**)malloc(MaxBeta * sizeof(double*));
-
-    data = (double*)calloc(MaxBeta * MaxBeta, sizeof(double));
-    Hessian = (double**)malloc(MaxBeta * sizeof(double*));
-
-    if (data == NULL || Hessian == NULL) {
-        error_code = 2;
-        goto ErrHandler;
-    }
-
-    for (int i = 0; i < MaxBeta; ++i) {
-        Hessian[i] = &data[i * MaxBeta];
-    }
 
     double alpha0used, Er2, tol, Difference, epsilon, Qnew;
-    *continue_flash = true;
+    //*continue_flash = true;
 
     while (!converged && counterEquilibrium < 100)
     {
@@ -6269,7 +6092,7 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
                 }
 
                 // 调用已翻译函数 EQCalculation
-                EQCalculation(betanew, logphi3phase, zGlobal, &Enew, &Qnew, NumGases, MaxBeta);
+                EQCalculation(betanew, logphi3phase, zGlobal, Enew, &Qnew, NumGases, MaxBeta);
 
                 Difference = Qnew - *Q;
             }
@@ -6333,24 +6156,16 @@ void Equilibrium(double* zGlobal, double** logphi3phase, double* E, double* Q,
     *iter_final = iter;
     *counter_final = counter;
 
+    return;
 ErrHandler:
     *continue_flash = false;
     *counterEquilibrium_final = counterEquilibrium;
     *iter_final = iter;
     *counter_final = counter;
 
-    if (Hessian) free(Hessian);
-    if (data) free(data);
-    if (g) free(g);
-    if (gcopy) free(gcopy);
-    if (gsolve) free(gsolve);
-    if (alpha0) free(alpha0);
-    if (betanew) free(betanew);
-    if (w) free(w);
-    if (Enew) free(Enew);
     if (error_code != 0) {
         *continue_flash = false;
-        
+
         // 如果还没有计算结果，尽量计算compositions
         if (error_code != 1) {  // 如果不是内存分配失败
             for (int i = 0; i < NumGases; ++i) {
@@ -6362,7 +6177,7 @@ ErrHandler:
                 }
             }
         }
-        
+
         *counterEquilibrium_final = counterEquilibrium;
         *iter_final = iter;
         *counter_final = counter;
@@ -6372,8 +6187,8 @@ ErrHandler:
 
 
 
-int isVapor(int eqVapor, double* composition, double* globalComposition, double TK, double PBar,
-    double* TCr, double* PCr, int lightest, int NumGases)
+int isVapor(int eqVapor, DoubleVec& composition, DoubleVec& globalComposition, double TK, double PBar,
+    DoubleVec& TCr, DoubleVec& PCr, int lightest, int NumGases)
 {
     double composition_ratio = 1.0; // 组分比率阈值
     double tol = 0.00001;           // 容差
@@ -6405,10 +6220,10 @@ int isVapor(int eqVapor, double* composition, double* globalComposition, double 
 }
 
 
-void normalize2Darray(double** x, int nRows, int nCols)
+void normalize2Darray(DoubleMatrix& x, int nRows, int nCols)
 {
     int i, j;
-    double* sum = (double*)calloc(nCols, sizeof(double)); // 存储每列的和
+    DoubleVec sum(nCols, 0);
 
     // 计算每列的和
     for (j = 0; j < nCols; j++)
@@ -6420,12 +6235,10 @@ void normalize2Darray(double** x, int nRows, int nCols)
         if (sum[j] > 0.0)
             for (i = 0; i < nRows; i++)
                 x[i][j] /= sum[j];
-
-    free(sum); // 释放动态分配的内存
 }
 
 
-bool equalArrays(double tolerance, double* array1, double* array2, int nElements)
+bool equalArrays(double tolerance, DoubleVec& array1, DoubleVec& array2, int nElements)
 {
     int i;
     double D1, D2;
@@ -6464,7 +6277,7 @@ bool equalArrays(double tolerance, double* array1, double* array2, int nElements
 }
 
 
-double myMax(double* property, int nElements)
+double myMax(DoubleVec& property, int nElements)
 {
     int i;
     double maxVal = property[0]; // C语言数组从0开始
@@ -6477,10 +6290,10 @@ double myMax(double* property, int nElements)
 }
 
 
-void normalizeWithoutWater(double** x, int nRows, int nCols)
+void normalizeWithoutWater(DoubleMatrix& x, int nRows, int nCols)
 {
     int i, j;
-    double* sum = (double*)calloc(nCols, sizeof(double)); // 存储每列的和
+    DoubleVec sum(nCols, 0);
 
     // 计算每列（不包括最后一行）的和
     for (j = 0; j < nCols; j++)
@@ -6498,12 +6311,10 @@ void normalizeWithoutWater(double** x, int nRows, int nCols)
                 x[i][j] /= sum[j];
         }
     }
-
-    free(sum); // 释放动态分配的内存
 }
 
 
-void indexBubbleSrt(bool ascending, double* ArrayIn, int* index, int nElements)
+void indexBubbleSrt(bool ascending, DoubleVec& ArrayIn, IntVec& index, int nElements)
 {
     int i, j;
     double tempVal;
@@ -6546,43 +6357,43 @@ void indexBubbleSrt(bool ascending, double* ArrayIn, int* index, int nElements)
 }
 
 
-void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, bool eqAqueous,
-    int NonZeroComponents, double* beta, double* density, double* Compr, double** compositions,
-    double** logPHI, char** phase, int* nPhases, char** phaseName, int maxPhases, int nComponents)
+void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, bool eqAqueous, int NonZeroComponents,
+    DoubleVec& beta, DoubleVec& density, DoubleVec& Compr, DoubleMatrix& compositions,
+    DoubleMatrix& logPHI, StrVec& phase, int* nPhases, StrVec& phaseName,
+    int maxPhases, int nComponents)
 {
     int i, j, k, m, n;
     int aqueousPhase = -1;
     double composition_ratio = 1.001;
     double tol = composition_ratio - 1.0;
-    bool** equalPhases = (bool**)calloc(maxPhases, sizeof(bool*));
-    for (i = 0; i < maxPhases; i++) equalPhases[i] = (bool*)calloc(maxPhases, sizeof(bool));;
-    double* relativeComposition_Water = (double*)calloc(maxPhases, sizeof(double));
-    double* compoPhaseA = (double*)calloc(nComponents, sizeof(double));
-    double* compoPhaseB = (double*)calloc(nComponents, sizeof(double));
-    bool* uniquePhase = (bool*)calloc(maxPhases, sizeof(bool));
-    int* phaseIndex = (int*)calloc(maxPhases, sizeof(int));
-    int* phaseOrder = (int*)calloc(maxPhases, sizeof(int));
-    double* variable_sorted = (double*)calloc(maxPhases, sizeof(double));
+
+    std::vector<BoolVec> equalPhases(maxPhases, BoolVec(maxPhases, false));
+
+    DoubleVec relativeComposition_Water(maxPhases, 0);
+    DoubleVec compoPhaseA(nComponents, 0);
+    DoubleVec compoPhaseB(nComponents, 0);
+
+    BoolVec uniquePhase(maxPhases, false);
+
+    IntVec phaseIndex(maxPhases, 0);
+    IntVec phaseOrder(maxPhases, 0);
+    DoubleVec variable_sorted(maxPhases, 0);
+
     double sumBeta = 0.0;
     bool vaporExists = false;
     bool aqueousExists = false;
     int nonAqueousPhases;
-    double* beta_prime = (double*)malloc(maxPhases * sizeof(double));
-    double* density_prime = (double*)malloc(maxPhases * sizeof(double));
-    double* Compr_prime = (double*)malloc(maxPhases * sizeof(double));
-    char** phase_prime = (char**)malloc(maxPhases * sizeof(char*));
-    for (i = 0; i < maxPhases; i++)
-        phase_prime[i] = (char*)malloc(15 * sizeof(char));
-    //compo_prime(nComponents, maxPhases + 1), logPHI_prime(nComponents, maxPhases)
-    double** compo_prime = (double**)malloc(nComponents * sizeof(double*));
-    double** logPHI_prime = (double**)malloc(nComponents * sizeof(double*));
 
-    for (i = 0; i < maxPhases; i++)
-    {
-        beta_prime[i] = 0;
-        density_prime[i] = 0;
-        Compr_prime[i] = 0;
-    }
+    DoubleVec beta_prime(maxPhases, 0);
+    DoubleVec density_prime(maxPhases, 0);
+    DoubleVec Compr_prime(maxPhases, 0);
+
+    StrVec phase_prime(maxPhases, "");
+
+    //compo_prime(nComponents, maxPhases + 1), logPHI_prime(nComponents, maxPhases)
+    DoubleMatrix compo_prime(nComponents, DoubleVec(maxPhases + 1, 0));
+    DoubleMatrix logPHI_prime(nComponents, DoubleVec(maxPhases, 0));
+
     for (int k = 0; k < maxPhases; k++)
     {
         // C 语言中，VB的 beta(k) 翻译为 beta[k]
@@ -6591,7 +6402,6 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
             beta[k] = 0;
             density[k] = 0;
             Compr[k] = 0;
-            phase[k] = 0;
 
             // VB的 For i = 1 To nComponents 翻译为 i=0 To nComponents-1
             for (int i = 0; i < nComponents; i++)
@@ -6604,20 +6414,12 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
         }
     }
 
-
     // 复制 compositions 到 relativeCompositions 并归一化
-    double** relativeCompositions = (double**)malloc(nComponents * sizeof(double*));
+    DoubleMatrix relativeCompositions(nComponents, DoubleVec(maxPhases + 1, 0));
     for (i = 0; i < nComponents; i++)
-    {
-        relativeCompositions[i] = (double*)malloc((maxPhases + 1) * sizeof(double));
-        compo_prime[i] = (double*)malloc((maxPhases + 1) * sizeof(double));
-        logPHI_prime[i] = (double*)malloc(maxPhases * sizeof(double));
         for (j = 0; j <= maxPhases; j++)
             relativeCompositions[i][j] = compositions[i][j];
-    }
-    //for (i = 0; i < nComponents; i++)
-    //    for (j = 0; j < maxPhases; j++)
-    //        logPHI[i][j] = 0;
+
     normalize2Darray(relativeCompositions, nComponents, maxPhases + 1);
 
     for (i = 0; i < maxPhases; i++)
@@ -6728,8 +6530,8 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
             beta_prime[j] = beta[j];
             density_prime[j] = density[j];
             Compr_prime[j] = Compr[j];
-            //phase_prime[j] = phase[j];
-            strcpy(phase_prime[j], phase[j]);
+            phase_prime[j] = phase[j];
+            //strcpy(phase_prime[j], phase[j]);
 
             for (i = 0; i < nComponents; i++)
             {
@@ -6740,17 +6542,15 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
         }
     }
     //relativeCompositionsPrime = compo_prime
-    double** relativeCompositionsPrime = (double**)malloc(nComponents * sizeof(double*));
+
+    DoubleMatrix relativeCompositionsPrime(nComponents, DoubleVec(maxPhases + 1, 0));
     for (i = 0; i < nComponents; i++)
-    {
-        relativeCompositionsPrime[i] = (double*)malloc((maxPhases + 1) * sizeof(double));
         for (j = 0; j < maxPhases + 1; j++)
             relativeCompositionsPrime[i][j] = compo_prime[i][j];
-    }
     normalize2Darray(relativeCompositionsPrime, nComponents, maxPhases + 1);
     //rel_Compo_Lightest(maxPhases), rel_Compo_Heaviest(maxPhases)
-    double* rel_Compo_Lightest = (double*)malloc(maxPhases * sizeof(double));
-    double* rel_Compo_Heaviest = (double*)malloc(maxPhases * sizeof(double));
+    DoubleVec rel_Compo_Lightest(maxPhases, 0);
+    DoubleVec rel_Compo_Heaviest(maxPhases, 0);
     for (j = 0; j < maxPhases; j++)
     {
         rel_Compo_Lightest[j] = relativeCompositionsPrime[lightest][j + 1];
@@ -6786,7 +6586,7 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
     }
     else
     {
-        if (strcmp(phase_prime[phaseOrder[0]], "vapor") == 0 &&
+        if (phase_prime[phaseOrder[0]] == "vapor" &&
             density_prime[phaseOrder[0]] < 0.2)
         {
             vaporExists = true;
@@ -6811,14 +6611,14 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
         }
     }
     //z(nComponents)
-    double* z = (double*)malloc(nComponents * sizeof(double));
+    DoubleVec z(nComponents);
     for (i = 0; i < nComponents; i++)
         z[i] = compo_prime[i][0];
 
     k = 1;
     m = 0;
 
-    double* x = (double*)malloc(nComponents * sizeof(double));
+    DoubleVec x(nComponents);
     for (j = 0; j < maxPhases; j++)
     {
         if (beta_prime[phaseOrder[j]] > 0.0)
@@ -6840,7 +6640,7 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
                 ||
                 (NonZeroComponents == 2 &&
                     x[nComponents - 1] > 0.5 &&
-                    strcmp(phase[j], "liquid") == 0))
+                    phase[j] == "liquid"))
             {
                 k = maxPhases;
                 m = m - 1;
@@ -6849,8 +6649,8 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
             beta[k - 1] = beta_prime[phaseOrder[j]];
             density[k - 1] = density_prime[phaseOrder[j]];
             Compr[k - 1] = Compr_prime[phaseOrder[j]];
-            //phase[k - 1] = phase_prime[phaseOrder[j]];
-            strcpy(phase[k - 1], phase_prime[phaseOrder[j]]);
+            phase[k - 1] = phase_prime[phaseOrder[j]];
+            //strcpy(phase[k - 1], phase_prime[phaseOrder[j]]);
 
             for (i = 0; i < nComponents; i++)
             {
@@ -6877,11 +6677,11 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
     if (*nPhases == 1)
     {
         if (vaporExists)
-            strcpy(phaseName[0], "Steam");
+            phaseName[0] = "Steam";
         else if (!aqueousExists)
-            strcpy(phaseName[1], "Liquid");
+            phaseName[1] = "Liquid";
         else
-            strcpy(phaseName[maxPhases - 1], "Aqueous");
+            phaseName[maxPhases - 1] = "Aqueous";
     }
     else
     {
@@ -6893,58 +6693,25 @@ void Fix_Position_Phases(bool AuroraCalculation, int lightest, int heaviest, boo
                     x[i] = compositions[i][j + 1];
 
                 if (aqueousExists && isAqueous_2016(eqAqueous, x, z, nComponents))
-                    strcpy(phaseName[j], "Aqueous");
+                    phaseName[j] = "Aqueous";
                 else
                 {
                     /* VB: "Phase " & CStr(m)  (C 要自己格式化字符串) */
-                    char buf[32];
-                    sprintf(buf, "Phase %d", m);
-                    strcpy(phaseName[j], buf);
+                    phaseName[j] = "Phase " + std::to_string(m);
                     m = m + 1;
                 }
             }
         }
     }
-
-    // 释放动态数组
-    for (i = 0; i < maxPhases; i++) free(equalPhases[i]);
-    free(equalPhases);
-    free(relativeComposition_Water);
-    free(compoPhaseA);
-    free(compoPhaseB);
-    free(uniquePhase);
-    free(phaseIndex);
-    free(phaseOrder);
-    free(variable_sorted);
-    for (i = 0; i < nComponents; i++)
-        free(relativeCompositions[i]);
-    free(relativeCompositions);
-    free(beta_prime);
-    free(density_prime);
-    free(Compr_prime);
-    for (i = 0; i < maxPhases; i++) free(phase_prime[i]);
-    free(phase_prime);
-    for (i = 0; i < nComponents; i++) {
-        free(compo_prime[i]);
-        free(logPHI_prime[i]);
-        free(relativeCompositionsPrime[i]);
-    }
-    free(compo_prime);
-    free(logPHI_prime);
-    free(relativeCompositionsPrime);
-    free(rel_Compo_Lightest);
-    free(rel_Compo_Heaviest);
-
-    free(x);
-    free(z);
-
 }
 
 
-void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PBar, int NonZeroNumGases, double* zGlobal,
-    double* gNeut, double aH2O, double* TCr, double* PCr, double* Omega, double* MWgas, double** kPr, double* c0, double* c1,
-    double* Q, int* Numbeta, char** phaseName, double* beta, double** compositions, double** phi, double* Compr, double* density,
-    int* counterEquilibrium_final, int* iter_final, int* counter_final, double* zOutput,
+void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PBar, int NonZeroNumGases, DoubleVec& zGlobal,
+    DoubleVec& gNeut, double aH2O, DoubleVec& TCr, DoubleVec& PCr, DoubleVec& Omega,
+    DoubleVec& MWgas, DoubleMatrix& kPr, DoubleVec& c0, DoubleVec& c1,
+    double* Q, int* Numbeta, StrVec& phaseName, DoubleVec& beta, DoubleMatrix& compositions,
+    DoubleMatrix& phi, DoubleVec& Compr, DoubleVec& density,
+    int* counterEquilibrium_final, int* iter_final, int* counter_final, DoubleVec& zOutput,
     int NumGases, int MaxBeta)
 {
 
@@ -6969,41 +6736,24 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
     //NumGases = NonZeroNumGases; // UBound(zGlobal) → 非零组分数
     //MaxBeta = *Numbeta;         // UBound(beta)
 
-    // 动态分配主要数组
-    double* Ki = (double*)calloc(NumGases, sizeof(double));
-    double** logphi3phase = (double**)malloc(NumGases * sizeof(double*));
-    double** logphi3phase_new = (double**)malloc(NumGases * sizeof(double*));
-    double* logphi3phase_newphase = (double*)malloc(NumGases * sizeof(double));
-    double* x = (double*)calloc(NumGases, sizeof(double));
-    double* z = (double*)calloc(NumGases, sizeof(double));
-    double* everyLogPHI = (double*)calloc(MaxBeta, sizeof(double));
-    double** errorLogPhi = (double**)malloc(NumGases * sizeof(double*));
-    for (i = 0; i < NumGases; i++) {
-        logphi3phase[i] = (double*)calloc(MaxBeta, sizeof(double));
-        logphi3phase_new[i] = (double*)calloc(MaxBeta, sizeof(double));
-        //logphi3phase_newphase[i] = (double*)calloc(MaxBeta, sizeof(double));
-        errorLogPhi[i] = (double*)calloc(MaxBeta, sizeof(double));
-    }
+    // 分配主要数组
+    DoubleVec Ki(NumGases, 0);
 
-    bool* betaexists = (bool*)calloc(MaxBeta, sizeof(bool));
-    char** phase = (char**)malloc(MaxBeta * sizeof(char*));
-    for (j = 0; j < MaxBeta; j++) {
-        phase[j] = (char*)malloc(16 * sizeof(char)); // 每个相名最长16字符
-    }
+    DoubleMatrix logphi3phase(NumGases, DoubleVec(MaxBeta, 0));
 
-    //12-2号：新增的初始化，不初始化可能导致后面某个地方出错
-    memset(Ki, 0, NumGases * sizeof(double));
-    memset(logphi3phase_newphase, 0, NumGases * sizeof(double));
-    memset(x, 0, NumGases * sizeof(double));
-    memset(z, 0, NumGases * sizeof(double));
-    for (i = 0; i < NumGases; i++) {
-        memset(logphi3phase[i], 0, MaxBeta * sizeof(double));
-        memset(logphi3phase_new[i], 0, MaxBeta * sizeof(double));
-        memset(errorLogPhi[i], 0, MaxBeta * sizeof(double));
-    }
-    memset(everyLogPHI, 0, MaxBeta * sizeof(double));
-    memset(betaexists, 0, MaxBeta * sizeof(bool));
+    DoubleMatrix logphi3phase_new(NumGases, DoubleVec(MaxBeta, 0));
 
+    DoubleVec logphi3phase_newphase(NumGases, 0);
+
+    DoubleVec x(NumGases, 0);
+    DoubleVec z(NumGases, 0);
+
+    DoubleVec everyLogPHI(NumGases, 0);
+    DoubleMatrix errorLogPhi(NumGases, DoubleVec(MaxBeta, 0));
+
+    BoolVec betaexists(MaxBeta, false);
+
+    StrVec phase(MaxBeta, "");
 
     // 归一化全局摩尔组成
     Sz = 0.0;
@@ -7022,8 +6772,7 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
 
     // 初始 logphi 计算
     Initialization(zGlobal[NumGases - 1], NonZeroNumGases, MaxBeta, EOS, MWgas, TCr, PCr, Omega, TK, PBar, logphi3phase, NumGases);
-    //printf("\n Flash前 phi[2][0]: %.16f", (*phi)[2][0]);
-    //printf("\n Flash前 phi[2][1]: %.16f", (*phi)[2][1]);
+
     // 避免数值不稳定：把零组分的 logphi 设置为 0
     for (j = 0; j < MaxBeta; j++) {
         for (i = 0; i < NumGases; i++) {
@@ -7034,22 +6783,26 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
     }
 
     // 迭代初值
+    highErr = true;
     Er = 100.0;
     errNet = 100.0;
     Er_old = 1.0;
     errRate = 100.0;
     tol = 0.0002;
 
+    iter = 0;
+    continue_flash = true;
+
     if (PBar < 1.02) {
         testTemp = true;
     }
 
     // 主循环
-    while ((errNet > tol && iter < itermax) &&
-        ((errRate > 5 && highErr) || Er > 200 * tol)) {
+    while ((errNet > tol && iter < 30) &&
+        (errRate > 5 && highErr || Er > 200 * tol)) {
         iter++;
 
-        EQCalculation(beta, logphi3phase, z, &E, Q, NumGases, MaxBeta);
+        EQCalculation(beta, logphi3phase, z, E, Q, NumGases, MaxBeta);
 
         Equilibrium(z, logphi3phase, E, Q, beta, betaexists, compositions,
             &continue_flash, counterEquilibrium_final, iter_final, counter_final, NumGases, MaxBeta);
@@ -7057,10 +6810,7 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
         vaporFound = false;
 
         for (k = 0; k < MaxBeta; k++) {
-            //明明只需要MaxBeta个，为什么要Redim成NumGases长度？？
-            // 先注释，保留源语句
-            //if (everyLogPHI) free(everyLogPHI);
-            //everyLogPHI = (double*)malloc(NumGases * sizeof(double));
+            //明明只需要MaxBeta个，为什么要Redim成NumGases长度？？;
             everyLogPHI[k] = 0.0;
             for (i = 0; i < NumGases; i++) {
                 x[i] = compositions[i][k + 1];
@@ -7068,24 +6818,24 @@ void Flash(bool* eqVapor, bool* eqAqueous, const char* EOS, double TK, double PB
             }
 
             if (everyLogPHI[k] < 0.1) {
-                strcpy(phase[k], "vapor");
+                phase[k] = "vapor";
                 vaporFound = true;
             }
             else if (isAqueous_2016(*eqAqueous, x, z, NumGases)) {
-                strcpy(phase[k], "liquid");
+                phase[k] = "liquid";
             }
             else if (isVapor(*eqVapor, x, z, TK, PBar, TCr, PCr, lightest, NumGases)) {
-                strcpy(phase[k], "vapor");
+                phase[k] = "vapor";
                 vaporFound = true;
             }
             else if (!vaporFound && (NonZeroNumGases == 2) && (z[NumGases - 1] > 0) &&
                 ((z[0] > 0 || z[1] > 0 || z[2] > 0 || z[3] > 0) ||
                     (z[NumGases - 2] > 0 && MWgas[NumGases - 2] < 29))) {
-                strcpy(phase[k], "vapor");
+                phase[k] = "vapor";
                 vaporFound = true;
             }
             else {
-                strcpy(phase[k], "liquid");
+                phase[k] = "liquid";
             }
 
             phi_calc(*eqVapor, *eqAqueous, EOS, phase[k], TK, PBar, x, z, gNeut, aH2O,
@@ -7158,36 +6908,16 @@ exit_flash:
     Fix_Position_Phases(true, lightest, heaviest, *eqAqueous,
         NonZeroNumGases, beta, density, Compr,
         compositions, phi, phase, Numbeta, phaseName, MaxBeta, NumGases);
-
-    // 内存释放
-    for (i = 0; i < NumGases; i++) {
-        free(logphi3phase[i]);
-        free(logphi3phase_new[i]);
-        //free(logphi3phase_newphase[i]);
-        free(errorLogPhi[i]);
-    }
-    free(logphi3phase);
-    free(logphi3phase_new);
-    free(logphi3phase_newphase);
-    free(errorLogPhi);
-    free(Ki);
-    free(x);
-    free(z);
-    free(everyLogPHI);
-    free(betaexists);
-    for (j = 0; j < MaxBeta; j++) {
-        free(phase[j]);
-    }
-    free(phase);
-
 }
 
 
 //Compr(MaxBeta), beta(MaxBeta), density(MaxBeta), phi(NumGases, MaxBeta), compositions(NumGases, MaxBeta + 1), zOutput(NumGases)
-void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, double* zGlobal, double* gNeut,
-    double aH2O, double* TCr, double* PCr, double* Omega, double* MWgas, double** kPr, double* c0, double* c1,
-    int* Numbeta, char** phaseName, double** beta, double*** compositions, double*** phi, double** Compr,
-    double** density, int* counterEquilibrium_final, int* iter_final, int* counter_final, double** zOutput, int NumGases, int* MaxBeta)
+void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, DoubleVec& zGlobal, DoubleVec& gNeut,
+    double aH2O, DoubleVec& TCr, DoubleVec& PCr, DoubleVec& Omega, DoubleVec& MWgas,
+    DoubleMatrix& kPr, DoubleVec& c0, DoubleVec& c1, int* Numbeta,
+    StrVec& phaseName, DoubleVec& beta, DoubleMatrix& compositions, DoubleMatrix& phi,
+    DoubleVec& Compr, DoubleVec& density, int* counterEquilibrium_final, int* iter_final, int* counter_final,
+    DoubleVec& zOutput, int NumGases, int* MaxBeta)
 {
     int i, j;
     //int NumGases, MaxBeta;
@@ -7196,67 +6926,70 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
     // Alternative solution containers
     int temp_MaxBeta = *MaxBeta;
     int numBeta_alt = 0;
-    char** phaseName_alt = (char**)malloc(temp_MaxBeta * sizeof(char*));
-    for (i = 0; i < temp_MaxBeta; i++)
-        phaseName_alt[i] = (char*)malloc(15 * sizeof(char));
-    double* beta_alt = NULL;
-    double** compositions_alt = NULL;
-    double** phi_alt = NULL;
-    double* zOutput_alt = NULL;
-    double* Compr_alt = NULL;
-    double* density_alt = NULL;
+    //char** phaseName_alt = (char**)malloc(temp_MaxBeta * sizeof(char*));
+    //for (i = 0; i < temp_MaxBeta; i++)
+    //    phaseName_alt[i] = (char*)malloc(15 * sizeof(char));
+    StrVec phaseName_alt(temp_MaxBeta, "");  //全部初始化为空
+    //
+    //double* beta_alt = NULL;
+    //double** compositions_alt = NULL;
+    //double** phi_alt = NULL;
+    //double* zOutput_alt = NULL;
+    //double* Compr_alt = NULL;
+    //double* density_alt = NULL;
     int counterEquilibrium_final_alt = 0, iter_final_alt = 0, counter_final_alt = 0;
 
     // sizes
     //NumGases;       // In VB: UBound(zGlobal)
+    DoubleVec Compr_alt;
+    DoubleVec beta_alt;
+    DoubleVec density_alt;
+    DoubleMatrix phi_alt;
+    DoubleMatrix compositions_alt;
+    DoubleVec zOutput_alt;
 
-    //MaxBeta = 3;                   
+    // 重新调整大小并初始化为0
+    Compr_alt.resize(temp_MaxBeta, 0.0);
+    beta_alt.resize(temp_MaxBeta, 0.0);
+    density_alt.resize(temp_MaxBeta, 0.0);
 
-    // allocate arrays
-    //Compr = (double*)malloc(MaxBeta * sizeof(double));
-    //beta = (double*)malloc(MaxBeta * sizeof(double));
-    //density = (double*)malloc(MaxBeta * sizeof(double));
-    //phi = (double**)malloc(NumGases * sizeof(double*));
-    //compositions = (double**)malloc(NumGases * sizeof(double*));
-    //zOutput = (double*)malloc(NumGases * sizeof(double));
+    // 调整phi_alt大小：NumGases行，每行temp_MaxBeta列
+    // 调整compositions_alt大小：NumGases行，每行temp_MaxBeta+1列
+    phi_alt.resize(NumGases);
+    compositions_alt.resize(NumGases);
+    for (i = 0; i < NumGases; i++) {
+        phi_alt[i].resize(temp_MaxBeta, 0.0);
+        compositions_alt[i].resize(temp_MaxBeta + 1, 0.0);
+    }
+
+    zOutput_alt.resize(NumGases, 0.0);
+
+    //Compr_alt = (double*)malloc(temp_MaxBeta * sizeof(double));
+    //beta_alt = (double*)malloc(temp_MaxBeta * sizeof(double));
+    //density_alt = (double*)malloc(temp_MaxBeta * sizeof(double));
+    //phi_alt = (double**)malloc(NumGases * sizeof(double*));
+    //compositions_alt = (double**)malloc(NumGases * sizeof(double*));
+    //zOutput_alt = (double*)malloc(NumGases * sizeof(double));
     //for (i = 0; i < NumGases; i++)
     //{
-    //    phi[i] = (double*)malloc(MaxBeta * sizeof(double));
-    //    compositions[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
+    //    phi_alt[i] = (double*)malloc(temp_MaxBeta * sizeof(double));
+    //    compositions_alt[i] = (double*)malloc((temp_MaxBeta + 1) * sizeof(double));
     //}
-
-    Compr_alt = (double*)malloc(temp_MaxBeta * sizeof(double));
-    beta_alt = (double*)malloc(temp_MaxBeta * sizeof(double));
-    density_alt = (double*)malloc(temp_MaxBeta * sizeof(double));
-    phi_alt = (double**)malloc(NumGases * sizeof(double*));
-    compositions_alt = (double**)malloc(NumGases * sizeof(double*));
-    zOutput_alt = (double*)malloc(NumGases * sizeof(double));
-    for (i = 0; i < NumGases; i++)
-    {
-        phi_alt[i] = (double*)malloc(temp_MaxBeta * sizeof(double));
-        compositions_alt[i] = (double*)malloc((temp_MaxBeta + 1) * sizeof(double));
-    }
-    //初始化
-    memset(Compr_alt, 0, temp_MaxBeta * sizeof(double));
-    memset(beta_alt, 0, temp_MaxBeta * sizeof(double));
-    memset(density_alt, 0, temp_MaxBeta * sizeof(double));
-    // for (i = 0; i < temp_MaxBeta; i++)
-    // {
-    //     Compr_alt[i] = 0;
-    //     beta_alt[i] = 0;
-    //     density_alt[i] = 0;
-    // }
-    memset(Compr_alt, 0, temp_MaxBeta * sizeof(double));
-    memset(beta_alt, 0, temp_MaxBeta * sizeof(double));
-    memset(Compr_alt, 0, temp_MaxBeta * sizeof(double));
-    for (i = 0; i < NumGases; i++)
-    {
-        zOutput_alt[i] = 0;
-        memset(phi_alt[i], 0, temp_MaxBeta * sizeof(double));
-        memset(compositions_alt[i], 0, (temp_MaxBeta + 1) * sizeof(double));
-        memset(phi_alt[i], 0, temp_MaxBeta * sizeof(double));
-        memset(compositions_alt[i], 0, (temp_MaxBeta + 1) * sizeof(double));
-    }
+    ////初始化
+    //memset(Compr_alt, 0, temp_MaxBeta * sizeof(double));
+    //memset(beta_alt, 0, temp_MaxBeta * sizeof(double));
+    //memset(density_alt, 0, temp_MaxBeta * sizeof(double));
+    //memset(Compr_alt, 0, temp_MaxBeta * sizeof(double));
+    //memset(beta_alt, 0, temp_MaxBeta * sizeof(double));
+    //memset(Compr_alt, 0, temp_MaxBeta * sizeof(double));
+    //for (i = 0; i < NumGases; i++)
+    //{
+    //    zOutput_alt[i] = 0;
+    //    memset(phi_alt[i], 0, temp_MaxBeta * sizeof(double));
+    //    memset(compositions_alt[i], 0, (temp_MaxBeta + 1) * sizeof(double));
+    //    memset(phi_alt[i], 0, temp_MaxBeta * sizeof(double));
+    //    memset(compositions_alt[i], 0, (temp_MaxBeta + 1) * sizeof(double));
+    //}
 
     // conditions
     bool eqVapor = false, eqAqueous = false;
@@ -7269,8 +7002,8 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
     // First Flash
     Flash(&eqVapor, &eqAqueous, EOS, TK, PBar, NonZeroNumGases, zGlobal, gNeut, aH2O,
         TCr, PCr, Omega, MWgas, kPr, c0, c1,
-        &Q, Numbeta, phaseName, *beta, *compositions, *phi, *Compr, *density,
-        counterEquilibrium_final, iter_final, counter_final, *zOutput,
+        &Q, Numbeta, phaseName, beta, compositions, phi, Compr, density,
+        counterEquilibrium_final, iter_final, counter_final, zOutput,
         NumGases, temp_MaxBeta);
     if (*Numbeta < 3) {
         eqVapor = true;
@@ -7291,78 +7024,56 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, dou
 
             //重新分配空间
             //ReDim Compr(MaxBeta), beta(MaxBeta), density(MaxBeta), phi(NumGases, MaxBeta), compositions(NumGases, MaxBeta + 1), zOutput(NumGases)
-            free(*Compr); free(*beta); free(*density); free(*zOutput);
-            for (i = 0; i < NumGases; i++)
-            {
-                free((*phi)[i]);
-                free((*compositions)[i]);
-            }
-            free(*phi);  free(*compositions);
-            *Compr = (double*)malloc(*MaxBeta * sizeof(double));
-            *beta = (double*)malloc(*MaxBeta * sizeof(double));
-            *density = (double*)malloc(*MaxBeta * sizeof(double));
-            *zOutput = (double*)malloc(*MaxBeta * sizeof(double));
-            *phi = (double**)malloc(NumGases * sizeof(double*));
-            *compositions = (double**)malloc(NumGases * sizeof(double*));
-            for (i = 0; i < NumGases; i++)
-            {
-                (*phi)[i] = (double*)malloc(*MaxBeta * sizeof(double));
-                (*compositions)[i] = (double*)malloc((*MaxBeta + 1) * sizeof(double));
-            }
+            Compr.assign(*MaxBeta, 0);
+            beta.assign(*MaxBeta, 0);
+            density.assign(*MaxBeta, 0);
+            zOutput.assign(*MaxBeta, 0);
+            // 当需要重新分配时：
+            phi.assign(NumGases, DoubleVec(*MaxBeta, 0.0));
+            compositions.assign(NumGases, DoubleVec(*MaxBeta + 1, 0.0));
             *Numbeta = numBeta_alt;
             for (j = 0; j < *MaxBeta; j++) {
                 //phaseName[j] = phaseName_alt[j];
                 if (j != *MaxBeta - 1)
                 {
-                    strcpy(phaseName[j], phaseName_alt[j]);
-                    (*beta)[j] = beta_alt[j];
-                    (*Compr)[j] = Compr_alt[j];
-                    (*density)[j] = density_alt[j];
+                    phaseName[j] = phaseName_alt[j];
+                    beta[j] = beta_alt[j];
+                    Compr[j] = Compr_alt[j];
+                    density[j] = density_alt[j];
                 }
                 else
                 {
-                    (*beta)[j] = 0;
-                    (*Compr)[j] = 0;
-                    (*density)[j] = 0;
+                    beta[j] = 0;
+                    Compr[j] = 0;
+                    density[j] = 0;
                 }
 
                 for (i = 0; i < NumGases; i++) {
                     if (j != *MaxBeta - 1)
                     {
-                        (*compositions)[i][j + 1] = compositions_alt[i][j + 1];
-                        (*phi)[i][j] = phi_alt[i][j];
-                        (*zOutput)[i] = zOutput_alt[i];
+                        compositions[i][j + 1] = compositions_alt[i][j + 1];
+                        phi[i][j] = phi_alt[i][j];
+                        zOutput[i] = zOutput_alt[i];
                     }
                     else
                     {
-                        (*compositions)[i][j + 1] = 0;
-                        (*phi)[i][j] = 0;
-                        (*zOutput)[i] = 0;
+                        compositions[i][j + 1] = 0;
+                        phi[i][j] = 0;
+                        zOutput[i] = 0;
                     }
                 }
             }
         }
     }
-    for (i = 0; i < temp_MaxBeta; i++) free(phaseName_alt[i]);
-    free(phaseName_alt);
-    // free alternative arrays
-    for (i = 0; i < NumGases; i++) {
-        free(phi_alt[i]);
-        free(compositions_alt[i]);
-    }
-    free(phi_alt);
-    free(compositions_alt);
-    free(zOutput_alt);
-    free(beta_alt);
-    free(Compr_alt);
-    free(density_alt);
 }
 
 
 // MultiPhaseFlash。  变量mf_Vg不知道有什么用，暂时当作局部变量。
-void MultiPhaseFlash(bool* mf_ParametersWereRead, double* TCr, double* PCr, double* Omega, double* MWgas, double** kPr, double* c0, double* c1,
-    double TK, double PBar, double total_moles, double* z, double* gNeut, double aH2O, double* density, double** compositions, double** phi,
-    double* Compr, double* beta, double* zOutput, double** mass_phase, double** MW_Phase, int* No_Phases)
+void MultiPhaseFlash(bool& mf_ParametersWereRead, DoubleVec& TCr, DoubleVec& PCr, DoubleVec& Omega,
+    DoubleVec& MWgas, DoubleMatrix& kPr, DoubleVec& c0, DoubleVec& c1,
+    double TK, double PBar, double total_moles, double* z, double* gNeut, double aH2O, DoubleVec& density, DoubleMatrix& compositions,
+    DoubleMatrix& phi, DoubleVec& Compr, DoubleVec& beta, double* zOutput,
+    DoubleVec& mass_phase, DoubleVec& MW_Phase, int* No_Phases)
 {
     /*
     Dim max_NumGases As Long, NonZeroNumGases As Long, mf_NumGases As Long, MaxBeta As Long, i As Long, j As Long, k As Long, L As Long, m As Long
@@ -7398,29 +7109,20 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     int Numbeta;
     int pure;
     double Sz;
-    double logphipure[15] = { 0 };
-    double PsatPure;
-    char* phase = NULL;
-    /*源代码没有给它默认值，担心会出问题，此处给phase 一个默认的值  */
-    phase = (char*)malloc(6); // 分配足够容纳"vapor"及结束符'\0'的空间
-    strcpy(phase, "vapor");
-    char** phaseName = NULL;
-    double logphipureL = 0, ComprL = 0, logphipureV = 0, ComprV = 0;
 
+    DoubleVec logphipure(15, 0);
+    double PsatPure;
+
+    std::string phase = "vapor";
+    StrVec phaseName;
+    double logphipureL = 0, ComprL = 0, logphipureV = 0, ComprV = 0;
 
     //这表明，如果没有水，就不应该存在水相
     z[max_NumGases - 1] > 0 ? MaxBeta = 3 : MaxBeta = 2;
-    phaseName = (char**)malloc(MaxBeta * sizeof(char*));
-    //先分配内存
-    for (i = 0; i < MaxBeta; i++)
-    {
-        //分配足够的空间   不确定此行为是否多余，保留
-        phaseName[i] = (char*)malloc(15 * sizeof(char));
-    }
-    //ReDim mf_gNeut(UBound(gNeut)), zInput(max_NumGases)  vb源码：gNeut(15)。 到底是谁写的UBound(gNeut)？为什么不直接写15
-    double* mf_gNeut = (double*)malloc(2 * sizeof(double));
-    double* zInput = (double*)malloc(max_NumGases * sizeof(double));
+    phaseName = StrVec(MaxBeta, "");
 
+    DoubleVec mf_gNeut(2, 0);
+    DoubleVec zInput(max_NumGases, 0);
     //将值从外部变体类型变量输出传递到双精度类型变量
     double mf_TK = TK, mf_PBar = PBar, mf_aH2O = aH2O;
     for (i = 0; i < 2; i++)
@@ -7460,54 +7162,29 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     if (NonZeroNumGases == 1)MaxBeta = 3;
     //赋值后，就可以开辟一些需要的数组了。
 
-    double* zGlobal = (double*)malloc(mf_NumGases * sizeof(double));
-    int* iFlash = (int*)malloc(max_NumGases * sizeof(int));
-    double* zOut = (double*)malloc(mf_NumGases * sizeof(double));
+    DoubleVec zGlobal(mf_NumGases, 0);
 
-    double* mf_beta = (double*)malloc(MaxBeta * sizeof(double));
-    double* mf_Compr = (double*)malloc(MaxBeta * sizeof(double));
-    double* mf_density = (double*)malloc(MaxBeta * sizeof(double));
+    IntVec iFlash(max_NumGases, 0);
 
-    double** mf_phi = (double**)malloc(mf_NumGases * sizeof(double*));
-    double** mf_compositions = (double**)malloc(mf_NumGases * sizeof(double*));
-    for (i = 0; i < mf_NumGases; i++) {
-        mf_phi[i] = (double*)malloc(MaxBeta * sizeof(double));
-        mf_compositions[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
-    }
+    DoubleVec zOut(mf_NumGases, 0);
 
-    // 12-2号：新增的初始化函数，不初始化会导致后面某处出错
-    memset(iFlash, 0, max_NumGases * sizeof(double));
-    memset(mf_beta, 0, MaxBeta * sizeof(double));
-    memset(mf_Compr, 0, MaxBeta * sizeof(double));
-    memset(mf_density, 0, MaxBeta * sizeof(double));
-    // for (i = 0; i < max_NumGases; i++) iFlash[i] = 0;
-    // for (i = 0; i < max_NumGases; i++)
-    // {
-    //     mf_beta[i] = 0;
-    //     mf_Compr[i] = 0;
-    //     mf_density[i] = 0;
-    // }
-    for (i = 0; i < mf_NumGases; i++)
-    {
-        zGlobal[i] = 0;
-        zOut[i] = 0;
-        zGlobal[i] = 0;
-        memset(mf_phi[i], 0, MaxBeta * sizeof(double));
-        memset(mf_compositions[i], 0, (MaxBeta + 1) * sizeof(double));
-    }
+    DoubleVec mf_beta(MaxBeta, 0);
+    DoubleVec mf_Compr(MaxBeta, 0);
+    DoubleVec mf_density(MaxBeta, 0);
+
+    DoubleMatrix mf_phi(mf_NumGases, DoubleVec(MaxBeta, 0));
+    DoubleMatrix mf_compositions(mf_NumGases, DoubleVec(MaxBeta + 1, 0));
 
     //ReDim mf_Compr(MaxBeta), mf_density(MaxBeta), mass_phase(MaxBeta)，注，参数列表参数mass_phase的ReDim行为
-    if (*mass_phase != NULL) {
-        free(*mass_phase);
-    }
-    *mass_phase = (double*)malloc(MaxBeta * sizeof(double));
-    double* x = (double*)malloc(mf_NumGases * sizeof(double));
-    for (i = 0; i < max_NumGases; i++) x[i] = 0;
+    mass_phase = DoubleVec(MaxBeta, 0);
+    //double* x = (double*)malloc(mf_NumGases * sizeof(double));
+    DoubleVec x(mf_NumGases, 0);
+
     //获取参数值、缩小组成以适应现有化合物并使其标准化的子程序
-    *mf_ParametersWereRead = false;
+    mf_ParametersWereRead = false;
     //Call InitialPreparationSSP(mf_ParametersWereRead, EOS, zInput, iFlash, zGlobal, TCr, PCr, Omega, MWgas, kPr, c0, c1)
-    InitialPreparationSSP(mf_ParametersWereRead, EOS, zInput, iFlash, zGlobal, &TCr, &PCr, &Omega,
-        &MWgas, &kPr, &c0, &c1, max_NumGases, mf_NumGases);
+    InitialPreparationSSP(mf_ParametersWereRead, EOS, zInput, iFlash, zGlobal, TCr, PCr, Omega,
+        MWgas, kPr, c0, c1, max_NumGases, mf_NumGases);
 
     counterEquilibrium_final = 0;
     int iter_final = 0;
@@ -7517,10 +7194,10 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
     if (NonZeroNumGases > 1)
     {
         Numbeta = 0;//原代码无这个，这里赋值防止传入未初始化的值。
-        //phaseName = NULL;//原代码无这个，这里赋值防止传入未初始化的值。
 
-        TrueFlash(EOS, mf_TK, mf_PBar, NonZeroNumGases, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr, Omega, MWgas, kPr, c0, c1, &Numbeta, phaseName, &mf_beta, &mf_compositions, &mf_phi, &mf_Compr, &mf_density,
-            &counterEquilibrium_final, &iter_final, &counter_final, &zOut, mf_NumGases, &MaxBeta);
+        TrueFlash(EOS, mf_TK, mf_PBar, NonZeroNumGases, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr, Omega, MWgas, kPr, c0, c1,
+            &Numbeta, phaseName, mf_beta, mf_compositions, mf_phi, mf_Compr, mf_density,
+            &counterEquilibrium_final, &iter_final, &counter_final, zOut, mf_NumGases, &MaxBeta);
     }
     else if (NonZeroNumGases == 1)//纯组分情况下的性质计算
     {
@@ -7529,8 +7206,7 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
             if (iFlash[i] == pure)iPure = i;
         if (pure < 3 || (pure == max_NumGases))
         {
-            phase = (char*)malloc(6); // 分配足够容纳"vapor"及结束符'\0'的空间
-            strcpy(phase, "vapor");
+            phase = "vapor";
             k = 1;
             if (TK < TCr[iPure])
             {
@@ -7540,9 +7216,7 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
 
                 if (PBar > PsatPure && PsatPure != 0)
                 {
-                    free(phase);
-                    phase = (char*)malloc(7);
-                    strcpy(phase, "liquid");
+                    phase = "liquid";
                     if (pure = max_NumGases)k = 3;
                 }
             }
@@ -7551,7 +7225,7 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
         //mf_NumGases
         phi_calc(false, false, EOS, phase, mf_TK, mf_PBar, zGlobal, zGlobal, mf_gNeut, mf_aH2O, TCr, PCr,
             Omega, c0, c1, kPr, logphipure, &mf_Compr[k - 1], mf_NumGases);//NumGases
-        if (strcmp(phase, "vapor") == 0)
+        if (phase == "vapor")
             Compr[k - 1] = ComprV; // vb源码是Compr(k) = ComprV，k并非从0开始，因此做偏移
         // 上面注意到，iPure是和循环相关的变量，从0开始的，因此不做偏移
         else
@@ -7604,75 +7278,44 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
             int temMaxBeta = MaxBeta;
             MaxBeta = 3;
             //创建新空间
-            double* temp_mf_beta = (double*)malloc(temMaxBeta * sizeof(double));
-            double* temp_mf_density = (double*)malloc(temMaxBeta * sizeof(double));
-            double* temp_mf_Compr = (double*)malloc(temMaxBeta * sizeof(double));
-            //搬运值过去
+            DoubleVec mf_beta_temp = mf_beta;
+            DoubleVec mf_density_temp = mf_density;
+            DoubleVec mf_Compr_temp = mf_Compr;
+
+            //给空间重新定义
+            mf_beta.assign(MaxBeta, 0);
+            mf_density.assign(MaxBeta, 0);
+            mf_Compr.assign(MaxBeta, 0);
+            //将原来的数据拿回来
             for (i = 0; i < temMaxBeta; i++)
             {
-                temp_mf_beta[i] = mf_beta[i];
-                temp_mf_density[i] = mf_density[i];
-                temp_mf_Compr[i] = mf_Compr[i];
+                mf_beta[i] = mf_beta_temp[i];
+                mf_density[i] = mf_density_temp[i];
+                mf_Compr[i] = mf_Compr_temp[i];
             }
-            //销毁原空间，指针指向新的空间
-            free(mf_beta); free(mf_density); free(mf_Compr);
-            mf_beta = (double*)malloc(MaxBeta * sizeof(double));
-            mf_density = (double*)malloc(MaxBeta * sizeof(double));
-            mf_Compr = (double*)malloc(MaxBeta * sizeof(double));
-
-            for (i = 0; i < temMaxBeta; i++)
-            {
-                mf_beta[i] = temp_mf_beta[i];
-                mf_density[i] = temp_mf_density[i];
-                mf_Compr[i] = temp_mf_Compr[i];
-            }
-            free(temp_mf_beta); free(temp_mf_density); free(temp_mf_Compr);
-
-            double** mf_compositions_temp = (double**)malloc(mf_NumGases * sizeof(double*));
-            double** mf_phi_temp = (double**)malloc(mf_NumGases * sizeof(double*));
-            for (i = 0; i < mf_NumGases; i++)
-            {
-                mf_compositions_temp[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
-                mf_phi_temp[i] = (double*)malloc((MaxBeta) * sizeof(double));
-            }
-
             if (zInput[max_NumGases - 1] > 0)
             {
-                mf_beta[2] = mf_beta[1];
-                mf_beta[1] = 0;
-                mf_density[2] = mf_density[1];
-                mf_density[1] = 0;
-                mf_Compr[2] = mf_Compr[1];
-                mf_Compr[1] = 0;
-            }
-            for (i = 0; i < mf_NumGases; i++)
-            {
-                for (j = 0; j < MaxBeta - 1; j++)
-                {
-                    mf_compositions_temp[i][j + 1] = mf_compositions[i][j + 1];
-                    mf_phi_temp[i][j] = mf_phi[i][j];
-                }
+                mf_beta[2] = mf_beta_temp[1];
+                mf_density[2] = mf_density_temp[1];
+                mf_Compr[2] = mf_Compr_temp[1];
             }
 
-            //ReDim mf_compositions(mf_NumGases, MaxBeta + 1), mf_phi(mf_NumGases, MaxBeta)
-            // 重新分配主数组
-            for (i = 0; i < mf_NumGases; i++)
-            {
-                free(mf_compositions[i]);
-                free(mf_phi[i]);
-            }
-            free(mf_compositions);
-            free(mf_phi);
-            mf_compositions = (double**)malloc(mf_NumGases * sizeof(double*));
-            mf_phi = (double**)malloc(mf_NumGases * sizeof(double*));
+            //二维数组同理，先保存
+            DoubleMatrix mf_compositions_temp = mf_compositions;
+            DoubleMatrix mf_phi_temp = mf_phi;
 
-            for (i = 0; i < mf_NumGases; i++)
-            {
-                mf_compositions[i] = (double*)malloc((MaxBeta + 1) * sizeof(double));
-                mf_phi[i] = (double*)malloc((MaxBeta) * sizeof(double));
-            }
-
+            //然后让它们的长度进行变化
+            for (auto& row : mf_compositions)
+                row.resize(MaxBeta);
+            for (auto& row : mf_phi)
+                row.resize(MaxBeta);
             // 从临时数组复制回主数组
+            for (i = 0; i < mf_NumGases; i++)
+                for (j = 0; j < temMaxBeta; j++)
+                {
+                    mf_compositions[i][j] = mf_compositions_temp[i][j];
+                    mf_phi[i][j] = mf_phi_temp[i][j];
+                }
             for (i = 0; i < mf_NumGases; i++)
             {
                 if (zInput[max_NumGases] > 0)
@@ -7690,19 +7333,11 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
                     }
                 }
             }
-            // 释放临时数组
-            for (i = 0; i < mf_NumGases; i++)
-            {
-                free(mf_compositions_temp[i]);
-                free(mf_phi_temp[i]);
-            }
-            free(mf_compositions_temp);
-            free(mf_phi_temp);
         }
     }
     //ReDim MW_Phase(MaxBeta), mass_phase(MaxBeta)
-    *MW_Phase = (double*)realloc(*MW_Phase, MaxBeta * sizeof(double));
-    *mass_phase = (double*)realloc(*mass_phase, MaxBeta * sizeof(double));
+    MW_Phase.resize(MaxBeta, 0);
+    mass_phase.resize(MaxBeta, 0);
 
     //计算分子量、相质量
     //将双精度型变量输出的值传递到外部变量类型变量
@@ -7718,56 +7353,217 @@ Dim logphipureL As Double, ComprL As Double, logphipureV As Double, ComprV As Do
         }
 
         beta[j] = mf_beta[j];
-        (*MW_Phase)[j] = weighted_mean(x, MWgas, mf_NumGases);
-        (*mass_phase)[j] = total_moles * mf_beta[j] * (*MW_Phase)[j] / 1000;
+        MW_Phase[j] = weighted_mean(x, MWgas, mf_NumGases);
+        mass_phase[j] = total_moles * mf_beta[j] * MW_Phase[j] / 1000;
         density[j] = mf_density[j];
         Compr[j] = mf_Compr[j];
     }
     // 重新排序输出（CALEB）
-    OrderPhases(&compositions, &phi, &beta, MW_Phase, mass_phase, &density, &Compr, &max_NumGases, &MaxBeta);
+    OrderPhases(compositions, phi, beta, MW_Phase, mass_phase, density, Compr, max_NumGases, MaxBeta);
     *No_Phases = Numbeta;
     mf_Vg = Compr[0] * total_moles * beta[0] * 0.00008314461 * mf_TK / PBar; // 气体体积 m^3
 
-
-    free(mf_gNeut);
-    free(zInput);
-    free(zGlobal);
-    free(iFlash);
-    free(zOut);
-    free(mf_beta);
-    free(mf_density);
-    for (i = 0; i < mf_NumGases; i++) {
-        free(mf_phi[i]);
-        free(mf_compositions[i]);
-    }
-    free(mf_phi);
-    free(mf_compositions);
-    free(x);
 }
 
 
-void Get_EOS_Parameters(int NumGases, char* EOS, double** MWgas, double** TCr, double** PCr, double** Omega, double** mf_c0, double** mf_c1, double*** kPr)
+void Get_EOS_Parameters(int NumGases, std::string& EOS, DoubleVec& MWgas, DoubleVec& TCr,
+    DoubleVec& PCr, DoubleVec& Omega, DoubleVec& mf_c0, DoubleVec& mf_c1,
+    DoubleMatrix& kPr)
 {
     int i, j;
 
-    for (i = 0; i < NumGases; i++) {
-        //MWgas(i) = Worksheets("Input").Cells(4 + i, 24)
-        //    TCr(i) = Worksheets("Input").Cells(4 + i, 26)
-        //    PCr(i) = Worksheets("Input").Cells(4 + i, 27)
-        //    Omega(i) = Worksheets("Input").Cells(4 + i, 28)
-        if (strcmp(EOS, "PR") == 0) {
-            //mf_c0(i) = Worksheets("Input").Cells(4 + i, 29)
-            //    mf_c1(i) = Worksheets("Input").Cells(4 + i, 30)
-        }
-        if (strcmp(EOS, "SRK") == 0) {
-            //mf_c0(i) = Worksheets("Input").Cells(4 + i, 31)
-            //    mf_c1(i) = Worksheets("Input").Cells(4 + i, 32)
-        }
+    //for (i = 0; i < NumGases; i++) {
+    //    //MWgas(i) = Worksheets("Input").Cells(4 + i, 24)
+    //    //    TCr(i) = Worksheets("Input").Cells(4 + i, 26)
+    //    //    PCr(i) = Worksheets("Input").Cells(4 + i, 27)
+    //    //    Omega(i) = Worksheets("Input").Cells(4 + i, 28)
+    //    if (EOS == "PR") {
+    //        //mf_c0(i) = Worksheets("Input").Cells(4 + i, 29)
+    //        //    mf_c1(i) = Worksheets("Input").Cells(4 + i, 30)
+    //    }
+    //    if (EOS == "SRK") {
+    //        //mf_c0(i) = Worksheets("Input").Cells(4 + i, 31)
+    //        //    mf_c1(i) = Worksheets("Input").Cells(4 + i, 32)
+    //    }
 
-        for (j = 0; j < i; j++) {
-            //(*kPr)[i][j] = Worksheets("Input").Cells(4 + i, 34 + j)
-        }
+    //    for (j = 0; j < i; j++) {
+    //        //(*kPr)[i][j] = Worksheets("Input").Cells(4 + i, 34 + j)
+    //    }
+    //}
+    MWgas[0] = 16.043;
+    TCr[0] = 190.6;
+    PCr[0] = 46;
+    Omega[0] = 0.008;
+
+    MWgas[1] = 44.01;
+    TCr[1] = 304.2;
+    PCr[1] = 73.76;
+    Omega[1] = 0.225;
+
+    MWgas[2] = 34.08;
+    TCr[2] = 373.5;
+    PCr[2] = 89.63;
+    Omega[2] = 0.094;
+
+    MWgas[3] = 30.07;
+    TCr[3] = 305.5;
+    PCr[3] = 48.84;
+    Omega[3] = 0.098;
+
+    MWgas[4] = 44.094;
+    TCr[4] = 369.9;
+    PCr[4] = 42.46;
+    Omega[4] = 0.152;
+
+    MWgas[5] = 58.124;
+    TCr[5] = 408.2;
+    PCr[5] = 36.48;
+    Omega[5] = 0.176;
+
+    MWgas[6] = 58.124;
+    TCr[6] = 425.3;
+    PCr[6] = 38;
+    Omega[6] = 0.193;
+
+    MWgas[7] = 72.151;
+    TCr[7] = 460.45;
+    PCr[7] = 33.84;
+    Omega[7] = 0.227;
+
+    MWgas[8] = 72.151;
+    TCr[8] = 469.6;
+    PCr[8] = 33.74;
+    Omega[8] = 0.251;
+
+    MWgas[9] = 86.178;
+    TCr[9] = 507.5;
+    PCr[9] = 29.69;
+    Omega[9] = 0.296;
+
+    MWgas[10] = 108.46355910141;
+    TCr[10] = 575.5;
+    PCr[10] = 26.26;
+    Omega[10] = 0.545;
+
+    MWgas[11] = 203.768522560204;
+    TCr[11] = 708.6;
+    PCr[11] = 16.76;
+    Omega[11] = 0.857;
+
+    MWgas[12] = 321.359072235909;
+    TCr[12] = 945.6;
+    PCr[12] = 13.36;
+    Omega[12] = 1.248;
+
+    MWgas[13] = 28.013;
+    TCr[13] = 126.2;
+    PCr[13] = 33.94;
+    Omega[13] = 0.040;
+
+    MWgas[14] = 18;
+    TCr[14] = 647.1;
+    PCr[14] = 220.55;
+    Omega[14] = 0.345;
+
+    if (EOS == "PR") {
+        mf_c0[0] = -5.19998589998324;
+        mf_c1[0] = 0.0;
+
+        mf_c0[1] = -1.90887591231191;
+        mf_c1[1] = 0.0;
+
+        mf_c0[2] = -3.92147265302369;
+        mf_c0[3] = -5.7950356085208;
+        mf_c0[4] = -6.35369532428396;
+        mf_c0[5] = -7.18062223841032;
+        mf_c0[6] = -6.48762839907065;
+        mf_c0[7] = -6.19849948277172;
+        mf_c0[8] = -5.12105162468565;
+        mf_c0[9] = -3.4814313848538;
+        mf_c0[10] = -14.8622158330974;
+        mf_c0[11] = -29.8260575190994;
+        mf_c0[12] = 5.77517376259963;
+        mf_c0[13] = -4.23208315053643;
+        mf_c0[14] = 3.00773525559068;
+
+        mf_c1[2] = 0.0;
+        mf_c1[3] = 0.0;
+        mf_c1[4] = 0.0;
+        mf_c1[5] = 0.0;
+        mf_c1[6] = 0.0;
+        mf_c1[7] = 0.0;
+        mf_c1[8] = 0.0;
+        mf_c1[9] = 0.0;
+        mf_c1[10] = -0.00560031997876096;
+        mf_c1[11] = 0.101896336756916;
+        mf_c1[12] = 0.279177061769215;
+        mf_c1[13] = 0.0;
+        mf_c1[14] = 0.00873186552687633;
     }
+    if (EOS == "SRK") {
+        //??
+    }
+
+    kPr[0][0] = 0;
+
+    kPr[1][0] = 0.12;
+
+    kPr[2][0] = 0.08;
+    kPr[2][1] = 0.12;
+
+    kPr[3][1] = 0.15;
+    kPr[3][2] = 0.07;
+
+    kPr[4][1] = 0.15;
+    kPr[4][2] = 0.07;
+
+    kPr[5][1] = 0.15;
+    kPr[5][2] = 0.06;
+
+    kPr[6][1] = 0.15;
+    kPr[6][2] = 0.06;
+
+    kPr[7][1] = 0.15;
+    kPr[7][2] = 0.06;
+
+    kPr[8][1] = 0.15;
+    kPr[8][2] = 0.06;
+
+    kPr[9][1] = 0.15;
+    kPr[9][2] = 0.05;
+
+    kPr[10][1] = 0.15;
+    kPr[10][2] = 0.05;
+
+    kPr[11][1] = 0.15;
+    kPr[11][2] = 0.05;
+
+    kPr[12][1] = 0.15;
+    kPr[12][2] = 0.05;
+
+    kPr[13][0] = 0.02;
+    kPr[13][3] = 0.06;
+    kPr[13][4] = 0.08;
+    kPr[13][5] = 0.08;
+    kPr[13][6] = 0.08;
+    kPr[13][7] = 0.08;
+    kPr[13][8] = 0.08;
+    kPr[13][9] = 0.08;
+    kPr[13][10] = 0.08;
+    kPr[13][11] = 0.08;
+    kPr[13][12] = 0.08;
+
+    kPr[14][0] = 0.45;
+    kPr[14][3] = 0.45;
+    kPr[14][4] = 0.53;
+    kPr[14][5] = 0.52;
+    kPr[14][6] = 0.52;
+    kPr[14][7] = 0.5;
+    kPr[14][8] = 0.5;
+    kPr[14][9] = 0.5;
+    kPr[14][10] = 0.5;
+    kPr[14][11] = 0.5;
+    kPr[14][12] = 0.5;
 }
 
 
@@ -7783,24 +7579,12 @@ Dim lnphiH2O_Aq As Double, composition_Aq() As Double, lnphi_Aq() As Double, Com
 Dim EOS As String, mf_gNeut(2) As Double
 Const RBar As Double = 0.000083144621 ' m3*Bar/mol*K
     */
-    double* composition_G = NULL;
-    double* MWgas = NULL;
-    double* TCr = NULL;
-    double* PCr = NULL;
-    double* Omega = NULL;
-    double* mf_c0 = NULL;
-    double* mf_c1 = NULL;
-    double** kPr = NULL;
-
-    double* composition_Aq = NULL;
-    double* lnphi_Aq = NULL;
-
     double lnphiH2O_Aq = 0;
     double Compr_composition_Aq = 0;
 
-    const double temp_RBar = 0.000083144621; // 注意：这里源码的RBar和全局的那个重名了，但数值不同
-    char EOS[3] = "PR";
-    double mf_gNeut[2];
+    const double RBar = 0.000083144621; // 注意：这里源码的RBar和全局的那个重名了，但数值不同
+    std::string EOS = "PR";
+    DoubleVec mf_gNeut(2, 0);
 
     mf_gNeut[0] = gNeut[0];
     mf_gNeut[1] = gNeut[1];
@@ -7813,35 +7597,22 @@ ReDim composition_Aq(NumGases), lnphi_Aq(NumGases)
 */
 
 // 分配内存
-    MWgas = (double*)malloc(NumGases * sizeof(double));
-    TCr = (double*)malloc(NumGases * sizeof(double));
-    PCr = (double*)malloc(NumGases * sizeof(double));
-    Omega = (double*)malloc(NumGases * sizeof(double));
-    mf_c0 = (double*)malloc(NumGases * sizeof(double));
-    mf_c1 = (double*)malloc(NumGases * sizeof(double));
 
-    // 分配二维数组kPr
-    kPr = (double**)malloc(NumGases * sizeof(double*));
-    for (i = 0; i < NumGases; i++) {
-        kPr[i] = (double*)malloc(NumGases * sizeof(double));
-    }
+    DoubleVec MWgas(NumGases, 0);
+    DoubleVec TCr(NumGases, 0);
+    DoubleVec PCr(NumGases, 0);
+    DoubleVec Omega(NumGases, 0);
+    DoubleVec mf_c0(NumGases, 0);
+    DoubleVec mf_c1(NumGases, 0);
+    DoubleMatrix kPr(NumGases, DoubleVec(NumGases, 0));
 
-    lnphi_Gas = (double*)malloc(5 * sizeof(double));
-    composition_Aq = (double*)malloc(NumGases * sizeof(double));
-    lnphi_Aq = (double*)malloc(NumGases * sizeof(double));
 
-    // 检查内存分配是否成功
-    /*
-    if (!MWgas || !TCr || !PCr || !Omega || !mf_c0 || !mf_c1 || !kPr ||
-        !lnphi_Gas || !composition_Aq || !lnphi_Aq ||
-        !mf_reservoir_Composition || !mf_feed_Composition) {
-        // 内存分配失败，清理已分配的内存并返回
-
-    }
-    */
+    DoubleVec lnphi_Gas(5, 0);
+    DoubleVec composition_Aq(NumGases, 0);
+    DoubleVec lnphi_Aq(NumGases, 0);
 
     // 获取EOS参数
-    Get_EOS_Parameters(NumGases, EOS, &MWgas, &TCr, &PCr, &Omega, &mf_c0, &mf_c1, &kPr);
+    Get_EOS_Parameters(NumGases, EOS, MWgas, TCr, PCr, Omega, mf_c0, mf_c1, kPr);
 
     // 初始化feed_Composition数组
     for (i = 0; i < NumGases; i++) {
@@ -7867,27 +7638,13 @@ ReDim composition_Aq(NumGases), lnphi_Aq(NumGases)
     *total_moles = 0.0;
     for (i = 0; i < NumGases; i++) {
         // if UseEOS=2 then total_moles are different from that calc in partD
-        *total_moles = *total_moles + feed_Composition[i];
+        *total_moles += feed_Composition[i];
     }
 
     // 计算摩尔分数
     for (i = 0; i < NumGases; i++) {
         feed_Composition[i] = feed_Composition[i] / (*total_moles);
     }
-
-    free(MWgas);
-    free(TCr);
-    free(PCr);
-    free(Omega);
-    free(mf_c0);
-    free(mf_c1);
-    for (i = 0; i < NumGases; i++) {
-        free(kPr[i]);
-    }
-    free(kPr);
-    free(composition_Aq);
-    free(lnphi_Aq);
-
 }
 
 
@@ -7911,43 +7668,35 @@ void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, dou
     int NumGases = 15;
 
     //-----参考true_composition
-    double* composition_G = NULL;
-    double* MWgas = NULL;
-    double* TCr = NULL;
-    double* PCr = NULL;
-    double* Omega = NULL;
-    double* mf_c0 = NULL;
-    double* mf_c1 = NULL;
-    double** kPr = NULL;
 
-    double* lnphi_Aq = NULL;
+    DoubleVec MWgas(NumGases, 0);
+    DoubleVec TCr(NumGases, 0);
+    DoubleVec PCr(NumGases, 0);
+    DoubleVec Omega(NumGases, 0);
+    DoubleVec mf_c0(NumGases, 0);
+    DoubleVec mf_c1(NumGases, 0);
 
-    MWgas = (double*)malloc(NumGases * sizeof(double));
-    TCr = (double*)malloc(NumGases * sizeof(double));
-    PCr = (double*)malloc(NumGases * sizeof(double));
-    Omega = (double*)malloc(NumGases * sizeof(double));
-    mf_c0 = (double*)malloc(NumGases * sizeof(double));
-    mf_c1 = (double*)malloc(NumGases * sizeof(double));
 
     // 分配二维数组kPr
-    kPr = (double**)malloc(NumGases * sizeof(double*));
-    for (i = 0; i < NumGases; i++) {
-        kPr[i] = (double*)malloc(NumGases * sizeof(double));
-    }
+    DoubleMatrix kPr(NumGases, DoubleVec(NumGases, 0));
 
-    //lnphi_Gas = (double*)malloc(5 * sizeof(double));
-    lnphi_Aq = (double*)malloc(NumGases * sizeof(double));
+    DoubleVec lnphi_Aq(NumGases, 0);
+    DoubleVec lnphi_Gas(NumGases, 0);
+    DoubleVec composition_G(NumGases, 0);
+    DoubleVec composition_Aq(NumGases, 0);
+    DoubleVec lnphi_Water(NumGases, 0);
 
 
-    double SGO, sgLightO, sgHeavyO, mwLightO, mwHeavyO, mwLightG, mwHeavyG, mwAir;
-    double xLightO, mwO, mwG, yLightG, yHeavyG;
-    double mol_gpd, mol_LightOpd, mol_HeavyOpd, mol_LightGpd;
-    double mol_HeavyGpd;
-    double lnphiH2O_Aq, composition_Aq[15], lnphi_Water[15], Compr_composition_Aq;
-    double Compr_G;
 
-    char EOS[3] = "PR";
-    double mf_gNeut[2];
+    double SGO = 0, sgLightO = 0, sgHeavyO = 0, mwLightO = 0, mwHeavyO = 0, mwLightG = 0, mwHeavyG = 0, mwAir = 0;
+    double xLightO = 0, mwO = 0, mwG = 0, yLightG = 0, yHeavyG = 0;
+    double mol_gpd = 0, mol_LightOpd = 0, mol_HeavyOpd = 0, mol_LightGpd = 0;
+    double mol_HeavyGpd = 0;
+    double lnphiH2O_Aq = 0, Compr_composition_Aq = 0;
+    double Compr_G = 0;
+
+    std::string EOS = "PR";
+    DoubleVec mf_gNeut(2, 0);
 
     const double RBar = 0.000083144621;  // m3*Bar/mol*K
 
@@ -7980,7 +7729,7 @@ void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, dou
     mwG = SGG * mwAir;  // calculated molar mass of gas
 
     // Subroutine that gets critical properties and parameters for the components
-    Get_EOS_Parameters(NumGases, EOS, &MWgas, &TCr, &PCr, &Omega, &mf_c0, &mf_c1, &kPr);
+    Get_EOS_Parameters(NumGases, EOS, MWgas, TCr, PCr, Omega, mf_c0, mf_c1, kPr);
 
     mf_gNeut[0] = gNeut[0];
     mf_gNeut[1] = gNeut[1];
@@ -8003,7 +7752,7 @@ void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, dou
     composition_G[1] = yCO2 / denom;  // CO2
     composition_G[2] = yH2S / denom;  // H2S
     composition_G[9] = yHeavyG / denom;  // n-butane (index 10 in 1-based)
-    composition_G[14] = YH2O;  // water (index 15 in 1-based)
+    composition_G[NumGases - 1] = YH2O;  // water (index 15 in 1-based)
 
     phi_calc(0, 0, EOS, "vapor", TK, PBar, composition_G, composition_G, mf_gNeut, aH2O, TCr, PCr, Omega, mf_c0, mf_c1, kPr, lnphi_Gas, &Compr_G, NumGases);
     mol_gpd = VgTP * PBar / (Compr_G * RBar * TK);  // moles of gas per day -- R is in m3/bar/K/g-mol
@@ -8037,43 +7786,31 @@ void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, dou
     for (i = 0; i < NumGases; i++) {
         feed_Composition[i] /= *total_moles;
     }
-
-    free(MWgas);
-    free(TCr);
-    free(PCr);
-    free(Omega);
-    free(mf_c0);
-    free(mf_c1);
-    for (i = 0; i < NumGases; i++) {
-        free(kPr[i]);
-    }
-    free(kPr);
-    free(lnphi_Aq);
 }
 
 
 void Flash_Input_Processing(char* ioSheet, char* ioCol, double eosProps[][6], double kij[][15], double* zInput, int nComp,
-    double** zi,        // 输出数组地址（函数内malloc）
-    int** idx_CompA,    // 输出索引数组地址
-    int* nCompA, int idx_Henry[5],
-    int* idx_Water,
-    int** phaseID,      // 输出相标识数组地址
-    int* nPhase
+    DoubleVec& zi,        // 输出数组地址（函数内malloc）
+    IntVec& idx_CompA,    // 输出索引数组地址
+    int& nCompA, IntVec& idx_Henry,
+    int& idx_Water,
+    IntVec& phaseID,      // 输出相标识数组地址
+    int& nPhase
 )
 {
     int i, k;
 
     // 初始化
     for (i = 0; i < 5; ++i) idx_Henry[i] = 0;
-    *idx_Water = 0;
-    *nCompA = 0;
+    idx_Water = 0;
+    nCompA = 0;
 
     // -------------------------
     // 1. 计算活性（非零）组分数量
     // -------------------------
     for (i = 0; i < nComp; ++i) {
         if (zInput[i] > 0.0)
-            (*nCompA)++;
+            nCompA++;
 
         // 识别轻气体 (H2, CO2, H2S, CH4)
         if (i < 4 && zInput[i] > 0.0)
@@ -8082,28 +7819,23 @@ void Flash_Input_Processing(char* ioSheet, char* ioCol, double eosProps[][6], do
 
     // 判断 N2 是否存在（nComp-2位置）
     if (zInput[nComp - 2] > 0.0)
-        idx_Henry[4] = (*nCompA) - 2;//原语句：idx_Henry(5) = nCompA - 1，但上方可知，我们的idx_Henry是有偏移的，所以改成了-2
+        idx_Henry[4] = nCompA - 2;//原语句：idx_Henry(5) = nCompA - 1，但上方可知，我们的idx_Henry是有偏移的，所以改成了-2
 
     // 判断 H2O 是否存在（最后一个）
     if (zInput[nComp - 1] > 0.0)
-        *idx_Water = (*nCompA);
+        idx_Water = nCompA;
 
     // -------------------------
     // 2. 填充活性组分向量
     // -------------------------
-    *zi = (double*)calloc(*nCompA, sizeof(double));
-    *idx_CompA = (int*)calloc(*nCompA, sizeof(int));
-
-    if (!*zi || !*idx_CompA) {
-        fprintf(stderr, "Memory allocation failed in Flash_Input_Processing\n");
-        return;
-    }
+    zi = DoubleVec(nCompA);
+    idx_CompA = IntVec(nCompA);
 
     k = 0;
     for (i = 0; i < nComp; ++i) {
         if (zInput[i] > 0.0) {
-            (*zi)[k] = zInput[i];
-            (*idx_CompA)[k] = i; // C 用0-based索引
+            zi[k] = zInput[i];
+            idx_CompA[k] = i; // C 用0-based索引
             k++;
         }
     }
@@ -8126,25 +7858,26 @@ void Flash_Input_Processing(char* ioSheet, char* ioCol, double eosProps[][6], do
     // -------------------------
     // 5. 判断存在几相
     // -------------------------
-    if (*idx_Water != 0) {
-        *nPhase = 3;
-        *phaseID = (int*)malloc((*nPhase) * sizeof(int));
-        (*phaseID)[0] = 1;
-        (*phaseID)[1] = 2;
-        (*phaseID)[2] = 3;
+    if (idx_Water != 0) {
+        nPhase = 3;
+        phaseID = IntVec(nPhase, 0);
+        phaseID[0] = 1;
+        phaseID[1] = 2;
+        phaseID[2] = 3;
     }
     else {
-        *nPhase = 2;
-        *phaseID = (int*)malloc((*nPhase) * sizeof(int));
-        (*phaseID)[0] = 1;
-        (*phaseID)[1] = 2;
+        nPhase = 2;
+        phaseID = IntVec(nPhase, 0);
+        phaseID[0] = 1;
+        phaseID[1] = 2;
     }
 }
 
 
-void MultiPhaseFlash_CS(char* iosheet, char* ioCol, double eosProps[][6], double kij[][15], double TK, double PBar, double total_moles,
-    double* zInput, double* gNeut, double aH2O, double* density, double** compositions, double** phi, double* Compr,
-    double* beta, double* zOutput, double* mass_phase, double* MW_Phase, int* No_Phases)
+void MultiPhaseFlash_CS(char* iosheet, char* ioCol, double eosProps[][6], double kij[][15], double TK, double PBar,
+    double total_moles, double* zInput, double* gNeut, double aH2O, DoubleVec& density, DoubleMatrix& compositions,
+    DoubleMatrix& phi, DoubleVec& Compr, DoubleVec& beta, double* zOutput,
+    DoubleVec& mass_phase, DoubleVec& MW_Phase, int* No_Phases)
 {
     int i, j, k, L;
     int FlashType = 1;  /* modified Wilson PT-flash */
@@ -8154,19 +7887,18 @@ void MultiPhaseFlash_CS(char* iosheet, char* ioCol, double eosProps[][6], double
     int nCompMax = 15;  /* 最大组分数 */
 
     /* ========= 输入预处理：调用外部函数 ========== */
-    double* zi = NULL;
-    int* idx_CompA = NULL; int nCompA = 0;
-    int idx_Henry[5]; int idx_Water = 0;
-    int* phaseID = NULL;  int nPhaseMax = 0;
-
+    DoubleVec zi;
+    IntVec idx_CompA; int nCompA = 0;
+    IntVec idx_Henry(5, 0); int idx_Water = 0;
+    IntVec phaseID; int nPhaseMax = 0;
     Flash_Input_Processing(iosheet, ioCol, eosProps, kij, zInput, nCompMax,
-        &zi, &idx_CompA, &nCompA, idx_Henry, &idx_Water,
-        &phaseID, &nPhaseMax);
+        zi, idx_CompA, nCompA, idx_Henry, idx_Water,
+        phaseID, nPhaseMax);
 
     /* ========= 将输入转为C数组 ========= */
     double T = TK;
     double P = PBar;
-    double* MW = (double*)malloc(nCompA * sizeof(double));
+    DoubleVec MW(nCompA);
     double gamma[2];
     gamma[0] = gNeut[0];
     gamma[1] = gNeut[1];
@@ -8177,14 +7909,11 @@ void MultiPhaseFlash_CS(char* iosheet, char* ioCol, double eosProps[][6], double
     }
 
     /* ========= 调用 ShellFlash ========= */
-    double* beta_mol = (double*)malloc(nPhaseMax * sizeof(double));
-    double* Zk = (double*)malloc(nPhaseMax * sizeof(double));
-    double** yik = (double**)malloc(nCompA * sizeof(double*));
-    double** logPHI = (double**)malloc(nCompA * sizeof(double*));
-    for (i = 0; i < nCompA; i++) {
-        yik[i] = (double*)malloc(nPhaseMax * sizeof(double));
-        logPHI[i] = (double*)malloc(nPhaseMax * sizeof(double));
-    }
+    DoubleVec beta_mol(nPhaseMax);
+    DoubleVec Zk(nPhaseMax);
+
+    DoubleMatrix yik(nCompA, DoubleVec(nPhaseMax, 0));
+    DoubleMatrix logPHI(nCompA, DoubleVec(nPhaseMax, 0));
 
     //ShellFlash(FlashType, EOS, T, P, zi, eosProps, kij, nCompA, nPhaseMax,
     //    phaseID, beta_mol, Zk, yik, logPHI,
@@ -8238,18 +7967,6 @@ void MultiPhaseFlash_CS(char* iosheet, char* ioCol, double eosProps[][6], double
 
     /* 计算气相体积 (m^3) —— 如果需要返回，需加到参数列表 */
     double mf_Vg = Compr[0] * total_moles * beta[0] * 0.00008314461 * TK / PBar;
-
-
-    /* ========= 内存释放 ========= */
-    free(MW);
-    free(beta_mol);
-    free(Zk);
-    for (i = 0; i < nCompA; i++) {
-        free(yik[i]);
-        free(logPHI[i]);
-    }
-    free(yik);
-    free(logPHI);
 }
 
 
@@ -8600,8 +8317,8 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     }
                     if (RunH2SGUI != 1) {
 
-                        MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
-                            PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                        MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
+                            PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
                     }
                     else {
                         MultiPhaseFlash_CS(myiosheet, myiocol, eosProps, kij, TK, PBar, total_moles_Temp, zTemp, gNeutAq,
@@ -8636,8 +8353,8 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     }
                     if (RunH2SGUI != 1) {
 
-                        MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
-                            PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                        MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
+                            PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
                     }
                     else {
 
@@ -8864,8 +8581,8 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     zTemp[iz] = z_before_precipitation[iz] * Total_moles_before_precipitation / total_moles_Temp;
                 }
                 if (RunH2SGUI != 1) {
-                    MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
-                        PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                    MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
+                        PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
                 }
                 else {
 
@@ -8897,8 +8614,8 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                 }
                 if (RunH2SGUI != 1) {
 
-                    MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
-                        PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                    MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
+                        PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
                 }
                 else {
 
@@ -9065,38 +8782,38 @@ void QualityControlCalculations(int kk, int j)
 
     if (RunStat == 1) {
         /*
-                simContext.AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
-            simContext.AlkMix(kk) = simContext.AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
-            simContext.TAcMix(kk) = Worksheets(mySheet).Cells(30, j + 2).Value / 59.044 'convert to sum of carboxylic acid in meq/L
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(31, j + 2).Value / 73.07
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(32, j + 2).Value / 87.098
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(33, j + 2).Value / 87.11
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(34, j + 2).Value / 101.13
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(35, j + 2).Value / 101.13
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(36, j + 2).Value / 115.16
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(37, j + 2).Value / 115.16
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) + Worksheets(mySheet).Cells(38, j + 2).Value / 129.178
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) * 59.044 'convert to mg/L as acetate
-            simContext.TAcMix(kk) = simContext.TAcMix(kk) / (59044 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+                AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            AlkMix(kk) = AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            TAcMix(kk) = Worksheets(mySheet).Cells(30, j + 2).Value / 59.044 'convert to sum of carboxylic acid in meq/L
+            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(31, j + 2).Value / 73.07
+            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(32, j + 2).Value / 87.098
+            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(33, j + 2).Value / 87.11
+            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(34, j + 2).Value / 101.13
+            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(35, j + 2).Value / 101.13
+            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(36, j + 2).Value / 115.16
+            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(37, j + 2).Value / 115.16
+            TAcMix(kk) = TAcMix(kk) + Worksheets(mySheet).Cells(38, j + 2).Value / 129.178
+            TAcMix(kk) = TAcMix(kk) * 59.044 'convert to mg/L as acetate
+            TAcMix(kk) = TAcMix(kk) / (59044 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
         */
     }
     else {
         if (UseMolal == 0) {
             /*
-            simContext.AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
-            simContext.AlkMix(kk) = simContext.AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
-            simContext.AlkMix(kk) = simContext.AlkMix(kk) + Worksheets(mySheet).Cells(48, j + 2).Value / (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#)
-            simContext.AlkMix(kk) = simContext.AlkMix(kk) - Worksheets(mySheet).Cells(47, j + 2).Value / (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#)
-            simContext.TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value / (59044 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            AlkMix(kk) = AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+            AlkMix(kk) = AlkMix(kk) + Worksheets(mySheet).Cells(48, j + 2).Value / (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#)
+            AlkMix(kk) = AlkMix(kk) - Worksheets(mySheet).Cells(47, j + 2).Value / (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#)
+            TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value / (59044 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
             */
         }
         else {
             /*
-            simContext.AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value
-            simContext.AlkMix(kk) = simContext.AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value
-            simContext.AlkMix(kk) = simContext.AlkMix(kk) + Worksheets(mySheet).Cells(48, j + 2).Value
-            simContext.AlkMix(kk) = simContext.AlkMix(kk) - Worksheets(mySheet).Cells(47, j + 2).Value
-            simContext.TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value
+            AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value
+            AlkMix(kk) = AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value
+            AlkMix(kk) = AlkMix(kk) + Worksheets(mySheet).Cells(48, j + 2).Value
+            AlkMix(kk) = AlkMix(kk) - Worksheets(mySheet).Cells(47, j + 2).Value
+            TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value
             */
         }
 
@@ -9112,7 +8829,7 @@ void QualityControlCalculations(int kk, int j)
         SumOfAnions += ChAn[a] * ma[a];
 
     //1、使用测量的 pH 值和 Alk 值来计算输入表 QC 部分中的 P-CO2。
-    pH = pHMeterStpMix[kk] + DpHj;
+    pH = simContext.pHMeterStpMix[kk] + DpHj;
     aH = pow(10, -pH);
 
 
@@ -9257,12 +8974,12 @@ void QualityControlCalculations(int kk, int j)
 
         // 输出结果到相应的工作表
         //源码：If RunStat = 1 And CaseCount(1) = 1
-        if (RunStat == 1 && CaseCount[0] == 1) {
+        if (RunStat == 1 && simContext.CaseCount[0] == 1) {
             // for StatQC produced water
             //Worksheets("Output data sheet").Cells(6, 4) = yCO2 * 100  '假设 pH 和 Alk 正确，QC 检查 PCO2 是多少？
 
         }
-        else if (RunStat == 1 && CaseCount[0] == 9) {
+        else if (RunStat == 1 && simContext.CaseCount[0] == 9) {
             // for StatQC fresh water
             //Worksheets("Output data sheet").Cells(18, 4) = yCO2 * 100  'QC check for assuming that pH and Alk are correct, what would PCO2 be?
         }
@@ -9280,7 +8997,7 @@ void QualityControlCalculations(int kk, int j)
         }
         else {
             //源码的kk从1开始，[1, nob_Input]，对应c语言的kk < nob_Input [0,nob_Input-1] = [0,nob_Input)
-            if (kk < nob_Input) {
+            if (kk < simContext.nob_Input) {
                 //Worksheets("Input").Cells(14, j + 15) = yH2S * 100
 
                 if (UseMolal == 0) {
@@ -9293,7 +9010,7 @@ void QualityControlCalculations(int kk, int j)
                 //Worksheets("Input").Cells(17, j + 15) = yCO2 * 100  'QC check for assuming that pH and Alk are correct, what would PCO2 be?
             }
             //注意下方源码： If kk > nob_Input And kk <= nob_Input + nob_InputII Then
-            if (kk >= nob_Input && kk < nob_Input + nob_InputII) {
+            if (kk >= simContext.nob_Input && kk < simContext.nob_Input + simContext.nob_InputII) {
                 // Worksheets("Input II").Cells(83, j + 2) = yH2S * 100
 
                 if (UseMolal == 0) {
@@ -9477,11 +9194,11 @@ void QualityControlCalculations(int kk, int j)
         }
 
         // 输出结果到相应的工作表
-        if (RunStat == 1 && CaseCount[0] == 1) {
+        if (RunStat == 1 && simContext.CaseCount[0] == 1) {
             // for StatQC produced water
             //Worksheets("Output data sheet").Cells(5, 4) = pHMeterReading_from_QC  'QC check given Alk and PCO2, the calculated pH for meter reading.
         }
-        else if (RunStat == 1 && CaseCount[0] == 9) {
+        else if (RunStat == 1 && simContext.CaseCount[0] == 9) {
             // for StatQC fresh water
             //Worksheets("Output data sheet").Cells(17, 4) = pHMeterReading_from_QC  'QC check given Alk and PCO2, the calculated pH for meter reading.
         }
@@ -9489,22 +9206,22 @@ void QualityControlCalculations(int kk, int j)
             //Worksheets(mySheet).Cells(85, j + 2) = pHMeterReading_from_QC  'QC check given Alk and PCO2, the calculated pH for meter reading.
         }
         else {
-            if (kk < nob_Input) {
+            if (kk < simContext.nob_Input) {
                 //Worksheets("Input").Cells(16, j + 15) = pHMeterReading_from_QC  'QC check given Alk and PCO2, the calculated pH for meter reading.
             }
-            if (kk >= nob_Input && kk < nob_Input + nob_InputII) {
+            if (kk >= simContext.nob_Input && kk < simContext.nob_Input + simContext.nob_InputII) {
                 //Worksheets("Input II").Cells(85, j + 2) = pHMeterReading_from_QC  'QC check given Alk and PCO2, the calculated pH for meter reading.
             }
         }
     }
     else {
         //对应于 useEOS<>0 QC 中的大多数参数已在 ReadInDataD sub 的末尾计算
-        if (RunStat == 1 && CaseCount[0] == 1) {
+        if (RunStat == 1 && simContext.CaseCount[0] == 1) {
             // for StatQC produced water
             //Worksheets("Output data sheet").Cells(6, 4) = compositions(2, 2) * 100
             //    Worksheets("Output data sheet").Cells(5, 4) = pHMeterReading
         }
-        else if (RunStat == 1 && CaseCount[0] == 9) {
+        else if (RunStat == 1 && simContext.CaseCount[0] == 9) {
             // for StatQC fresh water
             //Worksheets("Output data sheet").Cells(18, 4) = compositions(2, 2) * 100
                 //Worksheets("Output data sheet").Cells(17, 4) = pHMeterReading
@@ -9523,7 +9240,7 @@ void QualityControlCalculations(int kk, int j)
             //    Worksheets(mySheet).Cells(86, j + 2) = compositions(2, 2) * 100 'QC check for assuming that pH and Alk are correct, what would PCO2 be?
         }
         else {
-            if (kk < nob_Input) {
+            if (kk < simContext.nob_Input) {
                 //Worksheets("Input").Cells(14, j + 15) = compositions(3, 2) * 100
 
                 if (UseMolal == 0) {
@@ -9536,7 +9253,7 @@ void QualityControlCalculations(int kk, int j)
                 //    Worksheets("Input").Cells(17, j + 15) = compositions(2, 2) * 100  'QC check for assuming that pH and Alk are correct, what would PCO2 be?
             }
 
-            if (kk >= nob_Input && kk < nob_Input + nob_InputII) {
+            if (kk >= simContext.nob_Input && kk < simContext.nob_Input + simContext.nob_InputII) {
                 //    Worksheets("Input II").Cells(83, j + 2) = compositions(3, 2) * 100
 
                 if (UseMolal == 0) {
@@ -9553,11 +9270,11 @@ void QualityControlCalculations(int kk, int j)
     }
 
     //3、根据报告的pH值和STP P-CO2计算碱度。注意，H2Saq值已在上文计算过。
-    pHMeterReading = pHMeterStpMix[kk];
-    yCO2 = yCO2Mix[kk];
+    pHMeterReading = simContext.pHMeterStpMix[kk];
+    yCO2 = simContext.yCO2Mix[kk];
 
     // 计算pH和相关参数
-    pH = pHMeterStpMix[kk] + DpHj;
+    pH = simContext.pHMeterStpMix[kk] + DpHj;
     aH = pow(10.0, -pH);
 
     H = aH / (gCat[iH] * gNCat[iH]);
@@ -9620,7 +9337,7 @@ void QualityControlCalculations(int kk, int j)
     NaQC = (-SumOfAnions - (SumOfCations - simContext.NaMix[kk]));
 
     // 输出结果到相应的工作表
-    if (RunStat == 1 && CaseCount[0] == 1) {
+    if (RunStat == 1 && simContext.CaseCount[0] == 1) {
         /*
         *     Worksheets("Output Data Sheet").Cells(7, 4) = Alk_from_QC * (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
             Worksheets("Output Data Sheet").Cells(8, 4).Value = SumOfCations * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
@@ -9630,7 +9347,7 @@ void QualityControlCalculations(int kk, int j)
             Worksheets("Output Data Sheet").Cells(12, 4).Value = NaQC * (22990 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
         */
     }
-    else if (RunStat == 1 && CaseCount[0] == 9) {
+    else if (RunStat == 1 && simContext.CaseCount[0] == 9) {
         /*
         Worksheets("Output Data Sheet").Cells(19, 4) = Alk_from_QC * (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
         Worksheets("Output Data Sheet").Cells(20, 4).Value = SumOfCations * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
@@ -9660,7 +9377,7 @@ void QualityControlCalculations(int kk, int j)
         //Worksheets(mySheet).Cells(90, j + 2).Value = TDS
     }
     else {
-        if (kk < nob_Input) {
+        if (kk < simContext.nob_Input) {
             if (UseMolal == 0) {
                 /*
                 Worksheets("Input").Cells(18, j + 15) = Alk_from_QC * (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
@@ -9681,7 +9398,7 @@ void QualityControlCalculations(int kk, int j)
             //Worksheets("Input").Cells(21, j + 15).Value = CalculatedTDSMix(kk)
         }
 
-        if (kk >= nob_Input && kk < nob_Input + nob_InputII) {
+        if (kk >= simContext.nob_Input && kk < simContext.nob_Input + simContext.nob_InputII) {
             if (UseMolal == 0) {
                 /*
                 Worksheets("Input II").Cells(87, j + 2) = Alk_from_QC * (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
@@ -9721,7 +9438,7 @@ void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
     // Call CalcIonicStrength 'before CO2, H2S, FeSaq speciation
     CalcIonicStrength();
 
-    pH = pHMeterStpMix[i] + DpHj;
+    pH = simContext.pHMeterStpMix[i] + DpHj;
 
     if (Ist >= 25) {
         printf("The calculated ionic strength is %.2f. This is greater than 20 m (moles of salt/kg of water), the upper limit. The calculation will be terminated. It is suggested that you check the input, conc unit, and retry the calculation.\n", Ist);
@@ -9765,7 +9482,7 @@ void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
     // Call CalcIonicStrength 'before CO2, H2S, FeSaq speciation
     CalcIonicStrength();
 
-    pH = pHMeterStpMix[i] + DpHj;
+    pH = simContext.pHMeterStpMix[i] + DpHj;
 
     // If use_pH = 0 Then mt = fTPFunc(0) 'Option0 77F, 14.696 psi: Option1 T=TVol, P=Pvol; Option2 T=TpH, P=PpH
     // If use_pH = 1 Then mt = fTPFunc(2) 'Option0 77F, 14.696 psi: Option1 T=TVol, P=Pvol; Option2 T=TpH, P=PpH
@@ -9800,7 +9517,7 @@ void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
     mn[iH2Saq] = H2Saq;
     mn[iHAcaq] = HAcaq;
 
-    if (useEOSmix[kk] == 1) {
+    if (simContext.useEOSmix[simContext.kk] == 1) {
         mc[iH] = 0.0000001;
         ma[iOH] = 0.0000001;
         ma[iAc] = TAc;
@@ -9832,20 +9549,20 @@ void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
  */
 void D1_CalcDensity(int i, int* Iteration2, double* mt) {
 
-    // HCO3stpMix(i) = simContext.AlkMix(i): ACstpMix(i) = simContext.TAcMix(i): HstpMix(i) = 0.000001: OHstpMix(i) = 0.0000001: CO3stpMix(i) = 0: _
+    // HCO3stpMix(i) = AlkMix(i): ACstpMix(i) = TAcMix(i): HstpMix(i) = 0.000001: OHstpMix(i) = 0.0000001: CO3stpMix(i) = 0: _
     // HSstpMix(i) = 0: NH4STPMix(i) = TNH4Mix(i): H2BO3stpMix(i) = 0
-    HCO3stpMix[i] = simContext.AlkMix[i];
-    ACstpMix[i] = simContext.TAcMix[i];
-    HstpMix[i] = 0.000001;
-    OHstpMix[i] = 0.0000001;
-    CO3stpMix[i] = 0;
-    HSstpMix[i] = 0;
-    NH4STPMix[i] = TNH4Mix[i];
-    H2BO3stpMix[i] = 0;
+    simContext.HCO3stpMix[i] = simContext.AlkMix[i];
+    simContext.ACstpMix[i] = simContext.TAcMix[i];
+    simContext.HstpMix[i] = 0.000001;
+    simContext.OHstpMix[i] = 0.0000001;
+    simContext.CO3stpMix[i] = 0;
+    simContext.HSstpMix[i] = 0;
+    simContext.NH4STPMix[i] = simContext.TNH4Mix[i];
+    simContext.H2BO3stpMix[i] = 0;
 
     *Iteration2 = 0;
 
-    mc[iH] = HstpMix[i];
+    mc[iH] = simContext.HstpMix[i];
     mc[iNa] = simContext.NaMix[i];  // 注意：NaMix等需从全局或参数中获取，假设已定义
     mc[iK] = simContext.KMix[i];
     mc[iMg] = simContext.MgMix[i];
@@ -9857,28 +9574,28 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
     mc[iZn] = simContext.ZnMix[i];
     mc[iPb] = simContext.PbMix[i];
 
-    ma[iOH] = OHstpMix[i];
+    ma[iOH] = simContext.OHstpMix[i];
     ma[iCl] = simContext.ClMix[i];
-    ma[iAc] = ACstpMix[i];
-    mc[iNH4] = NH4STPMix[i];
-    ma[iH2BO3] = H2BO3stpMix[i];
-    ma[iHCO3] = HCO3stpMix[i];
-    ma[iCO3] = CO3stpMix[i];
+    ma[iAc] = simContext.ACstpMix[i];
+    mc[iNH4] = simContext.NH4STPMix[i];
+    ma[iH2BO3] = simContext.H2BO3stpMix[i];
+    ma[iHCO3] = simContext.HCO3stpMix[i];
+    ma[iCO3] = simContext.CO3stpMix[i];
 
     ma[iH3SiO4] = 0;
     ma[iH2SiO4] = 0;
 
     ma[iSO4] = simContext.SO4Mix[i];
-    ma[iHS] = HSstpMix[i];
+    ma[iHS] = simContext.HSstpMix[i];
     ma[intF] = simContext.FMix[i];
     ma[iBr] = simContext.BrMix[i];
 
     Alk = simContext.AlkMix[i];
     TAc = simContext.TAcMix[i];
-    TH2Saq = TH2SaqMix[i];
-    TH4SiO4 = TH4SiO4Mix[i];
-    TH3BO3 = TH3BO3Mix[i];
-    TNH4 = TNH4Mix[i];
+    TH2Saq = simContext.TH2SaqMix[i];
+    TH4SiO4 = simContext.TH4SiO4Mix[i];
+    TH3BO3 = simContext.TH3BO3Mix[i];
+    TNH4 = simContext.TNH4Mix[i];
 
     mn[iNH3] = 0;
     mn[iH3BO3] = TH3BO3;
@@ -9886,9 +9603,9 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
     TFe = mc[iFe];
 
     // If use_pH = 3 Then TCO2 = TCO2Mix(i)
-    // TDSOld = simContext.TDSMix(i):  rhoOld = rho_Mix(i): TDS = simContext.TDSMix(i): TDSSSE = 1:
+    // TDSOld = TDSMix(i):  rhoOld = rho_Mix(i): TDS = TDSMix(i): TDSSSE = 1:
     TDSOld = simContext.TDSMix[i];
-    rhoOld = rho_Mix[i];  // 假设rhoOld在D2_CalcDensitypH中处理
+    rhoOld = simContext.rho_Mix[i];  // 假设rhoOld在D2_CalcDensitypH中处理
     TDS = simContext.TDSMix[i];
     TDSSSE = 1;
 
@@ -9958,7 +9675,7 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
         // rho25c = CalcRhoTP(TK, TC, PBar, Patm) 'Function subroutine  // 未定义函数：计算密度
         rho25c = CalcRhoTP(TK, TC, PBar, Patm);  // 参数：TK, TC, PBar, Patm -> double
 
-        pH = pHMeterStpMix[i] + DpHj;
+        pH = simContext.pHMeterStpMix[i] + DpHj;
 
         // amy check ????????????????????????????????????????????????????
         // If use_pH = 0 Then mt = fTPFunc(0) 'Option0 77F, 14.696 psi: Option1 T=TVol, P=Pvol; Option2 T=TpH, P=PpH
@@ -9991,7 +9708,7 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
         mn[iH2Saq] = H2Saq;
         mn[iHAcaq] = HAcaq;
 
-        if (useEOSmix[kk] == 1) {
+        if (simContext.useEOSmix[simContext.kk] == 1) {
             mc[iH] = 0.0000001;
             ma[iOH] = 0.0000001;
             ma[iAc] = TAc;
@@ -10030,7 +9747,7 @@ label10:;
  */
 void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     *mt = fTPFunc(0);  // Densitym TDS, and m calculated at STP condition
-    if (UseTPpHMix[kk] == 1) *mt = fTPFunc(2);
+    if (simContext.UseTPpHMix[kk] == 1) *mt = fTPFunc(2);
 
     if (Run10TestCases == 1 && Loop10 > 1) goto label100;
     if (Run_Seawater_Mixing == 1 && LoopMixing > 1) goto label100;
@@ -10038,19 +9755,19 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     if (RunMultiMix == 1 && LoopResChem > 1) goto label100;
     if (RunStatMix == 1 && LoopMixing > 1) goto label100;
 
-    HCO3stpMix[kk] = simContext.AlkMix[kk];
-    ACstpMix[kk] = simContext.TAcMix[kk];
-    HstpMix[kk] = 0.000001;
-    OHstpMix[kk] = 0.0000001;
-    CO3stpMix[kk] = 0;
-    HSstpMix[kk] = 0;
-    NH4STPMix[kk] = TNH4Mix[kk];
-    H2BO3stpMix[kk] = 0;
+    simContext.HCO3stpMix[kk] = simContext.AlkMix[kk];
+    simContext.ACstpMix[kk] = simContext.TAcMix[kk];
+    simContext.HstpMix[kk] = 0.000001;
+    simContext.OHstpMix[kk] = 0.0000001;
+    simContext.CO3stpMix[kk] = 0;
+    simContext.HSstpMix[kk] = 0;
+    simContext.NH4STPMix[kk] = simContext.TNH4Mix[kk];
+    simContext.H2BO3stpMix[kk] = 0;
     TDS = 0;
 
     *Iteration2 = 0;
 
-    mc[iH] = HstpMix[kk];
+    mc[iH] = simContext.HstpMix[kk];
     mc[iNa] = simContext.NaMix[kk];
     mc[iK] = simContext.KMix[kk];
     mc[iMg] = simContext.MgMix[kk];
@@ -10063,28 +9780,28 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     mc[iPb] = simContext.PbMix[kk];
     mc[iRa] = simContext.RaMix[kk];
 
-    ma[iOH] = OHstpMix[kk];
+    ma[iOH] = simContext.OHstpMix[kk];
     ma[iCl] = simContext.ClMix[kk];
-    ma[iAc] = ACstpMix[kk];
-    mc[iNH4] = NH4STPMix[kk];
-    ma[iH2BO3] = H2BO3stpMix[kk];
-    ma[iHCO3] = HCO3stpMix[kk];
-    ma[iCO3] = CO3stpMix[kk];
+    ma[iAc] = simContext.ACstpMix[kk];
+    mc[iNH4] = simContext.NH4STPMix[kk];
+    ma[iH2BO3] = simContext.H2BO3stpMix[kk];
+    ma[iHCO3] = simContext.HCO3stpMix[kk];
+    ma[iCO3] = simContext.CO3stpMix[kk];
 
     ma[iH3SiO4] = 0;
     ma[iH2SiO4] = 0;
 
     ma[iSO4] = simContext.SO4Mix[kk];
-    ma[iHS] = HSstpMix[kk];
+    ma[iHS] = simContext.HSstpMix[kk];
     ma[intF] = simContext.FMix[kk];
     ma[iBr] = simContext.BrMix[kk];
 
     Alk = simContext.AlkMix[kk];
     TAc = simContext.TAcMix[kk];
-    TH2Saq = TH2SaqMix[kk];
-    TH4SiO4 = TH4SiO4Mix[kk];
-    TH3BO3 = TH3BO3Mix[kk];
-    TNH4 = TNH4Mix[kk];
+    TH2Saq = simContext.TH2SaqMix[kk];
+    TH4SiO4 = simContext.TH4SiO4Mix[kk];
+    TH3BO3 = simContext.TH3BO3Mix[kk];
+    TNH4 = simContext.TNH4Mix[kk];
 
     TFe = simContext.FeMix[kk];
     TPb = simContext.PbMix[kk];
@@ -10094,23 +9811,23 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     mn[iH3BO3] = TH3BO3;
     mn[iH4SiO4aq] = TH4SiO4;
 
-    use_pH = usepHmix[kk];
+    use_pH = simContext.usepHmix[kk];
     UseH2Sgas = simContext.UseH2SgasMix[kk];
 
     if (use_pH == 3) {
-        TCO2 = TCO2Mix[kk];
+        TCO2 = simContext.TCO2Mix[kk];
     }
     else {
         TCO2 = 0;
     }
 
-    yCO2 = yCO2Mix[kk];
-    yH2S = yH2SMix[kk];  // yCH4 = 1 - yCO2 - yH2S 'assume dry gas
+    yCO2 = simContext.yCO2Mix[kk];
+    yH2S = simContext.yH2SMix[kk];  // yCH4 = 1 - yCO2 - yH2S 'assume dry gas
 
     // If yCH4 < 0 Then yCH4 = 0  '?????????????????????????????????????????????????????????????
 
-    if (useEOSmix[kk] == 1 && yCO2 == 0 && SumofZMix[kk] > 0) yCO2 = zMix[kk][1];  // if UseEOS=1 then set YCO2 and YH2S to reservoir condition to calculate density and TDS only if the reservoir fluid comp is given
-    if (useEOSmix[kk] == 1 && yH2S == 0 && SumofZMix[kk] > 0) yH2S = zMix[kk][2];
+    if (simContext.useEOSmix[kk] == 1 && yCO2 == 0 && simContext.SumofZMix[kk] > 0) yCO2 = simContext.zMix[kk][1];  // if UseEOS=1 then set YCO2 and YH2S to reservoir condition to calculate density and TDS only if the reservoir fluid comp is given
+    if (simContext.useEOSmix[kk] == 1 && yH2S == 0 && simContext.SumofZMix[kk] > 0) yH2S = simContext.zMix[kk][2];
 
     // Call C1_ThermodynamicEquilConsts  'Only function of T,P, does not recalculate in D1_CalcDensity
     // Call PengRobinson3
@@ -10118,9 +9835,9 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     // Call D1_CalcDensity(kk) 'Calculate TDS, density and fix molality based on the predicted density and TDS
     D1_CalcDensity(kk, Iteration2, mt);
 
-    CalculatedTDSMix[kk] = TDS;
+    simContext.CalculatedTDSMix[kk] = TDS;
 
-    HstpMix[kk] = mc[iH];
+    simContext.HstpMix[kk] = mc[iH];
     simContext.NaMix[kk] = mc[iNa];
     simContext.KMix[kk] = mc[iK];
     simContext.MgMix[kk] = mc[iMg];
@@ -10134,27 +9851,27 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     simContext.PbMix[kk] = mc[iPb];
     simContext.RaMix[kk] = mc[iRa];
 
-    OHstpMix[kk] = ma[iOH];
+    simContext.OHstpMix[kk] = ma[iOH];
     simContext.ClMix[kk] = ma[iCl];
-    ACstpMix[kk] = ma[iAc];
-    NH4STPMix[kk] = mc[iNH4];
-    H2BO3stpMix[kk] = ma[iH2BO3];
-    HCO3stpMix[kk] = ma[iHCO3];
-    CO3stpMix[kk] = ma[iCO3];
+    simContext.ACstpMix[kk] = ma[iAc];
+    simContext.NH4STPMix[kk] = mc[iNH4];
+    simContext.H2BO3stpMix[kk] = ma[iH2BO3];
+    simContext.HCO3stpMix[kk] = ma[iHCO3];
+    simContext.CO3stpMix[kk] = ma[iCO3];
 
     simContext.SO4Mix[kk] = ma[iSO4];
-    HSstpMix[kk] = ma[iHS];
+    simContext.HSstpMix[kk] = ma[iHS];
     simContext.FMix[kk] = ma[intF];
     simContext.BrMix[kk] = ma[iBr];
 
-    rho25CMix[kk] = rho25c;
+    simContext.rho25CMix[kk] = rho25c;
 
     simContext.H3SiO4Mix[kk] = ma[iH3SiO4];
     simContext.H2SiO4Mix[kk] = ma[iH2SiO4];
 
     simContext.NH3Mix[kk] = mn[iNH3];
     simContext.H4SiO4Mix[kk] = mn[iH4SiO4aq];
-    simContext.NH3Mix[kk] = mn[iH3BO3];
+    simContext.H3BO3Mix[kk] = mn[iH3BO3];
 
     simContext.CO2aqMix[kk] = mn[iCO2aq];
     simContext.H2SaqMix[kk] = mn[iH2Saq];
@@ -10162,16 +9879,16 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
 
     simContext.AlkMix[kk] = Alk;
     simContext.TAcMix[kk] = TAc;
-    TH2SaqMix[kk] = TH2Saq;
-    TH4SiO4Mix[kk] = TH4SiO4;
-    TNH4Mix[kk] = TNH4;
-    TH3BO3Mix[kk] = TH3BO3;
+    simContext.TH2SaqMix[kk] = TH2Saq;
+    simContext.TH4SiO4Mix[kk] = TH4SiO4;
+    simContext.TNH4Mix[kk] = TNH4;
+    simContext.TH3BO3Mix[kk] = TH3BO3;
 
-    yCO2Mix[kk] = yCO2;
-    yH2SMix[kk] = yH2S;
-    yCH4Mix[kk] = 1 - yCO2 - yH2S;  // Set YCO2 and YH2S to the calculated value if pH option is used.
+    simContext.yCO2Mix[kk] = yCO2;
+    simContext.yH2SMix[kk] = yH2S;
+    simContext.yCH4Mix[kk] = 1 - yCO2 - yH2S;  // Set YCO2 and YH2S to the calculated value if pH option is used.
 
-    if (UseTPVolMix[kk] == 0) WaterDensityMix[kk] = rho25c;
+    if (simContext.UseTPVolMix[kk] == 0) simContext.WaterDensityMix[kk] = rho25c;
 
     if (UseMolal == 1) {
         TDS = 0;
@@ -10189,7 +9906,7 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
         }
 
         TDS = CalculateTDSDen / (1 + CalculateTDSDen) * rho25c * 1000000.0;  // TDS in unit of mg/L,  numerator=(Kgsalt/KgH2O), denometer=(1+Kgsalt/KgH2O)=(Kgsoln/KgH2O);density Kgsoln/Lsoln
-        CalculatedTDSMix[kk] = TDS;
+        simContext.CalculatedTDSMix[kk] = TDS;
     }
 label100:;
 }
@@ -10215,7 +9932,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     for (iNG = 0; iNG < 15; iNG++) {
         zOutput[iNG] = 0;
         z[iNG] = 0;
-        zMix[kk][iNG] = 0;
+        simContext.zMix[kk][iNG] = 0;
     }
     for (iNG = 0; iNG < 2; iNG++)
         density[iNG] = 0;
@@ -10225,14 +9942,14 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     if (RunStat == 0) {
         //将 A2 - A4 和 A6 - A8 的闪光灯设置为关闭
         if (Run10TestCases == 1 || Run_MassTransfer == 1 || Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1 || RunWhatIf == 1 || RunMultiMix == 1) {
-            if (nob_Input + nob_InputII == 1) {
+            if (simContext.nob_Input + simContext.nob_InputII == 1) {
                 //待定：Worksheets(mySheet).Cells(55, j + 2).Value = 0
             }
             else {
                 //待定：Worksheets(MySheetMix).Cells(55, 8).Value = Empty
             }
         }
-        if (nob_Input + nob_InputII == 1) {
+        if (simContext.nob_Input + simContext.nob_InputII == 1) {
             //待定：useEOSmix(kk) = Worksheets(mySheet).Cells(55, j + 2).Value
         }
         else {
@@ -10243,64 +9960,64 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         //usedryHC = Worksheets(mySheet).Cells(56, j + 2).Value
         usedryHC = data->Option_Water_HC;
 
-        if (RunShellMultiflash == 1) useEOSmix[kk] = 0;
+        if (RunShellMultiflash == 1) simContext.useEOSmix[kk] = 0;
 
         /*
         * 待定，注：useEOSmix是整形的，为什么会用""来判断？？？？？
         if (useEOSmix[kk] == "") useEOSmix(kk) = 0
         */
-        if (RunMultiMix == 1) useEOSmix[kk] = 0;
+        if (RunMultiMix == 1) simContext.useEOSmix[kk] = 0;
 
         //注意，由于 ZMix (kk,i) 在下面重新分配，因此值将从此 Sub 开头的输入表中重新读取。
         //for (iNG = 0; iNG < 14; iNG++) {
         //    //待定：zMix(kk, iNG) = Worksheets(mySheet).Cells(65 + iNG, j + 2) / 100:
         //}
-        zMix[kk][0] = data->C1_o / 100.0;           zMix[kk][1] = data->CO2_o / 100.0;
-        zMix[kk][2] = data->H2S_o / 100.0;          zMix[kk][3] = data->C2_o / 100.0;
-        zMix[kk][4] = data->C3_o / 100.0;           zMix[kk][5] = data->iC4_o / 100.0;
-        zMix[kk][6] = data->nC4_o / 100.0;          zMix[kk][7] = data->iC5_o / 100.0;
-        zMix[kk][8] = data->nC5_o / 100.0;          zMix[kk][9] = data->C6_o / 100.0;
-        zMix[kk][10] = data->C7_C12_o / 100.0;      zMix[kk][11] = data->C13_C25_o / 100.0;
-        zMix[kk][12] = data->C26_C80_o / 100.0;     zMix[kk][13] = data->N2_o / 100.0;
-        zMix[kk][14] = 0.0;
+        simContext.zMix[kk][0] = data->C1_o / 100.0;           simContext.zMix[kk][1] = data->CO2_o / 100.0;
+        simContext.zMix[kk][2] = data->H2S_o / 100.0;          simContext.zMix[kk][3] = data->C2_o / 100.0;
+        simContext.zMix[kk][4] = data->C3_o / 100.0;           simContext.zMix[kk][5] = data->iC4_o / 100.0;
+        simContext.zMix[kk][6] = data->nC4_o / 100.0;          simContext.zMix[kk][7] = data->iC5_o / 100.0;
+        simContext.zMix[kk][8] = data->nC5_o / 100.0;          simContext.zMix[kk][9] = data->C6_o / 100.0;
+        simContext.zMix[kk][10] = data->C7_C12_o / 100.0;      simContext.zMix[kk][11] = data->C13_C25_o / 100.0;
+        simContext.zMix[kk][12] = data->C26_C80_o / 100.0;     simContext.zMix[kk][13] = data->N2_o / 100.0;
+        simContext.zMix[kk][14] = 0.0;
     }
 
-    SumofZMix[kk] = 0.0;
+    simContext.SumofZMix[kk] = 0.0;
     for (iNG = 0; iNG < 14; iNG++) {
-        if (zMix[kk][iNG] < 1e-7) zMix[kk][iNG] = 0;
-        SumofZMix[kk] += zMix[kk][iNG];
+        if (simContext.zMix[kk][iNG] < 1e-7) simContext.zMix[kk][iNG] = 0;
+        simContext.SumofZMix[kk] += simContext.zMix[kk][iNG];
     }
-    if (SumofZMix[kk] > 0) {
+    if (simContext.SumofZMix[kk] > 0) {
         for (iNG = 0; iNG < 14; iNG++)//Normalized z[0] to z[13]
-            zMix[kk][iNG] /= SumofZMix[kk];
+            simContext.zMix[kk][iNG] /= simContext.SumofZMix[kk];
     }
 
     //为该子程序分配局部变量
-    mc[iH] = HstpMix[kk]; mc[iNa] = simContext.NaMix[kk]; mc[iK] = simContext.KMix[kk]; mc[iMg] = simContext.MgMix[kk]; mc[iCa] = simContext.CaMix[kk];
+    mc[iH] = simContext.HstpMix[kk]; mc[iNa] = simContext.NaMix[kk]; mc[iK] = simContext.KMix[kk]; mc[iMg] = simContext.MgMix[kk]; mc[iCa] = simContext.CaMix[kk];
     double TCa = mc[iCa];
     mc[iSr] = simContext.SrMix[kk]; mc[iBa] = simContext.BaMix[kk]; mc[iFe] = simContext.FeMix[kk]; mc[iZn] = simContext.ZnMix[kk]; mc[iPb] = simContext.PbMix[kk]; mc[iRa] = simContext.RaMix[kk];
 
-    ma[iOH] = OHstpMix[kk]; ma[iCl] = simContext.ClMix[kk]; ma[iAc] = ACstpMix[kk]; mc[iNH4] = NH4STPMix[kk]; ma[iH2BO3] = H2BO3stpMix[kk];
-    ma[iHCO3] = HCO3stpMix[kk]; ma[iCO3] = CO3stpMix[kk];
-    ma[iSO4] = simContext.SO4Mix[kk]; ma[iHS] = HSstpMix[kk]; ma[intF] = simContext.FMix[kk]; ma[iBr] = simContext.BrMix[kk];
+    ma[iOH] = simContext.OHstpMix[kk]; ma[iCl] = simContext.ClMix[kk]; ma[iAc] = simContext.ACstpMix[kk]; mc[iNH4] = simContext.NH4STPMix[kk]; ma[iH2BO3] = simContext.H2BO3stpMix[kk];
+    ma[iHCO3] = simContext.HCO3stpMix[kk]; ma[iCO3] = simContext.CO3stpMix[kk];
+    ma[iSO4] = simContext.SO4Mix[kk]; ma[iHS] = simContext.HSstpMix[kk]; ma[intF] = simContext.FMix[kk]; ma[iBr] = simContext.BrMix[kk];
 
-    Alk = simContext.AlkMix[kk]; TAc = simContext.TAcMix[kk]; TNH4 = TNH4Mix[kk]; TH3BO3 = TH3BO3Mix[kk]; TH2Saq = TH2SaqMix[kk]; TCO2 = TCO2Mix[kk];
+    Alk = simContext.AlkMix[kk]; TAc = simContext.TAcMix[kk]; TNH4 = simContext.TNH4Mix[kk]; TH3BO3 = simContext.TH3BO3Mix[kk]; TH2Saq = simContext.TH2SaqMix[kk]; TCO2 = simContext.TCO2Mix[kk];
 
-    VW = VwMix[kk]; VgTP = VgTPMix[kk]; VO = VoMix[kk]; VMeOH = VMeOHMix[kk]; VMEG = VMEGMix[kk]; mass_MeOH = mass_MeOH_mix[kk]; mass_MEG = mass_MEG_mix[kk];
+    VW = simContext.VwMix[kk]; VgTP = simContext.VgTPMix[kk]; VO = simContext.VoMix[kk]; VMeOH = simContext.VMeOHMix[kk]; VMEG = simContext.VMEGMix[kk]; mass_MeOH = simContext.mass_MeOH_mix[kk]; mass_MEG = simContext.mass_MEG_mix[kk];
 
-    yCO2 = yCO2Mix[kk], yH2S = yH2SMix[kk], yCH4 = yCH4Mix[kk];   // Local variable values; in this loop only.
+    yCO2 = simContext.yCO2Mix[kk], yH2S = simContext.yH2SMix[kk], yCH4 = simContext.yCH4Mix[kk];   // Local variable values; in this loop only.
 
-    useEOS = useEOSmix[kk]; use_pH = usepHmix[kk]; UseH2Sgas = simContext.UseH2SgasMix[kk];
+    useEOS = simContext.useEOSmix[kk]; use_pH = simContext.usepHmix[kk]; UseH2Sgas = simContext.UseH2SgasMix[kk];
 
     TFe = mc[iFe];
 
     for (iNG = 0; iNG < 14; iNG++) {
-        z[iNG] = zMix[kk][iNG];
+        z[iNG] = simContext.zMix[kk][iNG];
         if (useEOS == 3 || useEOS == 0)
             z[iNG] = 0;
     }
 
-    SGG = gasSpGravMix[kk]; data->API = oilAPIgravMix[kk];
+    SGG = simContext.gasSpGravMix[kk]; data->API = simContext.oilAPIgravMix[kk];
 
     //根据Cragoe, C.S.1929《石油产品的热力学性质》（美国商务部标准局杂项出版物第97号）计算石油的平均分子量。
     if (data->API > 20 && data->API < 80) mw_oil = 6084.0 / (data->API - 5.9);
@@ -10309,11 +10026,11 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
     //根据流体温度和压力计算水、油的质量以及水、油和气体的摩尔数
 
-    if (UseTPVolMix[kk] == 1) fTPFunc(1);//检查 T、P 以进行 mass_W、mass_O、mol_g 计算
-    if (UseTPVolMix[kk] == 0) fTPFunc(0);
+    if (simContext.UseTPVolMix[kk] == 1) fTPFunc(1);//检查 T、P 以进行 mass_W、mass_O、mol_g 计算
+    if (simContext.UseTPVolMix[kk] == 0) fTPFunc(0);
 
     CalcIonicStrength();
-    pH = pHMeterStpMix[kk] + DpHj;
+    pH = simContext.pHMeterStpMix[kk] + DpHj;
     RatioOilBPoints = fRatioOilBPoints(data->API);
     C1_ThermodynamicEquilConsts();
     C2_PitzerActCoefs_T_P_ISt(gNeut, &aH2O, TK, TC, PBar, Patm); //计算在标准温度和压力下水合物抑制剂存在下的作用系数
@@ -10330,26 +10047,26 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
 
     //使用温度 TVol 和 PVol 下计算的水密度
-    if (UseTPVolMix[kk] == 1) WaterDensityMix[kk] = CalcRhoTP(TK, TC, PBar, Patm);
+    if (simContext.UseTPVolMix[kk] == 1) simContext.WaterDensityMix[kk] = CalcRhoTP(TK, TC, PBar, Patm);
 
-    mass_o_Mix[kk] = 159 * VoMix[kk] * OilDensityMix[kk]; // 这些用于在 useEOS=0 和 useEOS=3 中计算 nTCO2 和 nTH2S。这些值在 useEOS=1 或 2 中重新计算。
-    mass_w_Mix[kk] = 159 * VwMix[kk] * WaterDensityMix[kk]; // 换算成公斤盐水
-    mass_w_Mix[kk] = mass_w_Mix[kk] * (1 - CalculatedTDSMix[kk] / rho25CMix[kk] * 0.000001);
+    simContext.mass_o_Mix[kk] = 159 * simContext.VoMix[kk] * simContext.OilDensityMix[kk]; // 这些用于在 useEOS=0 和 useEOS=3 中计算 nTCO2 和 nTH2S。这些值在 useEOS=1 或 2 中重新计算。
+    simContext.mass_w_Mix[kk] = 159 * simContext.VwMix[kk] * simContext.WaterDensityMix[kk]; // 换算成公斤盐水
+    simContext.mass_w_Mix[kk] = simContext.mass_w_Mix[kk] * (1 - simContext.CalculatedTDSMix[kk] / simContext.rho25CMix[kk] * 0.000001);
 
-    Mass_o = mass_o_Mix[kk];
-    mass_w = mass_w_Mix[kk];
+    Mass_o = simContext.mass_o_Mix[kk];
+    mass_w = simContext.mass_w_Mix[kk];
 
     //mt = fTotalCO2H2Smoles(); //计算每种气体成分的总摩尔数（无论是在气体中还是在油或水中）
     fTotalCO2H2Smoles();
     //请注意，VgTP 的单位是 m^3，当 Vg 的单位是 MMCF 时，829 是从 He 的系数 78740 转换而来的。
 
-    yCO2Mix[kk] = yCO2;
-    yCH4Mix[kk] = yCH4;
-    yH2SMix[kk] = yH2S;
+    simContext.yCO2Mix[kk] = yCO2;
+    simContext.yCH4Mix[kk] = yCH4;
+    simContext.yH2SMix[kk] = yH2S;
 
-    nTCO2Mix[kk] = nTCO2;
-    nTCH4Mix[kk] = nTCH4;
-    nTH2SMix[kk] = nTH2S;// vb 536.894123326537 cpp 537.8953812802223
+    simContext.nTCO2Mix[kk] = nTCO2;
+    simContext.nTCH4Mix[kk] = nTCH4;
+    simContext.nTH2SMix[kk] = nTH2S;// vb 536.894123326537 cpp 537.8953812802223
 
     double YH2O = PsatH2O(TK) / PBar;
 
@@ -10373,9 +10090,9 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             mol_g = VgTP * PBar * 1000 / (Znew * RBar * TK); // moles of gas per day
             mol_HC = mol_o + mol_g;
 
-            if ((VoMix[kk] == (1.0 / 159.0 / 1000.0)) && (VgTP == 0.000001)) // 当气体和油都为零并混合水时
+            if ((simContext.VoMix[kk] == (1.0 / 159.0 / 1000.0)) && (VgTP == 0.000001)) // 当气体和油都为零并混合水时
             {
-                if (nob == 1)
+                if (simContext.nob == 1)
                 {
                     errmsg[13] = 14;
                     useEOS = 0;
@@ -10383,16 +10100,16 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                 }
                 else
                 {
-                    z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;
-                    z_before_precipitation[2] = nTH2SMix[kk] / mol_W;
+                    z_before_precipitation[1] = simContext.nTCO2Mix[kk] / mol_W;
+                    z_before_precipitation[2] = simContext.nTH2SMix[kk] / mol_W;
                     z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
-                    Total_molesMix[kk] = (mol_W);
-                    nTCO2MixEOS[kk] = nTCO2;
-                    nTH2SMixEOS[kk] = nTH2S;
+                    simContext.Total_molesMix[kk] = (mol_W);
+                    simContext.nTCO2MixEOS[kk] = nTCO2;
+                    simContext.nTH2SMixEOS[kk] = nTH2S;
                     //mt = fTPFunc(0);
                     fTPFunc(0);
 
-                    if (usepHmix[kk] == 1) pH = pHMeterStpMix[kk] + DpHj;
+                    if (simContext.usepHmix[kk] == 1) pH = simContext.pHMeterStpMix[kk] + DpHj;
 
                     CalcIonicStrength();
                     RatioOilBPoints = fRatioOilBPoints(data->API);
@@ -10417,7 +10134,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         }
         if (useEOS == 1 || useEOS == 2)
         {
-            if (SumofZMix[kk] == 0)
+            if (simContext.SumofZMix[kk] == 0)
             {       // 仅当给出碳氢化合物成分时，才运行 HC 调节
                 if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
                 {
@@ -10425,7 +10142,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                 }
                 else
                 {
-                    if (nob == 1)
+                    if (simContext.nob == 1)
                     {
                         errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                         useEOS = 0;
@@ -10435,12 +10152,12 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     {
                         if (mol_W > 0)
                         {
-                            z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;  // 原下标2对应索引1
-                            z_before_precipitation[2] = nTH2SMix[kk] / mol_W;  // 原下标3对应索引2
+                            z_before_precipitation[1] = simContext.nTCO2Mix[kk] / mol_W;  // 原下标2对应索引1
+                            z_before_precipitation[2] = simContext.nTH2SMix[kk] / mol_W;  // 原下标3对应索引2
                             z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];  // 原下标15对应索引14
-                            Total_molesMix[kk] = mol_W;
-                            nTCO2MixEOS[kk] = nTCO2;
-                            nTH2SMixEOS[kk] = nTH2S;
+                            simContext.Total_molesMix[kk] = mol_W;
+                            simContext.nTCO2MixEOS[kk] = nTCO2;
+                            simContext.nTH2SMixEOS[kk] = nTH2S;
                             goto label_3003;
                         }
                         else
@@ -10456,15 +10173,15 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             {
                 total_moles = 1;
                 //Compr(3)  beta(3)
-                MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, z, tempgNeut,
-                    aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, z, tempgNeut,
+                    aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
 
                 if (beta[0] > 0 && beta[1] > 0)
                 {
-                    if (VoMix[kk] > 1.0 / 159.0 / 1000.0)
+                    if (simContext.VoMix[kk] > 1.0 / 159.0 / 1000.0)
                     { // key to oil if vo is greater than 0
-                        mass_o_Mix[kk] = 159 * VoMix[kk] * density[1]; // Kg
-                        mol_o = mass_o_Mix[kk] * 1000 / MW_Phase[1];
+                        simContext.mass_o_Mix[kk] = 159 * simContext.VoMix[kk] * density[1]; // Kg
+                        mol_o = simContext.mass_o_Mix[kk] * 1000 / MW_Phase[1];
                         mol_g = mol_o / beta[1] * beta[0];
                     }
                     else if (VgTP > 0.000001)
@@ -10480,7 +10197,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         }
                         else
                         {
-                            if (nob == 1)
+                            if (simContext.nob == 1)
                             {
                                 mol_g = 0;
                                 mol_o = 0;
@@ -10492,12 +10209,12 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                             {
                                 if (mol_W > 0)
                                 {
-                                    z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;
-                                    z_before_precipitation[2] = nTH2SMix[kk] / mol_W;
+                                    z_before_precipitation[1] = simContext.nTCO2Mix[kk] / mol_W;
+                                    z_before_precipitation[2] = simContext.nTH2SMix[kk] / mol_W;
                                     z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
-                                    Total_molesMix[kk] = mol_W;
-                                    nTCO2MixEOS[kk] = nTCO2;
-                                    nTH2SMixEOS[kk] = nTH2S;
+                                    simContext.Total_molesMix[kk] = mol_W;
+                                    simContext.nTCO2MixEOS[kk] = nTCO2;
+                                    simContext.nTH2SMixEOS[kk] = nTH2S;
                                     goto label_3003;
                                 }
                                 else
@@ -10513,11 +10230,11 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
                 if (beta[0] > 0 && beta[1] == 0)
                 { // 仅存在气相
-                    if (VoMix[kk] > 1.0 / 159.0 / 1000.0)
+                    if (simContext.VoMix[kk] > 1.0 / 159.0 / 1000.0)
                     { // 如果存在石油量，则石油的关键
                         if ((z[7] + z[8] + z[9] + z[10] + z[11] + z[12]) > 0) { // 只有当 HC 大于 C4 时，才是石油的关键
-                            mass_o_Mix[kk] = 159 * VoMix[kk] * density[0]; // Kg
-                            mol_o = mass_o_Mix[kk] * 1000 / (MW_Phase)[0];
+                            simContext.mass_o_Mix[kk] = 159 * simContext.VoMix[kk] * density[0]; // Kg
+                            mol_o = simContext.mass_o_Mix[kk] * 1000 / (MW_Phase)[0];
                             mol_g = 0;
                         }
                         else
@@ -10538,7 +10255,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         }
                         else
                         {
-                            if (nob == 1)
+                            if (simContext.nob == 1)
                             {
                                 mol_g = 0;
                                 mol_o = 0;
@@ -10550,12 +10267,12 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                             {
                                 if (mol_W > 0)
                                 {
-                                    z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;
-                                    z_before_precipitation[2] = nTH2SMix[kk] / mol_W;
+                                    z_before_precipitation[1] = simContext.nTCO2Mix[kk] / mol_W;
+                                    z_before_precipitation[2] = simContext.nTH2SMix[kk] / mol_W;
                                     z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
-                                    Total_molesMix[kk] = mol_W;
-                                    nTCO2MixEOS[kk] = nTCO2;
-                                    nTH2SMixEOS[kk] = nTH2S;
+                                    simContext.Total_molesMix[kk] = mol_W;
+                                    simContext.nTCO2MixEOS[kk] = nTCO2;
+                                    simContext.nTH2SMixEOS[kk] = nTH2S;
                                     goto label_3003;
                                 }
                                 else
@@ -10571,10 +10288,10 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
                 if (beta[0] == 0 && beta[1] > 0)
                 {
-                    if (VoMix[kk] > 1.0 / 159.0 / 1000.0)
+                    if (simContext.VoMix[kk] > 1.0 / 159.0 / 1000.0)
                     { // key to oil if vol of oil is present
-                        mass_o_Mix[kk] = 159 * VoMix[kk] * density[1]; // Kg
-                        mol_o = mass_o_Mix[kk] * 1000 / MW_Phase[1];
+                        simContext.mass_o_Mix[kk] = 159 * simContext.VoMix[kk] * density[1]; // Kg
+                        mol_o = simContext.mass_o_Mix[kk] * 1000 / MW_Phase[1];
                         mol_g = 0;
                     }
                     else if (VgTP > 0.000001) { // key to gas if vol of oil=0
@@ -10589,7 +10306,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         }
                         else
                         {
-                            if (nob == 1)
+                            if (simContext.nob == 1)
                             {
                                 errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
                                 useEOS = 0;
@@ -10599,12 +10316,12 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                             {
                                 if (mol_W > 0)
                                 {
-                                    z_before_precipitation[1] = nTCO2Mix[kk] / mol_W;
-                                    z_before_precipitation[2] = nTH2SMix[kk] / mol_W;
+                                    z_before_precipitation[1] = simContext.nTCO2Mix[kk] / mol_W;
+                                    z_before_precipitation[2] = simContext.nTH2SMix[kk] / mol_W;
                                     z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
-                                    Total_molesMix[kk] = mol_W;
-                                    nTCO2MixEOS[kk] = nTCO2;
-                                    nTH2SMixEOS[kk] = nTH2S;
+                                    simContext.Total_molesMix[kk] = mol_W;
+                                    simContext.nTCO2MixEOS[kk] = nTCO2;
+                                    simContext.nTH2SMixEOS[kk] = nTH2S;
                                     goto label_3003;
                                 }
                                 else
@@ -10680,8 +10397,8 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         feed_Composition[0] = 0;
                     }
 
-                    MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
-                        tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                    MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
+                        tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
 
                     if (compositions[14][3] > 0.5)
                     {  // 原compositions(15,4)对应compositions[14][3]
@@ -10701,8 +10418,8 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                             total_moles = mol_HC + mol_W;
                             true_composition(TK, PBar, mol_HC, mol_W, aH2O, tempgNeut, nTCO2EOS, nTH2sEOS, useEOS, z, feed_Composition, &total_moles);
 
-                            MultiPhaseFlash(0, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
-                                tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                            MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
+                                tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
                             mol_w3 = total_moles * beta[2] * compositions[14][3];
                         }
                     }
@@ -10729,20 +10446,20 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     feed_Composition[0] = 0;
                 }
 
-                MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
-                    tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
+                    tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
             }
 
-            nTCO2MixEOS[kk] = total_moles * zOutput[1];  // 原zOutput(2)对应zOutput[1]
-            nTH2SMixEOS[kk] = total_moles * zOutput[2];  // 原zOutput(3)对应zOutput[2]
+            simContext.nTCO2MixEOS[kk] = total_moles * zOutput[1];  // 原zOutput(2)对应zOutput[1]
+            simContext.nTH2SMixEOS[kk] = total_moles * zOutput[2];  // 原zOutput(3)对应zOutput[2]
             mass_w = total_moles * beta[2] * compositions[14][3] * 0.01801528; // mass_w is only the aqueous phase H2O
-            Total_molesMix[kk] = total_moles;
-            mass_w_Mix[kk] = mass_w;
+            simContext.Total_molesMix[kk] = total_moles;
+            simContext.mass_w_Mix[kk] = mass_w;
 
             if (No_Phases == 3)
             { // Output oil and gas density from flash calculation if useEOS=1 or useEOS=2
-                GasDensityMix[kk] = density[0] * 1000;  // 原density(1)对应density[0]
-                OilDensityMix[kk] = density[1];         // 原density(2)对应density[1]
+                simContext.GasDensityMix[kk] = density[0] * 1000;  // 原density(1)对应density[0]
+                simContext.OilDensityMix[kk] = density[1];         // 原density(2)对应density[1]
             }
 
             if (No_Phases == 2)
@@ -10755,13 +10472,13 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                 }
                 else
                 {
-                    if (density[0] > 0 && density[0] < 0.3) GasDensityMix[kk] = density[0] * 1000;// phase 1 is gas
+                    if (density[0] > 0 && density[0] < 0.3) simContext.GasDensityMix[kk] = density[0] * 1000;// phase 1 is gas
 
-                    else if (density[0] > 0 && density[0] > 0.3) OilDensityMix[kk] = density[0]; // phase 1 is oil
+                    else if (density[0] > 0 && density[0] > 0.3) simContext.OilDensityMix[kk] = density[0]; // phase 1 is oil
 
-                    else if (density[1] > 0 && density[1] < 0.3)  GasDensityMix[kk] = density[1] * 1000;// Phase 2 is gas
+                    else if (density[1] > 0 && density[1] < 0.3) simContext.GasDensityMix[kk] = density[1] * 1000;// Phase 2 is gas
 
-                    else if (density[1] > 0 && density[1] > 0.3) OilDensityMix[kk] = density[1];
+                    else if (density[1] > 0 && density[1] > 0.3) simContext.OilDensityMix[kk] = density[1];
 
                 }
             }
@@ -10804,8 +10521,8 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                 useEOS = 0;
             }
 
-            MultiPhaseFlash(0, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition, tempgNeut,
-                aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+            MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition, tempgNeut,
+                aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
 
             if (usedryHC == 0)
             {
@@ -10817,8 +10534,8 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, yCO2,
                         yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
 
-                    MultiPhaseFlash(&mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
-                        tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                    MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
+                        tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
 
                     if (compositions[14][3] > 0.5)  mol_w3 = total_moles * beta[2] * compositions[14][3]; // 水相中的 H2O 摩尔数
                     else mol_w3 = 0;
@@ -10841,20 +10558,20 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut,
                             nTCO2, nTH2S, yCO2, yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
 
-                        MultiPhaseFlash(0, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition, tempgNeut,
-                            aH2O, density, compositions, phi, Compr, beta, zOutput, &mass_phase, &MW_Phase, &No_Phases);
+                        MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition, tempgNeut,
+                            aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
                         mol_w3 = total_moles * beta[2] * compositions[14][3];
                     }
                 }
 
-                nTCO2MixEOS[kk] = total_moles * zOutput[1];
-                nTH2SMixEOS[kk] = total_moles * zOutput[2];
+                simContext.nTCO2MixEOS[kk] = total_moles * zOutput[1];
+                simContext.nTH2SMixEOS[kk] = total_moles * zOutput[2];
                 mass_w = total_moles * beta[2] * compositions[14][3] * 0.01801528; // mass_w 仅为水相 H2O
-                Total_molesMix[kk] = total_moles;
-                mass_w_Mix[kk] = mass_w;
+                simContext.Total_molesMix[kk] = total_moles;
+                simContext.mass_w_Mix[kk] = mass_w;
             }
             else {
-                Total_molesMix[kk] = total_moles;
+                simContext.Total_molesMix[kk] = total_moles;
             }
         } // Correspond to useEOS=3
 
@@ -10867,7 +10584,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
         for (int iz = 0; iz < 15; iz++) {
             z_before_precipitation[iz] = zOutput[iz];
-            zMix[kk][iz] = zOutput[iz];
+            simContext.zMix[kk][iz] = zOutput[iz];
         }
 
         if (usedryHC == 1)
@@ -10886,7 +10603,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             TH2Saq = TH2Saq * mol_w_Orig * 0.01801528 / mass_w;
             TH4SiO4 = TH4SiO4 * mol_w_Orig * 0.01801528 / mass_w;
 
-            HstpMix[kk] = mc[iH];
+            simContext.HstpMix[kk] = mc[iH];
             simContext.NaMix[kk] = mc[iNa];
             simContext.KMix[kk] = mc[iK];
             simContext.MgMix[kk] = mc[iMg];
@@ -10898,19 +10615,19 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             simContext.PbMix[kk] = mc[iPb];
             simContext.RaMix[kk] = mc[iRa];
 
-            OHstpMix[kk] = ma[iOH];
+            simContext.OHstpMix[kk] = ma[iOH];
             simContext.ClMix[kk] = ma[iCl];
-            ACstpMix[kk] = ma[iAc];
-            NH4STPMix[kk] = mc[iNH4];
-            H2BO3stpMix[kk] = ma[iH2BO3];
-            HCO3stpMix[kk] = ma[iHCO3];
-            CO3stpMix[kk] = ma[iCO3];
+            simContext.ACstpMix[kk] = ma[iAc];
+            simContext.NH4STPMix[kk] = mc[iNH4];
+            simContext.H2BO3stpMix[kk] = ma[iH2BO3];
+            simContext.HCO3stpMix[kk] = ma[iHCO3];
+            simContext.CO3stpMix[kk] = ma[iCO3];
             simContext.SO4Mix[kk] = ma[iSO4];
-            HSstpMix[kk] = ma[iHS];
+            simContext.HSstpMix[kk] = ma[iHS];
             simContext.FMix[kk] = ma[intF];
             simContext.BrMix[kk] = ma[iBr];
 
-            rho25CMix[kk] = rho25c;
+            simContext.rho25CMix[kk] = rho25c;
 
             simContext.H3SiO4Mix[kk] = ma[iH3SiO4];
             simContext.H2SiO4Mix[kk] = ma[iH2SiO4];
@@ -10925,10 +10642,10 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
             simContext.AlkMix[kk] = Alk;
             simContext.TAcMix[kk] = TAc;
-            TH2SaqMix[kk] = TH2Saq;
-            TH4SiO4Mix[kk] = TH4SiO4;
-            TNH4Mix[kk] = TNH4;
-            TH3BO3Mix[kk] = TH3BO3;
+            simContext.TH2SaqMix[kk] = TH2Saq;
+            simContext.TH4SiO4Mix[kk] = TH4SiO4;
+            simContext.TNH4Mix[kk] = TNH4;
+            simContext.TH3BO3Mix[kk] = TH3BO3;
         }
 
         // **** flash and convert to STP condition
@@ -10960,12 +10677,12 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         for (int n = 0; n < NumNeut; n++)
             moln[n][kk] = mn[n] * mass_w;
 
-        molAlk[kk] = Alk * mass_w;
-        molTAC[kk] = TAc * mass_w;
-        molTNH4[kk] = TNH4 * mass_w;
-        molTH3BO3[kk] = TH3BO3 * mass_w;
-        molTH2Saq[kk] = TH2Saq * mass_w;
-        molTH4SiO4[kk] = TH4SiO4 * mass_w;
+        simContext.molAlk[kk] = Alk * mass_w;
+        simContext.molTAC[kk] = TAc * mass_w;
+        simContext.molTNH4[kk] = TNH4 * mass_w;
+        simContext.molTH3BO3[kk] = TH3BO3 * mass_w;
+        simContext.molTH2Saq[kk] = TH2Saq * mass_w;
+        simContext.molTH4SiO4[kk] = TH4SiO4 * mass_w;
 
     }
 
@@ -10977,10 +10694,10 @@ label_3002:
                 for (iNG = 0; iNG < 15; iNG++)
                     z_before_precipitation[iNG] = 0;
 
-                Total_molesMix[kk] = 0;
-                nTCO2MixEOS[kk] = 0;
-                nTH2SMixEOS[kk] = 0;
-                mass_w_Mix[kk] = 0;
+                simContext.Total_molesMix[kk] = 0;
+                simContext.nTCO2MixEOS[kk] = 0;
+                simContext.nTH2SMixEOS[kk] = 0;
+                simContext.mass_w_Mix[kk] = 0;
                 useEOS = 0;
                 goto label_3003;
             }
@@ -10989,17 +10706,17 @@ label_3002:
                 for (iNG = 0; iNG < 15; iNG++)
                     z_before_precipitation[iNG] = 0;
 
-                Total_molesMix[kk] = 0;
-                nTCO2MixEOS[kk] = 0;
-                nTH2SMixEOS[kk] = 0;
-                mass_w_Mix[kk] = 0;
+                simContext.Total_molesMix[kk] = 0;
+                simContext.nTCO2MixEOS[kk] = 0;
+                simContext.nTH2SMixEOS[kk] = 0;
+                simContext.mass_w_Mix[kk] = 0;
                 goto label_3003;
             }
 
             if (kk == 1) { // Set EOS parameter for seawater
-                Total_molesMix[kk] = mol_W;
-                z_before_precipitation[1] = nTCO2Mix[kk] / Total_molesMix[kk];
-                z_before_precipitation[2] = nTH2SMix[kk] / Total_molesMix[kk];
+                simContext.Total_molesMix[kk] = mol_W;
+                z_before_precipitation[1] = simContext.nTCO2Mix[kk] / simContext.Total_molesMix[kk];
+                z_before_precipitation[2] = simContext.nTH2SMix[kk] / simContext.Total_molesMix[kk];
                 z_before_precipitation[14] = 1 - z_before_precipitation[1] - z_before_precipitation[2];
                 goto label_3003;
             }
@@ -11010,10 +10727,10 @@ label_3002:
                 for (iNG = 0; iNG < 15; iNG++)
                     z_before_precipitation[iNG] = 0;
 
-                Total_molesMix[kk] = 0;
-                nTCO2MixEOS[kk] = 0;
-                nTH2SMixEOS[kk] = 0;
-                mass_w_Mix[kk] = 0;
+                simContext.Total_molesMix[kk] = 0;
+                simContext.nTCO2MixEOS[kk] = 0;
+                simContext.nTH2SMixEOS[kk] = 0;
+                simContext.mass_w_Mix[kk] = 0;
                 goto label_3003;
             }
 
@@ -11021,17 +10738,17 @@ label_3002:
                 for (iNG = 0; iNG < 15; iNG++)
                     z_before_precipitation[iNG] = 0;
 
-                Total_molesMix[kk] = 0;
-                nTCO2MixEOS[kk] = 0;
-                nTH2SMixEOS[kk] = 0;
-                mass_w_Mix[kk] = 0;
+                simContext.Total_molesMix[kk] = 0;
+                simContext.nTCO2MixEOS[kk] = 0;
+                simContext.nTH2SMixEOS[kk] = 0;
+                simContext.mass_w_Mix[kk] = 0;
                 goto label_3003;
             }
 
             if (VgTP == 0.000001 && VO == 1.0 / 159.0 / 1000.0 && VW > 1.0 / 159.0 / 1000.0) { // when only water present for either brine 1 or 2
-                Total_molesMix[kk] = mol_W;
-                z_before_precipitation[1] = nTCO2Mix[kk] / Total_molesMix[kk];
-                z_before_precipitation[2] = nTH2SMix[kk] / Total_molesMix[kk];
+                simContext.Total_molesMix[kk] = mol_W;
+                z_before_precipitation[1] = simContext.nTCO2Mix[kk] / simContext.Total_molesMix[kk];
+                z_before_precipitation[2] = simContext.nTH2SMix[kk] / simContext.Total_molesMix[kk];
                 z_before_precipitation[14] = 1 - z_before_precipitation[0] - z_before_precipitation[1];
                 goto label_3003;
             }
@@ -11046,7 +10763,7 @@ label_3002:
 label_3003:
     // 将z_before_precipitation复制到zMix
     for (iNG = 0; iNG < 15; iNG++)
-        zMix[kk][iNG] = z_before_precipitation[iNG];
+        simContext.zMix[kk][iNG] = z_before_precipitation[iNG];
 
 
     // ***** QC calculation
@@ -11060,17 +10777,17 @@ label_3003:
     else
     {
         // kk在vb中是1开始的，这里我们的kk是从0开始，导致了 nob_input=1时，kk为0和1都符合条件，因此手动进行偏移
-        if (RunQualityControlChecks == 1 && kk + 1 <= nob_Input) { // only run QC if requested from Input Sheet.
+        if (RunQualityControlChecks == 1 && kk + 1 <= simContext.nob_Input) { // only run QC if requested from Input Sheet.
             // Worksheets(mySheet).Activate
             QualityControlCalculations(kk, j);
-            if (kk == nob) {
+            if (kk == simContext.nob) {
                 goto label_123;   // Last Brine QC has been printed to Input Sheet; exit calculations.
             }
         }
-        if (RunQualityControlChecks_II == 1 && kk + 1 >= nob_Input) { // only run QC if requested from InputII Sheet.
+        if (RunQualityControlChecks_II == 1 && kk + 1 >= simContext.nob_Input) { // only run QC if requested from InputII Sheet.
             // Worksheets(mySheet).Activate
             QualityControlCalculations(kk, j);
-            if (kk == nob_Input + nob_InputII) {
+            if (kk == simContext.nob_Input + simContext.nob_InputII) {
                 exit(0);//vb源码 ： End 
             }
         }
@@ -11594,29 +11311,29 @@ void B2_ReadinAllData(SampleData* data)
     int Iteration2 = 0;
     //
 
-    if (Read_InputII == 1) nob = nob_Input;
-    if (Run1000Cases == 1) nob = nob_Input;
+    if (simContext.Read_InputII == 1) { simContext.nob = simContext.nob_Input; }
+    if (simContext.Run1000Cases == 1) { simContext.nob = simContext.nob_Input; }
 
-    for (int iRead = 0; iRead < nob; iRead++) {
+    for (int iRead = 0; iRead < simContext.nob; iRead++) {
         printf("%d", iRead);
-        if (Run1000Cases == 1) {
-            CaseCount[iRead] = LoopTP1000Cases;
+        if (simContext.Run1000Cases == 1) {
+            simContext.CaseCount[iRead] = simContext.LoopTP1000Cases;
         }
-        j = CaseCount[iRead];
-        kk = iRead;
-        ReadInputPartA(kk, data);
+        simContext.j = simContext.CaseCount[iRead];
+        simContext.kk = iRead;
+        ReadInputPartA(simContext.kk, data);
     }
 
-    for (int iRead = 0; iRead < nob; iRead++) {
-        j = CaseCount[iRead];
-        kk = iRead;
-        ReadInputPartB(kk, data);
+    for (int iRead = 0; iRead < simContext.nob; iRead++) {
+        simContext.j = simContext.CaseCount[iRead];
+        simContext.kk = iRead;
+        ReadInputPartB(simContext.kk, data);
     }
 
-    for (int iRead = 0; iRead < nob; iRead++) {
-        j = CaseCount[iRead];
-        kk = iRead;
-        ReadInputPartC(kk, &mt, &Iteration2);
+    for (int iRead = 0; iRead < simContext.nob; iRead++) {
+        simContext.j = simContext.CaseCount[iRead];
+        simContext.kk = iRead;
+        ReadInputPartC(simContext.kk, &mt, &Iteration2);
         if (RunStat == 0)
         {
             if (RunH2SGUI != 1)
@@ -11632,18 +11349,18 @@ void B2_ReadinAllData(SampleData* data)
             }
         }
     }
-    for (int iRead = 0; iRead < nob; iRead++)
+    for (int iRead = 0; iRead < simContext.nob; iRead++)
     {
-        j = CaseCount[iRead];
-        kk = iRead;
-        ReadInputPartD(kk, j, data);
+        simContext.j = simContext.CaseCount[iRead];
+        simContext.kk = iRead;
+        ReadInputPartD(simContext.kk, simContext.j, data);
     }
 
-    if (nob > 0)
+    if (simContext.nob > 0)
     {
-        if (nob + nob_InputII > 1 && RunQualityControlChecks == 0)
+        if (simContext.nob + simContext.nob_InputII > 1 && RunQualityControlChecks == 0)
         {
-            j = 6;
+            simContext.j = 6;
         }
         // TBH = Worksheets(mySheet).Cells(39, j + 2)
         if (RunMultiMix == 1)
@@ -11660,7 +11377,7 @@ void B2_ReadinAllData(SampleData* data)
             TBH = TBH * 9 / 5 + 32;
         }
 
-        if (TBH < 24.8 && Run1000Cases != 1)
+        if (TBH < 24.8 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Initial temperature is below 24.8F or -4C. Initial temperature will be set to 77 F or 25 C.")
         }
@@ -11682,7 +11399,7 @@ void B2_ReadinAllData(SampleData* data)
             TBH = 77;
         }
 
-        if (TBH > 482 && Run1000Cases != 1)
+        if (TBH > 482 && simContext.Run1000Cases != 1)
         {
             // MsgBox ("Initial temperature is above 482 F. Initail temperature will be set to 482 F or 250 C.")
         }
@@ -11716,7 +11433,7 @@ void B2_ReadinAllData(SampleData* data)
             TWH = TWH * 9 / 5 + 32;
         }
 
-        if (TWH < 24.8 && Run1000Cases != 1)
+        if (TWH < 24.8 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Final temperature is below 24.8F or -4C. Final temperature will be set to 77 F or 25 C.")
         }
@@ -11736,7 +11453,7 @@ void B2_ReadinAllData(SampleData* data)
         {
             TWH = 77;
         }
-        if (TWH > 482 && Run1000Cases != 1)
+        if (TWH > 482 && simContext.Run1000Cases != 1)
         {
             // MsgBox ("Final temperature is above 482 F. Final temperature will be set to 482 F or 250 C.")
         }
@@ -11772,7 +11489,7 @@ void B2_ReadinAllData(SampleData* data)
         {
             PBH = PBH * 14.503774; // note that TBH, TWH, PBH, PWH is defaulted to F, and psia
         }
-        if (PBH < 12 && Run1000Cases != 1)
+        if (PBH < 12 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Initial pressure is below 12 psia or 0.827 bar. Initial pressure will be set to 14.7 psi or 1.01325 bar.");
         }
@@ -11792,7 +11509,7 @@ void B2_ReadinAllData(SampleData* data)
         {
             PBH = 14.7; // If P is zero, probably it is gauge and therefore add 1 atm
         }
-        if (PBH > 30000 && Run1000Cases != 1)
+        if (PBH > 30000 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Initial pressure is above 30,000 psi. Initial pressure will be set to 30,000 psia or 2,068.4 bar.");
         }
@@ -11830,7 +11547,7 @@ void B2_ReadinAllData(SampleData* data)
             PWH = PWH * 14.503774;
         }
 
-        if (PWH < 12 && Run1000Cases != 1)
+        if (PWH < 12 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Final pressure is below 12 psia or 0.827 bar. Final pressure will be set to 14.7 psia or 1.01325 bar.");
         }
@@ -11852,7 +11569,7 @@ void B2_ReadinAllData(SampleData* data)
             PWH = 14.7; // If P is zero, probably it is gauge and therefore add 1 atm
         }
 
-        if (PWH > 30000 && Run1000Cases != 1)
+        if (PWH > 30000 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Final pressure is above 30,000 psi. Final pressure will be set to 30000 psia or 2068.4 bar.");
         }
