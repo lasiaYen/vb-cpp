@@ -6002,7 +6002,6 @@ void Equilibrium(DoubleVec& zGlobal, DoubleMatrix& logphi3phase, DoubleVec& E, d
     DoubleVec Enew(NumGases, 0);
     DoubleMatrix Hessian(MaxBeta, DoubleVec(MaxBeta, 0));
 
-
     // 错误处理标签
     int error_code = 0;
 
@@ -6188,6 +6187,7 @@ void Equilibrium(DoubleVec& zGlobal, DoubleMatrix& logphi3phase, DoubleVec& E, d
     *counter_final = counter;
 
     return;
+
 ErrHandler:
     *continue_flash = false;
     *counterEquilibrium_final = counterEquilibrium;
@@ -6208,7 +6208,6 @@ ErrHandler:
                 }
             }
         }
-
         *counterEquilibrium_final = counterEquilibrium;
         *iter_final = iter;
         *counter_final = counter;
