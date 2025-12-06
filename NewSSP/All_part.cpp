@@ -146,13 +146,36 @@ public:
         usepHmix.resize(len, 0);
 
 
-        zMix.resize(this->nob_Input + this->nob_InputII, DoubleVec(15, 0));
+        zMix.resize(len, DoubleVec(15, 0));
 
 
         //---------------------------------
         CaseCount.resize(2); CaseCount[0] = 1; CaseCount[1] = 2;
 
         InhName.resize(21, "");
+
+        ConcInhCelRisk.resize(10, 0);
+        ConcInhCalRisk.resize(10, 0);
+        ConcInhBarRisk.resize(10, 0);
+        ConcInhAnRisk.resize(10, 0);
+        ConcInhGypRisk.resize(10, 0);
+
+        CaseCountWI.resize(40, 0);
+
+        NaWI.resize(40, DoubleVec(10, 0));
+        CaWI.resize(40, DoubleVec(10, 0));
+        SrWI.resize(40, DoubleVec(10, 0));
+        BaWI.resize(40, DoubleVec(10, 0));
+        ClWI.resize(40, DoubleVec(10, 0));
+        SO4WI.resize(40, DoubleVec(10, 0));
+        HCO3AlkWI.resize(40, DoubleVec(10, 0));
+        CO3AlkWI.resize(40, DoubleVec(10, 0));
+        TACWI.resize(40, DoubleVec(10, 0));
+        YCO2WI.resize(40, DoubleVec(10, 0));
+        YH2SWI.resize(40, DoubleVec(10, 0));
+        TH2SaqWI.resize(40, DoubleVec(10, 0));
+        pHMeterSTPWI.resize(40, DoubleVec(10, 0));
+        ConcFactorWI.resize(40, DoubleVec(10, 0));
 
     }
 
@@ -281,6 +304,29 @@ public:
 
     DoubleMatrix zMix;
 
+    double MaxInh;
+    double NoRiskcalc;
+    DoubleVec ConcInhCelRisk;
+    DoubleVec ConcInhCalRisk;
+    DoubleVec ConcInhBarRisk;
+    DoubleVec ConcInhAnRisk;
+    DoubleVec ConcInhGypRisk;
+
+    DoubleMatrix NaWI;
+    DoubleMatrix CaWI;
+    DoubleMatrix SrWI;
+    DoubleMatrix BaWI;
+    DoubleMatrix ClWI;
+    DoubleMatrix SO4WI;
+    DoubleMatrix HCO3AlkWI;
+    DoubleMatrix CO3AlkWI;
+    DoubleMatrix TACWI;
+    DoubleMatrix YCO2WI;
+    DoubleMatrix YH2SWI;
+    DoubleMatrix TH2SaqWI;
+    DoubleMatrix pHMeterSTPWI;
+    DoubleMatrix ConcFactorWI;
+
 public:
     int nob = 1;
     const int nob_Input = 1;
@@ -295,6 +341,63 @@ public:
     int kk;
 
     StrVec InhName;
+    int Run_CalcConcFactor;
+    double TBH;
+    double TWH;
+    double PBH;
+    double PWH;
+    int RunMultiMix;
+    double rho25c = 1.0;       // 25°C密度
+
+    double tInh;
+
+    // const 类型，控制参数，可以考虑放入控制类中
+    const int RunStat = 0;
+    const int RunH2SGUI = 0;
+    const double RunQualityControlChecks = 0;
+
+    const int RunStatMix = 0;
+    const double RunWhatIf = -1; // vb 中没有赋初值
+    const double TWIInit = -1;   // vb 中没有赋初值
+    const double UseSI = -1;    // vb 中没有赋初值
+    const double PWIInit = -1;       // vb 中没有赋初值
+
+    int Run10TestCases;
+    int Loop10;
+    int Run_Seawater_Mixing;
+    int LoopMixing;
+    int LoopResChem;
+    int Run_MixingTwoWells;
+
+    double UseTPCalciteSheet;
+    double useTPVol;//   - 修改  by彭非 //int simContext.useTPVol;
+    IntVec CaseCountWI;
+    int Loop1WI;
+    int Loop2WI;
+
+    int UseMolal;
+
+    IntVec errmsg;
+
+    double yCO2;
+    double CO2aq;
+    double HCO3;
+    double CO3;
+    double yH2S;
+    double HS;
+    double H2Saq;
+    
+    
+    // 源代码中未说明类型，按逻辑推测为int
+    int RunNORM;
+
+    // 在单组份计算中还未使用的变量
+    double SelectInh;
+    double InhNo;
+    double InhNo1;
+    double FracInhNo1;
+    double InhNo2;
+    int ING;
 
 public:
 
@@ -302,140 +405,31 @@ public:
 SimulationContext simContext;
 
 
-//int nob = 1;
-//int nob_Input = 1;
-//int nob_InputII = 0;
-//int Read_InputII = 0;
-//int Run1000Cases;
-//int CaseCount[2] = { 1,2 };
-
-//fix: 改为int类型
-//int LoopTP1000Cases;
-
-//int j;
-//int kk;
-
-//double** zMix;
-
-// ????无法确定数据类型
-
-int RunStat;
-
-int RunH2SGUI;
-
-int Run_CalcConcFactor;
-
-double rho25c = 1.0;       // 25°C密度
-
-double RunQualityControlChecks;
-
-double TBH;
-int RunMultiMix;
-int RunStatMix = 0;
-double RunWhatIf;
-double TWIInit;
-double UseSI;
-double TWH;
-double PBH;
-double PWIInit;
-
-double PWH;
-
-double tInh;
-double SelectInh;
-double InhNo;
-double InhNo1;
-double FracInhNo1;
-double InhNo2;
-
-//char InhName[21][50];
-
-double MaxInh;
-double NoRiskcalc;
-double ConcInhCelRisk[10];
-double ConcInhCalRisk[10];
-double ConcInhBarRisk[10];
-double ConcInhAnRisk[10];
-double ConcInhGypRisk[10];
-
-int Run10TestCases;
-int Loop10;
-int Run_Seawater_Mixing;
-int LoopMixing;
-int LoopResChem;
-int Run_MixingTwoWells;
-
-// 源代码中未说明类型，按逻辑推测为int型
-int RunNORM;
-//
-
-double UseTPCalciteSheet;
-//int useTPVol;
-double useTPVol;//   - 修改  by彭非
-int ING;
-
-
-int CaseCountWI[40];
-int Loop1WI;
-int Loop2WI;
-
-double NaWI[40][10];
-double CaWI[40][10];
-double SrWI[40][10];
-double BaWI[40][10];
-double ClWI[40][10];
-double SO4WI[40][10];
-double HCO3AlkWI[40][10];
-double CO3AlkWI[40][10];
-double TACWI[40][10];
-double YCO2WI[40][10];
-double YH2SWI[40][10];
-double TH2SaqWI[40][10];
-double pHMeterSTPWI[40][10];
-double ConcFactorWI[40][10];
-
-int UseMolal;
-
-int errmsg[20];
-
-double yCO2;
-double CO2aq;
-double HCO3;
-double CO3;
-double yH2S;
-double HS;
-double H2Saq;
-
-
 const double pi = 3.14159265358979;    // π (圆周率)
 
 // 气体常数（不同单位）
-const double RBar = 0.083144;             // Gas constant (L·bar/(K·mol))// 气体常数，单位：bar·m³/(kmol·K)
-const double R = 83.144;               // Gas constant (cm³·bar/(K·mol))
-#define RAtm        0.082057             // Gas constant (L·atm/(K·mol))
-
-//全局变量 -- by 彭非
-/*
-   iH = 1: iNa = 2: iK = 3: iMg = 4: iCa = 5: iSr = 6: iBa = 7: iFe = 8: iZn = 9: iPb = 10: iNH4 = 11: iRa = 12  注：改成偏移
-
-
-
-   iOH = 1: iCl = 2: iAc = 3: iHCO3 = 4: iCO3 = 5: iSO4 = 6: iHS = 7: intF = 8: iBr = 9:  iH2BO3 = 10: iH3SiO4 = 11: iH2SiO4 = 12 'Anion indexes
-   iSion = 13
-
-   iCH4aq = 1: iCO2aq = 2: iH2Saq = 3: iHAcaq = 4: iH4SiO4aq = 5: iNH3 = 6: iH3BO3 = 7: iFeSaq = 8 'Neutral aquatic indexes
-   iCH4o = 1: iCO2o = 2: iH2So = 3:        'Oil phase indexes
-
-
-iZnDot = 1: iPbDot = 2: iHSDot = 3: iClDot = 4: iZnCl = 5: iZnCl2 = 6: iZnCl3 = 7: iZnCl4 = 8
-iZnHS2 = 9: iZnHS3 = 10: iPbCl = 11: iPbCl2 = 12: iPbCl3 = 13: iPbCl4 = 14: iPbHS2 = 15: iPbHS3 = 16
-
-*/
+const double RBar = 0.083144;           // Gas constant (L·bar/(K·mol))// 气体常数，单位：bar·m³/(kmol·K)
+const double R = 83.144;                // Gas constant (cm³·bar/(K·mol))
+const double RAtm = 0.082057;            // Gas constant (L·atm/(K·mol))
 
 //-------------------宏定义  以下------
 //下面的define索引进行偏移
-
 // Cation indexes: 阳离子索引（宏定义，编译时替换为对应整数）
+enum class CationIndex : size_t {
+    iH = 0,
+    iNa,
+    iK,
+    iMg,
+    iCa,
+    iSr,
+    iBa,
+    iFe,
+    iZn,
+    iPb,
+    iNH4,
+    iRa,
+    COUNT
+};
 #define iH    0
 #define iNa   1
 #define iK    2
@@ -450,6 +444,22 @@ iZnHS2 = 9: iZnHS3 = 10: iPbCl = 11: iPbCl2 = 12: iPbCl3 = 13: iPbCl4 = 14: iPbH
 #define iRa   11
 
 // Anion indexes: 阴离子索引（宏定义，对应数组下标）
+enum class AnionIndex : size_t {
+    iOH = 0,
+    iCl,
+    iAc,
+    iHCO3,
+    iCO3,
+    iSO4,
+    iHS,
+    iF,      // 将 intF 改为更有意义的名称
+    iBr,
+    iH2BO3,
+    iH3SiO4,
+    iH2SiO4,
+    iSion,
+    COUNT
+};
 #define iOH     0
 #define iCl     1
 #define iAc     2
@@ -465,7 +475,19 @@ iZnHS2 = 9: iZnHS3 = 10: iPbCl = 11: iPbCl2 = 12: iPbCl3 = 13: iPbCl4 = 14: iPbH
 #define iSion   12
 
 
+
 // 'Neutral aquatic indexes
+enum class NeutralAquaticIndex : size_t {
+    iCH4aq = 0,
+    iCO2aq,
+    iH2Saq,
+    iHAcaq,
+    iH4SiO4aq,
+    iNH3,
+    iH3BO3,
+    iFeSaq,
+    COUNT
+};
 #define iCH4aq     0
 #define iCO2aq     1
 #define iH2Saq     2
@@ -476,11 +498,39 @@ iZnHS2 = 9: iZnHS3 = 10: iPbCl = 11: iPbCl2 = 12: iPbCl3 = 13: iPbCl4 = 14: iPbH
 #define iFeSaq     7
 
 //// Oil phase indexes
+enum class OilPhaseIndex : size_t {
+    iCH4o = 0,
+    iCO2o,
+    iH2So,
+    COUNT
+};
 #define iCH4o  0 
 #define iCO2o  1
 #define iH2So  2
 
 /* bDot物质种类索引定义（用于标识不同络合物种或离子的编号） */
+enum class BDotSpeciesIndex : size_t {
+    iZnDot = 0,
+    iPbDot,
+    iHSDot,
+    iClDot,
+    iZnCl,
+    iZnCl2,
+    iZnCl3,
+    iZnCl4,
+    iZnHS2,
+    iZnHS3,
+    iPbCl,
+    iPbCl2,
+    iPbCl3,
+    iPbCl4,
+    iPbHS2,
+    iPbHS3,
+    iOHDot,
+    iZnOH,
+    iZnOH2,
+    COUNT
+};
 #define iZnDot   0	// Zn²⁺离子（锌离子）
 #define iPbDot   1	// Pb²⁺离子（铅离子）
 #define iHSDot   2	// HS⁻离子（硫氢根离子）
@@ -489,19 +539,37 @@ iZnHS2 = 9: iZnHS3 = 10: iPbCl = 11: iPbCl2 = 12: iPbCl3 = 13: iPbCl4 = 14: iPbH
 #define iZnCl2   5	// ZnCl₂中性分子（二氯合锌）
 #define iZnCl3   6	// ZnCl₃⁻络离子（三氯合锌离子）
 #define iZnCl4   7	// ZnCl₄²⁻络离子（四氯合锌离子）
-#define iZnHS2   8	// Zn(HS)₂中性分子（二硫氢合锌）
-#define iZnHS3   9	// Zn(HS)₃⁻络离子（三硫氢合锌离子）
+#define iZnHS2   8	// Zn(simContext.HS)₂中性分子（二硫氢合锌）
+#define iZnHS3   9	// Zn(simContext.HS)₃⁻络离子（三硫氢合锌离子）
 #define iPbCl    10  // PbCl⁺络离子（一氯合铅离子）
 #define iPbCl2   11	 // PbCl₂中性分子（二氯合铅）
 #define iPbCl3   12  // PbCl₃⁻络离子（三氯合铅离子）
 #define iPbCl4   13	 // PbCl₄²⁻络离子（四氯合铅离子）
-#define iPbHS2   14  // Pb(HS)₂中性分子（二硫氢合铅）
-#define iPbHS3   15  // Pb(HS)₃⁻络离子（三硫氢合铅离子）
-#define iOHDot  16
-#define iZnOH  17
-#define iZnOH2  18
+#define iPbHS2   14  // Pb(simContext.HS)₂中性分子（二硫氢合铅）
+#define iPbHS3   15  // Pb(simContext.HS)₃⁻络离子（三硫氢合铅离子）
+#define iOHDot   16
+#define iZnOH    17
+#define iZnOH2   18
 
 // 气体组分索引定义
+enum class GasComponentIndex : size_t {
+    iCH4g = 0,
+    iCO2g,
+    iH2Sg,
+    iC2g,
+    iC3g,
+    iC4ig,
+    iC4ng,
+    iC5ig,
+    iC5ng,
+    iC6g,
+    iC7_12g,
+    iC13_25g,
+    iC26_80g,
+    iN2g,
+    iH2Og,
+    COUNT
+};
 #define iCH4g    0
 #define iCO2g    1
 #define iH2Sg    2
@@ -519,6 +587,18 @@ iZnHS2 = 9: iZnHS3 = 10: iPbCl = 11: iPbCl2 = 12: iPbCl3 = 13: iPbCl4 = 14: iPbH
 #define iH2Og    14
 
 // 矿物和沉淀物索引定义
+enum class MineralIndex : size_t {
+    iBaSO4 = 0,
+    iCaSO42H2O,
+    iSrSO4,
+    ihemiCaSO4,
+    iCaSO4,
+    iNaCl,
+    iCaHCO32,
+    iFeHCO32,
+    iFeHS2,
+    COUNT
+};
 #define iBaSO4      0
 #define iCaSO42H2O  1
 #define iSrSO4      2
@@ -528,7 +608,7 @@ iZnHS2 = 9: iZnHS3 = 10: iPbCl = 11: iPbCl2 = 12: iPbCl3 = 13: iPbCl4 = 14: iPbH
 #define iCaHCO32    6
 #define iFeHCO32    7
 #define iFeHS2      8
-
+;
 //------------------------    defind   分割线 -------------------
 
 double VMeOH, VMEG;// 仅在PartD赋值，但从未见使用过，不明所以的变量
@@ -619,7 +699,7 @@ double nTCO2EOS = 0, nTCH4 = 0, nTH2S = 0, nTH2sEOS = 0, aH = 0;
 double pHMeterReading = 0;
 double total_moles;
 
-//Run10TestCases = 1, 
+//simContext.Run10TestCases = 1, 
 int Run_MassTransfer = 1, RunShellMultiflash = 0;
 
 
@@ -710,10 +790,10 @@ double TZn = 0.0;          // 总Zn浓度
 double TCO2 = 0.0;         // 总CO2浓度
 double TDS = 0.0;          // 总溶解固体
 double TCa = 0.0;          // 总Ca
-//double yH2S = 0.0;         // H2S气体摩尔分数    -已定义
-//double yCO2 = 0.0;         // CO2气体摩尔分数    -已定义
+//double simContext.yH2S = 0.0;         // H2S气体摩尔分数    -已定义
+//double simContext.yCO2 = 0.0;         // CO2气体摩尔分数    -已定义
 double CalculateTDSDen = 0.0; // 计算TDS密度
-//double rho25c = 1.0;       // 25°C密度    -已定义
+//double simContext.rho25c = 1.0;       // 25°C密度    -已定义
 
 // C5_CalcpHPCO2PH2SSTP 变量
 // double KgwCO2;
@@ -727,8 +807,8 @@ double rhoOld, rhoSSE;
 //int Iteration;    -已定义
 
 // D1_CalcDensity
-//double  H, OH, AC, HS, NH3, H2BO3, HCO3, CO3, H3SiO4, H2SiO4, H4SiO4;  -全部已定义
-//double CO2aq, H2Saq, HAcaq;  -全部已定义
+//double  H, OH, AC, simContext.HS, NH3, H2BO3, simContext.HCO3, simContext.CO3, H3SiO4, H2SiO4, H4SiO4;  -全部已定义
+//double simContext.CO2aq, simContext.H2Saq, HAcaq;  -全部已定义
 double TDSSSE, TDSOld;
 
 const int MaxMix = 100, MaxSpecies = 13, MaxComponents = 100, MaxCat = 100, MaxNeut = 100, MaxAnion = 100;
@@ -764,7 +844,7 @@ double PipeID = 0, PipeL = 0;
 /********************************************************************************************************/
 
 // 针对Shell Input Excel表格的样品数据结构体
-typedef struct
+struct SampleData
 {
 
     /* ---------- sample_basic_information ---------- */
@@ -858,104 +938,7 @@ typedef struct
     int Option_EoS;         // Excel row 55
     int Option_Water_HC;    // Excel row 56
 
-} SampleData;
-
-// 初始化测试数据函数
-void mockData(SampleData* data)
-{
-
-    /* ---------- sample_basic_information ---------- */
-    strcpy(data->SampleID, "smp01");
-    strcpy(data->Date, "2025-01-01");
-    strcpy(data->Operator, "张三");
-    strcpy(data->WellName, "井-01");
-    strcpy(data->Location, "大庆油田一区");
-    strcpy(data->Field, "大庆油田");
-
-    /* ---------- sample_composition_information ---------- */
-    strcpy(data->SampleInfo, "常规采出水样");
-
-    data->Na_aq = 120.5;
-    data->K_aq = 10.2;
-    data->Mg_aq = 35.6;
-    data->Ca_aq = 85.3;
-    data->Sr_aq = 5.5;
-    data->Ba_aq = 3.1;
-    data->FeII_aq = 0.8;
-    data->Zn_aq = 0.2;
-    data->Pb_aq = 0.05;
-    data->Cl_aq = 19000.0;
-    data->SO4_aq = 250.0;
-    data->F_aq = 2.1;
-    data->Br_aq = 55.0;
-    data->Si_aq = 8.4;
-    data->FeIII_aq = 0.1;
-    data->Li_aq = 0.03;
-    data->Be_aq = 0.01;
-    data->Ra_aq = 0.002;
-    data->Mn_aq = 0.4;
-    data->Cu_aq = 0.06;
-    data->Al_aq = 0.7;
-    data->P_aq = 0.9;
-    data->I_aq = 0.04;
-    data->U_aq = 0.005;
-    data->Alk_Bicarbonate_aq = 180.0;
-    data->Alk_Carbonate_aq = 20.0;
-    data->OrgAcid_Acetate_aq = 10.0;
-    data->Ammonia_aq = 2.0;
-    data->B_aq = 0.8;
-    data->TDS_aq = 21000.0;
-    data->Density_STP = 1.05;
-    data->CO2_pct_g = 0.01;
-    data->Option_Use_H2Sg = 1;
-    data->H2S_pct_g = 0.003;
-    data->H2S_aq = 1.2;
-    data->pH_STP = 6.9;
-    data->Q_Gas = 500.0;
-    data->Q_Oil = 100.0;
-    data->Q_Water = 250.0;
-
-    /* ---------- sample_temperature_pressure_information ---------- */
-    data->T_initial = 60.0;
-    data->T_final = 80.0;
-    data->P_initial = 10.0;
-    data->P_final = 20.0;
-    data->API = 32.0;
-    data->SG_g = 0.85;
-    data->Q_MeOH = 5.0;
-    data->Q_MEG = 8.0;
-    data->StrongAcid_aq = 1.0;
-    data->StrongBase_aq = 0.5;
-    data->Conc_Multiplier = 1.0;
-    data->T_pH = 25.0;
-    data->P_pH = 1.0;
-    data->T_Q = 30.0;
-    data->P_Q = 5.0;
-
-    /* ---------- sample_oil_phase_information ---------- */
-    data->C1_o = 30.0;
-    data->CO2_o = 2.5;
-    data->H2S_o = 0.8;
-    data->C2_o = 12.0;
-    data->C3_o = 8.0;
-    data->iC4_o = 5.0;
-    data->nC4_o = 6.0;
-    data->iC5_o = 3.0;
-    data->nC5_o = 2.5;
-    data->C6_o = 4.0;
-    data->C7_C12_o = 10.0;
-    data->C13_C25_o = 8.0;
-    data->C26_C80_o = 5.0;
-    data->N2_o = 1.0;
-
-    /* ---------- config_options_information ---------- */
-    data->Option_Alk = 1;
-    data->Option_Defined_TP = 1;
-    data->Option_TP_for_pH = 1;
-    data->Option_TP_for_Q = 1;
-    data->Option_EoS = 1;
-    data->Option_Water_HC = 0;
-}
+};
 
 // 初始化测试数据函数
 void mockData_sheetInput(SampleData* data)
@@ -1180,28 +1163,28 @@ void pointerInit_pf() {
 
 void ReadInputPartA(int kk, SampleData* data)
 {
-    if (Run10TestCases == 1 && Loop10 > 1)
+    if (simContext.Run10TestCases == 1 && simContext.Loop10 > 1)
     {
         return;
     }
-    if (Run_Seawater_Mixing == 1 && LoopMixing > 1)
+    if (simContext.Run_Seawater_Mixing == 1 && simContext.LoopMixing > 1)
     {
         return;
     }
-    if (Run_MixingTwoWells == 1 && LoopMixing > 1)
+    if (simContext.Run_MixingTwoWells == 1 && simContext.LoopMixing > 1)
     {
         return;
     }
-    if (RunMultiMix == 1 && LoopResChem > 1)
+    if (simContext.RunMultiMix == 1 && simContext.LoopResChem > 1)
     {
         return;
     }
 
     // 源代码中的这个逻辑为判断 Gas/Day 的单位，但是我们在数据库中没有设置这个单位的字段
-    // If Worksheets(mySheet).Cells(35, 2).Value = "(kSm^3/D)" Then UseSI = 1
+    // If Worksheets(mySheet).Cells(35, 2).Value = "(kSm^3/D)" Then simContext.UseSI = 1
 
     // 源代码中的这个逻辑为判断 Na+ 的单位，但是我们在数据库中没有设置这个单位的字段
-    // If Worksheets(mySheet).Cells(10, 2).Value = "(m)" Then UseMolal = 1
+    // If Worksheets(mySheet).Cells(10, 2).Value = "(m)" Then simContext.UseMolal = 1
 
     //SampleDateMix[kk] = Date;
     //WellNameMix[kk] = WellName;
@@ -1220,7 +1203,7 @@ void ReadInputPartA(int kk, SampleData* data)
     simContext.BrMix[kk] = data->Br_aq;
     simContext.TH4SiO4Mix[kk] = data->Si_aq;              // TH4SiO4Mix(kk) = Worksheets(mySheet).Cells(23, j + 2).Value 其中23行对应Silica
     simContext.HCO3AlkMix[kk] = data->Alk_Bicarbonate_aq; // HCO3AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value 其中24行对应Total Alkalinity
-    simContext.CO3AlkMix[kk] = data->Alk_Carbonate_aq;    // CO3AlkMix(kk) = Worksheets(mySheet).Cells(25, j + 2).Value 其中25行对应 CO3 Alkalinity
+    simContext.CO3AlkMix[kk] = data->Alk_Carbonate_aq;    // CO3AlkMix(kk) = Worksheets(mySheet).Cells(25, j + 2).Value 其中25行对应 simContext.CO3 Alkalinity
     simContext.TAcMix[kk] = data->OrgAcid_Acetate_aq;     // simContext.TAcMix(kk) = Worksheets(mySheet).Cells(26, j + 2).Value 其中26行对应Carboxylates
     simContext.TNH4Mix[kk] = data->Ammonia_aq;            // TNH4Mix(kk) = Worksheets(mySheet).Cells(27, j + 2).Value其中27行对应 Ammonia
     simContext.TH3BO3Mix[kk] = data->B_aq;                // TH3BO3Mix(kk) = Worksheets(mySheet).Cells(28, j + 2).Value其中28行对应Borate;
@@ -1228,7 +1211,7 @@ void ReadInputPartA(int kk, SampleData* data)
     simContext.UseH2SgasMix[kk] = data->Option_Use_H2Sg;  // simContext.UseH2SgasMix(kk) = Worksheets(mySheet).Cells(32, j + 2).Value 其中32行对应 Use H2S Gas Analysis
     if (simContext.UseH2SgasMix[kk] == 1)
     {
-        simContext.yH2SMix[kk] = data->H2S_pct_g / 100; // yH2SMix(kk) = Worksheets(mySheet).Cells(33, j + 2).Value / 100 其中33行对应Gas H2S% or H2Saq
+        simContext.yH2SMix[kk] = data->H2S_pct_g / 100; // yH2SMix(kk) = Worksheets(mySheet).Cells(33, j + 2).Value / 100 其中33行对应Gas H2S% or simContext.H2Saq
         simContext.TH2SaqMix[kk] = 0;
     }
     else
@@ -1249,16 +1232,16 @@ void ReadInputPartA(int kk, SampleData* data)
     simContext.UseTPVolMix[kk] = data->Option_TP_for_Q; // UseTPVolMix(kk) = Worksheets(mySheet).Cells(54, j + 2).Value其中54行对应 T,P for G/O/W;
     if (simContext.nob_Input + simContext.nob_InputII == 1)
     {
-        UseTPCalciteSheet = data->Option_Defined_TP; // UseTPCalciteSheet = Worksheets(mySheet).Cells(52, j + 2).Value其中52行对应 Use TP on Calcite sheet?;
+        simContext.UseTPCalciteSheet = data->Option_Defined_TP; // simContext.UseTPCalciteSheet = Worksheets(mySheet).Cells(52, j + 2).Value其中52行对应 Use TP on Calcite sheet?;
         simContext.useEOSmix[kk] = data->Option_EoS;            // useEOSmix(kk) = Worksheets(mySheet).Cells(55, j + 2).Value其中55行对应Use Flash Calculator;
     }
     else
     {
-        // UseTPCalciteSheet = Worksheets(MySheetMix).Cells(52, 8).Value 这里找不到第8列对应着什么
+        // simContext.UseTPCalciteSheet = Worksheets(MySheetMix).Cells(52, 8).Value 这里找不到第8列对应着什么
         // useEOSmix(kk) = Worksheets(MySheetMix).Cells(55, 8).Value 同上
     }
 
-    // If UseTPCalciteSheet = "" Then UseTPCalciteSheet = 0
+    // If simContext.UseTPCalciteSheet = "" Then simContext.UseTPCalciteSheet = 0
     // If UseTPpHMix(kk) = "" Then UseTPpHMix(kk) = 0
     // If UseTPVolMix(kk) = "" Then UseTPVolMix(kk) = 0
     // If useEOSmix(kk) = "" Then useEOSmix(kk) = 0 这里的逻辑判断似乎有问题，因为这些几乎全为double数组，而在判断中判断是否为空字符串;
@@ -1268,7 +1251,7 @@ void ReadInputPartA(int kk, SampleData* data)
     simContext.TofVol[kk] = data->T_Q; // TofVol(kk) = Worksheets(mySheet).Cells(60, j + 2).Value其中60行对应 T for fluids meas.;
     simContext.PofVol[kk] = data->P_Q; // PofVol(kk) = Worksheets(mySheet).Cells(61, j + 2).Value其中61行对P for for fluids meas.;
 
-    if (RunNORM == 1)
+    if (simContext.RunNORM == 1)
     {
         // simContext.RaMix(kk) = Worksheets(mySheet).Cells(62, j + 2).Value / 1000000000000#表中62行没有字段
     }
@@ -1276,7 +1259,7 @@ void ReadInputPartA(int kk, SampleData* data)
     {
         simContext.RaMix[kk] = 0;
     }
-    useTPVol = simContext.UseTPVolMix[kk];
+    simContext.useTPVol = simContext.UseTPVolMix[kk];
     simContext.SumofZMix[kk] = 0;
     // For iNG = 1 To 14
     // zMix(kk, iNG) = Worksheets(mySheet).Cells(65 + iNG, j + 2) / 100:
@@ -1309,78 +1292,78 @@ void ReadInputPartA(int kk, SampleData* data)
         }
     }
     simContext.zMix[kk][14] = 0.0;
-    if (RunH2SGUI != 1)
+    if (simContext.RunH2SGUI != 1)
     {
         // MultiplePpt = Worksheets("Input").Range("S11").Value
     }
 
-    if (RunWhatIf == 1)
+    if (simContext.RunWhatIf == 1)
     {
-        if (CaseCountWI[Loop1WI])
+        if (simContext.CaseCountWI[simContext.Loop1WI])
         {
-            simContext.NaMix[kk] = NaWI[Loop1WI][Loop2WI];
+            simContext.NaMix[kk] = simContext.NaWI[simContext.Loop1WI][simContext.Loop2WI];
         }
-        if (CaseCountWI[Loop1WI] == 4)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 4)
         {
-            simContext.CaMix[kk] = CaWI[Loop1WI][Loop2WI];
+            simContext.CaMix[kk] = simContext.CaWI[simContext.Loop1WI][simContext.Loop2WI];
         }
-        if (CaseCountWI[Loop1WI] == 5)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 5)
         {
-            simContext.SrMix[kk] = SrWI[Loop1WI][Loop2WI];
-        }
-
-        if (CaseCountWI[Loop1WI] == 6)
-        {
-            simContext.BaMix[kk] = BaWI[Loop1WI][Loop2WI];
-        }
-        if (CaseCountWI[Loop1WI] == 10)
-        {
-            simContext.ClMix[kk] = ClWI[Loop1WI][Loop2WI];
-        }
-        if (CaseCountWI[Loop1WI] == 11)
-        {
-            simContext.SO4Mix[kk] = SO4WI[Loop1WI][Loop2WI];
-        }
-        if (CaseCountWI[Loop1WI] == 15)
-        {
-            simContext.HCO3AlkMix[kk] = HCO3AlkWI[Loop1WI][Loop2WI];
+            simContext.SrMix[kk] = simContext.SrWI[simContext.Loop1WI][simContext.Loop2WI];
         }
 
-        if (CaseCountWI[Loop1WI] == 16)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 6)
         {
-            simContext.CO3AlkMix[kk] = CO3AlkWI[Loop1WI][Loop2WI];
+            simContext.BaMix[kk] = simContext.BaWI[simContext.Loop1WI][simContext.Loop2WI];
         }
-        if (CaseCountWI[Loop1WI] == 17)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 10)
         {
-            simContext.TAcMix[kk] = TACWI[Loop1WI][Loop2WI];
+            simContext.ClMix[kk] = simContext.ClWI[simContext.Loop1WI][simContext.Loop2WI];
         }
-        if (CaseCountWI[Loop1WI] == 19)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 11)
+        {
+            simContext.SO4Mix[kk] = simContext.SO4WI[simContext.Loop1WI][simContext.Loop2WI];
+        }
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 15)
+        {
+            simContext.HCO3AlkMix[kk] = simContext.HCO3AlkWI[simContext.Loop1WI][simContext.Loop2WI];
+        }
+
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 16)
+        {
+            simContext.CO3AlkMix[kk] = simContext.CO3AlkWI[simContext.Loop1WI][simContext.Loop2WI];
+        }
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 17)
+        {
+            simContext.TAcMix[kk] = simContext.TACWI[simContext.Loop1WI][simContext.Loop2WI];
+        }
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 19)
         {
             simContext.usepHmix[kk] = 0;
-            simContext.yCO2Mix[kk] = YCO2WI[Loop1WI][Loop2WI] / 100;
+            simContext.yCO2Mix[kk] = simContext.YCO2WI[simContext.Loop1WI][simContext.Loop2WI] / 100;
         }
 
-        if (CaseCountWI[Loop1WI] == 20)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 20)
         {
             simContext.UseH2SgasMix[kk] = 1;
-            simContext.yH2SMix[kk] = YH2SWI[Loop1WI][Loop2WI] / 100;
+            simContext.yH2SMix[kk] = simContext.YH2SWI[simContext.Loop1WI][simContext.Loop2WI] / 100;
         }
 
-        if (CaseCountWI[Loop1WI] == 21)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 21)
         {
             simContext.UseH2SgasMix[kk] = 1;
-            simContext.TH2SaqMix[kk] = TH2SaqWI[Loop1WI][Loop2WI] / 100;
+            simContext.TH2SaqMix[kk] = simContext.TH2SaqWI[simContext.Loop1WI][simContext.Loop2WI] / 100;
         }
 
-        if (CaseCountWI[Loop1WI] == 22)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 22)
         {
             simContext.usepHmix[kk] = 1;
-            simContext.pHMeterStpMix[kk] = pHMeterSTPWI[Loop1WI][Loop2WI] / 100;
+            simContext.pHMeterStpMix[kk] = simContext.pHMeterSTPWI[simContext.Loop1WI][simContext.Loop2WI] / 100;
         }
 
-        if (CaseCountWI[Loop1WI] == 32)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 32)
         {
-            simContext.ConcFactor[kk] = ConcFactorWI[Loop1WI][Loop2WI] / 100;
+            simContext.ConcFactor[kk] = simContext.ConcFactorWI[simContext.Loop1WI][simContext.Loop2WI] / 100;
         }
     }
 
@@ -1388,7 +1371,7 @@ void ReadInputPartA(int kk, SampleData* data)
     if (simContext.TDSMix[kk] == 0) // If simContext.TDSMix(kk) = 0 Or simContext.TDSMix(kk) = "" Then 这里不对空字符串做判断
     {
         //修改   by   -彭非
-        if (UseMolal == 0) {
+        if (simContext.UseMolal == 0) {
             //for (int iTDS = 0; iTDS < 19; iTDS++);
                 /*simContext.TDSMix(kk) = simContext.TDSMix(kk) + Worksheets(mySheet).Cells(9 + iTDS, j + 2).Value*/
             simContext.TDSMix[kk] += data->Na_aq;
@@ -1448,11 +1431,11 @@ void ReadInputPartA(int kk, SampleData* data)
     if (simContext.ConcFactor[kk] == 0 || simContext.ConcFactor[kk] < 0) simContext.ConcFactor[kk] = 1;
 
     if (simContext.ConcFactor[kk] != 1) {
-        Run_CalcConcFactor = 1;
+        simContext.Run_CalcConcFactor = 1;
         simContext.VwMix[kk] /= simContext.ConcFactor[kk];
     }
 
-    if (UseMolal == 0)
+    if (simContext.UseMolal == 0)
     {
         simContext.NaMix[kk] = simContext.NaMix[kk] / (22990.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
         simContext.KMix[kk] = simContext.KMix[kk] / (39098.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
@@ -1483,7 +1466,7 @@ void ReadInputPartA(int kk, SampleData* data)
         simContext.OHAlkMix[kk] = simContext.OHAlkMix[kk] / (0.9991 - 0.0000003612 * simContext.TDSMix[kk]);
         simContext.RaMix[kk] = simContext.RaMix[kk] / (226.0 * (0.9991 - 0.0000003612 * simContext.TDSMix[kk])) * simContext.ConcFactor[kk];
     }
-    else if (UseMolal == 1)
+    else if (simContext.UseMolal == 1)
     {
         simContext.NaMix[kk] = simContext.NaMix[kk] * simContext.ConcFactor[kk]; // Convert mg/L to molality
         simContext.KMix[kk] = simContext.KMix[kk] * simContext.ConcFactor[kk];
@@ -1515,12 +1498,12 @@ void ReadInputPartA(int kk, SampleData* data)
     }
     simContext.AlkMix[kk] = simContext.HCO3AlkMix[kk] + 2 * simContext.CO3AlkMix[kk] - simContext.HAlkMix[kk] + simContext.OHAlkMix[kk];
     simContext.TCO2Mix[kk] = simContext.HCO3AlkMix[kk] + simContext.CO3AlkMix[kk];
-    if (UseTPCalciteSheet != 1)
+    if (simContext.UseTPCalciteSheet != 1)
     {
-        UseTPCalciteSheet = 0;
+        simContext.UseTPCalciteSheet = 0;
     }
 
-    if (Run_Seawater_Mixing == 1 && simContext.j == 2)
+    if (simContext.Run_Seawater_Mixing == 1 && simContext.j == 2)
     {
         simContext.yCO2Mix[kk] = pow(10.0, -3.5);
         simContext.yH2SMix[kk] = 0.0;
@@ -1529,18 +1512,18 @@ void ReadInputPartA(int kk, SampleData* data)
     }
     if (simContext.UseTPpHMix[kk] == 1)
     {
-        if (simContext.TofpH[kk] == 0.0 && UseSI == 0)
+        if (simContext.TofpH[kk] == 0.0 && simContext.UseSI == 0)
             simContext.TofpH[kk] = 77.0;
-        if (simContext.PofpH[kk] == 0.0 && UseSI == 0)
+        if (simContext.PofpH[kk] == 0.0 && simContext.UseSI == 0)
             simContext.PofpH[kk] = 14.696;
-        if (simContext.TofpH[kk] == 0.0 && UseSI == 1)
+        if (simContext.TofpH[kk] == 0.0 && simContext.UseSI == 1)
             simContext.TofpH[kk] = 25.0;
-        if (simContext.PofpH[kk] == 0.0 && UseSI == 1)
+        if (simContext.PofpH[kk] == 0.0 && simContext.UseSI == 1)
             simContext.PofpH[kk] = 1.0;
     }
     else
     {
-        if (UseSI == 0)
+        if (simContext.UseSI == 0)
         {
             simContext.TofpH[kk] = 77.0;
             simContext.PofpH[kk] = 14.696; // set to 77 F and 14.696 psia as default for pH calculation
@@ -1554,18 +1537,18 @@ void ReadInputPartA(int kk, SampleData* data)
 
     if (simContext.UseTPVolMix[kk] == 1)
     {
-        if (simContext.TofVol[kk] == 0.0 && UseSI == 0)
+        if (simContext.TofVol[kk] == 0.0 && simContext.UseSI == 0)
             simContext.TofVol[kk] = 77.0; // set default to 77 F
-        if (simContext.PofVol[kk] == 0.0 && UseSI == 0)
+        if (simContext.PofVol[kk] == 0.0 && simContext.UseSI == 0)
             simContext.PofVol[kk] = 14.696; // set default to 1 atm
-        if (simContext.TofVol[kk] == 0.0 && UseSI == 1)
+        if (simContext.TofVol[kk] == 0.0 && simContext.UseSI == 1)
             simContext.TofVol[kk] = 25.0;
-        if (simContext.PofVol[kk] == 0.0 && UseSI == 1)
+        if (simContext.PofVol[kk] == 0.0 && simContext.UseSI == 1)
             simContext.PofVol[kk] = 1.013254;
     }
     else
     {
-        if (UseSI == 0)
+        if (simContext.UseSI == 0)
         {
             simContext.TofVol[kk] = 77.0;
             simContext.PofVol[kk] = 14.696;
@@ -1591,35 +1574,35 @@ void ReadInputPartA(int kk, SampleData* data)
 
     if (simContext.yCO2Mix[kk] > 1.0)
     {
-        errmsg[0] = 1;  // 源代码：errmsg(1) = 1
+        simContext.errmsg[0] = 1;  // 源代码：errmsg(1) = 1
         simContext.yCO2Mix[kk] = 1.0;
     }
 
     if (simContext.yCO2Mix[kk] < 0.0)
     {
-        errmsg[1] = 2;
+        simContext.errmsg[1] = 2;
         simContext.yCO2Mix[kk] = 0.0;
-        yCO2 = 0.0;
-        CO2aq = 0.0;
-        HCO3 = 0.0;
-        CO3 = 0.0;
+        simContext.yCO2 = 0.0;
+        simContext.CO2aq = 0.0;
+        simContext.HCO3 = 0.0;
+        simContext.CO3 = 0.0;
     }
 
     if (simContext.yH2SMix[kk] > 1.0)
     {
-        errmsg[2] = 3;
+        simContext.errmsg[2] = 3;
         simContext.yH2SMix[kk] = 1.0;
-        yH2S = 1.0;
+        simContext.yH2S = 1.0;
         simContext.TH2SaqMix[kk] = 0.0; // This will cause the program to use yH2Sstp as the calculation for TH2Saq instead of the input sheet value
     }
 
     if (simContext.yH2SMix[kk] < 0.0)
     {
-        errmsg[3] = 4;   //
+        simContext.errmsg[3] = 4;   //
         simContext.yH2SMix[kk] = 0.0;
-        yH2S = 0.0;
-        HS = 0.0;
-        H2Saq = 0.0;
+        simContext.yH2S = 0.0;
+        simContext.HS = 0.0;
+        simContext.H2Saq = 0.0;
         simContext.TH2SaqMix[kk] = 0.0;
     }
 }
@@ -1638,23 +1621,23 @@ void ReadInputPartB(int kk, SampleData* data)
     simContext.VMeOHMix[kk] = data->Q_MeOH;
     simContext.VMEGMix[kk] = data->Q_MEG;
 
-    if (RunWhatIf == 1)
+    if (simContext.RunWhatIf == 1)
     {
-        if (CaseCountWI[Loop1WI] == 25)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 25)
         {
-            simContext.VgTPMix[kk] = VgTPWI[Loop1WI][Loop2WI];
+            simContext.VgTPMix[kk] = VgTPWI[simContext.Loop1WI][simContext.Loop2WI];
         }
-        if (CaseCountWI[Loop1WI] == 26)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 26)
         {
-            simContext.VoMix[kk] = VoWI[Loop1WI][Loop2WI];
+            simContext.VoMix[kk] = VoWI[simContext.Loop1WI][simContext.Loop2WI];
         }
-        if (CaseCountWI[Loop1WI] == 27)
+        if (simContext.CaseCountWI[simContext.Loop1WI] == 27)
         {
-            simContext.VwMix[kk] = VwWI[Loop1WI][Loop2WI];
+            simContext.VwMix[kk] = VwWI[simContext.Loop1WI][simContext.Loop2WI];
         }
     }
 
-    if (Run_Seawater_Mixing == 1 && LoopMixing == 1 && kk == 0)
+    if (simContext.Run_Seawater_Mixing == 1 && simContext.LoopMixing == 1 && kk == 0)
     {
         //offset:VwSW1 = VwMix(1): VgSW1 = VgTPMix(1): VoSW1 = VoMix(1): VMeOHSW1 = VMeOHMix(1): VMEGSW1 = VMEGMix(1)
         VwSW1 = simContext.VwMix[0];
@@ -1665,25 +1648,25 @@ void ReadInputPartB(int kk, SampleData* data)
     }
 
     // 舍弃此字段
-    if (Run10TestCases == 1)
+    if (simContext.Run10TestCases == 1)
     {
         simContext.usepHmix[kk] = 0;
-        // yCO2Mix(kk) = Worksheets("Calcite").Cells(15 + Loop10, 3) / 100
+        // yCO2Mix(kk) = Worksheets("Calcite").Cells(15 + simContext.Loop10, 3) / 100
     }
 
-    if (RunMultiMix == 1)
+    if (simContext.RunMultiMix == 1)
     {
-        // VgTPMix(kk) = Worksheets("MultiMix").Cells(2 + LoopResChem, 14 + j).Value
-        // VoMix(kk) = Worksheets("MultiMix").Cells(2 + LoopResChem, 9 + j).Value
-        // VwMix(kk) = Worksheets("MultiMix").Cells(2 + LoopResChem, 4 + j).Value
+        // VgTPMix(kk) = Worksheets("MultiMix").Cells(2 + simContext.LoopResChem, 14 + j).Value
+        // VoMix(kk) = Worksheets("MultiMix").Cells(2 + simContext.LoopResChem, 9 + j).Value
+        // VwMix(kk) = Worksheets("MultiMix").Cells(2 + simContext.LoopResChem, 4 + j).Value
     }
     if (RunMultiMixSlb == 1)
     {
-        // VgTPMix[kk] = Worksheets("MultiMix_Slb").Cells(2 + LoopResChem, 14 + j).Value;
-        // VoMix[kk] = Worksheets("MultiMix_Slb").Cells(2 + LoopResChem, 9 + j).Value;
-        // VwMix[kk] = Worksheets("MultiMix_Slb").Cells(2 + LoopResChem, 4 + j).Value
+        // VgTPMix[kk] = Worksheets("MultiMix_Slb").Cells(2 + simContext.LoopResChem, 14 + j).Value;
+        // VoMix[kk] = Worksheets("MultiMix_Slb").Cells(2 + simContext.LoopResChem, 9 + j).Value;
+        // VwMix[kk] = Worksheets("MultiMix_Slb").Cells(2 + simContext.LoopResChem, 4 + j).Value
     }
-    if (Run_MixingTwoWells == 1)
+    if (simContext.Run_MixingTwoWells == 1)
     {
         simContext.VgTPMix[kk] = simContext.VgTPMix[kk] * simContext.MixFrac[kk];
         simContext.VoMix[kk] = simContext.VoMix[kk] * simContext.MixFrac[kk];
@@ -1691,7 +1674,7 @@ void ReadInputPartB(int kk, SampleData* data)
         simContext.VMeOHMix[kk] = simContext.VMeOHMix[kk] * simContext.MixFrac[kk];
         simContext.VMEGMix[kk] = simContext.VMEGMix[kk] * simContext.MixFrac[kk];
     }
-    if (Run_Seawater_Mixing == 1)
+    if (simContext.Run_Seawater_Mixing == 1)
     {
         simContext.VwMix[kk] = VwSW1 * simContext.MixFrac[kk];
 
@@ -1711,7 +1694,7 @@ void ReadInputPartB(int kk, SampleData* data)
         }
     }
 
-    if (UseSI == 0)
+    if (simContext.UseSI == 0)
     {
         // convert 1000 ft^3 to m^3
         simContext.VgTPMix[kk] = simContext.VgTPMix[kk] * 28.31685;
@@ -1722,7 +1705,7 @@ void ReadInputPartB(int kk, SampleData* data)
         simContext.VgTPMix[kk] = simContext.VgTPMix[kk] * 1000;
     }
 
-    if (UseSI == 1)
+    if (simContext.UseSI == 1)
     {
         // Convert m^3 to barrels
         simContext.VoMix[kk] = simContext.VoMix[kk] / 0.159;
@@ -2234,7 +2217,7 @@ void C1_ThermodynamicEquilConsts()
     KspCaF2 = pow(10, 66.348 - 4298.2 / TK - 25.271 * log10(TK))
         * pow(10, (0.399 - 0.0000047 * TC) * Patm / 500);
 
-    // ================= Dolomite (CaMg(CO3)2) =================
+    // ================= Dolomite (CaMg(simContext.CO3)2) =================
     KspDol = pow(10, -1 * (257.2181 + 0.1438 * TK - 3197.3234 / TK - 109.6227 * log10(TK)))
         * pow(10, (0.982 - 0.0003101 * TC) * Patm / 500);
 
@@ -2444,7 +2427,7 @@ void C1_ThermodynamicEquilConsts()
         - 0.000000122756 * pow(TK, 4)
         + 6.262392E-11 * pow(TK, 5));
 
-    // ---------------------- Zn & Pb HS complexes ----------------------
+    // ---------------------- Zn & Pb simContext.HS complexes ----------------------
     q1 = 848.820711081324; q2 = 8523.81138931672; q3 = -200.318510598844; q4 = 1.12515623321474; q5 = -6.87407323192827e-04;
     BetaDot[iZnHS2] = pow(10.0, q1 + q2 / TK + q3 * log(TK) + q4 * TK + q5 * (TK * TK));
 
@@ -3082,8 +3065,8 @@ void C2_Pitzer2019(double tk, double tc, double pBar, double patm) {
 
     Yccpa[iCa][iNa][iCl] = Yccpa[iNa][iCa][iCl];
 
-    // ''===========================H2Saq coefficients
-    q1 = -0.10242; q2 = 0.000322; q3 = 27.88934; q4 = 0; q5 = 0; q6 = 0; q7 = 0;            // Noe that q1-q3 are fitted by Dai based on Barrett's data, q7-q11 are set to equal to CO2aq parameters
+    // ''===========================simContext.H2Saq coefficients
+    q1 = -0.10242; q2 = 0.000322; q3 = 27.88934; q4 = 0; q5 = 0; q6 = 0; q7 = 0;            // Noe that q1-q3 are fitted by Dai based on Barrett's data, q7-q11 are set to equal to simContext.CO2aq parameters
     q8 = 0.005683638727; q9 = -0.0008009093476; q10 = 0; q11 = -0.0000174562027;
     Lnc[iH2Saq][iNa] = fDuan2(tk, pBar, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11);
 
@@ -3716,15 +3699,15 @@ void PengRobinson3() {
     PBar = Patm * 1.013254;
 
     // 如果没有气体，设置默认值避免除零错误
-    if (yCO2 == 0.0 && yH2S == 0.0) {
+    if (simContext.yCO2 == 0.0 && simContext.yH2S == 0.0) {
         yCH4 = 1.0;
     }
 
     double yGas[20] = { 0 };
     // 设置气体摩尔分数
     yGas[iCH4g] = yCH4;
-    yGas[iCO2g] = yCO2;
-    yGas[iH2Sg] = yH2S;
+    yGas[iCO2g] = simContext.yCO2;
+    yGas[iH2Sg] = simContext.yH2S;
     double TCr[20] = { 0 };
     // 设置临界温度 (K)
     TCr[iCH4g] = 190.4;
@@ -3838,8 +3821,8 @@ void PengRobinson3() {
  * @param useEOS 状态方程使用标志
  * @param TK 温度 (K)
  * @param Ppsia 压力 (psia)
- * @param yCO2 CO2摩尔分数
- * @param yH2S H2S摩尔分数
+ * @param simContext.yCO2 CO2摩尔分数
+ * @param simContext.yH2S H2S摩尔分数
  * @param Alk 碱度 (mol/kg)
  * @param TAc 总乙酸浓度 (mol/kg)
  * @param TH2Saq 总溶解H2S浓度 (mol/kg)
@@ -3850,7 +3833,7 @@ void PengRobinson3() {
  * @param TH4SiO4 总硅酸浓度 (mol/kg)
  * @param pH [输入/输出] pH值
  * @param pHMeterReading [输出] pH计读数
- * @param errmsg [输出] 错误信息数组
+ * @param simContext.errmsg [输出] 错误信息数组
  */
 double fMeSSpeciation(int im, int igas);  //C5需要用的函数，声明在这里
 void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
@@ -3873,23 +3856,23 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
             // 计算碳酸系统物种 gGas 小数点后第五位不一致
-            CO2aq = KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
-            HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
+            simContext.CO2aq = KgwCO2 * Ppsia * (simContext.yCO2)*gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+            simContext.HCO3 = (K1H2CO3 * aH2O) * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
                 (aH * gAn[iHCO3] * gNAn[iHCO3]);
-            CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
+            simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
                 (aH * gAn[iCO3] * gNAn[iCO3]);
 
             // 计算硫系统物种
             hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) +
                 1.0 + (K2HS * gAn[iHS] * gNAn[iHS]) / (aH * gAn[iSion] * gNAn[iSion]);
-            HS = TH2Saq / hydHS;
+            simContext.HS = TH2Saq / hydHS;
 
             // // 金属硫化物形态计算
             if (TH2Saq > 0) fMeSSpeciation(1, 2);  // 源代码是(2, 2)，因为第一个参数im涉及到索引，做一个偏移
 
-            H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
+            simContext.H2Saq = aH * simContext.HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+            simContext.yH2S = simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
 
             // 计算其他弱酸物种
             hydAc = aH * gAn[iAc] * gNAn[iAc] / (KHAc * gNeut[iHAcaq] * gNNeut[iHAcaq]) + 1.0;
@@ -3910,7 +3893,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
 
             // 计算碱度残差
-            faH = Alk - (HCO3 + 2.0 * CO3 + HS + 2.0 * S + AC + NH3 +
+            faH = Alk - (simContext.HCO3 + 2.0 * simContext.CO3 + simContext.HS + 2.0 * S + AC + NH3 +
                 H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
 
             // 二分法更新pH范围
@@ -3919,12 +3902,12 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
         }
 
         pHMeterReading = pH - DpHj;
-        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
+        mn[iFeSaq] = KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
 
-        if (yH2S > 1.0) {
-            errmsg[2] = 3;
-            yH2S = 1.0;
+        if (simContext.yH2S > 1.0) {
+            simContext.errmsg[2] = 3;
+            simContext.yH2S = 1.0;
         }
     }
 
@@ -3941,17 +3924,17 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
             // 计算碳酸系统物种
-            CO2aq = KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
-            HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
+            simContext.CO2aq = KgwCO2 * Ppsia * (simContext.yCO2)*gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+            simContext.HCO3 = (K1H2CO3 * aH2O) * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
                 (aH * gAn[iHCO3] * gNAn[iHCO3]);
-            CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
+            simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
                 (aH * gAn[iCO3] * gNAn[iCO3]);
 
             // 计算硫系统物种
-            H2Saq = KgwH2S * Ppsia * (yH2S)*gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
-            HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
+            simContext.H2Saq = KgwH2S * Ppsia * (simContext.yH2S)*gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
                 (aH * gAn[iHS] * gNAn[iHS]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] /
+            S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] /
                 (aH * gAn[iSion] * gNAn[iSion]);
 
             // 计算其他弱酸物种
@@ -3973,7 +3956,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
 
             // 计算碱度残差
-            faH = Alk - (HCO3 + 2.0 * CO3 + HS + 2.0 * S + AC + NH3 +
+            faH = Alk - (simContext.HCO3 + 2.0 * simContext.CO3 + simContext.HS + 2.0 * S + AC + NH3 +
                 H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
 
             // 二分法更新pH范围
@@ -3982,9 +3965,9 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
         }
 
         pHMeterReading = pH - DpHj;
-        mc[iFe] = TFe / (1.0 + KstFeSaq * HS * gAn[iHS] * gNAn[iHS] *
+        mc[iFe] = TFe / (1.0 + KstFeSaq * simContext.HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH));
-        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
+        mn[iFeSaq] = KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
     }
     // 情况2: 使用pH和碱度计算P-CO2 (use_pH = 1)
@@ -3995,33 +3978,33 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
         if (UseH2Sgas == 0) {
             hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) +
                 1.0 + (K2HS * gAn[iHS] * gNAn[iHS]) / (aH * gAn[iSion] * gNAn[iSion]);
-            HS = TH2Saq / hydHS;
+            simContext.HS = TH2Saq / hydHS;
 
             if (TH2Saq > 0) {
                 fMeSSpeciation(1, 2);
             }
 
-            H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
+            simContext.H2Saq = aH * simContext.HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+            simContext.yH2S = simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
 
-            if (yH2S > 1.0) {
-                errmsg[2] = 3;
-                yH2S = 1.0;
+            if (simContext.yH2S > 1.0) {
+                simContext.errmsg[2] = 3;
+                simContext.yH2S = 1.0;
             }
         }
         else {
-            H2Saq = KgwH2S * Ppsia * (yH2S)*gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
-            HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            mc[iFe] = TFe / (1.0 + KstFeSaq * HS * gAn[iHS] * gNAn[iHS] *
+            simContext.H2Saq = KgwH2S * Ppsia * (simContext.yH2S)*gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
+            simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
+            S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+            mc[iFe] = TFe / (1.0 + KstFeSaq * simContext.HS * gAn[iHS] * gNAn[iHS] *
                 gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH));
-            TH2Saq = H2Saq + HS + S + KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
+            TH2Saq = simContext.H2Saq + simContext.HS + S + KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] *
                 gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
         }
 
-        if (TH2Saq == 0.0 && yH2S == 0.0) {
-            H2Saq = 0.0; HS = 0.0; TH2Saq = 0.0; yH2S = 0.0;
+        if (TH2Saq == 0.0 && simContext.yH2S == 0.0) {
+            simContext.H2Saq = 0.0; simContext.HS = 0.0; TH2Saq = 0.0; simContext.yH2S = 0.0;
         }
 
         // 计算其他物种
@@ -4050,28 +4033,28 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
         tCO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * gGas[iCO2g] /
             (aH * aH * gAn[iCO3] * gNAn[iCO3]);
 
-        yCO2 = (Alk + H - AC - HS - OH - NH3 - H2BO3 - H3SiO4 - 2.0 * H2SiO4) /
+        simContext.yCO2 = (Alk + H - AC - simContext.HS - OH - NH3 - H2BO3 - H3SiO4 - 2.0 * H2SiO4) /
             (tHCO3 + 2.0 * tCO3);
 
         // 计算碳酸物种浓度
-        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] /
+        simContext.HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (simContext.yCO2)*gGas[iCO2g] /
             (aH * gAn[iHCO3] * gNAn[iHCO3]);
-        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] /
+        simContext.CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (simContext.yCO2)*gGas[iCO2g] /
             (aH * aH * gAn[iCO3] * gNAn[iCO3]);
-        CO2aq = KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
+        simContext.CO2aq = KgwCO2 * Ppsia * (simContext.yCO2)*gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
 
-        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
+        mn[iFeSaq] = KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
 
         // 错误检查
-        if (yCO2 > 1.0) {
-            errmsg[0] = 1;
-            yCO2 = 1.0;
+        if (simContext.yCO2 > 1.0) {
+            simContext.errmsg[0] = 1;
+            simContext.yCO2 = 1.0;
         }
-        if (yCO2 < 0.0) {
-            errmsg[1] = 2;
-            yCO2 = 0.0;
-            HCO3 = 0.0; CO3 = 0.0; CO2aq = 0.0;
+        if (simContext.yCO2 < 0.0) {
+            simContext.errmsg[1] = 2;
+            simContext.yCO2 = 0.0;
+            simContext.HCO3 = 0.0; simContext.CO3 = 0.0; simContext.CO2aq = 0.0;
         }
     }
     // 情况3: 使用pH和yCO2计算Alk (use_pH = 2)
@@ -4082,31 +4065,31 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
         if (UseH2Sgas == 0) {
             hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) +
                 1.0 + (K2HS * gAn[iHS] * gNAn[iHS]) / (aH * gAn[iSion] * gNAn[iSion]);
-            HS = TH2Saq / hydHS;
+            simContext.HS = TH2Saq / hydHS;
 
             if (TH2Saq > 0) fMeSSpeciation(1, 2);
 
-            H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
+            simContext.H2Saq = aH * simContext.HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+            simContext.yH2S = simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
 
-            if (yH2S > 1.0) {
-                errmsg[2] = 3;
-                yH2S = 1.0;
+            if (simContext.yH2S > 1.0) {
+                simContext.errmsg[2] = 3;
+                simContext.yH2S = 1.0;
             }
         }
         else {
-            H2Saq = KgwH2S * Ppsia * (yH2S)*gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
-            HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            mc[iFe] = TFe / (1.0 + KstFeSaq * HS * gAn[iHS] * gNAn[iHS] *
+            simContext.H2Saq = KgwH2S * Ppsia * (simContext.yH2S)*gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
+            simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
+            S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+            mc[iFe] = TFe / (1.0 + KstFeSaq * simContext.HS * gAn[iHS] * gNAn[iHS] *
                 gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH));
-            TH2Saq = H2Saq + HS + S + KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
+            TH2Saq = simContext.H2Saq + simContext.HS + S + KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] *
                 gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
         }
 
-        if (TH2Saq == 0.0 && yH2S == 0.0) {
-            H2Saq = 0.0; HS = 0.0; TH2Saq = 0.0; yH2S = 0.0;
+        if (TH2Saq == 0.0 && simContext.yH2S == 0.0) {
+            simContext.H2Saq = 0.0; simContext.HS = 0.0; TH2Saq = 0.0; simContext.yH2S = 0.0;
             simContext.TH2SaqMix[simContext.kk] = 0.0; simContext.yH2SMix[simContext.kk] = 0.0;  // Assuming i is defined elsewhere
         }
 
@@ -4131,17 +4114,17 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
         NH3 = TNH4 / hydNH3;
 
         // 计算碳酸物种浓度
-        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] /
+        simContext.HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * (simContext.yCO2)*gGas[iCO2g] /
             (aH * gAn[iHCO3] * gNAn[iHCO3]);
-        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] /
+        simContext.CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * (simContext.yCO2)*gGas[iCO2g] /
             (aH * aH * gAn[iCO3] * gNAn[iCO3]);
 
         // 计算Alk
-        Alk = HCO3 + 2.0 * CO3 + AC + NH3 + H2BO3 + HS + 2.0 * S + H3SiO4 + 2.0 * H2SiO4 + OH - H;
+        Alk = simContext.HCO3 + 2.0 * simContext.CO3 + AC + NH3 + H2BO3 + simContext.HS + 2.0 * S + H3SiO4 + 2.0 * H2SiO4 + OH - H;
 
-        CO2aq = KgwCO2 * Ppsia * (yCO2)*gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
+        simContext.CO2aq = KgwCO2 * Ppsia * (simContext.yCO2)*gGas[iCO2g] / gNeut[iCO2aq] / gNNeut[iCO2aq];
 
-        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
+        mn[iFeSaq] = KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
     }
     // 情况4: 使用TCO2和碱度计算pH (use_pH = 3, UseH2Sgas = 0)
@@ -4158,23 +4141,23 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
             // 计算碳酸系统物种 (从TCO2)
-            HCO3 = TCO2 / (aH / (K1H2CO3 * aH2O) / gNeut[iCO2aq] / gNNeut[iCO2aq] * gAn[iHCO3] * gNAn[iHCO3] +
+            simContext.HCO3 = TCO2 / (aH / (K1H2CO3 * aH2O) / gNeut[iCO2aq] / gNNeut[iCO2aq] * gAn[iHCO3] * gNAn[iHCO3] +
                 1.0 + K2HCO3 / aH / gAn[iCO3] / gNAn[iCO3] * gAn[iHCO3] * gNAn[iHCO3]);
-            CO2aq = aH * HCO3 * gAn[iHCO3] * gNAn[iHCO3] / ((K1H2CO3 * aH2O) * gNeut[iCO2aq] * gNNeut[iCO2aq]);
-            CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
-            yCO2 = CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / (KgwCO2 * Ppsia * gGas[iCO2g]);
+            simContext.CO2aq = aH * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] / ((K1H2CO3 * aH2O) * gNeut[iCO2aq] * gNNeut[iCO2aq]);
+            simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
+            simContext.yCO2 = simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / (KgwCO2 * Ppsia * gGas[iCO2g]);
 
             // 计算硫系统物种
             hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) +
                 1.0 + (K2HS * gAn[iHS] * gNAn[iHS]) / (aH * gAn[iSion] * gNAn[iSion]);
-            HS = TH2Saq / hydHS;
+            simContext.HS = TH2Saq / hydHS;
 
             // // 金属硫化物形态计算
             if (TH2Saq > 0) fMeSSpeciation(1, 2);
 
-            H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
-            yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
+            simContext.H2Saq = aH * simContext.HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+            simContext.yH2S = simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
 
             // 计算其他弱酸物种
             hydAc = aH * gAn[iAc] * gNAn[iAc] / (KHAc * gNeut[iHAcaq] * gNNeut[iHAcaq]) + 1.0;
@@ -4195,7 +4178,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
 
             // 计算碱度残差
-            faH = Alk - (HCO3 + 2.0 * CO3 + HS + 2.0 * S + AC + NH3 +
+            faH = Alk - (simContext.HCO3 + 2.0 * simContext.CO3 + simContext.HS + 2.0 * S + AC + NH3 +
                 H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
 
             // 二分法更新pH范围
@@ -4204,12 +4187,12 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
         }
 
         pHMeterReading = pH - DpHj;
-        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
+        mn[iFeSaq] = KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
 
-        if (yH2S > 1.0) {
-            errmsg[2] = 3;
-            yH2S = 1.0;
+        if (simContext.yH2S > 1.0) {
+            simContext.errmsg[2] = 3;
+            simContext.yH2S = 1.0;
         }
     }
 
@@ -4226,16 +4209,16 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
             // 计算碳酸系统物种 (从TCO2)
-            HCO3 = TCO2 / (aH / (K1H2CO3 * aH2O) / gNeut[iCO2aq] / gNNeut[iCO2aq] * gAn[iHCO3] * gNAn[iHCO3] +
+            simContext.HCO3 = TCO2 / (aH / (K1H2CO3 * aH2O) / gNeut[iCO2aq] / gNNeut[iCO2aq] * gAn[iHCO3] * gNAn[iHCO3] +
                 1.0 + K2HCO3 / aH / gAn[iCO3] / gNAn[iCO3] * gAn[iHCO3] * gNAn[iHCO3]);
-            CO2aq = aH * HCO3 * gAn[iHCO3] * gNAn[iHCO3] / ((K1H2CO3 * aH2O) * gNeut[iCO2aq] * gNNeut[iCO2aq]);
-            CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
+            simContext.CO2aq = aH * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] / ((K1H2CO3 * aH2O) * gNeut[iCO2aq] * gNNeut[iCO2aq]);
+            simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
 
             // 计算硫系统物种
-            H2Saq = KgwH2S * Ppsia * (yH2S)*gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
-            HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
+            simContext.H2Saq = KgwH2S * Ppsia * (simContext.yH2S)*gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
+            simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
                 (aH * gAn[iHS] * gNAn[iHS]);
-            S = K2HS * HS * gAn[iHS] * gNAn[iHS] /
+            S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] /
                 (aH * gAn[iSion] * gNAn[iSion]);
 
             // 计算其他弱酸物种
@@ -4257,7 +4240,7 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
 
             // 计算碱度残差
-            faH = Alk - (HCO3 + 2.0 * CO3 + HS + 2.0 * S + AC + NH3 +
+            faH = Alk - (simContext.HCO3 + 2.0 * simContext.CO3 + simContext.HS + 2.0 * S + AC + NH3 +
                 H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
 
             // 二分法更新pH范围
@@ -4265,10 +4248,10 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
             else pHHigh = pH;
         }
 
-        yCO2 = CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / (KgwCO2 * Ppsia * gGas[iCO2g]);
-        mc[iFe] = TFe / (1.0 + KstFeSaq * HS * gAn[iHS] * gNAn[iHS] *
+        simContext.yCO2 = simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / (KgwCO2 * Ppsia * gGas[iCO2g]);
+        mc[iFe] = TFe / (1.0 + KstFeSaq * simContext.HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH));
-        mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
+        mn[iFeSaq] = KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
         pHMeterReading = pH - DpHj;
     }
@@ -4279,23 +4262,23 @@ void C5_CalcpHPCO2PH2SSTP(int use_pH, int UseH2Sgas, int useEOS) {
 void fmn() {
     // 初始化中性物种浓度
     mn[0] = 0;           // 原mn(1)对应mn[0]
-    mn[1] = CO2aq;       // 原mn(2)对应mn[1]
-    mn[2] = H2Saq;       // 原mn(3)对应mn[2]
+    mn[1] = simContext.CO2aq;       // 原mn(2)对应mn[1]
+    mn[2] = simContext.H2Saq;       // 原mn(3)对应mn[2]
     mn[3] = HAcaq;       // 原mn(4)对应mn[3]
     mn[4] = H4SiO4;      // 原mn(5)对应mn[4]
     mn[5] = NH3;         // 原mn(6)对应mn[5]
     mn[6] = 0;           // 原mn(7)对应mn[6]
 
     // 计算FeSaq浓度（基于平衡常数）
-    mn[7] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] * gCat[iFe] * gNCat[iFe] /
+    mn[7] = KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] * gCat[iFe] * gNCat[iFe] /
         (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);  // 原mn(8)对应mn[7]
 
     // 设置阴离子浓度
     ma[0] = OH;          // 原ma(1)对应ma[0]
     ma[2] = AC;          // 原ma(3)对应ma[2]
-    ma[3] = HCO3;        // 原ma(4)对应ma[3]
-    ma[4] = CO3;         // 原ma(5)对应ma[4]
-    ma[6] = HS;          // 原ma(7)对应ma[6]
+    ma[3] = simContext.HCO3;        // 原ma(4)对应ma[3]
+    ma[4] = simContext.CO3;         // 原ma(5)对应ma[4]
+    ma[6] = simContext.HS;          // 原ma(7)对应ma[6]
     ma[9] = H2BO3;       // 原ma(10)对应ma[9]
     ma[10] = H3SiO4;     // 原ma(11)对应ma[10]
     ma[11] = H2SiO4;     // 原ma(12)对应ma[11]
@@ -4568,10 +4551,10 @@ double CalcRhoTP(double tk, double tc, double pBar, double patm) {
 void fTotalCO2H2Smoles() {
 
     // 计算总CO2摩尔数
-    nTCO2 = Patm * 14.696 * yCO2 * (829.0 * VgTP / (Znew * TK) +
+    nTCO2 = Patm * 14.696 * simContext.yCO2 * (829.0 * VgTP / (Znew * TK) +
         gGas[iCO2g] * (KgwCO2 * mass_w / gNeut[iCO2aq] / gNNeut[iCO2aq] +
             RatioOilBPoints * KgoCO2 * Mass_o / gL[iCO2o])) +
-        (HCO3 + CO3) * mass_w;
+        (simContext.HCO3 + simContext.CO3) * mass_w;
 
     // nTCO2EOS 等于气体中的CO2加上油中的CO2加上水中的CO2，不包括HCO3和CO3
     nTCO2EOS = nTCO2;
@@ -4583,14 +4566,14 @@ void fTotalCO2H2Smoles() {
 
     // 计算总H2S摩尔数（包括HS-和FeS配合物）
     // nTH2S vb 536.894123326537 cpp 537.8953812802223
-    // vb yH2S 5.41442967642879E-05 cpp 5.4245428347734764e-05
+    // vb simContext.yH2S 5.41442967642879E-05 cpp 5.4245428347734764e-05
     // mc[iFe] vb 0.000219991780725818 cpp 0.00011386369818347661 QualityControlCalculations D1_CalcDensity C5_CalcpHPCO2PH2SSTP
     // gAn[iHS] vb 0.645200696723431 cpp 0.64535500358708076
     // gCat[iFe] vb 0.111366817290854 cpp 0.1113832023689522
-    nTH2S = Patm * 14.696 * yH2S * (829.0 * VgTP / (Znew * TK) +
+    nTH2S = Patm * 14.696 * simContext.yH2S * (829.0 * VgTP / (Znew * TK) +
         gGas[iH2Sg] * (KgwH2S * mass_w / gNeut[iH2Saq] / gNNeut[iH2Saq] +
             RatioOilBPoints * KgoH2S * Mass_o / gL[iH2So])) +
-        HS * (1.0 + KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] *
+        simContext.HS * (1.0 + KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] *
             gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH)) * mass_w;
 
     // nTH2sEOS 等于气体、油和水中的H2S，不包括HS-
@@ -7567,7 +7550,7 @@ void Get_EOS_Parameters(int NumGases, std::string& EOS, DoubleVec& MWgas, Double
 }
 
 
-void true_composition(double TK, double PBar, double mol_HC, double mol_W, double aH2O, double* gNeut, double nTCO2, double nTH2S,
+void true_composition(double TK, double PBar, double mol_HC, double mol_W, double temp_aH2O, double* gNeut, double nTCO2, double nTH2S,
     int useEOS, double* reservoir_Composition, double* feed_Composition, double* total_moles)
 {
     int i, j, NumGases = 15;
@@ -7649,7 +7632,7 @@ ReDim composition_Aq(NumGases), lnphi_Aq(NumGases)
 
 
 void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, double mol_wpd, double TK,
-    double PBar, double aH2O, double gNeut[], double nTCO2, double nTH2S, double yCO2, double yH2S, double YH2O,
+    double PBar, double aH2O, double gNeut[], double nTCO2, double nTH2S, double temp_yCO2, double temp_yH2S, double YH2O,
     double* total_moles, double feed_Composition[], double* mol_HC) {
     // ======= INPUT =======
     // API: Pseudo API gravity at given TP
@@ -7738,19 +7721,19 @@ void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, dou
     // Call phi_calc(False, False, EOS, "liquid", CDbl(TK), CDbl(PBar), composition_Aq, composition_Aq, mf_gNeut, CDbl(aH2O), TCr, PCr, Omega, mf_c0, mf_c1, kPr, lnphi_Water, Compr_composition_Aq)  'commented out by Amy ???
     // lnphiH2O_Aq = lnphi_Water(NumGases)
 
-    yLightG = (mwHeavyG - mwG - mwHeavyG * (yCO2 + yH2S + YH2O) + yCO2 * 44.01 + yH2S * 34.08 + YH2O * 18.01528) / (mwHeavyG - mwLightG);  // mole fraction of methane in the gas phase
+    yLightG = (mwHeavyG - mwG - mwHeavyG * (simContext.yCO2 + simContext.yH2S + YH2O) + simContext.yCO2 * 44.01 + simContext.yH2S * 34.08 + YH2O * 18.01528) / (mwHeavyG - mwLightG);  // mole fraction of methane in the gas phase
     if (yLightG < 0) yLightG = 0;
 
-    yHeavyG = 1 - (yLightG + yCO2 + yH2S + YH2O);
+    yHeavyG = 1 - (yLightG + simContext.yCO2 + simContext.yH2S + YH2O);
     if (yHeavyG < 0) yHeavyG = 0;
     // This calculates the compressibility factor of the vapor phase
     for (i = 3; i < NumGases - 1; i++) {  // 0-based: i=3 to 12 for components 4 to 13
         composition_G[i] = 0.0;
     }
-    double denom = yLightG + yCO2 + yH2S + yHeavyG + YH2O;
+    double denom = yLightG + simContext.yCO2 + simContext.yH2S + yHeavyG + YH2O;
     composition_G[0] = yLightG / denom;  // methane
-    composition_G[1] = yCO2 / denom;  // CO2
-    composition_G[2] = yH2S / denom;  // H2S
+    composition_G[1] = simContext.yCO2 / denom;  // CO2
+    composition_G[2] = simContext.yH2S / denom;  // H2S
     composition_G[9] = yHeavyG / denom;  // n-butane (index 10 in 1-based)
     composition_G[NumGases - 1] = YH2O;  // water (index 15 in 1-based)
 
@@ -7977,51 +7960,51 @@ void MultiPhaseFlash_CS(char* iosheet, char* ioCol, double eosProps[][6], double
  */
 void MeSWhileloop(int im, int igas, double* HSOld, double ZP1, double ZP2, double ZP3, double ZP4, double ZP5, double ZP6, double ZP7, double ZP9)
 {
-    *HSOld = HS;
+    *HSOld = simContext.HS;
     double coef1 = 1.0;
     double coef2 = (mc[iZn] * ZP3 + mc[iPb] * ZP6) / (mc[iZn] * ZP4 + mc[iPb] * ZP7);
     double coef3 = (hydHS + mc[iFe] * ZP1) / (mc[iZn] * ZP4 + mc[iPb] * ZP7);
     double coef4 = -TH2Saq / (mc[iZn] * ZP4 + mc[iPb] * ZP7);
 
-    double a = coef1 * pow(HS, 3) / coef4;
-    double b = coef2 * pow(HS, 2) / coef4;
+    double a = coef1 * pow(simContext.HS, 3) / coef4;
+    double b = coef2 * pow(simContext.HS, 2) / coef4;
 
     if (fabs(a) < 1e-4) {
         if (fabs(b) < 1e-4) {
-            HS = -coef4 / coef3;
+            simContext.HS = -coef4 / coef3;
         }
         else {
             QuadraticRoots(coef2, coef3, coef4, &root1, &root2);
-            HS = (root2 > root1) ? root2 : root1;
+            simContext.HS = (root2 > root1) ? root2 : root1;
         }
-        if (HS <= 0) return;
+        if (simContext.HS <= 0) return;
     }
     else {
         CubicRoots(coef1, coef2, coef3, coef4, &root1, &root2, &root3);
-        HS = root1;
-        if (root2 > HS) HS = root2;
-        if (root3 > HS) HS = root3;
-        if (HS <= 0) {
-            HS = 0;
+        simContext.HS = root1;
+        if (root2 > simContext.HS) simContext.HS = root2;
+        if (root3 > simContext.HS) simContext.HS = root3;
+        if (simContext.HS <= 0) {
+            simContext.HS = 0;
             return;
         }
     }
 
     // 更新 mc
     if (im == iFe && igas == 3)
-        mc[iFe] = (TFe - ppt) / (1.0 + ZP1 * HS);
+        mc[iFe] = (TFe - ppt) / (1.0 + ZP1 * simContext.HS);
     else
-        mc[iFe] = TFe / (1.0 + ZP1 * HS);
+        mc[iFe] = TFe / (1.0 + ZP1 * simContext.HS);
 
     if (im == iZn && igas == 3)
-        mc[iZn] = (TZn - ppt) / (1.0 + ZP2 + ZP3 * pow(HS, 2) + ZP4 * pow(HS, 3) + ZP9 * pow(OH, 2));
+        mc[iZn] = (TZn - ppt) / (1.0 + ZP2 + ZP3 * pow(simContext.HS, 2) + ZP4 * pow(simContext.HS, 3) + ZP9 * pow(OH, 2));
     else
-        mc[iZn] = TZn / (1.0 + ZP2 + ZP3 * pow(HS, 2) + ZP4 * pow(HS, 3) + ZP9 * pow(OH, 2));
+        mc[iZn] = TZn / (1.0 + ZP2 + ZP3 * pow(simContext.HS, 2) + ZP4 * pow(simContext.HS, 3) + ZP9 * pow(OH, 2));
 
     if (im == iPb && igas == 3)
-        mc[iPb] = (TPb - ppt) / (1.0 + ZP5 + ZP6 * pow(HS, 2) + ZP7 * pow(HS, 3));
+        mc[iPb] = (TPb - ppt) / (1.0 + ZP5 + ZP6 * pow(simContext.HS, 2) + ZP7 * pow(simContext.HS, 3));
     else
-        mc[iPb] = TPb / (1.0 + ZP5 + ZP6 * pow(HS, 2) + ZP7 * pow(HS, 3));
+        mc[iPb] = TPb / (1.0 + ZP5 + ZP6 * pow(simContext.HS, 2) + ZP7 * pow(simContext.HS, 3));
 }
 
 /**
@@ -8033,7 +8016,7 @@ void MeSWhileloop(int im, int igas, double* HSOld, double ZP1, double ZP2, doubl
  * @return double (未定义时返回 NAN)
  */
 double fMeSSpeciation(int im, int igas) {
-    double HSOld = HS;
+    double HSOld = simContext.HS;
     double FeOld = TFe;
     double ZnOld = TZn;
     double PbOld = TPb;
@@ -8077,31 +8060,31 @@ double fMeSSpeciation(int im, int igas) {
        /* Fe */
     if (im == iFe && igas == 3) { /* FeS 正在沉淀 */
         FeOld = TFe - ppt;
-        mc[iFe] = (TFe - ppt) / (1.0 + ZP1 * HS);
+        mc[iFe] = (TFe - ppt) / (1.0 + ZP1 * simContext.HS);
     }
     else {
-        mc[iFe] = TFe / (1.0 + ZP1 * HS);
+        mc[iFe] = TFe / (1.0 + ZP1 * simContext.HS);
     }
 
     /* Zn  -  修改： 与excel保持一致 */
     if (im == iZn && igas == 3) { /* ZnS 正在沉淀 */
         ZnOld = TZn - ppt;
-        mc[iZn] = (TZn - ppt) / (1.0 + ZP2 + ZP3 * pow(HS, 2.0) + ZP4 * pow(HS, 3.0) + ZP9 * pow(OH, 2.0));
+        mc[iZn] = (TZn - ppt) / (1.0 + ZP2 + ZP3 * pow(simContext.HS, 2.0) + ZP4 * pow(simContext.HS, 3.0) + ZP9 * pow(OH, 2.0));
     }
     else {
-        mc[iZn] = TZn / (1.0 + ZP2 + ZP3 * pow(HS, 2.0) + ZP4 * pow(HS, 3.0) + ZP9 * pow(OH, 2.0));
+        mc[iZn] = TZn / (1.0 + ZP2 + ZP3 * pow(simContext.HS, 2.0) + ZP4 * pow(simContext.HS, 3.0) + ZP9 * pow(OH, 2.0));
     }
 
     /* Pb */
     if (im == iPb && igas == 3) { /* PbS 正在沉淀 */
         PbOld = TPb - ppt;
-        mc[iPb] = (TPb - ppt) / (1.0 + ZP5 + ZP6 * pow(HS, 2.0) + ZP7 * pow(HS, 3.0));
+        mc[iPb] = (TPb - ppt) / (1.0 + ZP5 + ZP6 * pow(simContext.HS, 2.0) + ZP7 * pow(simContext.HS, 3.0));
     }
     else {
-        mc[iPb] = TPb / (1.0 + ZP5 + ZP6 * pow(HS, 2.0) + ZP7 * pow(HS, 3.0));
+        mc[iPb] = TPb / (1.0 + ZP5 + ZP6 * pow(simContext.HS, 2.0) + ZP7 * pow(simContext.HS, 3.0));
     }
 
-    /* ------- 有 Zn 或 Pb 时，求解多项式（可能为三次或二次）以求 HS ------- */
+    /* ------- 有 Zn 或 Pb 时，求解多项式（可能为三次或二次）以求 simContext.HS ------- */
     if (mc[iZn] > 0.0 || mc[iPb] > 0.0) {
         double coef1 = 1.0;
         double denom = (mc[iZn] * ZP4 + mc[iPb] * ZP7);
@@ -8116,39 +8099,39 @@ double fMeSSpeciation(int im, int igas) {
         //    coef4 = -TH2Saq / denom;
         //}
 
-        double a = coef1 * pow(HS, 3.0) / coef4;
-        double b = coef2 * pow(HS, 2.0) / coef4;
+        double a = coef1 * pow(simContext.HS, 3.0) / coef4;
+        double b = coef2 * pow(simContext.HS, 2.0) / coef4;
 
         if (fabs(a) < 1e-4) {
             if (fabs(b) < 1e-4) {
-                HS = -coef4 / coef3;
+                simContext.HS = -coef4 / coef3;
             }
             else {
                 QuadraticRoots(coef2, coef3, coef4, &root1, &root2);
-                HS = (root2 > root1) ? root2 : root1;
+                simContext.HS = (root2 > root1) ? root2 : root1;
             }
-            if (HS <= 0.0) return NAN; /* VB: GoTo 1000 */
+            if (simContext.HS <= 0.0) return NAN; /* VB: GoTo 1000 */
         }
         else {
             CubicRoots(coef1, coef2, coef3, coef4, &root1, &root2, &root3);
-            HS = root1;
-            if (root2 > HS) HS = root2;
-            if (root3 > HS) HS = root3;
-            if (HS <= 0.0) {
-                HS = 0.0;
+            simContext.HS = root1;
+            if (root2 > simContext.HS) simContext.HS = root2;
+            if (root3 > simContext.HS) simContext.HS = root3;
+            if (simContext.HS <= 0.0) {
+                simContext.HS = 0.0;
                 return NAN; /* VB: GoTo 1000 */
             }
         }
     }
-    /* ------- 若只有 Fe 存在，则直接解析 HS ------- */
+    /* ------- 若只有 Fe 存在，则直接解析 simContext.HS ------- */
     else if (mc[iFe] > 0.0) {
         //if (igas == 3) {
-        //    HS = (TH2Saq - ppt) / (hydHS + ZP1 * mc[iFe]);
+        //    simContext.HS = (TH2Saq - ppt) / (hydHS + ZP1 * mc[iFe]);
         //}
         //else {
-        //    HS = TH2Saq / (hydHS + ZP1 * mc[iFe]);
+        //    simContext.HS = TH2Saq / (hydHS + ZP1 * mc[iFe]);
         //}
-        HS = TH2Saq / (hydHS + ZP1 * mc[iFe]);
+        simContext.HS = TH2Saq / (hydHS + ZP1 * mc[iFe]);
     }
     /* 若都不存在可解的金属，则返回（VB: GoTo 1000） */
     else {
@@ -8156,74 +8139,74 @@ double fMeSSpeciation(int im, int igas) {
     }
 
     /* ========== 下面展开所有 VB 中的不同组合情形的迭代收敛循环 ========== */
-    /* 1) If TFe > 0 And HS > 0 And TZn > 0 And TPb > 0 Then 'Fe,Zn,Pb sulfide */
-    if (TFe > 0 && HS > 0 && TZn > 0 && TPb > 0) {
-        while (fabs((FeOld / (1.0 + ZP1 * HS) - mc[iFe]) / mc[iFe]) > 0.001
-            || fabs((PbOld / (1.0 + ZP5 + ZP6 * pow(HS, 2) + ZP7 * pow(HS, 3)) - mc[iPb]) / mc[iPb]) > 0.001
-            || fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(HS, 2) + ZP4 * pow(HS, 3) + ZP9 * pow(OH, 2)) - mc[iZn]) / mc[iZn]) > 0.001
-            || fabs((HSOld - HS) / HS) > 0.001)
+    /* 1) If TFe > 0 And simContext.HS > 0 And TZn > 0 And TPb > 0 Then 'Fe,Zn,Pb sulfide */
+    if (TFe > 0 && simContext.HS > 0 && TZn > 0 && TPb > 0) {
+        while (fabs((FeOld / (1.0 + ZP1 * simContext.HS) - mc[iFe]) / mc[iFe]) > 0.001
+            || fabs((PbOld / (1.0 + ZP5 + ZP6 * pow(simContext.HS, 2) + ZP7 * pow(simContext.HS, 3)) - mc[iPb]) / mc[iPb]) > 0.001
+            || fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(simContext.HS, 2) + ZP4 * pow(simContext.HS, 3) + ZP9 * pow(OH, 2)) - mc[iZn]) / mc[iZn]) > 0.001
+            || fabs((HSOld - simContext.HS) / simContext.HS) > 0.001)
         {
             MeSWhileloop(im, igas, &HSOld, ZP1, ZP2, ZP3, ZP4, ZP5, ZP6, ZP7, ZP9);
         }
     }
 
-    /* 2) If TFe > 0 And HS > 0 And TZn = 0 And TPb > 0 Then 'Fe,Pb sulfide */
-    if (TFe > 0 && HS > 0 && TZn == 0 && TPb > 0) {
-        while (fabs((FeOld / (1.0 + ZP1 * HS) - mc[iFe]) / mc[iFe]) > 0.001
-            || fabs((PbOld / (1.0 + ZP5 + ZP6 * pow(HS, 2) + ZP7 * pow(HS, 3)) - mc[iPb]) / mc[iPb]) > 0.001
-            || fabs((HSOld - HS) / HS) > 0.001)
+    /* 2) If TFe > 0 And simContext.HS > 0 And TZn = 0 And TPb > 0 Then 'Fe,Pb sulfide */
+    if (TFe > 0 && simContext.HS > 0 && TZn == 0 && TPb > 0) {
+        while (fabs((FeOld / (1.0 + ZP1 * simContext.HS) - mc[iFe]) / mc[iFe]) > 0.001
+            || fabs((PbOld / (1.0 + ZP5 + ZP6 * pow(simContext.HS, 2) + ZP7 * pow(simContext.HS, 3)) - mc[iPb]) / mc[iPb]) > 0.001
+            || fabs((HSOld - simContext.HS) / simContext.HS) > 0.001)
         {
             MeSWhileloop(im, igas, &HSOld, ZP1, ZP2, ZP3, ZP4, ZP5, ZP6, ZP7, ZP9);
         }
     }
 
-    /* 3) If TFe > 0 And HS > 0 And TZn > 0 And TPb = 0 Then 'Fe,Zn sulfide */
-    if (TFe > 0 && HS > 0 && TZn > 0 && TPb == 0) {
-        while (fabs((FeOld / (1.0 + ZP1 * HS) - mc[iFe]) / mc[iFe]) > 0.001
-            || fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(HS, 2) + ZP4 * pow(HS, 3) + ZP9 * pow(OH, 2)) - mc[iZn]) / mc[iZn]) > 0.001
-            || fabs((HSOld - HS) / HS) > 0.001)
+    /* 3) If TFe > 0 And simContext.HS > 0 And TZn > 0 And TPb = 0 Then 'Fe,Zn sulfide */
+    if (TFe > 0 && simContext.HS > 0 && TZn > 0 && TPb == 0) {
+        while (fabs((FeOld / (1.0 + ZP1 * simContext.HS) - mc[iFe]) / mc[iFe]) > 0.001
+            || fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(simContext.HS, 2) + ZP4 * pow(simContext.HS, 3) + ZP9 * pow(OH, 2)) - mc[iZn]) / mc[iZn]) > 0.001
+            || fabs((HSOld - simContext.HS) / simContext.HS) > 0.001)
         {
             MeSWhileloop(im, igas, &HSOld, ZP1, ZP2, ZP3, ZP4, ZP5, ZP6, ZP7, ZP9);
         }
     }
 
-    /* 4) If TFe = 0 And HS > 0 And TZn > 0 And TPb > 0 Then 'Zn,Pb sulfide */
-    if (TFe == 0 && HS > 0 && TZn > 0 && TPb > 0) {
+    /* 4) If TFe = 0 And simContext.HS > 0 And TZn > 0 And TPb > 0 Then 'Zn,Pb sulfide */
+    if (TFe == 0 && simContext.HS > 0 && TZn > 0 && TPb > 0) {
         /* Xin_10/14/2021, correction for Pb speciation */
-        while (fabs((PbOld / (1.0 + ZP5 + ZP6 * pow(HS, 2) + ZP7 * pow(HS, 3)) - mc[iPb]) / mc[iPb]) > 0.001
-            || fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(HS, 2) + ZP4 * pow(HS, 3) + ZP9 * pow(OH, 2)) - mc[iZn]) / mc[iZn]) > 0.001
-            || fabs((HSOld - HS) / HS) > 0.001)
+        while (fabs((PbOld / (1.0 + ZP5 + ZP6 * pow(simContext.HS, 2) + ZP7 * pow(simContext.HS, 3)) - mc[iPb]) / mc[iPb]) > 0.001
+            || fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(simContext.HS, 2) + ZP4 * pow(simContext.HS, 3) + ZP9 * pow(OH, 2)) - mc[iZn]) / mc[iZn]) > 0.001
+            || fabs((HSOld - simContext.HS) / simContext.HS) > 0.001)
         {
             MeSWhileloop(im, igas, &HSOld, ZP1, ZP2, ZP3, ZP4, ZP5, ZP6, ZP7, ZP9);
         }
     }
 
-    /* 5) If TFe = 0 And HS > 0 And TZn > 0 And TPb = 0 Then 'Zn sulfide */
-    if (TFe == 0 && HS > 0 && TZn > 0 && TPb == 0) {
+    /* 5) If TFe = 0 And simContext.HS > 0 And TZn > 0 And TPb = 0 Then 'Zn sulfide */
+    if (TFe == 0 && simContext.HS > 0 && TZn > 0 && TPb == 0) {
         /* Xin_ZnS 5/05/2021 */
-        while (fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(HS, 2) + ZP4 * pow(HS, 3) + ZP9 * pow(OH, 2)) - mc[iZn]) / mc[iZn]) > 0.001
-            || fabs((HSOld - HS) / HS) > 0.001)
+        while (fabs((ZnOld / (1.0 + ZP2 + ZP3 * pow(simContext.HS, 2) + ZP4 * pow(simContext.HS, 3) + ZP9 * pow(OH, 2)) - mc[iZn]) / mc[iZn]) > 0.001
+            || fabs((HSOld - simContext.HS) / simContext.HS) > 0.001)
         {
             MeSWhileloop(im, igas, &HSOld, ZP1, ZP2, ZP3, ZP4, ZP5, ZP6, ZP7, ZP9);
         }
     }
 
-    /* Case G: TFe > 0 And HS > 0 And TZn = 0 And TPb = 0
-       这是只有 Fe 存在的情况，需要交替更新 mc(iFe) 与 HS 直到收敛 */
-    if (TFe > 0.0 && HS > 0.0 && TZn == 0.0 && TPb == 0.0) {
+    /* Case G: TFe > 0 And simContext.HS > 0 And TZn = 0 And TPb = 0
+       这是只有 Fe 存在的情况，需要交替更新 mc(iFe) 与 simContext.HS 直到收敛 */
+    if (TFe > 0.0 && simContext.HS > 0.0 && TZn == 0.0 && TPb == 0.0) {
         while (fabs((FeOld - mc[iFe]) / mc[iFe]) > 0.001
-            || fabs((HSOld - HS) / HS) > 0.001) {
-            /* VB: FeOld = mc(iFe): HSOld = HS: */
+            || fabs((HSOld - simContext.HS) / simContext.HS) > 0.001) {
+            /* VB: FeOld = mc(iFe): HSOld = simContext.HS: */
             FeOld = mc[iFe];
-            HSOld = HS;
+            HSOld = simContext.HS;
 
             if (igas == 3) {
-                mc[iFe] = (TFe - ppt) / (1.0 + ZP1 * HS);
-                HS = (TH2Saq - ppt) / (hydHS + ZP1 * mc[iFe]);
+                mc[iFe] = (TFe - ppt) / (1.0 + ZP1 * simContext.HS);
+                simContext.HS = (TH2Saq - ppt) / (hydHS + ZP1 * mc[iFe]);
             }
             else {
-                mc[iFe] = TFe / (1.0 + ZP1 * HS);
-                HS = TH2Saq / (hydHS + ZP1 * mc[iFe]);
+                mc[iFe] = TFe / (1.0 + ZP1 * simContext.HS);
+                simContext.HS = TH2Saq / (hydHS + ZP1 * mc[iFe]);
             }
         }
     }
@@ -8315,7 +8298,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     for (int iz = 2; iz < 15; iz++) {
                         zTemp[iz] = z_before_precipitation[iz] * Total_moles_before_precipitation / total_moles_Temp;
                     }
-                    if (RunH2SGUI != 1) {
+                    if (simContext.RunH2SGUI != 1) {
 
                         MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
                             PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
@@ -8351,7 +8334,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     for (int iz = 3; iz < 15; iz++) {
                         zTemp[iz] = z_before_precipitation[iz] * Total_moles_before_precipitation / total_moles_Temp;
                     }
-                    if (RunH2SGUI != 1) {
+                    if (simContext.RunH2SGUI != 1) {
 
                         MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
                             PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
@@ -8388,7 +8371,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     dfppt = -1.0 * (9.0 * pow(mc[iFe] - 3.0 * ppt, 2) * pow(TH4SiO4 - 2.0 * ppt, 2) + 4.0 * pow(mc[iFe] - 3.0 * ppt, 3) * (TH4SiO4 - 2.0 * ppt));
                     if ((mc[iFe] - 3.0 * ppt) == 0.0 || (TH4SiO4 - 2.0 * ppt) == 0.0) goto label312;
                     pptNew = ppt - fppt / dfppt;
-                    if (ISilicate == 999) errmsg[5] = 6;
+                    if (ISilicate == 999) simContext.errmsg[5] = 6;
                 }
             label312:
                 TH4SiO4_Greenalite = TH4SiO4 - 2.0 * ppt;
@@ -8408,7 +8391,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     dfppt = -1.0 * ((mc[iMg] - ppt) * pow(TH4SiO4 - 2.0 * ppt, 2) + (mc[iCa] - ppt) * pow(TH4SiO4 - 2.0 * ppt, 2) + 4.0 * (mc[iCa] - ppt) * (mc[iMg] - ppt) * (TH4SiO4 - 2.0 * ppt));
                     if ((mc[iMg] - ppt) == 0.0 || (TH4SiO4 - 2.0 * ppt) == 0.0 || (mc[iCa] - ppt) == 0.0) goto label313;
                     pptNew = ppt - fppt / dfppt;
-                    if (ISilicate == 999) errmsg[5] = 6;
+                    if (ISilicate == 999) simContext.errmsg[5] = 6;
                 }
             label313:
                 ppt = ppt * 4.0 / 2.0;
@@ -8427,7 +8410,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     if ((mc[iMg] - 3.0 * ppt) == 0.0 || (TH4SiO4 - 2.0 * ppt) == 0.0) goto label314;
                     dfppt = -1.0 * (9.0 * pow(mc[iMg] - 3.0 * ppt, 2) * pow(TH4SiO4 - 2.0 * ppt, 2) + 4.0 * pow(mc[iMg] - 3.0 * ppt, 3) * (TH4SiO4 - 2.0 * ppt));
                     pptNew = ppt - fppt / dfppt;
-                    if (ISilicate == 999) errmsg[5] = 6;
+                    if (ISilicate == 999) simContext.errmsg[5] = 6;
                 }
             label314:
                 ppt = ppt * 6.0 / 2.0;
@@ -8449,20 +8432,20 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
             PCO2 = compositions[1][3] * phi[1][2] * Ppsia / gGas[iCO2g];
             PH2S = compositions[2][3] * phi[2][2] * Ppsia / gGas[iH2Sg];
         }
-        CO2aq = KgwCO2 * PCO2 * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
-        H2Saq = KgwH2S * PH2S * gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
-        HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / (aH * gAn[iHCO3] * gNAn[iHCO3]);
-        CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
-        HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
-        TH2Saq = H2Saq + HS;
+        simContext.CO2aq = KgwCO2 * PCO2 * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+        simContext.H2Saq = KgwH2S * PH2S * gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
+        simContext.HCO3 = (K1H2CO3 * aH2O) * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / (aH * gAn[iHCO3] * gNAn[iHCO3]);
+        simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
+        simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
+        TH2Saq = simContext.H2Saq + simContext.HS;
         hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) + 1.0;
         if (nTH2S > 0.0) {
 
-            //mt = fMeSSpeciation(im, igas) 'speciate mc(iFe) and HS
-            fMeSSpeciation(im, igas);// 'speciate mc(iFe) and HS
+            //mt = fMeSSpeciation(im, igas) 'speciate mc(iFe) and simContext.HS
+            fMeSSpeciation(im, igas);// 'speciate mc(iFe) and simContext.HS
         }
 
-        S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+        S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
         hydAc = aH * gAn[iAc] * gNAn[iAc] / (KHAc * gNeut[iHAcaq] * gNNeut[iHAcaq]) + 1.0;
         AC = TAc / hydAc;
         HAcaq = TAc - AC;
@@ -8505,7 +8488,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
             H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
         }
 
-        faH = Alk - 2.0 * ppt - (HCO3 + 2.0 * CO3 + HS + 2.0 * S + AC + NH3 + H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
+        faH = Alk - 2.0 * ppt - (simContext.HCO3 + 2.0 * simContext.CO3 + simContext.HS + 2.0 * S + AC + NH3 + H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
         ypH[i] = faH;
         xpH[i] = pH;
         xppt[i] = ppt;
@@ -8519,7 +8502,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
     }
     else {
         pH = fabs((xpH[29] + xpH[28])) / 2.0;
-        if (RunPpt == 0) errmsg[4] = 5; // VB errmsg(5)=5, 0-based [4]
+        if (RunPpt == 0) simContext.errmsg[4] = 5; // VB simContext.errmsg(5)=5, 0-based [4]
     }
 
     aH = pow(10.0, -pH);
@@ -8580,7 +8563,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                 for (int iz = 2; iz < 15; iz++) {
                     zTemp[iz] = z_before_precipitation[iz] * Total_moles_before_precipitation / total_moles_Temp;
                 }
-                if (RunH2SGUI != 1) {
+                if (simContext.RunH2SGUI != 1) {
                     MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
                         PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
                 }
@@ -8589,10 +8572,10 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     MultiPhaseFlash_CS(myiosheet, myiocol, eosProps, kij, TK, PBar, total_moles_Temp, zTemp, gNeutAq,
                         aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
                 }
-                CO2aq = compositions[1][3] * beta[2] * total_moles_Temp / mass_w / (gNeut[iCO2aq] * gNNeut[iCO2aq]); // Assume beta[2] water?
+                simContext.CO2aq = compositions[1][3] * beta[2] * total_moles_Temp / mass_w / (gNeut[iCO2aq] * gNNeut[iCO2aq]); // Assume beta[2] water?
                 a = 1.0;
-                b = -(mc[im] + CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] * (K1H2CO3 * aH2O) / (aH * gAn[iHCO3] * gNAn[iHCO3]));
-                cc = (mc[im] * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] * (K1H2CO3 * aH2O) / (aH * gAn[iHCO3] * gNAn[iHCO3]) - Ksp * aH / K2HCO3);
+                b = -(mc[im] + simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] * (K1H2CO3 * aH2O) / (aH * gAn[iHCO3] * gNAn[iHCO3]));
+                cc = (mc[im] * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] * (K1H2CO3 * aH2O) / (aH * gAn[iHCO3] * gNAn[iHCO3]) - Ksp * aH / K2HCO3);
             }
             QuadraticRoots(a, b, cc, &ppt, &root2);
         }
@@ -8612,7 +8595,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                 for (int iz = 3; iz < 15; iz++) {
                     zTemp[iz] = z_before_precipitation[iz] * Total_moles_before_precipitation / total_moles_Temp;
                 }
-                if (RunH2SGUI != 1) {
+                if (simContext.RunH2SGUI != 1) {
 
                     MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK,
                         PBar, total_moles_Temp, zTemp, gNeutAq, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
@@ -8622,10 +8605,10 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     MultiPhaseFlash_CS(myiosheet, myiocol, eosProps, kij, TK, PBar, total_moles_Temp, zTemp, gNeutAq,
                         aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
                 }
-                H2Saq = compositions[2][3] * beta[2] * total_moles_Temp / mass_w / gNeut[iH2Saq] / gNNeut[iH2Saq];
+                simContext.H2Saq = compositions[2][3] * beta[2] * total_moles_Temp / mass_w / gNeut[iH2Saq] / gNNeut[iH2Saq];
                 a = 1.0;
-                b = -(mc[im] + H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] * K1H2S / (aH * gAn[iHS] * gNAn[iHS]));
-                cc = (mc[im] * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] * K1H2S / (aH * gAn[iHS] * gNAn[iHS]) - Ksp * aH);
+                b = -(mc[im] + simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] * K1H2S / (aH * gAn[iHS] * gNAn[iHS]));
+                cc = (mc[im] * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] * K1H2S / (aH * gAn[iHS] * gNAn[iHS]) - Ksp * aH);
             }
             QuadraticRoots(a, b, cc, &ppt, &root2);
         }
@@ -8649,7 +8632,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                 dfppt = -1.0 * (9.0 * pow(mc[iFe] - 3.0 * ppt, 2) * pow(TH4SiO4 - 2.0 * ppt, 2) + 4.0 * pow(mc[iFe] - 3.0 * ppt, 3) * (TH4SiO4 - 2.0 * ppt));
                 if ((mc[iFe] - 3.0 * ppt) == 0.0 || (TH4SiO4 - 2.0 * ppt) == 0.0) goto label412;
                 pptNew = ppt - fppt / dfppt;
-                if (ISilicate == 999) errmsg[5] = 6;
+                if (ISilicate == 999) simContext.errmsg[5] = 6;
             }
         label412:
             TH4SiO4_Greenalite = TH4SiO4 - 2.0 * ppt;
@@ -8669,7 +8652,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                 dfppt = -1.0 * ((mc[iMg] - ppt) * pow(TH4SiO4 - 2.0 * ppt, 2) + (mc[iCa] - ppt) * pow(TH4SiO4 - 2.0 * ppt, 2) + 4.0 * (mc[iCa] - ppt) * (mc[iMg] - ppt) * (TH4SiO4 - 2.0 * ppt));
                 if ((mc[iMg] - ppt) == 0.0 || (TH4SiO4 - 2.0 * ppt) == 0.0 || (mc[iCa] - ppt) == 0.0) goto label413;
                 pptNew = ppt - fppt / dfppt;
-                if (ISilicate == 999) errmsg[5] = 6;
+                if (ISilicate == 999) simContext.errmsg[5] = 6;
             }
         label413:
             ppt = ppt * 4.0 / 2.0;
@@ -8688,7 +8671,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                 if ((mc[iMg] - 3.0 * ppt) == 0.0 || (TH4SiO4 - 2.0 * ppt) == 0.0) goto label414;
                 dfppt = -1.0 * (9.0 * pow(mc[iMg] - 3.0 * ppt, 2) * pow(TH4SiO4 - 2.0 * ppt, 2) + 4.0 * pow(mc[iMg] - 3.0 * ppt, 3) * (TH4SiO4 - 2.0 * ppt));
                 pptNew = ppt - fppt / dfppt;
-                if (ISilicate == 999) errmsg[5] = 6;
+                if (ISilicate == 999) simContext.errmsg[5] = 6;
             }
         label414:
             ppt = ppt * 6.0 / 2.0;
@@ -8710,17 +8693,17 @@ label323:
         PCO2 = compositions[1][3] * phi[1][2] * Ppsia / gGas[iCO2g];
         PH2S = compositions[2][3] * phi[2][2] * Ppsia / gGas[iH2Sg];
     }
-    CO2aq = KgwCO2 * PCO2 * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
-    H2Saq = KgwH2S * PH2S * gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
-    HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / (aH * gAn[iHCO3] * gNAn[iHCO3]);
-    CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
-    HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
+    simContext.CO2aq = KgwCO2 * PCO2 * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+    simContext.H2Saq = KgwH2S * PH2S * gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
+    simContext.HCO3 = (K1H2CO3 * aH2O) * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / (aH * gAn[iHCO3] * gNAn[iHCO3]);
+    simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
+    simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
 
     //if (TH2Saq > 0.0) mt = fMeSSpeciation(im, igas, TZn, TPb, hydHS, *ppt, &root1, &root2, &root3, BetaDot, gDot, KstFeSaq, aH);
-    if (TH2Saq > 0.0) fMeSSpeciation(im, igas);//output mc(iFe),mc(iZn), mc(iPb), HS
+    if (TH2Saq > 0.0) fMeSSpeciation(im, igas);//output mc(iFe),mc(iZn), mc(iPb), simContext.HS
 
-    mn[iFeSaq] = KstFeSaq * mc[iFe] * HS * gAn[iHS] * gNAn[iHS] * gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
-    S = K2HS * HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
+    mn[iFeSaq] = KstFeSaq * mc[iFe] * simContext.HS * gAn[iHS] * gNAn[iHS] * gCat[iFe] * gNCat[iFe] / (gNeut[iFeSaq] * gNNeut[iFeSaq] * aH);
+    S = K2HS * simContext.HS * gAn[iHS] * gNAn[iHS] / (aH * gAn[iSion] * gNAn[iSion]);
     hydAc = aH * gAn[iAc] * gNAn[iAc] / (KHAc * gNeut[iHAcaq] * gNNeut[iHAcaq]) + 1.0;
     AC = TAc / hydAc;
     HAcaq = TAc - AC;
@@ -8763,7 +8746,7 @@ label323:
         H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
     }
 
-    faH = Alk - 2.0 * ppt - (HCO3 + 2.0 * CO3 + HS + 2.0 * S + AC + NH3 + H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
+    faH = Alk - 2.0 * ppt - (simContext.HCO3 + 2.0 * simContext.CO3 + simContext.HS + 2.0 * S + AC + NH3 + H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
 
     if (igas == 10 || igas == 11) {
         ppt = TH4SiO4 - (H2SiO4 + H3SiO4 + H4SiO4);
@@ -8780,7 +8763,7 @@ void QualityControlCalculations(int kk, int j)
     double pHMeterReading_from_QC = 0;
     double Alk_from_QC, NaQC;
 
-    if (RunStat == 1) {
+    if (simContext.RunStat == 1) {
         /*
                 AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
             AlkMix(kk) = AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
@@ -8798,7 +8781,7 @@ void QualityControlCalculations(int kk, int j)
         */
     }
     else {
-        if (UseMolal == 0) {
+        if (simContext.UseMolal == 0) {
             /*
             AlkMix(kk) = Worksheets(mySheet).Cells(24, j + 2).Value / (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
             AlkMix(kk) = AlkMix(kk) + 2 * Worksheets(mySheet).Cells(25, j + 2).Value / (60019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
@@ -8833,26 +8816,26 @@ void QualityControlCalculations(int kk, int j)
     aH = pow(10, -pH);
 
 
-    if (RunStat == 1) {
-        //yCO2 = Worksheets(mySheet).Cells(26, j + 2).Value / 100
+    if (simContext.RunStat == 1) {
+        //simContext.yCO2 = Worksheets(mySheet).Cells(26, j + 2).Value / 100
         //TH2Saq = Worksheets(mySheet).Cells(27, j + 2).Value / (34080 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
-        yH2S = 0;
+        simContext.yH2S = 0;
     }
     else {
-        // yCO2 = Worksheets(mySheet).Cells(31, j + 2).Value / 100
+        // simContext.yCO2 = Worksheets(mySheet).Cells(31, j + 2).Value / 100
 
         if (simContext.UseH2SgasMix[kk] == 1) {
-            //yH2S = Worksheets(mySheet).Cells(33, j + 2).Value / 100
+            //simContext.yH2S = Worksheets(mySheet).Cells(33, j + 2).Value / 100
             TH2Saq = 0;
         }
         if (simContext.UseH2SgasMix[kk] == 0) {
-            if (UseMolal == 0) {
+            if (simContext.UseMolal == 0) {
                 //TH2Saq = Worksheets(mySheet).Cells(33, j + 2).Value / (34080 * (rho25CMix[kk] - CalculatedTDSMix[kk] / 1000000.0));
-                yH2S = 0;
+                simContext.yH2S = 0;
             }
             else {
                 //TH2Saq = Worksheets(mySheet).Cells(33, j + 2).Value
-                yH2S = 0;
+                simContext.yH2S = 0;
             }
         }
 
@@ -8862,30 +8845,30 @@ void QualityControlCalculations(int kk, int j)
     if (useEOS == 0) {
         if (UseH2Sgas == 0) {
             // Calculate TH2Saq from yH2Sstp and pH. If TH2Saq is given, use it, otherwise use PH2S.
-            HS = TH2Saq / (aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) + 1);
+            simContext.HS = TH2Saq / (aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) + 1);
 
             if (TH2Saq > 0) {
-                // speciation for HS
+                // speciation for simContext.HS
                 // fMeSSpeciation(int im, int igas,double TZn, double TPb, double hydHS, double ppt, double* root1, double* root2, double* root3, double* BetaDot, double* gDot, double KstFeSaq, double aH)
-                //mt = fMeSSpeciation(2, 2) 'speciation for HS
+                //mt = fMeSSpeciation(2, 2) 'speciation for simContext.HS
                 fMeSSpeciation(2, 2);
-                H2Saq = aH * HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
-                yH2S = H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
+                simContext.H2Saq = aH * simContext.HS * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]);
+                simContext.yH2S = simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (KgwH2S * Ppsia * gGas[iH2Sg]);
 
-                if (yH2S > 1) {
-                    errmsg[2] = 3; // 数组下标从0开始，3对应索引2
+                if (simContext.yH2S > 1) {
+                    simContext.errmsg[2] = 3; // 数组下标从0开始，3对应索引2
                 }
             }
             else {
-                yH2S = 0;
+                simContext.yH2S = 0;
             }
         }
 
-        // Calculate the P-H2S, or yH2S, from pH and TH2Saq.
+        // Calculate the P-H2S, or simContext.yH2S, from pH and TH2Saq.
         if (UseH2Sgas == 1) {
-            if (yH2S > 0) {
-                H2Saq = KgwH2S * Ppsia * yH2S * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
-                HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
+            if (simContext.yH2S > 0) {
+                simContext.H2Saq = KgwH2S * Ppsia * simContext.yH2S * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
+                simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
 
                 // 计算各种配合物形成的ZP参数
                 double ZP1 = (KstFeSaq * gAn[iHS] * gNAn[iHS] * gCat[iFe] * gNCat[iFe]) /
@@ -8908,22 +8891,22 @@ void QualityControlCalculations(int kk, int j)
                 double ZP7 = BetaDot[iPbHS3] * gDot[iPbDot] * pow(gDot[iHSDot], 3) / gDot[iPbHS3];
 
                 // 计算金属离子浓度，考虑配合物形成
-                mc[iFe] = TFe / (1 + ZP1 * HS);
-                mc[iZn] = TZn / (1 + ZP2 + ZP3 * pow(HS, 2) + ZP4 * pow(HS, 3));
-                mc[iPb] = TPb / (1 + ZP5 + ZP6 * pow(HS, 2) + ZP7 * pow(HS, 3));
+                mc[iFe] = TFe / (1 + ZP1 * simContext.HS);
+                mc[iZn] = TZn / (1 + ZP2 + ZP3 * pow(simContext.HS, 2) + ZP4 * pow(simContext.HS, 3));
+                mc[iPb] = TPb / (1 + ZP5 + ZP6 * pow(simContext.HS, 2) + ZP7 * pow(simContext.HS, 3));
 
                 // 计算总H2S浓度
-                TH2Saq = H2Saq + (HS + mc[iFe] * ZP1 * HS +
-                    mc[iZn] * (ZP3 * pow(HS, 2) + ZP4 * pow(HS, 3)) +
-                    mc[iPb] * (ZP6 * pow(HS, 2) + ZP7 * pow(HS, 3)));
+                TH2Saq = simContext.H2Saq + (simContext.HS + mc[iFe] * ZP1 * simContext.HS +
+                    mc[iZn] * (ZP3 * pow(simContext.HS, 2) + ZP4 * pow(simContext.HS, 3)) +
+                    mc[iPb] * (ZP6 * pow(simContext.HS, 2) + ZP7 * pow(simContext.HS, 3)));
             }
             else {
                 TH2Saq = 0;
             }
         }
 
-        if (TH2Saq == 0 && yH2S == 0) {
-            HS = 0;
+        if (TH2Saq == 0 && simContext.yH2S == 0) {
+            simContext.HS = 0;
         }
 
         // 计算其他化学物种的浓度
@@ -8955,72 +8938,72 @@ void QualityControlCalculations(int kk, int j)
             (pow(aH, 2) * gAn[iCO3] * gNAn[iCO3]);
 
         // 计算yCO2
-        yCO2 = (Alk + H - AC - NH3 - H2BO3 - HS - H3SiO4 - 2 * H2SiO4 - OH) /
+        simContext.yCO2 = (Alk + H - AC - NH3 - H2BO3 - simContext.HS - H3SiO4 - 2 * H2SiO4 - OH) /
             (tHCO3 + 2 * tCO3);
 
-        HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * yCO2 * gGas[iCO2g] /
+        simContext.HCO3 = (K1H2CO3 * aH2O) * KgwCO2 * Ppsia * simContext.yCO2 * gGas[iCO2g] /
             (aH * gAn[iHCO3] * gNAn[iHCO3]);
-        CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * yCO2 * gGas[iCO2g] /
+        simContext.CO3 = (K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * Ppsia * simContext.yCO2 * gGas[iCO2g] /
             (pow(aH, 2) * gAn[iCO3] * gNAn[iCO3]);
 
-        if (yCO2 > 1) {
-            errmsg[0] = 1;
+        if (simContext.yCO2 > 1) {
+            simContext.errmsg[0] = 1;
         }
 
-        if (yCO2 < 0) {
-            errmsg[1] = 2; // 数组下标从0开始，2对应索引1
-            yCO2 = 0;  // Caps %CO2 at 0
+        if (simContext.yCO2 < 0) {
+            simContext.errmsg[1] = 2; // 数组下标从0开始，2对应索引1
+            simContext.yCO2 = 0;  // Caps %CO2 at 0
         }
 
         // 输出结果到相应的工作表
-        //源码：If RunStat = 1 And CaseCount(1) = 1
-        if (RunStat == 1 && simContext.CaseCount[0] == 1) {
+        //源码：If simContext.RunStat = 1 And CaseCount(1) = 1
+        if (simContext.RunStat == 1 && simContext.CaseCount[0] == 1) {
             // for StatQC produced water
-            //Worksheets("Output data sheet").Cells(6, 4) = yCO2 * 100  '假设 pH 和 Alk 正确，QC 检查 PCO2 是多少？
+            //Worksheets("Output data sheet").Cells(6, 4) = simContext.yCO2 * 100  '假设 pH 和 Alk 正确，QC 检查 PCO2 是多少？
 
         }
-        else if (RunStat == 1 && simContext.CaseCount[0] == 9) {
+        else if (simContext.RunStat == 1 && simContext.CaseCount[0] == 9) {
             // for StatQC fresh water
-            //Worksheets("Output data sheet").Cells(18, 4) = yCO2 * 100  'QC check for assuming that pH and Alk are correct, what would PCO2 be?
+            //Worksheets("Output data sheet").Cells(18, 4) = simContext.yCO2 * 100  'QC check for assuming that pH and Alk are correct, what would PCO2 be?
         }
-        else if (RunH2SGUI == 1) {
-            //Worksheets(mySheet).Cells(83, j + 2) = yH2S * 100
+        else if (simContext.RunH2SGUI == 1) {
+            //Worksheets(mySheet).Cells(83, j + 2) = simContext.yH2S * 100
 
-            if (UseMolal == 0) {
+            if (simContext.UseMolal == 0) {
                 //Worksheets(mySheet).Cells(84, j + 2) = TH2Saq * (34080 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
             }
             else {
                 //Worksheets(mySheet).Cells(84, j + 2) = TH2Saq
             }
 
-            //Worksheets(mySheet).Cells(86, j + 2) = yCO2 * 100 'QC check for assuming that pH and Alk are correct, what would PCO2 be?
+            //Worksheets(mySheet).Cells(86, j + 2) = simContext.yCO2 * 100 'QC check for assuming that pH and Alk are correct, what would PCO2 be?
         }
         else {
             //源码的kk从1开始，[1, nob_Input]，对应c语言的kk < nob_Input [0,nob_Input-1] = [0,nob_Input)
             if (kk < simContext.nob_Input) {
-                //Worksheets("Input").Cells(14, j + 15) = yH2S * 100
+                //Worksheets("Input").Cells(14, j + 15) = simContext.yH2S * 100
 
-                if (UseMolal == 0) {
+                if (simContext.UseMolal == 0) {
                     //Worksheets("Input").Cells(15, j + 15) = TH2Saq * (34080 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
                 }
                 else {
                     //Worksheets("Input").Cells(15, j + 15) = TH2Saq
                 }
 
-                //Worksheets("Input").Cells(17, j + 15) = yCO2 * 100  'QC check for assuming that pH and Alk are correct, what would PCO2 be?
+                //Worksheets("Input").Cells(17, j + 15) = simContext.yCO2 * 100  'QC check for assuming that pH and Alk are correct, what would PCO2 be?
             }
             //注意下方源码： If kk > nob_Input And kk <= nob_Input + nob_InputII Then
             if (kk >= simContext.nob_Input && kk < simContext.nob_Input + simContext.nob_InputII) {
-                // Worksheets("Input II").Cells(83, j + 2) = yH2S * 100
+                // Worksheets("Input II").Cells(83, j + 2) = simContext.yH2S * 100
 
-                if (UseMolal == 0) {
+                if (simContext.UseMolal == 0) {
                     //Worksheets("Input II").Cells(84, j + 2) = TH2Saq * (34080 * (rho25CMix(i + nob_Input) - CalculatedTDSMix(i + nob_Input) / 1000000#))
                 }
                 else {
                     //Worksheets("Input II").Cells(84, j + 2) = TH2Saq
                 }
 
-                //Worksheets("Input II").Cells(86, j + 2) = yCO2 * 100 'QC check for assuming that pH and Alk are correct, what would PCO2 be?
+                //Worksheets("Input II").Cells(86, j + 2) = simContext.yCO2 * 100 'QC check for assuming that pH and Alk are correct, what would PCO2 be?
             }
         }
 
@@ -9030,11 +9013,11 @@ void QualityControlCalculations(int kk, int j)
             // 然后，必须指定yCO2stp。需要计算pH值和yH2Sstp。
 
             // 读取yCO2值（从相应的单元格）
-            if (RunStat == 1) {
-                // yCO2 = Worksheets(mySheet).Cells(26, j + 2).Value / 100
+            if (simContext.RunStat == 1) {
+                // simContext.yCO2 = Worksheets(mySheet).Cells(26, j + 2).Value / 100
             }
             else {
-                //yCO2 = Worksheets(mySheet).Cells(31, j + 2).Value / 100
+                //simContext.yCO2 = Worksheets(mySheet).Cells(31, j + 2).Value / 100
             }
 
             // 半区间搜索根查找器对于 pH 方程非常有效。
@@ -9053,21 +9036,21 @@ void QualityControlCalculations(int kk, int j)
                 OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
                 // 计算CO2系统物种浓度
-                CO2aq = KgwCO2 * Ppsia * yCO2 * gGas[iCO2aq] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
-                HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
+                simContext.CO2aq = KgwCO2 * Ppsia * simContext.yCO2 * gGas[iCO2aq] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+                simContext.HCO3 = (K1H2CO3 * aH2O) * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
                     (aH * gAn[iHCO3] * gNAn[iHCO3]);
-                CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
+                simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
                     (aH * gAn[iCO3] * gNAn[iCO3]);
 
                 // 计算H2S系统物种浓度
                 hydHS = aH * gAn[iHS] * gNAn[iHS] / (K1H2S * gNeut[iH2Saq] * gNNeut[iH2Saq]) + 1.0;
                 if (TH2Saq > 0) {
-                    HS = TH2Saq / hydHS;
-                    //fMeSSpeciation(im, igas, HS, TFe, TZn, TPb, TH2Saq, hydHS, *ppt, & root1, & root2, & root3);
-                    fMeSSpeciation(2, 2); // speciation for HS
+                    simContext.HS = TH2Saq / hydHS;
+                    //fMeSSpeciation(im, igas, simContext.HS, TFe, TZn, TPb, TH2Saq, hydHS, *ppt, & root1, & root2, & root3);
+                    fMeSSpeciation(2, 2); // speciation for simContext.HS
                 }
                 else {
-                    HS = 0.0;
+                    simContext.HS = 0.0;
                 }
 
                 // 计算乙酸系统物种浓度
@@ -9094,7 +9077,7 @@ void QualityControlCalculations(int kk, int j)
                     (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
 
                 // 计算碱度平衡误差
-                faH = Alk - (HCO3 + 2 * CO3 + HS + AC + NH3 + H2BO3 + H3SiO4 + 2 * H2SiO4 + OH - H);
+                faH = Alk - (simContext.HCO3 + 2 * simContext.CO3 + simContext.HS + AC + NH3 + H2BO3 + H3SiO4 + 2 * H2SiO4 + OH - H);
 
                 // 调整pH搜索区间
                 if (faH > 0) {
@@ -9108,10 +9091,10 @@ void QualityControlCalculations(int kk, int j)
             // 计算pH计读数
             pHMeterReading_from_QC = pH - DpHj;
 
-            if (yH2S > 1) errmsg[2] = 3; // 注意：yH2S在此代码段中未计算
+            if (simContext.yH2S > 1) simContext.errmsg[2] = 3; // 注意：yH2S在此代码段中未计算
 
             // 根据条件设置最终pH计读数
-            if (Run_Seawater_Mixing == 0 || Run_MixingTwoWells == 0) {
+            if (simContext.Run_Seawater_Mixing == 0 || simContext.Run_MixingTwoWells == 0) {
                 pHMeterReading_from_QC = pH - DpHj;
             }
         }
@@ -9143,15 +9126,15 @@ void QualityControlCalculations(int kk, int j)
                 OH = KH2O / (aH * gAn[iOH] * gNAn[iOH]);
 
                 // 计算CO2系统物种浓度
-                CO2aq = KgwCO2 * Ppsia * yCO2 * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
-                HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
+                simContext.CO2aq = KgwCO2 * Ppsia * simContext.yCO2 * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+                simContext.HCO3 = (K1H2CO3 * aH2O) * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
                     (aH * gAn[iHCO3] * gNAn[iHCO3]);
-                CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
+                simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
                     (aH * gAn[iCO3] * gNAn[iCO3]);
 
                 // 计算H2S系统物种浓度
-                H2Saq = KgwH2S * Ppsia * yH2S * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
-                HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
+                simContext.H2Saq = KgwH2S * Ppsia * simContext.yH2S * gGas[iH2Sg] / gNeut[iH2Saq] / gNNeut[iH2Saq];
+                simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
                     (aH * gAn[iHS] * gNAn[iHS]);
 
                 // 计算乙酸系统物种浓度
@@ -9178,7 +9161,7 @@ void QualityControlCalculations(int kk, int j)
                     (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
 
                 // 计算碱度平衡误差
-                faH = Alk - (HCO3 + 2 * CO3 + HS + AC + NH3 + H2BO3 + H3SiO4 + 2 * H2SiO4 + OH - H);
+                faH = Alk - (simContext.HCO3 + 2 * simContext.CO3 + simContext.HS + AC + NH3 + H2BO3 + H3SiO4 + 2 * H2SiO4 + OH - H);
 
                 // 调整pH搜索区间
                 if (faH > 0) {
@@ -9194,15 +9177,15 @@ void QualityControlCalculations(int kk, int j)
         }
 
         // 输出结果到相应的工作表
-        if (RunStat == 1 && simContext.CaseCount[0] == 1) {
+        if (simContext.RunStat == 1 && simContext.CaseCount[0] == 1) {
             // for StatQC produced water
             //Worksheets("Output data sheet").Cells(5, 4) = pHMeterReading_from_QC  'QC check given Alk and PCO2, the calculated pH for meter reading.
         }
-        else if (RunStat == 1 && simContext.CaseCount[0] == 9) {
+        else if (simContext.RunStat == 1 && simContext.CaseCount[0] == 9) {
             // for StatQC fresh water
             //Worksheets("Output data sheet").Cells(17, 4) = pHMeterReading_from_QC  'QC check given Alk and PCO2, the calculated pH for meter reading.
         }
-        else if (RunH2SGUI == 1) {
+        else if (simContext.RunH2SGUI == 1) {
             //Worksheets(mySheet).Cells(85, j + 2) = pHMeterReading_from_QC  'QC check given Alk and PCO2, the calculated pH for meter reading.
         }
         else {
@@ -9216,24 +9199,24 @@ void QualityControlCalculations(int kk, int j)
     }
     else {
         //对应于 useEOS<>0 QC 中的大多数参数已在 ReadInDataD sub 的末尾计算
-        if (RunStat == 1 && simContext.CaseCount[0] == 1) {
+        if (simContext.RunStat == 1 && simContext.CaseCount[0] == 1) {
             // for StatQC produced water
             //Worksheets("Output data sheet").Cells(6, 4) = compositions(2, 2) * 100
             //    Worksheets("Output data sheet").Cells(5, 4) = pHMeterReading
         }
-        else if (RunStat == 1 && simContext.CaseCount[0] == 9) {
+        else if (simContext.RunStat == 1 && simContext.CaseCount[0] == 9) {
             // for StatQC fresh water
             //Worksheets("Output data sheet").Cells(18, 4) = compositions(2, 2) * 100
                 //Worksheets("Output data sheet").Cells(17, 4) = pHMeterReading
         }
-        else if (RunH2SGUI == 1) {
+        else if (simContext.RunH2SGUI == 1) {
             //Worksheets(mySheet).Cells(83, j + 2) = compositions(3, 2) * 100
 
-            if (UseMolal == 0) {
-                //Worksheets(mySheet).Cells(84, j + 2) = (H2Saq + HS + S) * (34080 * (rho25c - TDS / 1000000#))
+            if (simContext.UseMolal == 0) {
+                //Worksheets(mySheet).Cells(84, j + 2) = (simContext.H2Saq + simContext.HS + S) * (34080 * (simContext.rho25c - TDS / 1000000#))
             }
             else {
-                //Worksheets(mySheet).Cells(84, j + 2) = (H2Saq + HS + S)
+                //Worksheets(mySheet).Cells(84, j + 2) = (simContext.H2Saq + simContext.HS + S)
             }
 
             //Worksheets(mySheet).Cells(85, j + 2) = pHMeterReading
@@ -9243,8 +9226,8 @@ void QualityControlCalculations(int kk, int j)
             if (kk < simContext.nob_Input) {
                 //Worksheets("Input").Cells(14, j + 15) = compositions(3, 2) * 100
 
-                if (UseMolal == 0) {
-                    //Worksheets("Input").Cells(15, j + 15) = (H2Saq + HS + S) * (34080 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
+                if (simContext.UseMolal == 0) {
+                    //Worksheets("Input").Cells(15, j + 15) = (simContext.H2Saq + simContext.HS + S) * (34080 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
                 }
                 else {
                     //Worksheets("Input").Cells(15, j + 15) = TH2Saq
@@ -9256,11 +9239,11 @@ void QualityControlCalculations(int kk, int j)
             if (kk >= simContext.nob_Input && kk < simContext.nob_Input + simContext.nob_InputII) {
                 //    Worksheets("Input II").Cells(83, j + 2) = compositions(3, 2) * 100
 
-                if (UseMolal == 0) {
-                    //Worksheets("Input II").Cells(84, j + 2) = (H2Saq + HS + S) * (34080 * (rho25CMix(i + nob_Input) - CalculatedTDSMix(i + nob_Input) / 1000000#))
+                if (simContext.UseMolal == 0) {
+                    //Worksheets("Input II").Cells(84, j + 2) = (simContext.H2Saq + simContext.HS + S) * (34080 * (rho25CMix(i + nob_Input) - CalculatedTDSMix(i + nob_Input) / 1000000#))
                 }
                 else {
-                    //Worksheets("Input II").Cells(84, j + 2) = (H2Saq + HS + S)
+                    //Worksheets("Input II").Cells(84, j + 2) = (simContext.H2Saq + simContext.HS + S)
                 }
 
                 //Worksheets("Input II").Cells(85, j + 2) = pHMeterReading
@@ -9271,7 +9254,7 @@ void QualityControlCalculations(int kk, int j)
 
     //3、根据报告的pH值和STP P-CO2计算碱度。注意，H2Saq值已在上文计算过。
     pHMeterReading = simContext.pHMeterStpMix[kk];
-    yCO2 = simContext.yCO2Mix[kk];
+    simContext.yCO2 = simContext.yCO2Mix[kk];
 
     // 计算pH和相关参数
     pH = simContext.pHMeterStpMix[kk] + DpHj;
@@ -9282,7 +9265,7 @@ void QualityControlCalculations(int kk, int j)
 
     // 根据useEOS选择计算CO2aq和H2Saq的方法
     if (useEOS == 0) {
-        CO2aq = KgwCO2 * Ppsia * yCO2 * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
+        simContext.CO2aq = KgwCO2 * Ppsia * simContext.yCO2 * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
         // 注意：在useEOS=0时，H2Saq可能需要其他计算方法
     }
     else {
@@ -9290,23 +9273,23 @@ void QualityControlCalculations(int kk, int j)
         // 注意：VB中compositions(2,4)对应C中compositions[1][3]
         // compositions(15,4)对应compositions[14][3]
         if (compositions[14][3] != 0) { // 避免除以零
-            CO2aq = compositions[1][3] / (0.01801528 * compositions[14][3]);
-            H2Saq = compositions[2][3] / (0.01801528 * compositions[14][3]);
+            simContext.CO2aq = compositions[1][3] / (0.01801528 * compositions[14][3]);
+            simContext.H2Saq = compositions[2][3] / (0.01801528 * compositions[14][3]);
         }
         else {
-            CO2aq = 0;
-            H2Saq = 0;
+            simContext.CO2aq = 0;
+            simContext.H2Saq = 0;
         }
     }
 
     // 计算碳酸系统物种
-    HCO3 = (K1H2CO3 * aH2O) * CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
+    simContext.HCO3 = (K1H2CO3 * aH2O) * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] /
         (aH * gAn[iHCO3] * gNAn[iHCO3]);
-    CO3 = K2HCO3 * HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
+    simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] /
         (aH * gAn[iCO3] * gNAn[iCO3]);
 
     // 计算硫化物系统物种
-    HS = K1H2S * H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
+    simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] /
         (aH * gAn[iHS] * gNAn[iHS]);
 
     // 计算乙酸系统物种
@@ -9333,11 +9316,11 @@ void QualityControlCalculations(int kk, int j)
         (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
 
     // 计算碱度和钠平衡
-    Alk_from_QC = (HCO3 + 2 * CO3 + HS + AC + NH3 + H2BO3 + H3SiO4 + 2 * H2SiO4 + OH - H);
+    Alk_from_QC = (simContext.HCO3 + 2 * simContext.CO3 + simContext.HS + AC + NH3 + H2BO3 + H3SiO4 + 2 * H2SiO4 + OH - H);
     NaQC = (-SumOfAnions - (SumOfCations - simContext.NaMix[kk]));
 
     // 输出结果到相应的工作表
-    if (RunStat == 1 && simContext.CaseCount[0] == 1) {
+    if (simContext.RunStat == 1 && simContext.CaseCount[0] == 1) {
         /*
         *     Worksheets("Output Data Sheet").Cells(7, 4) = Alk_from_QC * (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
             Worksheets("Output Data Sheet").Cells(8, 4).Value = SumOfCations * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
@@ -9347,7 +9330,7 @@ void QualityControlCalculations(int kk, int j)
             Worksheets("Output Data Sheet").Cells(12, 4).Value = NaQC * (22990 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
         */
     }
-    else if (RunStat == 1 && simContext.CaseCount[0] == 9) {
+    else if (simContext.RunStat == 1 && simContext.CaseCount[0] == 9) {
         /*
         Worksheets("Output Data Sheet").Cells(19, 4) = Alk_from_QC * (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
         Worksheets("Output Data Sheet").Cells(20, 4).Value = SumOfCations * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
@@ -9357,13 +9340,13 @@ void QualityControlCalculations(int kk, int j)
         Worksheets("Output Data Sheet").Cells(24, 4).Value = NaQC * (22990 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
         */
     }
-    else if (RunH2SGUI == 1) {
-        if (UseMolal == 0) {
+    else if (simContext.RunH2SGUI == 1) {
+        if (simContext.UseMolal == 0) {
             /*
-            Worksheets(mySheet).Cells(87, j + 2) = Alk_from_QC * (61019 * (rho25c - TDS / 1000000#))
-            Worksheets(mySheet).Cells(88, j + 2).Value = SumOfCations * (rho25c - TDS / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
-            Worksheets(mySheet).Cells(89, j + 2).Value = SumOfAnions * (rho25c - TDS / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
-            Worksheets(mySheet).Cells(91, j + 2).Value = NaQC * (22990 * (rho25c) - TDS / 1000000#)
+            Worksheets(mySheet).Cells(87, j + 2) = Alk_from_QC * (61019 * (simContext.rho25c - TDS / 1000000#))
+            Worksheets(mySheet).Cells(88, j + 2).Value = SumOfCations * (simContext.rho25c - TDS / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
+            Worksheets(mySheet).Cells(89, j + 2).Value = SumOfAnions * (simContext.rho25c - TDS / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
+            Worksheets(mySheet).Cells(91, j + 2).Value = NaQC * (22990 * (simContext.rho25c) - TDS / 1000000#)
             */
         }
         else {
@@ -9378,7 +9361,7 @@ void QualityControlCalculations(int kk, int j)
     }
     else {
         if (kk < simContext.nob_Input) {
-            if (UseMolal == 0) {
+            if (simContext.UseMolal == 0) {
                 /*
                 Worksheets("Input").Cells(18, j + 15) = Alk_from_QC * (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
                 Worksheets("Input").Cells(19, j + 15).Value = SumOfCations * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
@@ -9399,7 +9382,7 @@ void QualityControlCalculations(int kk, int j)
         }
 
         if (kk >= simContext.nob_Input && kk < simContext.nob_Input + simContext.nob_InputII) {
-            if (UseMolal == 0) {
+            if (simContext.UseMolal == 0) {
                 /*
                 Worksheets("Input II").Cells(87, j + 2) = Alk_from_QC * (61019 * (rho25CMix(kk) - CalculatedTDSMix(kk) / 1000000#))
                 Worksheets("Input II").Cells(88, j + 2).Value = SumOfCations * (rho25CMix(i + nob_Input) - CalculatedTDSMix(i + nob_Input) / 1000000#) 'Convert output from equiv/kg-water to equiv/l-solution
@@ -9448,30 +9431,30 @@ void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
     while (rhoSSE > 0.00000001 && Iteration < 30) {
         *mt = fTPFunc(0);  // iTP=0 T=77F, P=14.696 psi: iTP=1 T=TVol, P=Pvol;iTP=2 T=TpH, P=PpH
 
-        rho25c = CalcRhoTP(TK, TC, PBar, Patm);
-        // *rho25c = CalcRhoTP(TK, TC, PBar, Patm);
+        simContext.rho25c = CalcRhoTP(TK, TC, PBar, Patm);
+        // *simContext.rho25c = CalcRhoTP(TK, TC, PBar, Patm);
 
         int iden;
         for (iden = 0; iden < NumCat; iden++) {
-            mc[iden] *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+            mc[iden] *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
         }
         for (iden = 0; iden < NumAn; iden++) {
-            ma[iden] *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+            ma[iden] *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
         }
         for (iden = 0; iden < NumNeut; iden++) {
-            mn[iden] *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+            mn[iden] *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
         }
-        Alk *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
-        TAc *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
-        TCO2 *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
-        TNH4 *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
-        TH3BO3 *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
-        TH2Saq *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
-        TH4SiO4 *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
-        TFe *= (rhoOld - TDS / 1000000.0) / (rho25c - TDS / 1000000.0);
+        Alk *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
+        TAc *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
+        TCO2 *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
+        TNH4 *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
+        TH3BO3 *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
+        TH2Saq *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
+        TH4SiO4 *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
+        TFe *= (rhoOld - TDS / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
 
-        rhoSSE = pow(rho25c - rhoOld, 2);
-        rhoOld = rho25c;
+        rhoSSE = pow(simContext.rho25c - rhoOld, 2);
+        rhoOld = simContext.rho25c;
         (Iteration)++;
     }
 
@@ -9505,16 +9488,16 @@ void D2_CalcDensitypH(int i, int Iteration, double* mt, int use_pH) {
     ma[iAc] = AC;
     mn[iNH3] = NH3;
     ma[iH2BO3] = H2BO3;
-    ma[iHCO3] = HCO3;
-    ma[iCO3] = CO3;
-    ma[iHS] = HS;
+    ma[iHCO3] = simContext.HCO3;
+    ma[iCO3] = simContext.CO3;
+    ma[iHS] = simContext.HS;
     ma[iH3SiO4] = H3SiO4;
     ma[iH2SiO4] = H2SiO4;
     mn[iH4SiO4aq] = H4SiO4;
     mn[iNH3] = NH3;
     mn[iH3BO3] = TH3BO3 - H2BO3;
-    mn[iCO2aq] = CO2aq;
-    mn[iH2Saq] = H2Saq;
+    mn[iCO2aq] = simContext.CO2aq;
+    mn[iH2Saq] = simContext.H2Saq;
     mn[iHAcaq] = HAcaq;
 
     if (simContext.useEOSmix[simContext.kk] == 1) {
@@ -9609,51 +9592,51 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
     TDS = simContext.TDSMix[i];
     TDSSSE = 1;
 
-    // yCO2 = yCO2Mix(i): yH2S = yH2SMix(i): yCH4 = 1 - yCO2 - yH2S
-    //yCO2 = yCO2Mix[i];
-    //yH2S = yH2SMix[i];
-    //yCH4 = 1 - yCO2 - yH2S;
+    // simContext.yCO2 = yCO2Mix(i): simContext.yH2S = yH2SMix(i): yCH4 = 1 - simContext.yCO2 - simContext.yH2S
+    //simContext.yCO2 = yCO2Mix[i];
+    //simContext.yH2S = yH2SMix[i];
+    //yCH4 = 1 - simContext.yCO2 - simContext.yH2S;
 
-    if (UseMolal == 0) {
+    if (simContext.UseMolal == 0) {
         while (TDSSSE > 0.00000001 && *Iteration2 < 20) {
-            // Call D2_CalcDensitypH(i) 'Calculate ISt, density, and HCO3, AC, HS speciation from TDS
+            // Call D2_CalcDensitypH(i) 'Calculate ISt, density, and simContext.HCO3, AC, simContext.HS speciation from TDS
             D2_CalcDensitypH(i, Iteration, mt, use_pH);
             TDS = 0;
             CalculateTDSDen = 0;  // Calculate TDS from density
             int iden;
             for (iden = 1; iden < NumCat; iden++) {
-                TDS += 1000 * (rho25c)*mc[iden] * MWCat[iden];  // =Sum of mg salt/L*(Kg soln/Kg H2O)
+                TDS += 1000 * (simContext.rho25c)*mc[iden] * MWCat[iden];  // =Sum of mg salt/L*(Kg soln/Kg H2O)
                 CalculateTDSDen += 0.001 * mc[iden] * MWCat[iden];  // =Sum of Kg salt/Kg H2O
             }
             for (iden = 1; iden < NumAn; iden++) {
-                TDS += 1000 * (rho25c)*ma[iden] * MWAn[iden];
+                TDS += 1000 * (simContext.rho25c)*ma[iden] * MWAn[iden];
                 CalculateTDSDen += 0.001 * ma[iden] * MWAn[iden];
             }
             for (iden = 1; iden < NumNeut; iden++) {
-                TDS += 1000 * (rho25c)*mn[iden] * MWNeut[iden];
+                TDS += 1000 * (simContext.rho25c)*mn[iden] * MWNeut[iden];
                 CalculateTDSDen += 0.001 * mn[iden] * MWNeut[iden];
             }
             TDS /= (1 + CalculateTDSDen);  // denometer=(1+Kgsalt/KgH2O)=(Kgsoln/KgH2O)
 
             for (iden = 1; iden < NumCat; iden++) {  // Calculate molality from new TDS
-                mc[iden] *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
+                mc[iden] *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
             }
             for (iden = 1; iden < NumAn; iden++) {
-                ma[iden] *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
+                ma[iden] *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
             }
             for (iden = 1; iden < NumNeut; iden++) {
-                mn[iden] *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
+                mn[iden] *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
             }
-            Alk *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
-            TAc *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
-            TCO2 *= (rho25c - TDSOld / 1000000.0) / (rho25c - TDS / 1000000.0);
-            TNH4 *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
-            TH3BO3 *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
-            TH2Saq *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
-            TH4SiO4 *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
-            TFe *= ((rho25c)-(TDSOld) / 1000000.0) / ((rho25c)-(TDS) / 1000000.0);
+            Alk *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
+            TAc *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
+            TCO2 *= (simContext.rho25c - TDSOld / 1000000.0) / (simContext.rho25c - TDS / 1000000.0);
+            TNH4 *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
+            TH3BO3 *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
+            TH2Saq *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
+            TH4SiO4 *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
+            TFe *= ((simContext.rho25c)-(TDSOld) / 1000000.0) / ((simContext.rho25c)-(TDS) / 1000000.0);
 
-            // Call D2_CalcDensitypH(i) 'Calculate ISt, density, and HCO3, AC, HS speciation from TDS
+            // Call D2_CalcDensitypH(i) 'Calculate ISt, density, and simContext.HCO3, AC, simContext.HS speciation from TDS
             D2_CalcDensitypH(i, Iteration, mt, use_pH);
 
             if (TDSOld == 0) goto label10;
@@ -9672,8 +9655,8 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
 
         *mt = fTPFunc(0);  // iTP=0 T=77F, P=14.696 psi: iTP=1 T=TVol, P=Pvol;iTP=2 T=TpH, P=PpH
 
-        // rho25c = CalcRhoTP(TK, TC, PBar, Patm) 'Function subroutine  // 未定义函数：计算密度
-        rho25c = CalcRhoTP(TK, TC, PBar, Patm);  // 参数：TK, TC, PBar, Patm -> double
+        // simContext.rho25c = CalcRhoTP(TK, TC, PBar, Patm) 'Function subroutine  // 未定义函数：计算密度
+        simContext.rho25c = CalcRhoTP(TK, TC, PBar, Patm);  // 参数：TK, TC, PBar, Patm -> double
 
         pH = simContext.pHMeterStpMix[i] + DpHj;
 
@@ -9696,16 +9679,16 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
         ma[iAc] = AC;
         mn[iNH3] = NH3;
         ma[iH2BO3] = H2BO3;
-        ma[iHCO3] = HCO3;
-        ma[iCO3] = CO3;
-        ma[iHS] = HS;
+        ma[iHCO3] = simContext.HCO3;
+        ma[iCO3] = simContext.CO3;
+        ma[iHS] = simContext.HS;
         ma[iH3SiO4] = H3SiO4;
         ma[iH2SiO4] = H2SiO4;
         mn[iH4SiO4aq] = H4SiO4;
         mn[iNH3] = NH3;
         mn[iH3BO3] = TH3BO3 - H2BO3;
-        mn[iCO2aq] = CO2aq;
-        mn[iH2Saq] = H2Saq;
+        mn[iCO2aq] = simContext.CO2aq;
+        mn[iH2Saq] = simContext.H2Saq;
         mn[iHAcaq] = HAcaq;
 
         if (simContext.useEOSmix[simContext.kk] == 1) {
@@ -9724,10 +9707,10 @@ void D1_CalcDensity(int i, int* Iteration2, double* mt) {
 
         //C5_CalcpHPCO2PH2SSTP(use_pH, UseH2Sgas, useEOS);
 
-        rho25c = CalcRhoTP(TK, TC, PBar, Patm);
+        simContext.rho25c = CalcRhoTP(TK, TC, PBar, Patm);
 
-        // If yCO2 + yH2S <= 1 Then  ' UseTPpH is chosen, the gas composition is calculated at T,P of pH
-        // yCH4 = 1 - (yCO2 + yH2S)
+        // If simContext.yCO2 + simContext.yH2S <= 1 Then  ' UseTPpH is chosen, the gas composition is calculated at T,P of pH
+        // yCH4 = 1 - (simContext.yCO2 + simContext.yH2S)
         // Else
         // yCH4 = 0
         // End If
@@ -9749,11 +9732,11 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     *mt = fTPFunc(0);  // Densitym TDS, and m calculated at STP condition
     if (simContext.UseTPpHMix[kk] == 1) *mt = fTPFunc(2);
 
-    if (Run10TestCases == 1 && Loop10 > 1) goto label100;
-    if (Run_Seawater_Mixing == 1 && LoopMixing > 1) goto label100;
-    if (Run_MixingTwoWells == 1 && LoopMixing > 1) goto label100;
-    if (RunMultiMix == 1 && LoopResChem > 1) goto label100;
-    if (RunStatMix == 1 && LoopMixing > 1) goto label100;
+    if (simContext.Run10TestCases == 1 && simContext.Loop10 > 1) goto label100;
+    if (simContext.Run_Seawater_Mixing == 1 && simContext.LoopMixing > 1) goto label100;
+    if (simContext.Run_MixingTwoWells == 1 && simContext.LoopMixing > 1) goto label100;
+    if (simContext.RunMultiMix == 1 && simContext.LoopResChem > 1) goto label100;
+    if (simContext.RunStatMix == 1 && simContext.LoopMixing > 1) goto label100;
 
     simContext.HCO3stpMix[kk] = simContext.AlkMix[kk];
     simContext.ACstpMix[kk] = simContext.TAcMix[kk];
@@ -9821,13 +9804,13 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
         TCO2 = 0;
     }
 
-    yCO2 = simContext.yCO2Mix[kk];
-    yH2S = simContext.yH2SMix[kk];  // yCH4 = 1 - yCO2 - yH2S 'assume dry gas
+    simContext.yCO2 = simContext.yCO2Mix[kk];
+    simContext.yH2S = simContext.yH2SMix[kk];  // yCH4 = 1 - simContext.yCO2 - simContext.yH2S 'assume dry gas
 
     // If yCH4 < 0 Then yCH4 = 0  '?????????????????????????????????????????????????????????????
 
-    if (simContext.useEOSmix[kk] == 1 && yCO2 == 0 && simContext.SumofZMix[kk] > 0) yCO2 = simContext.zMix[kk][1];  // if UseEOS=1 then set YCO2 and YH2S to reservoir condition to calculate density and TDS only if the reservoir fluid comp is given
-    if (simContext.useEOSmix[kk] == 1 && yH2S == 0 && simContext.SumofZMix[kk] > 0) yH2S = simContext.zMix[kk][2];
+    if (simContext.useEOSmix[kk] == 1 && simContext.yCO2 == 0 && simContext.SumofZMix[kk] > 0) simContext.yCO2 = simContext.zMix[kk][1];  // if UseEOS=1 then set YCO2 and YH2S to reservoir condition to calculate density and TDS only if the reservoir fluid comp is given
+    if (simContext.useEOSmix[kk] == 1 && simContext.yH2S == 0 && simContext.SumofZMix[kk] > 0) simContext.yH2S = simContext.zMix[kk][2];
 
     // Call C1_ThermodynamicEquilConsts  'Only function of T,P, does not recalculate in D1_CalcDensity
     // Call PengRobinson3
@@ -9864,7 +9847,7 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     simContext.FMix[kk] = ma[intF];
     simContext.BrMix[kk] = ma[iBr];
 
-    simContext.rho25CMix[kk] = rho25c;
+    simContext.rho25CMix[kk] = simContext.rho25c;
 
     simContext.H3SiO4Mix[kk] = ma[iH3SiO4];
     simContext.H2SiO4Mix[kk] = ma[iH2SiO4];
@@ -9884,13 +9867,13 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
     simContext.TNH4Mix[kk] = TNH4;
     simContext.TH3BO3Mix[kk] = TH3BO3;
 
-    simContext.yCO2Mix[kk] = yCO2;
-    simContext.yH2SMix[kk] = yH2S;
-    simContext.yCH4Mix[kk] = 1 - yCO2 - yH2S;  // Set YCO2 and YH2S to the calculated value if pH option is used.
+    simContext.yCO2Mix[kk] = simContext.yCO2;
+    simContext.yH2SMix[kk] = simContext.yH2S;
+    simContext.yCH4Mix[kk] = 1 - simContext.yCO2 - simContext.yH2S;  // Set YCO2 and YH2S to the calculated value if pH option is used.
 
-    if (simContext.UseTPVolMix[kk] == 0) simContext.WaterDensityMix[kk] = rho25c;
+    if (simContext.UseTPVolMix[kk] == 0) simContext.WaterDensityMix[kk] = simContext.rho25c;
 
-    if (UseMolal == 1) {
+    if (simContext.UseMolal == 1) {
         TDS = 0;
         CalculateTDSDen = 0;  // Calculate TDS from density
 
@@ -9905,7 +9888,7 @@ void ReadInputPartC(int kk, double* mt, int* Iteration2) {
             CalculateTDSDen += 0.001 * mn[iden] * MWNeut[iden];
         }
 
-        TDS = CalculateTDSDen / (1 + CalculateTDSDen) * rho25c * 1000000.0;  // TDS in unit of mg/L,  numerator=(Kgsalt/KgH2O), denometer=(1+Kgsalt/KgH2O)=(Kgsoln/KgH2O);density Kgsoln/Lsoln
+        TDS = CalculateTDSDen / (1 + CalculateTDSDen) * simContext.rho25c * 1000000.0;  // TDS in unit of mg/L,  numerator=(Kgsalt/KgH2O), denometer=(1+Kgsalt/KgH2O)=(Kgsoln/KgH2O);density Kgsoln/Lsoln
         simContext.CalculatedTDSMix[kk] = TDS;
     }
 label100:;
@@ -9939,9 +9922,9 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
     int usedryHC = 0;
 
-    if (RunStat == 0) {
+    if (simContext.RunStat == 0) {
         //将 A2 - A4 和 A6 - A8 的闪光灯设置为关闭
-        if (Run10TestCases == 1 || Run_MassTransfer == 1 || Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1 || RunWhatIf == 1 || RunMultiMix == 1) {
+        if (simContext.Run10TestCases == 1 || Run_MassTransfer == 1 || simContext.Run_Seawater_Mixing == 1 || simContext.Run_MixingTwoWells == 1 || simContext.RunWhatIf == 1 || simContext.RunMultiMix == 1) {
             if (simContext.nob_Input + simContext.nob_InputII == 1) {
                 //待定：Worksheets(mySheet).Cells(55, j + 2).Value = 0
             }
@@ -9966,7 +9949,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         * 待定，注：useEOSmix是整形的，为什么会用""来判断？？？？？
         if (useEOSmix[kk] == "") useEOSmix(kk) = 0
         */
-        if (RunMultiMix == 1) simContext.useEOSmix[kk] = 0;
+        if (simContext.RunMultiMix == 1) simContext.useEOSmix[kk] = 0;
 
         //注意，由于 ZMix (kk,i) 在下面重新分配，因此值将从此 Sub 开头的输入表中重新读取。
         //for (iNG = 0; iNG < 14; iNG++) {
@@ -10005,7 +9988,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
     VW = simContext.VwMix[kk]; VgTP = simContext.VgTPMix[kk]; VO = simContext.VoMix[kk]; VMeOH = simContext.VMeOHMix[kk]; VMEG = simContext.VMEGMix[kk]; mass_MeOH = simContext.mass_MeOH_mix[kk]; mass_MEG = simContext.mass_MEG_mix[kk];
 
-    yCO2 = simContext.yCO2Mix[kk], yH2S = simContext.yH2SMix[kk], yCH4 = simContext.yCH4Mix[kk];   // Local variable values; in this loop only.
+    simContext.yCO2 = simContext.yCO2Mix[kk], simContext.yH2S = simContext.yH2SMix[kk], yCH4 = simContext.yCH4Mix[kk];   // Local variable values; in this loop only.
 
     useEOS = simContext.useEOSmix[kk]; use_pH = simContext.usepHmix[kk]; UseH2Sgas = simContext.UseH2SgasMix[kk];
 
@@ -10060,9 +10043,9 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     fTotalCO2H2Smoles();
     //请注意，VgTP 的单位是 m^3，当 Vg 的单位是 MMCF 时，829 是从 He 的系数 78740 转换而来的。
 
-    simContext.yCO2Mix[kk] = yCO2;
+    simContext.yCO2Mix[kk] = simContext.yCO2;
     simContext.yCH4Mix[kk] = yCH4;
-    simContext.yH2SMix[kk] = yH2S;
+    simContext.yH2SMix[kk] = simContext.yH2S;
 
     simContext.nTCO2Mix[kk] = nTCO2;
     simContext.nTCH4Mix[kk] = nTCH4;
@@ -10094,7 +10077,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             {
                 if (simContext.nob == 1)
                 {
-                    errmsg[13] = 14;
+                    simContext.errmsg[13] = 14;
                     useEOS = 0;
                     goto label_3003;
                 }
@@ -10136,7 +10119,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         {
             if (simContext.SumofZMix[kk] == 0)
             {       // 仅当给出碳氢化合物成分时，才运行 HC 调节
-                if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+                if (simContext.Run_Seawater_Mixing == 1 || simContext.Run_MixingTwoWells == 1)
                 {
                     goto label_3002;
                 }
@@ -10144,7 +10127,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                 {
                     if (simContext.nob == 1)
                     {
-                        errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
+                        simContext.errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                         useEOS = 0;
                         goto label_3003;
                     }
@@ -10162,7 +10145,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         }
                         else
                         {
-                            errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
+                            simContext.errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                             useEOS = 0;
                             goto label_3003;
                         }
@@ -10191,7 +10174,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     }
                     else
                     { // 当没有给出油气体积时，只允许计算混合
-                        if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+                        if (simContext.Run_Seawater_Mixing == 1 || simContext.Run_MixingTwoWells == 1)
                         {
                             goto label_3002;
                         }
@@ -10201,7 +10184,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                             {
                                 mol_g = 0;
                                 mol_o = 0;
-                                errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                simContext.errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
                                 useEOS = 0;
                                 goto label_3003;
                             }
@@ -10219,7 +10202,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                                 }
                                 else
                                 {
-                                    errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                    simContext.errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
                                     useEOS = 0;
                                     goto label_3003;
                                 }
@@ -10249,7 +10232,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     }
                     else
                     { // 如果没有给出石油或天然气产量
-                        if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+                        if (simContext.Run_Seawater_Mixing == 1 || simContext.Run_MixingTwoWells == 1)
                         {
                             goto label_3002;
                         }
@@ -10259,7 +10242,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                             {
                                 mol_g = 0;
                                 mol_o = 0;
-                                errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                simContext.errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
                                 useEOS = 0;
                                 goto label_3003;
                             }
@@ -10277,7 +10260,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                                 }
                                 else
                                 {
-                                    errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                    simContext.errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
                                     useEOS = 0;
                                     goto label_3003;
                                 }
@@ -10300,7 +10283,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     }
                     else
                     { // if neither oil or gas vol is given
-                        if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+                        if (simContext.Run_Seawater_Mixing == 1 || simContext.Run_MixingTwoWells == 1)
                         {
                             goto label_3002;
                         }
@@ -10308,7 +10291,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         {
                             if (simContext.nob == 1)
                             {
-                                errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                simContext.errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
                                 useEOS = 0;
                                 goto label_3003;
                             }
@@ -10326,7 +10309,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                                 }
                                 else
                                 {
-                                    errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
+                                    simContext.errmsg[15] = 16;  // 数组下标从0开始，16对应索引15
                                     useEOS = 0;
                                     goto label_3003;
                                 }
@@ -10352,7 +10335,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     for (iNG = 3; iNG < 14; iNG++) zHC = zHC + z[iNG]; // 总量中 z(碳氢化合物-CO2-H2s) 的摩尔分数
 
 
-                    mol_HC = mol_HC * zHC + nTCO2EOS + nTH2sEOS;  // 如果 useEOS=2 nTCO2EOS，则修改 HC 的总摩尔数，计算气体、油和 CO2aq 中的 CO2 摩尔数（不包括 HCO3 和 CO3）
+                    mol_HC = mol_HC * zHC + nTCO2EOS + nTH2sEOS;  // 如果 useEOS=2 nTCO2EOS，则修改 HC 的总摩尔数，计算气体、油和 simContext.CO2aq 中的 CO2 摩尔数（不包括 simContext.HCO3 和 CO3）
 
                     z[0] = z[0] * mol_HC;
                     z[1] = nTCO2EOS;
@@ -10367,13 +10350,13 @@ void ReadInputPartD(int kk, int j, SampleData* data)
 
         if (VW == 1.0 / 159.0 / 1000.0)
         {               // if water volume=0, skip Flash
-            if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1)
+            if (simContext.Run_Seawater_Mixing == 1 || simContext.Run_MixingTwoWells == 1)
             {
                 goto label_3002;
             }
             else
             {
-                errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
+                simContext.errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                 useEOS = 0;
                 goto label_3003;
             }
@@ -10425,14 +10408,14 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                     }
                     else
                     {
-                        errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
+                        simContext.errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                         useEOS = 0;
                         goto label_3003;
                     }
                 }
                 else
                 {
-                    errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
+                    simContext.errmsg[13] = 14;  // 数组下标从0开始，14对应索引13
                     useEOS = 0;
                     goto label_3003;
                 }
@@ -10503,8 +10486,8 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         if (useEOS == 3)
         {
             // 仅在给定天然气和石油产量时运行 useEOS；第一次迭代涵盖 usedryHC=0 或 1
-            pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, yCO2,
-                yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
+            pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, simContext.yCO2,
+                simContext.yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
 
             if (feed_Composition[0] < 0.0000001) {
                 feed_Composition[0] = 0;
@@ -10517,7 +10500,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             }
 
             if (SumofZ < 0.000001) {
-                errmsg[13] = 14;
+                simContext.errmsg[13] = 14;
                 useEOS = 0;
             }
 
@@ -10531,8 +10514,8 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                 while (mol_w3 <= 0)
                 { // 确保添加足够的水以开始迭代
                     mol_W = mol_W * 1.1;
-                    pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, yCO2,
-                        yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
+                    pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut, nTCO2, nTH2S, simContext.yCO2,
+                        simContext.yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
 
                     MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition,
                         tempgNeut, aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
@@ -10556,7 +10539,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
                         }
 
                         pseudo_composition(data->API, SGG, VgTP, mol_o, mol_W, TK, PBar, aH2O, tempgNeut,
-                            nTCO2, nTH2S, yCO2, yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
+                            nTCO2, nTH2S, simContext.yCO2, simContext.yH2S, YH2O, &total_moles, feed_Composition, &mol_HC);
 
                         MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, feed_Composition, tempgNeut,
                             aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
@@ -10627,7 +10610,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
             simContext.FMix[kk] = ma[intF];
             simContext.BrMix[kk] = ma[iBr];
 
-            simContext.rho25CMix[kk] = rho25c;
+            simContext.rho25CMix[kk] = simContext.rho25c;
 
             simContext.H3SiO4Mix[kk] = ma[iH3SiO4];
             simContext.H2SiO4Mix[kk] = ma[iH2SiO4];
@@ -10651,7 +10634,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         // **** flash and convert to STP condition
         // Call C4_EOS_TCO2_SSPEquilCalcs(0, 2, 2, KspCalcite) 'calculate Separator or STP pH if useEOS>0
         // *********
-        // mt = fmn  'Assign neutral species and HCO3, CO3, HS and recalculate ionic strength, Pitzer Coeff and pH
+        // mt = fmn  'Assign neutral species and simContext.HCO3, simContext.CO3, simContext.HS and recalculate ionic strength, Pitzer Coeff and pH
         // Call CalcIonicStrength
         // Call C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm)
         // Call C4_EOS_TCO2_SSPEquilCalcs(0, 5, 2, KspCalcite) '(ppt_or_not, iMetals, iGas, Ksp)
@@ -10659,7 +10642,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         //mt = fTPFunc(0);
         fTPFunc(0);
         C4_SSPEquilCalcs(0, 5, 2, KspCalcite);  // (ppt_or_not, iMetals, iGas, Ksp)
-        fmn();        // CO2aq, HCO3, CO3, H2Saq, HS
+        fmn();        // simContext.CO2aq, simContext.HCO3, simContext.CO3, simContext.H2Saq, simContext.HS
         C2_PitzerActCoefs_T_P_ISt(gNeut, &aH2O, TK, TC, PBar, Patm);
         C4_SSPEquilCalcs(0, 5, 2, KspCalcite);  // (ppt_or_not, iMetals, iGas, Ksp)
 
@@ -10687,10 +10670,10 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     }
 
 label_3002:
-    if (Run_Seawater_Mixing == 1 || Run_MixingTwoWells == 1) {
-        if (Run_Seawater_Mixing == 1) {
+    if (simContext.Run_Seawater_Mixing == 1 || simContext.Run_MixingTwoWells == 1) {
+        if (simContext.Run_Seawater_Mixing == 1) {
             // 源代码是kk == 1，但我们的Kk是从0开始的
-            if (LoopMixing == 1 && kk == 0) { // when Fr of brine#1=0
+            if (simContext.LoopMixing == 1 && kk == 0) { // when Fr of brine#1=0
                 for (iNG = 0; iNG < 15; iNG++)
                     z_before_precipitation[iNG] = 0;
 
@@ -10702,7 +10685,7 @@ label_3002:
                 goto label_3003;
             }
 
-            if (LoopMixing == 11 && kk == 1) { // when Fr of seawater=0
+            if (simContext.LoopMixing == 11 && kk == 1) { // when Fr of seawater=0
                 for (iNG = 0; iNG < 15; iNG++)
                     z_before_precipitation[iNG] = 0;
 
@@ -10722,8 +10705,8 @@ label_3002:
             }
         }
 
-        if (Run_MixingTwoWells == 1) {
-            if (LoopMixing == 1 && kk == 0) { // when Fr Brine#1 =0
+        if (simContext.Run_MixingTwoWells == 1) {
+            if (simContext.LoopMixing == 1 && kk == 0) { // when Fr Brine#1 =0
                 for (iNG = 0; iNG < 15; iNG++)
                     z_before_precipitation[iNG] = 0;
 
@@ -10734,7 +10717,7 @@ label_3002:
                 goto label_3003;
             }
 
-            if (LoopMixing == 11 && kk == 1) { // When Fr brine#2 =0
+            if (simContext.LoopMixing == 11 && kk == 1) { // When Fr brine#2 =0
                 for (iNG = 0; iNG < 15; iNG++)
                     z_before_precipitation[iNG] = 0;
 
@@ -10767,9 +10750,9 @@ label_3003:
 
 
     // ***** QC calculation
-    if (RunStat == 1)
+    if (simContext.RunStat == 1)
     {
-        if (RunQualityControlChecks == 1) {
+        if (simContext.RunQualityControlChecks == 1) {
             // Worksheets(mySheet).Activate 
             QualityControlCalculations(kk, j);
         }
@@ -10777,7 +10760,7 @@ label_3003:
     else
     {
         // kk在vb中是1开始的，这里我们的kk是从0开始，导致了 nob_input=1时，kk为0和1都符合条件，因此手动进行偏移
-        if (RunQualityControlChecks == 1 && kk + 1 <= simContext.nob_Input) { // only run QC if requested from Input Sheet.
+        if (simContext.RunQualityControlChecks == 1 && kk + 1 <= simContext.nob_Input) { // only run QC if requested from Input Sheet.
             // Worksheets(mySheet).Activate
             QualityControlCalculations(kk, j);
             if (kk == simContext.nob) {
@@ -10797,8 +10780,8 @@ label_3003:
     // ***** 将 pH、PCO2、PH2S、TH2Saq 打印到输入表
     // If RunShellMultiflash <> 1 Then
     if (use_pH == 0 && useEOS == 0) {        // 然后，必须指定yCO2stp。需要计算pH值和yH2Sstp。
-        if (Run_Seawater_Mixing == 0 && Run_MixingTwoWells == 0 && RunMultiMix == 0 && Run10TestCases == 0 && RunWhatIf == 0 && RunStat == 0) {
-            if (Run_CalcConcFactor == 1) {
+        if (simContext.Run_Seawater_Mixing == 0 && simContext.Run_MixingTwoWells == 0 && simContext.RunMultiMix == 0 && simContext.Run10TestCases == 0 && simContext.RunWhatIf == 0 && simContext.RunStat == 0) {
+            if (simContext.Run_CalcConcFactor == 1) {
                 // 在C中，可能需要调用特定的输出函数
                 //待定：Worksheets(MySheetMix).Cells(34, 8) = pHMeterReading
                 int bbba = pHMeterReading;
@@ -10811,37 +10794,37 @@ label_3003:
     }
 
     if (use_pH == 1 && useEOS == 0) {                            // Use the pH measured at STP.
-        if (RunWhatIf != 1 && RunStat == 0) {
-            // 待定： Worksheets(mySheet).Cells(31, j + 2) = yCO2 * 100
+        if (simContext.RunWhatIf != 1 && simContext.RunStat == 0) {
+            // 待定： Worksheets(mySheet).Cells(31, j + 2) = simContext.yCO2 * 100
 
         }
     }
 
     if (use_pH == 2 && useEOS == 0) {                            // Use the pH measured at STP.
-        if (RunWhatIf != 1 && RunStat == 0) {
-            // 待定： Worksheets(mySheet).Cells(24, j + 2) = Alk * (61019 * (rho25c - TDS / 1000000.0))
+        if (simContext.RunWhatIf != 1 && simContext.RunStat == 0) {
+            // 待定： Worksheets(mySheet).Cells(24, j + 2) = Alk * (61019 * (simContext.rho25c - TDS / 1000000.0))
         }
         simContext.AlkMix[kk] = Alk;
     }
 
     if (use_pH == 3 && useEOS == 0) {         // use TCO2 to calculate pH
-        if (Run_Seawater_Mixing == 0 && Run_MixingTwoWells == 0 && RunMultiMix == 0 && Run10TestCases == 0 && RunWhatIf == 0 && RunStat == 0) {
+        if (simContext.Run_Seawater_Mixing == 0 && simContext.Run_MixingTwoWells == 0 && simContext.RunMultiMix == 0 && simContext.Run10TestCases == 0 && simContext.RunWhatIf == 0 && simContext.RunStat == 0) {
             pHMeterReading = pH - DpHj;
-            if (Run_CalcConcFactor == 1) {
+            if (simContext.Run_CalcConcFactor == 1) {
                 // 待定： Worksheets(MySheetMix).Cells(34, 8) = pHMeterReading
             }
             else {
                 //待定： Worksheets(mySheet).Cells(34, j + 2) = pHMeterReading
             }
         }
-        if (RunWhatIf != 1) {
-            //待定：  Worksheets(mySheet).Cells(31, j + 2) = yCO2 * 100
+        if (simContext.RunWhatIf != 1) {
+            //待定：  Worksheets(mySheet).Cells(31, j + 2) = simContext.yCO2 * 100
         }
     }
 
     if (useEOS != 0) {
-        if (Run_Seawater_Mixing == 0 && Run_MixingTwoWells == 0 && RunMultiMix == 0 && Run10TestCases == 0 && RunWhatIf == 0 && RunStat == 0) {
-            if (Run_CalcConcFactor == 1) {
+        if (simContext.Run_Seawater_Mixing == 0 && simContext.Run_MixingTwoWells == 0 && simContext.RunMultiMix == 0 && simContext.Run10TestCases == 0 && simContext.RunWhatIf == 0 && simContext.RunStat == 0) {
+            if (simContext.Run_CalcConcFactor == 1) {
                 //待定：  Worksheets(MySheetMix).Cells(34, 8) = pHMeterReading
             }
             else {
@@ -10850,7 +10833,7 @@ label_3003:
         }
     }
 
-    if (UseMolal == 1) {
+    if (simContext.UseMolal == 1) {
         //待定：  Worksheets(mySheet).Cells(29, j + 2) = CalculatedTDSMix(kk)
     }
 
@@ -11297,8 +11280,8 @@ void B2_ReadinAllData(SampleData* data)
 
     // 声明并初始化所有需要的变量
     double mt = 0.0;
-    Run10TestCases = 0, Loop10 = 0, Run_Seawater_Mixing = 0, LoopMixing = 0;
-    Run_MixingTwoWells = 0, RunMultiMix = 0, LoopResChem = 0;
+    simContext.Run10TestCases = 0, simContext.Loop10 = 0, simContext.Run_Seawater_Mixing = 0, simContext.LoopMixing = 0;
+    simContext.Run_MixingTwoWells = 0, simContext.RunMultiMix = 0, simContext.LoopResChem = 0;
     UseH2Sgas = 0;
     //---------------------
 
@@ -11307,7 +11290,8 @@ void B2_ReadinAllData(SampleData* data)
     rhoSSE = 0.00000002;
     Iteration = 0;
 
-    double TDS = 0.0, yH2S = 0.0, yCO2 = 0.0;
+    double TDS = 0.0;
+    simContext.yH2S = 0.0, simContext.yCO2 = 0.0;
     int Iteration2 = 0;
     //
 
@@ -11334,17 +11318,17 @@ void B2_ReadinAllData(SampleData* data)
         simContext.j = simContext.CaseCount[iRead];
         simContext.kk = iRead;
         ReadInputPartC(simContext.kk, &mt, &Iteration2);
-        if (RunStat == 0)
+        if (simContext.RunStat == 0)
         {
-            if (RunH2SGUI != 1)
+            if (simContext.RunH2SGUI != 1)
             {
-                if (Run_CalcConcFactor == 1)
+                if (simContext.Run_CalcConcFactor == 1)
                 {
-                    // Worksheets(MySheetMix).Cells(30, 8).Value = rho25c
+                    // Worksheets(MySheetMix).Cells(30, 8).Value = simContext.rho25c
                 }
                 else
                 {
-                    // Worksheets(mySheet).Cells(30, j + 2).Value = rho25c
+                    // Worksheets(mySheet).Cells(30, j + 2).Value = simContext.rho25c
                 }
             }
         }
@@ -11358,33 +11342,33 @@ void B2_ReadinAllData(SampleData* data)
 
     if (simContext.nob > 0)
     {
-        if (simContext.nob + simContext.nob_InputII > 1 && RunQualityControlChecks == 0)
+        if (simContext.nob + simContext.nob_InputII > 1 && simContext.RunQualityControlChecks == 0)
         {
             simContext.j = 6;
         }
-        // TBH = Worksheets(mySheet).Cells(39, j + 2)
-        if (RunMultiMix == 1)
+        // simContext.TBH = Worksheets(mySheet).Cells(39, j + 2)
+        if (simContext.RunMultiMix == 1)
         {
-            // TBH = Worksheets("MultiMix").Cells(2 + LoopResChem, 3).Value
+            // simContext.TBH = Worksheets("MultiMix").Cells(2 + simContext.LoopResChem, 3).Value
         }
-        if (RunWhatIf == 1)
+        if (simContext.RunWhatIf == 1)
         {
-            TBH = TWIInit;
-        }
-
-        if (UseSI == 1)
-        {
-            TBH = TBH * 9 / 5 + 32;
+            simContext.TBH = simContext.TWIInit;
         }
 
-        if (TBH < 24.8 && simContext.Run1000Cases != 1)
+        if (simContext.UseSI == 1)
+        {
+            simContext.TBH = simContext.TBH * 9 / 5 + 32;
+        }
+
+        if (simContext.TBH < 24.8 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Initial temperature is below 24.8F or -4C. Initial temperature will be set to 77 F or 25 C.")
         }
 
-        if (TBH < 24.8)
+        if (simContext.TBH < 24.8)
         {
-            if (UseSI == 1)
+            if (simContext.UseSI == 1)
             {
                 // Worksheets(mySheet).Cells(39, j + 2) = 250;
             }
@@ -11394,18 +11378,18 @@ void B2_ReadinAllData(SampleData* data)
             }
         }
 
-        if (TBH < 24.8)
+        if (simContext.TBH < 24.8)
         {
-            TBH = 77;
+            simContext.TBH = 77;
         }
 
-        if (TBH > 482 && simContext.Run1000Cases != 1)
+        if (simContext.TBH > 482 && simContext.Run1000Cases != 1)
         {
             // MsgBox ("Initial temperature is above 482 F. Initail temperature will be set to 482 F or 250 C.")
         }
-        if (TBH > 482)
+        if (simContext.TBH > 482)
         {
-            if (UseSI == 1)
+            if (simContext.UseSI == 1)
             {
                 // Worksheets(mySheet).Cells(39, j + 2) = 250
             }
@@ -11414,33 +11398,33 @@ void B2_ReadinAllData(SampleData* data)
                 // Worksheets(mySheet).Cells(39, j + 2) = 482
             }
         }
-        if (TBH > 482)
+        if (simContext.TBH > 482)
         {
-            TBH = 482;
+            simContext.TBH = 482;
         }
 
-        // TWH = Worksheets(mySheet).Cells(40, j + 2)
-        if (RunMultiMix == 1)
+        // simContext.TWH = Worksheets(mySheet).Cells(40, j + 2)
+        if (simContext.RunMultiMix == 1)
         {
-            // TWH = Worksheets("MultiMix").Cells(2 + LoopResChem, 3).Value
+            // simContext.TWH = Worksheets("MultiMix").Cells(2 + simContext.LoopResChem, 3).Value
         }
-        if (RunWhatIf == 1)
+        if (simContext.RunWhatIf == 1)
         {
-            TWH = TWIInit;
+            simContext.TWH = simContext.TWIInit;
         }
-        if (UseSI == 1)
+        if (simContext.UseSI == 1)
         {
-            TWH = TWH * 9 / 5 + 32;
+            simContext.TWH = simContext.TWH * 9 / 5 + 32;
         }
 
-        if (TWH < 24.8 && simContext.Run1000Cases != 1)
+        if (simContext.TWH < 24.8 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Final temperature is below 24.8F or -4C. Final temperature will be set to 77 F or 25 C.")
         }
 
-        if (TWH < 24.8)
+        if (simContext.TWH < 24.8)
         {
-            if (UseSI == 1)
+            if (simContext.UseSI == 1)
             {
                 // Worksheets(mySheet).Cells(40, j + 2) = 25
             }
@@ -11449,17 +11433,17 @@ void B2_ReadinAllData(SampleData* data)
                 // Worksheets(mySheet).Cells(40, j + 2) = 77
             }
         }
-        if (TWH < 24.8)
+        if (simContext.TWH < 24.8)
         {
-            TWH = 77;
+            simContext.TWH = 77;
         }
-        if (TWH > 482 && simContext.Run1000Cases != 1)
+        if (simContext.TWH > 482 && simContext.Run1000Cases != 1)
         {
             // MsgBox ("Final temperature is above 482 F. Final temperature will be set to 482 F or 250 C.")
         }
-        if (TWH > 482)
+        if (simContext.TWH > 482)
         {
-            if (UseSI == 1)
+            if (simContext.UseSI == 1)
             {
                 // Worksheets(mySheet).Cells(40, j + 2) = 250
             }
@@ -11468,133 +11452,143 @@ void B2_ReadinAllData(SampleData* data)
                 // Worksheets(mySheet).Cells(40, j + 2) = 482
             }
         }
-        if (TWH > 482)
+        if (simContext.TWH > 482)
         {
-            TWH = 482;
+            simContext.TWH = 482;
         }
 
-        // PBH = Worksheets(mySheet).Cells(41, j + 2);
+        // simContext.PBH = Worksheets(mySheet).Cells(41, j + 2);
+        simContext.PBH = data->P_initial;
 
-        if (RunMultiMix == 1)
+        if (simContext.RunMultiMix == 1)
         {
-            // PBH = Worksheets("MultiMix").Cells(2 + LoopResChem, 4).Value;
+            // simContext.PBH = Worksheets("MultiMix").Cells(2 + simContext.LoopResChem, 4).Value;
         }
 
-        if (RunWhatIf == 1)
+        if (simContext.RunWhatIf == 1)
         {
-            PBH = PWIInit;
+            simContext.PBH = simContext.PWIInit;
         }
 
-        if (UseSI == 1)
+        if (simContext.UseSI == 1)
         {
-            PBH = PBH * 14.503774; // note that TBH, TWH, PBH, PWH is defaulted to F, and psia
+            simContext.PBH = simContext.PBH * 14.503774; // note that simContext.TBH, simContext.TWH, simContext.PBH, simContext.PWH is defaulted to F, and psia
         }
-        if (PBH < 12 && simContext.Run1000Cases != 1)
+        if (simContext.PBH < 12 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Initial pressure is below 12 psia or 0.827 bar. Initial pressure will be set to 14.7 psi or 1.01325 bar.");
         }
-        if (PBH < 12)
+        if (simContext.PBH < 12)
         {
-            if (UseSI == 1)
+            if (simContext.UseSI == 1)
             {
                 // Worksheets(mySheet).Cells(41, j + 2) = 1.01325;
+                simContext.PBH = 1.01325;
             }
             else
             {
                 // Worksheets(mySheet).Cells(41, j + 2) = 14.7;
+                simContext.PBH = 14.7;
             }
         }
 
-        if (PBH < 12)
+        if (simContext.PBH < 12)
         {
-            PBH = 14.7; // If P is zero, probably it is gauge and therefore add 1 atm
+            simContext.PBH = 14.7; // If P is zero, probably it is gauge and therefore add 1 atm
         }
-        if (PBH > 30000 && simContext.Run1000Cases != 1)
+        if (simContext.PBH > 30000 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Initial pressure is above 30,000 psi. Initial pressure will be set to 30,000 psia or 2,068.4 bar.");
         }
-        if (PBH > 30000)
+        if (simContext.PBH > 30000)
         {
-            if (UseSI == 1)
+            if (simContext.UseSI == 1)
             {
                 // Worksheets(mySheet).Cells(41, j + 2) = 30000 / 14.503774;
+                simContext.PBH = 30000 / 14.503774;
             }
             else
             {
                 // Worksheets(mySheet).Cells(41, j + 2) = 30000;
+                simContext.PBH = 30000;
             }
         }
 
-        if (PBH > 30000)
+        if (simContext.PBH > 30000)
         {
-            PBH = 30000;
+            simContext.PBH = 30000;
         }
 
-        // PWH = Worksheets(mySheet).Cells(42, j + 2);
+        // simContext.PWH = Worksheets(mySheet).Cells(42, j + 2);
+        simContext.PWH = data->P_final;
 
-        if (RunMultiMix == 1)
+        if (simContext.RunMultiMix == 1)
         {
-            // PWH = Worksheets("MultiMix").Cells(2 + LoopResChem, 4).Value;
+            // simContext.PWH = Worksheets("MultiMix").Cells(2 + simContext.LoopResChem, 4).Value;
         }
 
-        if (RunWhatIf == 1)
+        if (simContext.RunWhatIf == 1)
         {
-            PWH = PWIInit;
+            simContext.PWH = simContext.PWIInit;
         }
 
-        if (UseSI == 1)
+        if (simContext.UseSI == 1)
         {
-            PWH = PWH * 14.503774;
+            simContext.PWH = simContext.PWH * 14.503774;
         }
 
-        if (PWH < 12 && simContext.Run1000Cases != 1)
+        if (simContext.PWH < 12 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Final pressure is below 12 psia or 0.827 bar. Final pressure will be set to 14.7 psia or 1.01325 bar.");
         }
 
-        if (PWH < 12)
+        if (simContext.PWH < 12)
         {
-            if (UseSI == 1)
+            if (simContext.UseSI == 1)
             {
                 // Worksheets(mySheet).Cells(42, j + 2) = 1.01325;
+                simContext.PWH = 1.01325;
             }
             else
             {
                 // Worksheets(mySheet).Cells(42, j + 2) = 14.7;
+                simContext.PWH = 14.7;
             }
         }
 
-        if (PWH < 12)
+        if (simContext.PWH < 12)
         {
-            PWH = 14.7; // If P is zero, probably it is gauge and therefore add 1 atm
+            simContext.PWH = 14.7; // If P is zero, probably it is gauge and therefore add 1 atm
         }
 
-        if (PWH > 30000 && simContext.Run1000Cases != 1)
+        if (simContext.PWH > 30000 && simContext.Run1000Cases != 1)
         {
             // MsgBox("Final pressure is above 30,000 psi. Final pressure will be set to 30000 psia or 2068.4 bar.");
         }
 
-        if (PWH > 30000)
+        if (simContext.PWH > 30000)
         {
-            if (UseSI == 1)
+            if (simContext.UseSI == 1)
             {
                 // Worksheets(mySheet).Cells(42, j + 2) = 30000 / 14.503774;
+                simContext.PWH = 30000 / 14.503774;
             }
             else
             {
                 // Worksheets(mySheet).Cells(42, j + 2) = 30000;
+                simContext.PWH = 30000;
             }
         }
 
-        if (PWH > 30000)
+        if (simContext.PWH > 30000)
         {
-            PWH = 30000;
+            simContext.PWH = 30000;
         }
     }
 
-    if (tInh == 0)
+    if (simContext.tInh == 0)
     {
-        tInh = 1;
+        simContext.tInh = 1;
     }
 
     for (int i = 0; i < 10; i++)
@@ -11606,15 +11600,15 @@ void B2_ReadinAllData(SampleData* data)
         // InhName(i) = Worksheets("Input").Cells(1 + i - 10, 20)
     }
 
-    NoRiskcalc = 3;
-    for (int i = 1; i < (NoRiskcalc - 1); i++)
+    simContext.NoRiskcalc = 3;
+    for (int i = 1; i < (simContext.NoRiskcalc - 1); i++)
     {
-        ConcInhBarRisk[i] = MaxInh / (NoRiskcalc - 1) * i;
-        ConcInhCalRisk[i] = MaxInh / (NoRiskcalc - 1) * i;
-        ConcInhAnRisk[i] = MaxInh / (NoRiskcalc - 1) * i;
-        ConcInhGypRisk[i] = MaxInh / (NoRiskcalc - 1) * i;
+        simContext.ConcInhBarRisk[i] = simContext.MaxInh / (simContext.NoRiskcalc - 1) * i;
+        simContext.ConcInhCalRisk[i] = simContext.MaxInh / (simContext.NoRiskcalc - 1) * i;
+        simContext.ConcInhAnRisk[i] = simContext.MaxInh / (simContext.NoRiskcalc - 1) * i;
+        simContext.ConcInhGypRisk[i] = simContext.MaxInh / (simContext.NoRiskcalc - 1) * i;
 
-        ConcInhCelRisk[i] = MaxInh / (NoRiskcalc - 1) * i;
+        simContext.ConcInhCelRisk[i] = simContext.MaxInh / (simContext.NoRiskcalc - 1) * i;
     };
 }
 
@@ -11629,7 +11623,7 @@ int main()
     B2_ReadinAllData(&data);
 
     printf("ReadInputPartC ended\n");
-    printf("Calc Result: TDS = %f, yCO2 = %f, yH2S = %f\n", TDS, yCO2, yH2S);
+    printf("Calc Result: TDS = %f, simContext.yCO2 = %f, simContext.yH2S = %f\n", TDS, simContext.yCO2, simContext.yH2S);
     printf("Alkalinity Alk = %f, Tatal Ac TAc = %f\n", Alk, TAc);
     // cleanMemory_pf();
     printf("hello world\n");
