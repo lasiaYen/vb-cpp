@@ -359,7 +359,7 @@ public:
     const int RunStatMix = 0;
     const double RunWhatIf = -1; // vb 中没有赋初值
     const double TWIInit = -1;   // vb 中没有赋初值
-    const double UseSI = -1;    // vb 中没有赋初值
+    const double UseSI = 0;    // vb 中没有赋初值，但是判断UseSI = 0会进入，暂时 表示0, 在InputPartB中会影响simContext.VgTPMix
     const double PWIInit = -1;       // vb 中没有赋初值
 
     int Run10TestCases;
@@ -700,7 +700,7 @@ double pHMeterReading = 0;
 double total_moles;
 
 //simContext.Run10TestCases = 1, 
-int Run_MassTransfer = 1, RunShellMultiflash = 0;
+int Run_MassTransfer = 0, RunShellMultiflash = 0;
 
 
 
@@ -1033,7 +1033,7 @@ void mockData_sheetInput(SampleData* data)
     data->Option_Defined_TP = 0;
     data->Option_TP_for_pH = 0;
     data->Option_TP_for_Q = 0;
-    data->Option_EoS = 1;
+    data->Option_EoS = 3;
     data->Option_Water_HC = 0;
 }
 
@@ -9923,20 +9923,26 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     int usedryHC = 0;
 
     if (simContext.RunStat == 0) {
-        //将 A2 - A4 和 A6 - A8 的闪光灯设置为关闭
+        // vb 中 RunMultiMix, RunWhatIf, Run_Seawater_Mixing 未赋初值
         if (simContext.Run10TestCases == 1 || Run_MassTransfer == 1 || simContext.Run_Seawater_Mixing == 1 || simContext.Run_MixingTwoWells == 1 || simContext.RunWhatIf == 1 || simContext.RunMultiMix == 1) {
             if (simContext.nob_Input + simContext.nob_InputII == 1) {
                 //待定：Worksheets(mySheet).Cells(55, j + 2).Value = 0
+                data->Option_EoS = 0;
             }
             else {
                 //待定：Worksheets(MySheetMix).Cells(55, 8).Value = Empty
+                data->Option_EoS = 0;
             }
         }
         if (simContext.nob_Input + simContext.nob_InputII == 1) {
             //待定：useEOSmix(kk) = Worksheets(mySheet).Cells(55, j + 2).Value
+            // 待定值
+            simContext.useEOSmix[kk] = data->Option_EoS;
         }
         else {
             //待定：useEOSmix(kk) = Worksheets(MySheetMix).Cells(55, 8).Value 'UseEOSMix  values for mixed solution IS set on Column H
+            // 待定值
+            simContext.useEOSmix[kk] = data->Option_EoS;
         }
 
 
@@ -10070,6 +10076,7 @@ void ReadInputPartD(int kk, int j, SampleData* data)
         if (useEOS == 3)
         {
             mol_o = 1000 * Mass_o / mw_oil; // moles of oil per day
+            // vb 9860366.98058253 计算有误 VgTP不同
             mol_g = VgTP * PBar * 1000 / (Znew * RBar * TK); // moles of gas per day
             mol_HC = mol_o + mol_g;
 
