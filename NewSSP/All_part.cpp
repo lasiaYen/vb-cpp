@@ -658,7 +658,7 @@ double BetaDot[20] = { 0 };//
 double xMEG = 0;
 double aH2O = 0;
 
-double gNeut[15] = { 0 }; double zOutput[15] = { 0 }; double z[20] = { 0 }; double gL[20] = { 0 };
+DoubleVec gNeut(15, 0); double zOutput[15] = { 0 }; DoubleVec z(20, 0); double gL[20] = { 0 };
 DoubleVec density(3, 0);
 double mc[15] = { 0 }; double ma[15] = { 0 };
 double ChCat[15] = { 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0 }; double ChAn[15] = { -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -1, -2, -2, 0 ,0 };
@@ -741,7 +741,7 @@ double t1, t2, t3;
 double root1, root2, root3;
 double a, b, cc;
 double total_moles_Temp;  //用在C4_SSPEquilCalcs、C4_EOS_TCO2_SSPEquilCalcs、fEOS_Speciation
-double zTemp[15];//用在C4_SSPEquilCalcs、C4_EOS_TCO2_SSPEquilCalcs、fEOS_Speciation   // 长度15
+DoubleVec zTemp(15, 0);//用在C4_SSPEquilCalcs、C4_EOS_TCO2_SSPEquilCalcs、fEOS_Speciation   // 长度15
 
 char* myiosheet, * myiocol;  // C4 -> MultiPhaseFlash_CS ->  Flash_Input_Processing
 double eosProps[15][6];//ReDim eosProps(nComponents, 1 To 6)      - B1显示，nComponents=15
@@ -3182,7 +3182,7 @@ void fgammaN() {
  * 注意：函数依赖外部数组和全局变量（如mc, ma, b0, b1等），这些需在调用前定义。
  * 特殊处理：对于某些离子对（如Na-SO4, K-SO4, Ca-SO4）使用自定义alpha值。
  */
-void C2_PitzerActCoefs_T_P_ISt(double* gNeut, double* aH2O, double tk, double tc, double pBar, double patm) {
+void C2_PitzerActCoefs_T_P_ISt(DoubleVec& gNeut, double* aH2O, double tk, double tc, double pBar, double patm) {
 
     if (xMeOH > 0 || xMEG > 0) {
         //mt = fgammaN();//在该函数中只调用了一次
@@ -7054,7 +7054,7 @@ void TrueFlash(const char* EOS, double TK, double PBar, int NonZeroNumGases, Dou
 // MultiPhaseFlash。  变量mf_Vg不知道有什么用，暂时当作局部变量。
 void MultiPhaseFlash(bool& mf_ParametersWereRead, DoubleVec& TCr, DoubleVec& PCr, DoubleVec& Omega,
     DoubleVec& MWgas, DoubleMatrix& kPr, DoubleVec& c0, DoubleVec& c1,
-    double TK, double PBar, double total_moles, double* z, double* gNeut, double aH2O, DoubleVec& density, DoubleMatrix& compositions,
+    double TK, double PBar, double total_moles, DoubleVec& z, DoubleVec& gNeut, double aH2O, DoubleVec& density, DoubleMatrix& compositions,
     DoubleMatrix& phi, DoubleVec& Compr, DoubleVec& beta, double* zOutput,
     DoubleVec& mass_phase, DoubleVec& MW_Phase, int* No_Phases)
 {
@@ -7550,8 +7550,8 @@ void Get_EOS_Parameters(int NumGases, std::string& EOS, DoubleVec& MWgas, Double
 }
 
 
-void true_composition(double TK, double PBar, double mol_HC, double mol_W, double temp_aH2O, double* gNeut, double nTCO2, double nTH2S,
-    int useEOS, double* reservoir_Composition, double* feed_Composition, double* total_moles)
+void true_composition(double TK, double PBar, double mol_HC, double mol_W, double temp_aH2O, DoubleVec& gNeut, double nTCO2, double nTH2S,
+    int useEOS, DoubleVec& reservoir_Composition, DoubleVec& feed_Composition, double* total_moles)
 {
     int i, j, NumGases = 15;
     /*
@@ -7632,8 +7632,8 @@ ReDim composition_Aq(NumGases), lnphi_Aq(NumGases)
 
 
 void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, double mol_wpd, double TK,
-    double PBar, double aH2O, double gNeut[], double nTCO2, double nTH2S, double temp_yCO2, double temp_yH2S, double YH2O,
-    double* total_moles, double feed_Composition[], double* mol_HC) {
+    double PBar, double aH2O, DoubleVec& gNeut, double nTCO2, double nTH2S, double temp_yCO2, double temp_yH2S, double YH2O,
+    double* total_moles, DoubleVec& temp_feed_Composition, double* mol_HC) {
     // ======= INPUT =======
     // API: Pseudo API gravity at given TP
     // SGG: Specific gravity of gas (density of gas / density of air at given TP)
@@ -7714,12 +7714,17 @@ void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, dou
     // Subroutine that gets critical properties and parameters for the components
     Get_EOS_Parameters(NumGases, EOS, MWgas, TCr, PCr, Omega, mf_c0, mf_c1, kPr);
 
+    // gNeut[0] 有问题 vb 1.3378450925412 CPP 1.337801774221661
     mf_gNeut[0] = gNeut[0];
     mf_gNeut[1] = gNeut[1];
-    // Sub phi_calc(eqVapor,eqAqueous, EOS As String, phase As String, TK As Double, PBar As Double, x() As Double, xGlobal() As Double, gNeut() As Double, aH2O As Double, TCr() As Double, PCr() As Double, Omega() As Double, c0() As Double, c1() As Double, kPr() As Double, lnphi() As Double, z As Double)
-
-    // Call phi_calc(False, False, EOS, "liquid", CDbl(TK), CDbl(PBar), composition_Aq, composition_Aq, mf_gNeut, CDbl(aH2O), TCr, PCr, Omega, mf_c0, mf_c1, kPr, lnphi_Water, Compr_composition_Aq)  'commented out by Amy ???
+    /*     VB 中注释了           */
+    //  Sub phi_calc(eqVapor,eqAqueous, EOS As String, phase As String, 
+    // TK As Double, PBar As Double, x() As Double, xGlobal() As Double, gNeut() As Double,
+    //  aH2O As Double, TCr() As Double, PCr() As Double, Omega() As Double, c0() As Double, c1() As Double, kPr() As Double, lnphi() As Double, z As Double)
+    // Call phi_calc(False, False, EOS, "liquid", CDbl(TK), CDbl(PBar),
+    //  composition_Aq, composition_Aq, mf_gNeut, CDbl(aH2O), TCr, PCr, Omega, mf_c0, mf_c1, kPr, lnphi_Water, Compr_composition_Aq)  'commented out by Amy ???
     // lnphiH2O_Aq = lnphi_Water(NumGases)
+    /*     VB 中注释了           */
 
     yLightG = (mwHeavyG - mwG - mwHeavyG * (simContext.yCO2 + simContext.yH2S + YH2O) + simContext.yCO2 * 44.01 + simContext.yH2S * 34.08 + YH2O * 18.01528) / (mwHeavyG - mwLightG);  // mole fraction of methane in the gas phase
     if (yLightG < 0) yLightG = 0;
@@ -7750,29 +7755,29 @@ void pseudo_composition(double API, double SGG, double VgTP, double mol_opd, dou
     // total_moles = mol_gpd + mol_wpd + mol_opd  ' TOTAL MOLES PER DAY (GAS + OIL + WATER)
 
     for (i = 0; i < NumGases; i++) {
-        feed_Composition[i] = 0.0;
+        temp_feed_Composition[i] = 0.0;
     }
 
-    feed_Composition[0] = mol_LightGpd;  // mole fraction of methane in the feed
-    feed_Composition[1] = nTCO2;  // mole fraction of CO2 in the feed
-    feed_Composition[2] = nTH2S;  // mole fraction of H2S in the feed
-    feed_Composition[6] = mol_HeavyGpd;  // mole fraction of n-butane in the feed (index 7 in 1-based)
-    feed_Composition[9] = mol_LightOpd;  // mole fraction of n-hexane in the feed (index 10)
-    feed_Composition[12] = mol_HeavyOpd;  // mole fraction of toluene in the feed (index 13)
-    feed_Composition[14] = mol_wpd;  // mole fraction of water in the feed (index 15)
+    temp_feed_Composition[0] = mol_LightGpd;  // mole fraction of methane in the feed
+    temp_feed_Composition[1] = nTCO2;  // mole fraction of CO2 in the feed
+    temp_feed_Composition[2] = nTH2S;  // mole fraction of H2S in the feed
+    temp_feed_Composition[6] = mol_HeavyGpd;  // mole fraction of n-butane in the feed (index 7 in 1-based)
+    temp_feed_Composition[9] = mol_LightOpd;  // mole fraction of n-hexane in the feed (index 10)
+    temp_feed_Composition[12] = mol_HeavyOpd;  // mole fraction of toluene in the feed (index 13)
+    temp_feed_Composition[14] = mol_wpd;  // mole fraction of water in the feed (index 15)
 
     *total_moles = 0;
     for (i = 0; i < NumGases; i++) {
-        *total_moles += feed_Composition[i];
+        *total_moles += temp_feed_Composition[i];
     }
     *mol_HC = *total_moles - mol_wpd;
     for (i = 0; i < NumGases; i++) {
-        feed_Composition[i] /= *total_moles;
+        temp_feed_Composition[i] /= *total_moles;
     }
 }
 
 
-void Flash_Input_Processing(char* ioSheet, char* ioCol, double eosProps[][6], double kij[][15], double* zInput, int nComp,
+void Flash_Input_Processing(char* ioSheet, char* ioCol, double eosProps[][6], double kij[][15], DoubleVec& zInput, int nComp,
     DoubleVec& zi,        // 输出数组地址（函数内malloc）
     IntVec& idx_CompA,    // 输出索引数组地址
     int& nCompA, IntVec& idx_Henry,
@@ -7858,7 +7863,7 @@ void Flash_Input_Processing(char* ioSheet, char* ioCol, double eosProps[][6], do
 
 
 void MultiPhaseFlash_CS(char* iosheet, char* ioCol, double eosProps[][6], double kij[][15], double TK, double PBar,
-    double total_moles, double* zInput, double* gNeut, double aH2O, DoubleVec& density, DoubleMatrix& compositions,
+    double total_moles, DoubleVec& zInput, DoubleVec& gNeut, double aH2O, DoubleVec& density, DoubleMatrix& compositions,
     DoubleMatrix& phi, DoubleVec& Compr, DoubleVec& beta, double* zOutput,
     DoubleVec& mass_phase, DoubleVec& MW_Phase, int* No_Phases)
 {
@@ -8231,7 +8236,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
     int ISilicate;
     double fppt, dfppt;
 
-    double gNeutAq[2] = { gNeut[iCO2aq], gNeut[iH2Saq] }; // Array for MultiPhaseFlash
+    DoubleVec gNeutAq = { gNeut[iCO2aq], gNeut[iH2Saq] }; // Array for MultiPhaseFlash
 
 
     for (int i = 0; i < 30; i++) {
@@ -9901,14 +9906,11 @@ void ReadInputPartD(int kk, int j, SampleData* data)
     int mol_w3;
     double mol_W, mol_o, mol_g, mol_HC;
 
-    double feed_Composition[15];
-    for (int i = 0; i < 15; i++) {
-        feed_Composition[i] = 0;
-    }
+    DoubleVec feed_Composition(15, 0.0);
 
     double mw_oil;
 
-    double tempgNeut[2] = { gNeut[iCO2aq], gNeut[iH2Saq] };
+    DoubleVec tempgNeut = { gNeut[iCO2aq], gNeut[iH2Saq] };
 
     //-----------------------------------------------------
     int iNG = 0;
