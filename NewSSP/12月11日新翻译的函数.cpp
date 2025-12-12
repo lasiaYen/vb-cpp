@@ -1,15 +1,15 @@
 void InitializeOptionClearCellContent()
 {
-    // ����������ʼ������ VBA �߼���
+    // 锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷始锟斤拷锟斤拷锟斤拷 VBA 锟竭硷拷锟斤拷
     UseSR = 0; simContext.UseTPCalciteSheet = 0;
     simContext.Read_InputII = 0;
-    //int NCount_II = 0;  //NCount_II:InitializeO��CountNOB;   - ����ǰ���н���ֵ���ں����и�ֵ��ʹ�ã����ע�͵�
+    //int NCount_II = 0;  //NCount_II:InitializeO锟斤拷CountNOB;   - 锟斤拷锟斤拷前锟斤拷锟叫斤拷锟斤拷值锟斤拷锟节猴拷锟斤拷锟叫革拷值锟斤拷使锟矫ｏ拷锟斤拷锟阶拷偷锟�
     useEOS = 0;
     simContext.LoopMixing = 0; simContext.UseMolal = 0; //iTP = 0
     RunShellMultiflash = 0; H2Oevap = 0;
     simContext.Run_CalcConcFactor = 0;
 
-    // ��Щ����ӦΪȫ�ֱ���
+    // 锟斤拷些锟斤拷锟斤拷应为全锟街憋拷锟斤拷
     //int RunGoalSeek, RunStatGoalSeek; Run_MassTransfer;
     //RunH2SGUI, RunSMT, RunStat, RunH2SPartition;
 
@@ -18,9 +18,9 @@ void InitializeOptionClearCellContent()
     Run_MassTransfer = (Run_MassTransfer == 1 ? 1 : 0);
 
     // If Worksheets("Input").Range("I11") = "Saturation Ratio values" Then UseSR = 1;
-    //û�������������ǲ������UseSR=1;��ע�͵���
+    //没锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟角诧拷锟斤拷锟斤拷锟経seSR=1;锟斤拷注锟酵碉拷锟斤拷
 
-    usePTB = 1;   //Ŀǰ����һ��Ϊ 1
+    usePTB = 1;   //目前锟斤拷锟斤拷一锟斤拷为 1
     /*
     if (simContext.RunH2SGUI != 1 && RunSMT != 1 && simContext.RunStat != 1) {
          if Worksheets("Calcite").Range("F3") == "mg/L"
@@ -30,7 +30,7 @@ void InitializeOptionClearCellContent()
     }
     */
 
-    // ============== �������� Excel ��ղ���������Ϊע�� ==============
+    // ============== 锟斤拷锟斤拷锟斤拷锟斤拷 Excel 锟斤拷詹锟斤拷锟斤拷锟斤拷锟斤拷锟轿拷锟� ==============
     if (RunSMT != 1) {
         if (simContext.RunH2SGUI != 1) {
 
@@ -74,12 +74,12 @@ void InitializeOptionClearCellContent()
         }
     }
 
-    //double feed_Composition[15];�������partD��ʹ�ã�������Ϊ�ֲ����ˣ��˴�����
+    //double feed_Composition[15];锟斤拷锟斤拷锟斤拷锟絧artD锟斤拷使锟矫ｏ拷锟斤拷锟斤拷锟斤拷为锟街诧拷锟斤拷锟剿ｏ拷锟剿达拷锟斤拷锟斤拷
 
     DpHj = 0;
 
 
-    // ============== �ڶ��� Excel ��գ������жϣ�==============
+    // ============== 锟节讹拷锟斤拷 Excel 锟斤拷眨锟斤拷锟斤拷锟斤拷卸希锟�==============
     if (RunSMT != 1) {
         if (RunH2SPartition != 1) {
 
@@ -111,14 +111,14 @@ void CountNOB()
     //extern int RunStatMix, Run_Seawater_Mixing, RunMultiMix, RunMultiMixSlb;
     //extern int Read_InputII, Run1000Cases;
 
-    // ��ʼ��
+    // 锟斤拷始锟斤拷
     simContext.nob = 0;
     Ncount = 0;
     NCount_II = 0;
     //simContext.nob_Input = 0;
     //simContext.nob_InputII = 0;
     simContext.Run1000Cases = 0;
-    RunStatReservoirCalc = 0;//û���������ֵ��ֵ������
+    RunStatReservoirCalc = 0;//没锟斤拷锟斤拷锟斤拷锟斤拷锟街碉拷锟街碉拷锟斤拷锟斤拷锟�
 
     if (RunStatReservoirCalc == 1)
     {
@@ -214,10 +214,10 @@ void CountNOB()
         End If
         */
     }
-    // ====================== ��� else: ��ȡ Input Sheet �Ĺ�ѡ�� ======================
+    // ====================== 锟斤拷锟� else: 锟斤拷取 Input Sheet 锟侥癸拷选锟斤拷 ======================
     else
     {
-        //�Ķ�����������ĸ�ѡ����ȷ��Ҫʹ����Щ����
+        //锟侥讹拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷母锟窖★拷锟斤拷锟饺凤拷锟揭癸拷锟斤拷锟叫╋拷锟斤拷锟�
         for (int i = 0; i < 5; i++)
         {
 
@@ -230,7 +230,7 @@ void CountNOB()
 
         //nob_Input = nob;
 
-        //�Ķ�����������ĸ�ѡ����ȷ��Ҫʹ����Щ����
+        //锟侥讹拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷母锟窖★拷锟斤拷锟饺凤拷锟揭癸拷锟斤拷锟叫╋拷锟斤拷锟�
         for (int i = 0; i < 100; i++)
         {
             /*
@@ -290,10 +290,10 @@ void CountNOB()
 }
 
 
-//B3�л��޸�data��API����������ֱ�����ô���
+//B3锟叫伙拷锟睫革拷data锟斤拷API锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷直锟斤拷锟斤拷锟矫达拷锟斤拷
 void B3_CalcConcs(double& API)
 {
-    /*  �ֲ��������� */
+    /*  锟街诧拷锟斤拷锟斤拷锟斤拷锟斤拷 */
     int i, c, a, n, iNG, iden;
     double molAlkF = 0, molTACF = 0, molTNH4F = 0;
     double molTH3BO3F = 0, molTH2SaqF = 0, molTH4SiO4F = 0;
@@ -335,7 +335,7 @@ void B3_CalcConcs(double& API)
     nTH2sEOS = 0;
 
     /* ---- Reset arrays ---- */
-    //�����������������B3��ʹ��
+    //锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟紹3锟斤拷使锟斤拷
     double molcF[15]; double molaF[15]; double molnF[10];
     for (c = 0; c < NumCat; c++)
     {
@@ -405,10 +405,10 @@ void B3_CalcConcs(double& API)
     for (i = 0; i < simContext.nob; i++)
     {
         /*
-        ע��vb���ж�Run_MixingTwoWells�Ƿ�Ϊ1
-        ��Ϊ1����Щ���鶼���һ��MixFracTwoWells[i]
+        注锟斤拷vb锟斤拷锟叫讹拷Run_MixingTwoWells锟角凤拷为1
+        锟斤拷为1锟斤拷锟斤拷些锟斤拷锟介都锟斤拷锟揭伙拷锟組ixFracTwoWells[i]
 
-        ����˵���MixFrac[i],������������һ��MF������Ҫ�˵�ֵ�������ظ�������ʱ
+        锟斤拷锟斤拷说锟斤拷锟組ixFrac[i],锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷一锟斤拷MF锟斤拷锟斤拷锟斤拷要锟剿碉拷值锟斤拷锟斤拷锟斤拷锟截革拷锟斤拷锟斤拷锟斤拷时
         */
         double MF = (simContext.Run_MixingTwoWells == 1) ? MixFracTwoWells[i] : simContext.MixFrac[i];
 
@@ -425,7 +425,7 @@ void B3_CalcConcs(double& API)
         mc[iPb] += MF * simContext.PbMix[i];
         mc[iNH4] += MF * simContext.NH4STPMix[i];
 
-        //��Ϊ1ʱ�Żḳֵ���iRa
+        //锟斤拷为1时锟脚会赋值锟斤拷锟絠Ra
         if (simContext.Run_MixingTwoWells != 1)
             mc[iRa] += MF * simContext.RaMix[i];
 
@@ -479,7 +479,7 @@ void B3_CalcConcs(double& API)
         if (total_moles > 0) {
             for (iNG = 0; iNG < 15; iNG++) {
                 z[iNG] /= total_moles;
-                //���ܻᵼ��c��vb��Ϊ��ͬ�Ĵ���
+                //锟斤拷锟杰会导锟斤拷c锟斤拷vb锟斤拷为锟斤拷同锟侥达拷锟斤拷
                 if (z[iNG] < 1e-7) z[iNG] = 0;
                 z_before_precipitation[iNG] = z[iNG];
             }
@@ -845,12 +845,12 @@ void B4_CalcFinalBrine()
                         //Worksheets("Input").Range("h46").Value = mass_MEG / 1.1135 / 159.0;
                         if (simContext.UseSI == 1)
                             //Worksheets("Input").Range("h45").Value = mass_MeOH / 1.1135 / 159 * 0.159
-                            double aaa123 = 0;// ռλ��䣬ȷ�Ϻ���ɾ��
+                            double aaa123 = 0;// 占位锟斤拷洌凤拷虾锟斤拷锟缴撅拷锟�
     }
 
 label100:
     return;
-    // ��תĿ��
+    // 锟斤拷转目锟斤拷
 }
 
 
@@ -958,7 +958,7 @@ void B5_CalculateSIvalues(double& API)
     SIQuartz = 0; SIDiopside = 0; SIChrysotile = 0;
     SIGreenalite = 0;
 
-    // --- Copy mcInit �� mc, maInit �� ma
+    // --- Copy mcInit 锟斤拷 mc, maInit 锟斤拷 ma
     for (int c = 0; c < NumCat; c++) {
         mc[c] = mcInit[c];
     }
@@ -1016,7 +1016,7 @@ void B5_CalculateSIvalues(double& API)
     }
 
     // ================================
-    //        useEOS != 0 ��֧
+    //        useEOS != 0 锟斤拷支
     // ================================
 
     if (useEOS != 0)
@@ -1047,7 +1047,7 @@ void B5_CalculateSIvalues(double& API)
 
         if (compositions[14][3] < 0.5 || mass_w < 1e-7)
         {
-            //���˱�Ǳ�����ʱ��ˮ���������˳����㡣
+            //锟斤拷锟剿憋拷潜锟斤拷锟斤拷锟绞憋拷锟剿拷锟斤拷锟斤拷锟斤拷锟斤拷顺锟斤拷锟斤拷恪�
             simContext.errmsg[7] = 8;
             ISt = 0; pH = 0; rhoTP = 0; H2Oevap = 1;
             goto exit_label_500;
@@ -1166,7 +1166,7 @@ void B5_CalculateSIvalues(double& API)
     // ================================
     if (RunShellMultiflash != 1)
     {
-        // ���㱥�Ͷ�ָ��
+        // 锟斤拷锟姐饱锟酵讹拷指锟斤拷
         SICal = log10(mc[iCa] * simContext.HCO3 * gCat[iCa] * gNCat[iCa] *
             gAn[iHCO3] * gNAn[iHCO3] * K2HCO3 / (aH * KspCalcite));
 
@@ -1195,7 +1195,7 @@ void B5_CalculateSIvalues(double& API)
 
         SISrCO3 = log10(mc[iSr] * simContext.HCO3 * gCat[iSr] * gNCat[iSr] * gAn[iHCO3] * gNAn[iHCO3] * K2HCO3 / (aH * KspSrCO3));
 
-        // If Use_ZnCl2Const = 1 Then ע�͵����������
+        // If Use_ZnCl2Const = 1 Then 注锟酵碉拷锟斤拷锟斤拷锟斤拷锟斤拷锟�
         SIZnS = log10(mc[iZn] * simContext.HS * gCat[iZn] * gAn[iHS] * gNAn[iHS] / aH / KspZnS);
 
         SIPbS = log10(mc[iPb] * simContext.HS * gCat[iPb] * gAn[iHS] * gNAn[iHS] / aH / KspPbS);
@@ -1203,8 +1203,8 @@ void B5_CalculateSIvalues(double& API)
         SIZnCO3 = log10(mc[iZn] * simContext.CO3 * gCat[iZn] * gAn[iCO3] / KspZnCO3);
 
         // added by Dai 2016
-        // ��Ҫ�ȶ��� SICal ����
-        SICal = 0.0; // �����ʼֵ
+        // 锟斤拷要锟饺讹拷锟斤拷 SICal 锟斤拷锟斤拷
+        SICal = 0.0; // 锟斤拷锟斤拷锟绞贾�
 
         if (xMeOH > 0 && mc[iCa] * simContext.HCO3 > 0)
         {
@@ -1301,7 +1301,7 @@ double fCinhCal(double SI, double tInh, double& fSafetyCal)
 
     if (InhNoCal == 20)
     {
-        // ע�⣺���� VB �±���� -1
+        // 注意：所有 VB 下标均需 -1
         bInhCal[simContext.InhNo1 - 1] = pow(10.0, fbInhCal(simContext.InhNo1, SI));
         bInhCal[simContext.InhNo2 - 1] = pow(10.0, fbInhCal(simContext.InhNo2, SI));
 
@@ -1430,8 +1430,8 @@ void B6_InhibitorNeeded()
 
             if (simContext.SelectInh == 1)
             {
-                //�˴�C����δ���±�ƫ�ƣ���Ϊ�漰��InhNoBar��
-                //��ˣ���������[i]��Ҫ��������[i - 1], ����iʱ����-1����Ϊ��fbInhBar�����ƫ��
+                //此处C语言未作下标偏移，因为涉及到InhNoBar等
+                //因此，对于数组[i]，要进行数组[i - 1], 传入i时不能-1，因为在fbInhBar里会做偏移
                 int iMaxBar = 1;
                 double bInhBarMax = fbInhBar(iMaxBar, SIBar);
 
@@ -1450,11 +1450,8 @@ void B6_InhibitorNeeded()
             if (simContext.SelectInh == 1)
                 InhNoBar = 2;   /* VB: always choose BHPMP */
 
-            /* Excel writes �� remove �� optional store */
-            /*
-            Worksheets("Barite").Cells(2, 6) = InhName(InhNoBar)
-            Worksheets("Input").Cells(49, 10) = InhName(InhNoBar)
-            */
+            /* Excel writes 锟斤拷 remove 锟斤拷 optional store */
+            InhNameSelected_Barite = InhName[InhNoBar];
         }
 
         if (SIBar > 0.001)
@@ -1583,11 +1580,11 @@ void B6_InhibitorNeeded()
     if (mc[iSr] * ma[iSO4] > 0.0)
     {
         if (simContext.InhNo <= 11)
-            InhNoCel = 3;      /* phosphonate �� DTPMP */
+            InhNoCel = 3;      /* phosphonate → DTPMP */
         else if (simContext.InhNo <= 14)
-            InhNoCel = 12;     /* carboxylates �� PPCA */
+            InhNoCel = 12;     /* carboxylates → PPCA */
         else
-            InhNoCel = 17;     /* others �� PVS */
+            InhNoCel = 17;     /* others 锟斤拷 PVS */
 
         if (simContext.SelectInh == 1)
             InhNoCel = 3;      /* always choose DTPMP */
@@ -1611,12 +1608,12 @@ void B6_InhibitorNeeded()
 void LoopTPSI(double& API)
 {
     B5_CalculateSIvalues(API);
-    pH_before_precipitation = pH;  // �������ǰ pH������ SqSoft
+    pH_before_precipitation = pH;  // 锟斤拷锟斤拷锟斤拷锟角� pH锟斤拷锟斤拷锟斤拷 SqSoft
 
     if (H2Oevap != 1)
-        B6_InhibitorNeeded();   // �������Ƽ���
+        B6_InhibitorNeeded();   // 锟斤拷锟斤拷锟斤拷锟狡硷拷锟斤拷
 
-    // Calcite: ���� LoopTP = 1 ʱ�Ļ�׼ SI
+    // Calcite: 锟斤拷锟斤拷 LoopTP = 1 时锟侥伙拷准 SI
     if (LoopTP == 1)
     {
         SICalBh = SICal;
@@ -1634,7 +1631,7 @@ void LoopTPSI(double& API)
         SISrCO3BH = SISrCO3;
     }
 
-    // ---- SqueezeSoftPitzer ��Ҫ����� ----
+    // ---- SqueezeSoftPitzer 锟斤拷要锟斤拷锟斤拷锟� ----
     double TCO2BH, pHBH;
     double BHConcInhCal, BHConcInhBar, WHConcInhCal, WHConcInhBar, SICalWH, SIBarWH;
     if (RunGoalSeek != 1)
@@ -1669,7 +1666,7 @@ void LoopTPSI(double& API)
         }
     }
 
-    // ----- ���� ��SI -----
+    // ----- 锟斤拷锟斤拷 锟斤拷SI -----
     double dSIGyp, dSIHemi, dSIAn, dSICel, dSICaF2;
 
     if (RunGoalSeek != 1)
@@ -1691,7 +1688,7 @@ void LoopTPSI(double& API)
         }
     }
 
-    // ----- ȫ������������ -----
+    // ----- 全锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷 -----
 
     pptCal = pptBar = pptSid = pptGyp = pptHemi = pptAn = pptCel = pptHal = 0;
     pptFeS = pptZnS = pptZnCO3 = pptPbS = pptCaF2 = 0;
@@ -1758,7 +1755,7 @@ int A1_Start_ScaleSoftPitzer()
     Worksheets("Calcite").Cells(13, 2) = PBH
     Worksheets("Calcite").Cells(4, 2) = PWH
    */
-   // SI ��λת���߼�
+   // SI 锟斤拷位转锟斤拷锟竭硷拷
     if (simContext.UseSI == 1) {
         simContext.TBH = (simContext.TBH - 32.0) * 5.0 / 9.0;
         simContext.TWH = (simContext.TWH - 32.0) * 5.0 / 9.0;
@@ -1984,4 +1981,1649 @@ label201:
     {
         return;  //End
     }
+}
+
+void B7_ScaleRisk()
+{
+    // 缁撴瀯浣撳叏灞�鍙橀噺
+    // double mc[], ma[], TK, tInh, xMeOH, xMEG, HCO3;
+    // double SIRisk[ ... ];
+    // double ConcInhBarRisk[], ConcInhCalRisk[], ConcInhAnRisk[];
+    // int InhNoBar, InhNoCal, InhNoAn;
+    // int InhNo1, InhNo2;
+    // int LoopTP, NoRiskcalc;
+
+    // Barite MIC=0: Barite index=1, calcite index=2
+    if (mc[iBa] > 1e-7 && ma[iSO4] > 1e-7)
+    {
+        double BarExpon10 = log10(tInh);
+
+        double a = -1.1136 * (xMeOH - 1.2976 * pow(xMeOH, 2)) * TK;
+        double b = 716.694987 + (BarExpon10 - -3.153194285 
+                                - 0 * mc[iCa]
+                                - 0.189075542 * fabs(log10(mc[iBa] / ma[iSO4]))
+                                - 4.8404 * xMEG) * TK;
+        double cc = (-0.92635504 * TK - 1879.905802);
+
+        if (xMeOH == 0)
+        {
+            SIRisk[InhNoBar][LoopTP][1][1] = -cc / b;
+        }
+        else
+        {
+            double qroot = -0.5 * (b - sqrt(b * b - 4 * a * cc));
+            double root1 = cc / qroot;
+            qroot = -0.5 * (b + sqrt(b * b - 4 * a * cc));
+            double root2 = cc / qroot;
+
+            SIRisk[InhNoBar][LoopTP][1][1] = root2;
+        }
+
+        if (SIRisk[InhNoBar][LoopTP][1][1] < 0)
+            SIRisk[InhNoBar][LoopTP][1][1] = 0;
+
+        double tInhRisk = tInh;
+
+        for (int iRisk = 1; iRisk <= NoRiskcalc - 1; iRisk++)
+        {
+            double SIRiskLow = SIRisk[InhNoBar][LoopTP][iRisk][1];
+            double SIRiskHigh = 5.0;
+            double SIBarRisk = 0;
+
+            for (int k = 1; k <= 10; k++)
+            {
+                SIBarRisk = (SIRiskLow + SIRiskHigh) / 2.0;
+                double t0Bar = pow(10, flogT0Bar(SIBarRisk));
+
+                if (t0Bar == 0) {
+                    SIBarRisk = 0.0;
+                    break;
+                }
+
+                double Dep1 = fCinhBar(SIBarRisk, tInhRisk) - ConcInhBarRisk[iRisk];
+
+                if (Dep1 > 0)
+                    SIRiskHigh = SIBarRisk;
+                else
+                    SIRiskLow = SIBarRisk;
+            }
+
+            SIRisk[InhNoBar][LoopTP][iRisk + 1][1] = SIBarRisk;
+            if (SIRisk[InhNoBar][LoopTP][iRisk + 1][1] < 0)
+                SIRisk[InhNoBar][LoopTP][iRisk + 1][1] = 0;
+        }
+    }
+
+    // Calcite MIC = 0
+    if (mc[iCa] > 1e-7 && HCO3 > 1e-7)
+    {
+        double CalExpon10 = log10(tInh);
+        double b = 1876.4 + (CalExpon10 - 4.22) * TK;
+        double cc = (13.8 * TK - 6259.6);
+
+        double root2 = -cc / b;
+        SIRisk[InhNoCal][LoopTP][1][2] = root2;
+
+        if (SIRisk[InhNoCal][LoopTP][1][2] < 0)
+            SIRisk[InhNoCal][LoopTP][1][2] = 0;
+
+        double tInhRisk = tInh;
+
+        for (int iRisk = 1; iRisk <= NoRiskcalc - 1; iRisk++)
+        {
+            double SIRiskLow = SIRisk[InhNoCal][LoopTP][iRisk][2];
+            double SIRiskHigh = 5.0;
+            double SICalRisk = 0;
+
+            for (int k = 1; k <= 10; k++)
+            {
+                SICalRisk = (SIRiskLow + SIRiskHigh) / 2.0;
+                double t0Cal = pow(10, flogT0Cal(SICalRisk));
+
+                if (t0Cal == 0) {
+                    SICalRisk = 0.0;
+                    break;
+                }
+
+                double Dep1 = fCinhCal(SICalRisk, tInhRisk) - ConcInhCalRisk[iRisk];
+                if (Dep1 > 0)
+                    SIRiskHigh = SICalRisk;
+                else
+                    SIRiskLow = SICalRisk;
+            }
+
+            if (InhNoCal < 6 || InhNoCal > 9)
+            {
+                SIRisk[InhNoCal][LoopTP][iRisk + 1][2] = SICalRisk;
+                if (SIRisk[InhNoCal][LoopTP][iRisk + 1][2] < 0)
+                    SIRisk[InhNoCal][LoopTP][iRisk + 1][2] = 0;
+            }
+
+            if (InhNoCal == 14)
+            {
+                if (InhNo1 > 5 && InhNo1 < 10)
+                    SIRisk[InhNoCal][LoopTP][iRisk + 1][2] = NAN;
+
+                if (InhNo2 > 5 && InhNo2 < 10)
+                    SIRisk[InhNoCal][LoopTP][iRisk + 1][2] = NAN;
+            }
+        }
+    }
+
+    // Anhydrite MIC = 0
+    if (mc[iCa] > 1e-5 && ma[iSO4] > 1e-4)
+    {
+        if (TK > 373)
+        {
+            double AnExpon10 = log10(tInh);
+            double b = 885.8 + (AnExpon10 - 2.15) * TK;
+            double cc = 2.83 * TK - 1766.3;
+
+            double root2 = -cc / b;
+
+            SIRisk[InhNoAn][LoopTP][1][3] = root2;
+            if (root2 < 0)
+                SIRisk[InhNoAn][LoopTP][1][3] = 0;
+
+            double tInhRisk = tInh;
+
+            for (int iRisk = 1; iRisk <= NoRiskcalc - 1; iRisk++)
+            {
+                double SIRiskLow = SIRisk[InhNoAn][LoopTP][iRisk][3];
+                double SIRiskHigh = 5.0;
+                double SIAnRisk = 0;
+
+                for (int k = 1; k <= 10; k++)
+                {
+                    SIAnRisk = (SIRiskLow + SIRiskHigh) / 2;
+                    double t0An = pow(10, flogT0An(SIAnRisk));
+
+                    if (t0An == 0)
+                    {
+                        SIAnRisk = 0.0;
+                        break;
+                    }
+
+                    double Dep1 = fCinhAn(SIAnRisk, tInhRisk) - ConcInhAnRisk[iRisk];
+                    if (Dep1 > 0)
+                        SIRiskHigh = SIAnRisk;
+                    else
+                        SIRiskLow = SIAnRisk;
+                }
+
+                SIRisk[InhNoAn][LoopTP][iRisk + 1][3] = SIAnRisk;
+                if (SIRisk[InhNoAn][LoopTP][iRisk + 1][3] < 0)
+                    SIRisk[InhNoAn][LoopTP][iRisk + 1][3] = 0;
+            }
+        }
+    }
+}
+
+
+// VB鍘熷浠ｇ爜鍙傝�冿細
+// Sub LoopTPWrite()
+// ... (瀹屾暣VB浠ｇ爜濡備笂)
+// End Sub
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <memory>
+
+// ==================== 鍏ㄥ眬鍙橀噺澹版槑锛堟牴鎹甐B浠ｇ爜涓殑鍙橀噺锛�====================
+// 娉ㄦ剰锛氳繖浜涘彉閲忛渶瑕佸湪瀹為檯椤圭洰涓纭畾涔夊拰鍒濆鍖�
+int RunStat = 0;
+int RunStatSICalcSSP = 0;
+int RunStatGoalSeek = 0;
+int RunGoalSeek = 0;
+int LoopTP = 0;
+int StatTPnob = 0;
+int UseSI = 0;
+int Run_MassTransfer = 0;
+int Run_MassTransfer_WhatIf = 0;
+int Iter_MT_WI = 0;
+int usePTB = 0;
+int useEOS = 0;
+int OutPutActCoefs = 0;
+int QPBubblePt = 0;
+int useSR = 0;
+int H2Oevap = 0;
+int RunSimpSSP = 0;
+int InhNoCal = 0;
+int InhNoBar = 0;
+int InhNoAn = 0;
+int InhNoCel = 0;
+int InhNo1 = 0;
+int InhNo2 = 0;
+int MaxInh = 0;
+int nob = 0;
+int Use_Corr_in_Deposition = 0;
+int Flow_Pattern = 0;
+int Flow_Regime = 0;
+int FlowType = 0;
+
+double location = 0.0;
+double depth = 0.0;
+double TF = 0.0;
+double Ppsia = 0.0;
+double PipeL = 0.0;
+double pH_before_precipitation = 0.0;
+double DpHj = 0.0;
+double ConcInhCal = 0.0;
+double ConcInhBar = 0.0;
+double rhoTP = 0.0;
+double ISt = 0.0;
+double rho25c = 0.0;
+double TDS = 0.0;
+double TDSHalite = 0.0;
+double Rho25cHalite = 0.0;
+double pHaftercalciteppt = 0.0;
+double pHafterAmsilicappt = 0.0;
+double pHafterQuartzppt = 0.0;
+double pHafterGreenaliteppt = 0.0;
+double pHafterDiopsideppt = 0.0;
+double pHafterChrysotileppt = 0.0;
+double pHafterMgOH2ppt = 0.0;
+double pHafterCaOH2ppt = 0.0;
+double pptCalcite_NoMassTransfer = 0.0;
+double pptBarite_NoMassTransfer = 0.0;
+double pptGyp = 0.0;
+double pptHemi = 0.0;
+double pptAn = 0.0;
+double pptCel = 0.0;
+double pptHal = 0.0;
+double pptFeSAm = 0.0;
+double pptFeS_NoMassTransfer = 0.0;
+double pptTrot = 0.0;
+double pptZnS = 0.0;
+double pptCaF2 = 0.0;
+double pptFeCO3_NoMassTransfer = 0.0;
+double pptZnCO3 = 0.0;
+double pptPbS = 0.0;
+double pptSrCO3 = 0.0;
+double pptBaCO3 = 0.0;
+double pptAmSilica = 0.0;
+double pptQuartz = 0.0;
+double pptChrysotile = 0.0;
+double pptDiopside = 0.0;
+double pptGreenalite = 0.0;
+double pptMgOH2 = 0.0;
+double pptCaOH2 = 0.0;
+double pptCalcite_MassTransfer = 0.0;
+double pptBarite_MassTransfer = 0.0;
+double pptFeCO3_MassTransfer = 0.0;
+double pptCalcite_MassTransfer_V = 0.0;
+double pptBarite_MassTransfer_V = 0.0;
+double pptFeCO3_MassTransfer_V = 0.0;
+double m_CR_selected = 0.0;
+double PBubblePt = 0.0;
+double SICal = 0.0;
+double dSICal = 0.0;
+double SIDol = 0.0;
+double SIBar = 0.0;
+double dSIBar = 0.0;
+double SIBarBH = 0.0;
+double SIHal = 0.0;
+double dSIHal = 0.0;
+double SIGyp = 0.0;
+double SIHemi = 0.0;
+double SIAn = 0.0;
+double SICel = 0.0;
+double SIFeSAm = 0.0;
+double SIFeS = 0.0;
+double SITrot = 0.0;
+double SIZnS = 0.0;
+double SICaF2 = 0.0;
+double SISid = 0.0;
+double dSISid = 0.0;
+double SIZnCO3 = 0.0;
+double SIPbS = 0.0;
+double SISrCO3 = 0.0;
+double SIBaCO3 = 0.0;
+double SICaOH2 = 0.0;
+double SIMgOH2 = 0.0;
+double SIAmSilica = 0.0;
+double SIQuartz = 0.0;
+double SIChrysotile = 0.0;
+double SIDiopside = 0.0;
+double SIGreenalite = 0.0;
+double ReNO = 0.0;
+double Hold_l = 0.0;
+double Time_lsl_burst = 0.0;
+double lgt_calcite_MT = 0.0;
+double lgt_barite_MT = 0.0;
+double ViscWatIst = 0.0;
+double CpPerMl = 0.0;
+double aH2O = 0.0;
+double TK = 0.0;
+double HCO3 = 0.0;
+double mass_MeOH = 0.0;
+double mass_MEG = 0.0;
+
+// 鍖栧鐗╄川娴撳害鏁扮粍
+std::vector<double> mc;  // 闃崇瀛愭祿搴�
+std::vector<double> ma;  // 闃寸瀛愭祿搴�
+
+// 娲诲害绯绘暟鏁扮粍
+std::vector<double> gCat;   // 闃崇瀛愭椿搴︾郴鏁�
+std::vector<double> gAn;    // 闃寸瀛愭椿搴︾郴鏁�
+std::vector<double> gNeut;  // 涓�у垎瀛愭椿搴︾郴鏁�
+std::vector<double> gGas;   // 姘斾綋娲诲害绯绘暟
+
+// 涓夌淮鏁扮粍锛堝亣璁剧殑缁撴瀯锛�
+// SIRisk[鎶戝埗鍓傜紪鍙穄[LoopTP][鍙傛暟绱㈠紩][鐗╄川绫诲瀷]
+std::vector<std::vector<std::vector<std::vector<double>>>> SIRisk;
+
+// 浜曞悕鏁扮粍
+std::vector<std::string> WellNameMix;
+
+// 宸ヤ綔琛ㄥ悕绉�
+std::string myname;
+
+// 浼犺川绯绘暟鏁扮粍
+std::vector<double> km;
+
+// ==================== Excel鎿嶄綔鎺ュ彛绫伙紙鎶借薄灞傦級====================
+class ExcelWriter {
+public:
+    virtual ~ExcelWriter() = default;
+    
+    virtual void writeCell(const std::string& sheetName, int row, int col, double value) = 0;
+    virtual void writeCell(const std::string& sheetName, int row, int col, const std::string& value) = 0;
+    virtual void writeCell(const std::string& sheetName, int row, int col, int value) = 0;
+    virtual void writeCell(const std::string& sheetName, int row, int col, bool value) = 0;
+    virtual void clearCell(const std::string& sheetName, int row, int col) = 0;
+    virtual void setRange(const std::string& sheetName, const std::string& range, const std::string& value) = 0;
+    
+protected:
+    // 琛�/鍒楄绠楄緟鍔╂柟娉�
+    int calculateRow(int baseRow, int loopTP, int offset = 0) {
+        return baseRow - loopTP + offset;
+    }
+    
+    int calculateRowWithStat(int baseRow, int statTPnob, int loopTP, int offset = 0) {
+        return baseRow + statTPnob - loopTP + offset;
+    }
+    
+    int calculateRowWithIter(int baseRow, int loopTP, int iter, int offset = 0) {
+        return baseRow - loopTP + (iter - 1) * 32 + offset;
+    }
+};
+
+// ==================== 鏁版嵁瀛樺偍缁撴瀯 ====================
+struct OutputData {
+    // 鎸夊伐浣滆〃缁勭粐鐨勬暟鎹粨鏋�
+    struct WorksheetData {
+        std::string name;
+        std::map<std::pair<int, int>, double> numericData;      // (row, col) -> value
+        std::map<std::pair<int, int>, std::string> textData;    // (row, col) -> text
+        std::map<std::pair<int, int>, bool> booleanData;        // (row, col) -> boolean
+    };
+    
+    std::map<std::string, WorksheetData> worksheets;
+    
+    void addData(const std::string& sheet, int row, int col, double value) {
+        worksheets[sheet].numericData[{row, col}] = value;
+    }
+    
+    void addData(const std::string& sheet, int row, int col, const std::string& value) {
+        worksheets[sheet].textData[{row, col}] = value;
+    }
+    
+    void addData(const std::string& sheet, int row, int col, bool value) {
+        worksheets[sheet].booleanData[{row, col}] = value;
+    }
+};
+
+// ==================== 涓昏浆鎹㈠嚱鏁� ====================
+void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
+    // 鍒涘缓鏁版嵁瀛樺偍瀵硅薄
+    OutputData outputData;
+    
+    // 绗竴閮ㄥ垎锛氭潯浠跺啓鍏� location 鍜� depth
+    if (RunStat == 1) {
+        if (RunStatSICalcSSP == 1) {
+            // VB: Worksheets("Halite analysis").Cells(6 + StatTPnob - LoopTP, 2) = location
+            // VB: Worksheets("Halite analysis").Cells(6 + StatTPnob - LoopTP, 3) = depth
+            int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+            outputData.addData("Halite analysis", row, 2, location);
+            outputData.addData("Halite analysis", row, 3, depth);
+            
+        } else if (RunStatSICalcSSP == 2) {
+            if (RunStatGoalSeek == 1) {
+                // VB: Worksheets("Output data sheet").Cells(11 + StatTPnob - LoopTP, 16) = location
+                // VB: Worksheets("Output data sheet").Cells(11 + StatTPnob - LoopTP, 17) = depth
+                int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                outputData.addData("Output data sheet", row, 16, location);
+                outputData.addData("Output data sheet", row, 17, depth);
+            } else {
+                // VB: Worksheets("Halite analysis").Cells(6 + StatTPnob - LoopTP, 10) = location
+                // VB: Worksheets("Halite analysis").Cells(6 + StatTPnob - LoopTP, 11) = depth
+                int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                outputData.addData("Halite analysis", row, 10, location);
+                outputData.addData("Halite analysis", row, 11, depth);
+            }
+        } else if (RunStatSICalcSSP == 3) {
+            // VB: Worksheets("Output data sheet").Cells(6 + StatTPnob - LoopTP, 8) = location
+            // VB: Worksheets("Output data sheet").Cells(6 + StatTPnob - LoopTP, 9) = depth
+            int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+            outputData.addData("Output data sheet", row, 8, location);
+            outputData.addData("Output data sheet", row, 9, depth);
+        }
+    }
+    
+    // 绗簩閮ㄥ垎锛氬綋 RunGoalSeek 涓嶄负1鏃剁殑杈撳嚭
+    if (RunGoalSeek != 1) {
+        if (UseSI == 0) {
+            // 浣跨敤鑻卞埗鍗曚綅杈撳嚭娓╁害鍜屽帇鍔�
+            // Calcite 宸ヤ綔琛�
+            outputData.addData("Calcite", 14 - LoopTP, 1, TF);
+            outputData.addData("Calcite", 14 - LoopTP, 2, Ppsia);
+            
+            // Barite 宸ヤ綔琛�
+            outputData.addData("Barite", 14 - LoopTP, 1, TF);
+            outputData.addData("Barite", 14 - LoopTP, 2, Ppsia);
+            
+            // Other SO4s 宸ヤ綔琛�
+            outputData.addData("Other SO4s", 14 - LoopTP, 1, TF);
+            outputData.addData("Other SO4s", 14 - LoopTP, 2, Ppsia);
+            
+            // Halite 宸ヤ綔琛�
+            outputData.addData("Halite", 14 - LoopTP, 1, TF);
+            outputData.addData("Halite", 14 - LoopTP, 2, Ppsia);
+            
+            // Sulfides,Fluorite,Carbonates 宸ヤ綔琛�
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 1, TF);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 2, Ppsia);
+            
+            // Use Mass Transfer 宸ヤ綔琛�
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 1, TF);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 2, Ppsia);
+            
+            // Dai 2020 deposition - Run_MassTransfer = 1
+            if (Run_MassTransfer == 1) {
+                double distance_ft = (LoopTP - 1) * PipeL * 0.0328084; // 杞崲涓鸿嫳灏�
+                
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 3, distance_ft);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 4, TF);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 5, Ppsia);
+                
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 3, distance_ft);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 4, TF);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 5, Ppsia);
+                
+                // 杈撳嚭娴佸姩鍙傛暟
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 6, static_cast<double>(Flow_Pattern));
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 7, static_cast<double>(Flow_Regime));
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 8, ReNO);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 9, Hold_l);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 10, Time_lsl_burst);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 11, lgt_calcite_MT);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 12, lgt_barite_MT);
+            }
+            
+            // Dai 2020 deposition - Run_MassTransfer_WhatIf = 1
+            if (Run_MassTransfer_WhatIf == 1) {
+                double distance_ft = (LoopTP - 1) * PipeL * 0.0328084; // 杞崲涓鸿嫳灏�
+                int row_offset = (Iter_MT_WI - 1) * 32;
+                
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 3, distance_ft);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 4, TF);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 5, Ppsia);
+                
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 3, distance_ft);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 4, TF);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 5, Ppsia);
+                
+                // 杈撳嚭娴佸姩鍙傛暟
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 6, static_cast<double>(Flow_Pattern));
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 7, static_cast<double>(Flow_Regime));
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 8, ReNO);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 9, Hold_l);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 10, Time_lsl_burst);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 11, lgt_calcite_MT);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 12, lgt_barite_MT);
+            }
+            
+            // Mg(OH)2,Ca(OH)2 宸ヤ綔琛�
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 1, TF);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 2, Ppsia);
+            
+            // Silicates 宸ヤ綔琛�
+            outputData.addData("Silicates", 14 - LoopTP, 1, TF);
+            outputData.addData("Silicates", 14 - LoopTP, 2, Ppsia);
+            
+            // 鏍规嵁 RunStat 鏉′欢杈撳嚭
+            if (RunStat == 1) {
+                if (RunStatSICalcSSP == 1) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Halite analysis", row, 4, TF);
+                    outputData.addData("Halite analysis", row, 5, Ppsia);
+                } else if (RunStatSICalcSSP == 2) {
+                    if (RunStatGoalSeek == 1) {
+                        int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                        outputData.addData(myname, row, 18, TF);
+                        outputData.addData(myname, row, 19, Ppsia);
+                    } else {
+                        int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                        outputData.addData("Halite analysis", row, 12, TF);
+                        outputData.addData("Halite analysis", row, 13, Ppsia);
+                    }
+                } else if (RunStatSICalcSSP == 3) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Output data sheet", row, 10, TF);
+                    outputData.addData("Output data sheet", row, 11, Ppsia);
+                }
+            }
+            
+        } else if (UseSI == 1) {
+            // 浣跨敤SI鍗曚綅鍒讹紙鎽勬皬搴︼紝Bar锛�
+            double TC = (TF - 32) * 5.0 / 9.0;    // 鍗庢皬搴﹁浆鎽勬皬搴�
+            double Pbar = Ppsia / 14.503774;      // psi杞琤ar
+            
+            // Calcite 宸ヤ綔琛�
+            outputData.addData("Calcite", 14 - LoopTP, 1, TC);
+            outputData.addData("Calcite", 14 - LoopTP, 2, Pbar);
+            
+            // Barite 宸ヤ綔琛�
+            outputData.addData("Barite", 14 - LoopTP, 1, TC);
+            outputData.addData("Barite", 14 - LoopTP, 2, Pbar);
+            
+            // Other SO4s 宸ヤ綔琛�
+            outputData.addData("Other SO4s", 14 - LoopTP, 1, TC);
+            outputData.addData("Other SO4s", 14 - LoopTP, 2, Pbar);
+            
+            // Halite 宸ヤ綔琛�
+            outputData.addData("Halite", 14 - LoopTP, 1, TC);
+            outputData.addData("Halite", 14 - LoopTP, 2, Pbar);
+            
+            // Sulfides,Fluorite,Carbonates 宸ヤ綔琛�
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 1, TC);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 2, Pbar);
+            
+            // Use Mass Transfer 宸ヤ綔琛�
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 1, TC);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 2, Pbar);
+            
+            // Dai 2020 deposition - Run_MassTransfer = 1 (SI鍗曚綅)
+            if (Run_MassTransfer == 1) {
+                double distance_m = (LoopTP - 1) * PipeL / 100.0; // 杞崲涓虹背
+                
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 3, distance_m);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 4, TC);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 5, Pbar);
+                
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 3, distance_m);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 4, TC);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 5, Pbar);
+                
+                // 杈撳嚭娴佸姩鍙傛暟
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 6, static_cast<double>(Flow_Pattern));
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 7, static_cast<double>(Flow_Regime));
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 8, ReNO);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 9, Hold_l);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 10, Time_lsl_burst);
+            }
+            
+            // Dai 2020 deposition - Run_MassTransfer_WhatIf = 1 (SI鍗曚綅)
+            if (Run_MassTransfer_WhatIf == 1) {
+                double distance_m = (LoopTP - 1) * PipeL / 100.0; // 杞崲涓虹背
+                int row_offset = (Iter_MT_WI - 1) * 32;
+                
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 3, distance_m);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 4, TC);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 5, Pbar);
+                
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 3, distance_m);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 4, TC);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 5, Pbar);
+                
+                // 杈撳嚭娴佸姩鍙傛暟
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 6, static_cast<double>(Flow_Pattern));
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 7, static_cast<double>(Flow_Regime));
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 8, ReNO);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 9, Hold_l);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 10, Time_lsl_burst);
+            }
+            
+            // Mg(OH)2,Ca(OH)2 宸ヤ綔琛�
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 1, TC);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 2, Pbar);
+            
+            // Silicates 宸ヤ綔琛�
+            outputData.addData("Silicates", 14 - LoopTP, 1, TC);
+            outputData.addData("Silicates", 14 - LoopTP, 2, Pbar);
+            
+            // 鏍规嵁 RunStat 鏉′欢杈撳嚭
+            if (RunStat == 1) {
+                if (RunStatSICalcSSP == 1) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Halite analysis", row, 4, TC);
+                    outputData.addData("Halite analysis", row, 5, Pbar);
+                } else if (RunStatSICalcSSP == 2) {
+                    if (RunStatGoalSeek == 1) {
+                        int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                        outputData.addData(myname, row, 18, TC);
+                        outputData.addData(myname, row, 19, Pbar);
+                    } else {
+                        int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                        outputData.addData("Halite analysis", row, 12, TC);
+                        outputData.addData("Halite analysis", row, 13, Pbar);
+                    }
+                } else if (RunStatSICalcSSP == 3) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Output data sheet", row, 10, TC);
+                    outputData.addData("Output data sheet", row, 11, Pbar);
+                }
+            }
+        }
+        
+        // ==================== 妫�鏌my閮ㄥ垎 ====================
+        // pH杈撳嚭
+        outputData.addData("Calcite", 14 - LoopTP, 3, pH_before_precipitation - DpHj);
+        
+        // 鎶戝埗鍓傛祿搴︽竻绌洪�昏緫
+        // 娉ㄦ剰锛氬湪C++涓紝鎴戜滑閫氬父涓嶇洿鎺�"娓呯┖"鍙橀噺锛岃�屾槸璁剧疆鐗瑰畾鍊兼垨浣跨敤鍙�夌被鍨�
+        // 杩欓噷妯℃嫙VB涓殑Empty鍊艰缃�
+        if (InhNoCal == 5 || InhNoCal == 7 || InhNoCal == 8 || InhNoCal == 9 || 
+            InhNoCal == 10 || InhNoCal == 14 || InhNoCal == 18) {
+            ConcInhCal = std::numeric_limits<double>::quiet_NaN(); // 琛ㄧず"绌�"鍊�
+        }
+        
+        if (InhNoCal == 20) {
+            if (InhNo1 == 5 || InhNo1 == 7 || InhNo1 == 9 || InhNo1 == 8 || 
+                InhNo1 == 10 || InhNo1 == 14 || InhNo1 == 18) {
+                ConcInhCal = std::numeric_limits<double>::quiet_NaN();
+            }
+            if (InhNo2 == 5 || InhNo2 == 7 || InhNo2 == 8 || InhNo2 == 9 || 
+                InhNo2 == 10 || InhNo2 == 11 || InhNo2 == 14 || InhNo2 == 18) {
+                ConcInhCal = std::numeric_limits<double>::quiet_NaN();
+            }
+        }
+        
+        // 杈撳嚭鎶戝埗鍓傛祿搴�
+        outputData.addData("Calcite", 14 - LoopTP, 7, ConcInhCal);
+        outputData.addData("Calcite", 14 - LoopTP, 8, pHaftercalciteppt - DpHj);
+        outputData.addData("Calcite", 14 - LoopTP, 11, ISt * (rho25c - TDS / 1000000.0));
+        
+        outputData.addData("Barite", 14 - LoopTP, 6, ConcInhBar);
+        outputData.addData("Halite", 14 - LoopTP, 6, rhoTP);
+        
+        outputData.addData("Silicates", 14 - LoopTP, 5, pHafterAmsilicappt - DpHj);
+        outputData.addData("Silicates", 14 - LoopTP, 8, pHafterQuartzppt - DpHj);
+        outputData.addData("Silicates", 14 - LoopTP, 17, pHafterGreenaliteppt - DpHj);
+        outputData.addData("Silicates", 14 - LoopTP, 14, pHafterDiopsideppt - DpHj);
+        outputData.addData("Silicates", 14 - LoopTP, 11, pHafterChrysotileppt - DpHj);
+        
+        outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 3, pH_before_precipitation - DpHj);
+        outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 6, pHafterMgOH2ppt - DpHj);
+        outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 9, pHafterCaOH2ppt - DpHj);
+        
+        // ==================== 娌夋穩閲忚绠楀拰杈撳嚭 ====================
+        double density_factor = rho25c - TDS * 0.000001;
+        double halite_density_factor = Rho25cHalite - TDSHalite / 1000000.0;
+        
+        if (usePTB == 0) {
+            // 浣跨敤 mg/L 鍗曚綅
+            // Calcite 娌夋穩閲�
+            double pptCalcite_mgL = pptCalcite_NoMassTransfer * 100091.0 * density_factor;
+            outputData.addData("Calcite", 14 - LoopTP, 6, pptCalcite_mgL);
+            
+            // Barite 娌夋穩閲�
+            double pptBarite_mgL = pptBarite_NoMassTransfer * 233390.0 * density_factor;
+            outputData.addData("Barite", 14 - LoopTP, 5, pptBarite_mgL);
+            
+            // 鍏朵粬纭吀鐩愭矇娣�閲�
+            outputData.addData("Other SO4s", 14 - LoopTP, 4, pptGyp * 172172.0 * density_factor);
+            outputData.addData("Other SO4s", 14 - LoopTP, 6, pptHemi * 145148.0 * density_factor);
+            outputData.addData("Other SO4s", 14 - LoopTP, 8, pptAn * 136140.0 * density_factor);
+            outputData.addData("Other SO4s", 14 - LoopTP, 10, pptCel * 183680.0 * density_factor);
+            
+            // Halite 娌夋穩閲�
+            double pptHal_mgL = pptHal * 58443.0 * halite_density_factor;
+            outputData.addData("Halite", 14 - LoopTP, 5, pptHal_mgL);
+            
+            // 纭寲鐗┿�佹盁鍖栫墿銆佺⒊閰哥洂娌夋穩閲�
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 4, pptFeSAm * 87910.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 6, pptFeS_NoMassTransfer * 87910.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 8, pptTrot * 87910.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 10, pptZnS * 97440.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 12, pptCaF2 * 78080.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 15, pptFeCO3_NoMassTransfer * 115861.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 17, pptZnCO3 * 125417.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 19, pptPbS * 239265.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 21, pptSrCO3 * 147639.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 23, pptBaCO3 * 197349.0 * density_factor);
+            
+            // 纭呴吀鐩愭矇娣�閲�
+            outputData.addData("Silicates", 14 - LoopTP, 4, pptAmSilica * 60084.0 * density_factor);
+            outputData.addData("Silicates", 14 - LoopTP, 7, pptQuartz * 60084.0 * density_factor);
+            outputData.addData("Silicates", 14 - LoopTP, 10, pptChrysotile * 277110.0 * density_factor / 2.0);
+            outputData.addData("Silicates", 14 - LoopTP, 13, pptDiopside * 216550.0 * density_factor / 2.0);
+            outputData.addData("Silicates", 14 - LoopTP, 16, pptGreenalite * 371770.0 * density_factor / 3.0);
+            
+            // 姘㈡哀鍖栫墿娌夋穩閲�
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 5, pptMgOH2 * 58321.0 * density_factor);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 8, pptCaOH2 * 74094.0 * density_factor);
+            
+        } else if (usePTB == 1) {
+            // 浣跨敤 PTB 鍗曚綅锛堢/鍗冩《锛�
+            const double PTB_FACTOR = 0.35051;
+            
+            // Calcite 娌夋穩閲�
+            double pptCalcite_ptb = pptCalcite_NoMassTransfer * 100091.0 * density_factor * PTB_FACTOR;
+            outputData.addData("Calcite", 14 - LoopTP, 6, pptCalcite_ptb);
+            
+            // Barite 娌夋穩閲�
+            double pptBarite_ptb = pptBarite_NoMassTransfer * 233390.0 * density_factor * PTB_FACTOR;
+            outputData.addData("Barite", 14 - LoopTP, 5, pptBarite_ptb);
+            
+            // 鍏朵粬纭吀鐩愭矇娣�閲�
+            outputData.addData("Other SO4s", 14 - LoopTP, 4, pptGyp * 172172.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Other SO4s", 14 - LoopTP, 6, pptHemi * 145148.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Other SO4s", 14 - LoopTP, 8, pptAn * 136140.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Other SO4s", 14 - LoopTP, 10, pptCel * 183680.0 * density_factor * PTB_FACTOR);
+            
+            // Halite 娌夋穩閲�
+            double pptHal_ptb = pptHal * 58443.0 * halite_density_factor * PTB_FACTOR;
+            outputData.addData("Halite", 14 - LoopTP, 5, pptHal_ptb);
+            
+            // 纭寲鐗┿�佹盁鍖栫墿銆佺⒊閰哥洂娌夋穩閲�
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 4, pptFeSAm * 87910.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 6, pptFeS_NoMassTransfer * 87910.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 8, pptTrot * 87910.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 10, pptZnS * 97440.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 12, pptCaF2 * 78080.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 15, pptFeCO3_NoMassTransfer * 115861.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 17, pptZnCO3 * 125417.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 19, pptPbS * 239265.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 21, pptSrCO3 * 147639.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 23, pptBaCO3 * 197349.0 * density_factor * PTB_FACTOR);
+            
+            // 纭呴吀鐩愭矇娣�閲�
+            outputData.addData("Silicates", 14 - LoopTP, 4, pptAmSilica * 60084.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Silicates", 14 - LoopTP, 7, pptQuartz * 60084.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Silicates", 14 - LoopTP, 10, pptChrysotile * 277110.0 * density_factor / 2.0 * PTB_FACTOR);
+            outputData.addData("Silicates", 14 - LoopTP, 13, pptDiopside * 216550.0 * density_factor / 2.0 * PTB_FACTOR);
+            outputData.addData("Silicates", 14 - LoopTP, 16, pptGreenalite * 371770.0 * density_factor / 3.0 * PTB_FACTOR);
+            
+            // 姘㈡哀鍖栫墿娌夋穩閲�
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 5, pptMgOH2 * 58321.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 8, pptCaOH2 * 74094.0 * density_factor * PTB_FACTOR);
+        }
+        
+        // 鏍规嵁RunStat鏉′欢杈撳嚭Halite鏁版嵁
+        if (RunStat == 1) {
+            double pptHal_output = 0.0;
+            if (usePTB == 0) {
+                pptHal_output = pptHal * 58443.0 * halite_density_factor;
+            } else {
+                pptHal_output = pptHal * 58443.0 * halite_density_factor * 0.35051;
+            }
+            
+            if (RunStatSICalcSSP == 1) {
+                int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                outputData.addData("Halite analysis", row, 7, pptHal_output);
+                outputData.addData("Halite analysis", row, 8, rhoTP);
+            } else if (RunStatSICalcSSP == 2) {
+                if (RunStatGoalSeek == 1) {
+                    int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                    outputData.addData(myname, row, 22, rhoTP);
+                    outputData.addData(myname, row, 21, pptHal_output);
+                } else {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Halite analysis", row, 15, pptHal_output);
+                    outputData.addData("Halite analysis", row, 16, rhoTP);
+                }
+            } else if (RunStatSICalcSSP == 3) {
+                int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                outputData.addData("Output data sheet", row, 13, pptHal_output);
+                outputData.addData("Output data sheet", row, 14, rhoTP);
+            }
+        }
+        
+        // ==================== 姘旀场鐐规娴嬭緭鍑� ====================
+        if (useEOS == 0) {
+            std::string bubbleStatus = (Ppsia > PBubblePt) ? "Yes" : "No";
+            outputData.addData("Calcite", 14 - LoopTP, 9, bubbleStatus);
+        } else {
+            std::string bubbleStatus = (QPBubblePt == 1) ? "Yes" : "No";
+            outputData.addData("Calcite", 14 - LoopTP, 9, bubbleStatus);
+        }
+        
+        // ==================== 浼犺川鐩稿叧杈撳嚭 ====================
+        // Use Mass Transfer 宸ヤ綔琛�
+        if (usePTB == 0) {
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 4, 
+                pptCalcite_NoMassTransfer * 100091.0 * density_factor);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 7,
+                pptBarite_NoMassTransfer * 233390.0 * density_factor);
+        } else {
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 4,
+                pptCalcite_NoMassTransfer * 100091.0 * density_factor * 0.35051);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 7,
+                pptBarite_NoMassTransfer * 233390.0 * density_factor * 0.35051);
+        }
+        
+        // Dai 2020 deposition - 浼犺川杈撳嚭
+        if (Run_MassTransfer == 1) {
+            // Calcite
+            if (usePTB == 0) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 7,
+                    pptCalcite_NoMassTransfer * 100091.0 * density_factor);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 11,
+                    pptBarite_NoMassTransfer * 233390.0 * density_factor);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 15,
+                    pptFeCO3_NoMassTransfer * 233390.0 * density_factor);
+            } else {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 7,
+                    pptCalcite_NoMassTransfer * 100091.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 11,
+                    pptBarite_NoMassTransfer * 233390.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 15,
+                    pptFeCO3_NoMassTransfer * 233390.0 * density_factor * 0.35051);
+            }
+        }
+        
+        // WhatIf 鎯呮櫙
+        if (Run_MassTransfer_WhatIf == 1) {
+            if (usePTB == 0) {
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + (Iter_MT_WI - 1) * 32, 7,
+                    pptCalcite_NoMassTransfer * 100091.0 * density_factor);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + (Iter_MT_WI - 1) * 32, 11,
+                    pptBarite_NoMassTransfer * 233390.0 * density_factor);
+            } else {
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + (Iter_MT_WI - 1) * 32, 7,
+                    pptCalcite_NoMassTransfer * 100091.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + (Iter_MT_WI - 1) * 32, 11,
+                    pptBarite_NoMassTransfer * 233390.0 * density_factor * 0.35051);
+            }
+        }
+        
+        // 濡傛灉鏈変紶璐紝杈撳嚭浼犺川娌夋穩閲�
+        if (Run_MassTransfer == 1) {
+            if (usePTB == 0) {
+                outputData.addData("Use Mass Transfer", 22 - LoopTP, 5,
+                    pptCalcite_MassTransfer * 100091.0 * density_factor);
+                outputData.addData("Use Mass Transfer", 22 - LoopTP, 8,
+                    pptBarite_MassTransfer * 233390.0 * density_factor);
+            } else {
+                outputData.addData("Use Mass Transfer", 22 - LoopTP, 5,
+                    pptCalcite_MassTransfer * 100091.0 * density_factor * 0.35051);
+                outputData.addData("Use Mass Transfer", 22 - LoopTP, 8,
+                    pptBarite_MassTransfer * 233390.0 * density_factor * 0.35051);
+            }
+            
+            // Deposition Prediction 宸ヤ綔琛�
+            if (usePTB == 0) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 8,
+                    pptCalcite_MassTransfer * 100091.0 * density_factor);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 12,
+                    pptBarite_MassTransfer * 233390.0 * density_factor);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 16,
+                    pptFeCO3_MassTransfer * 233390.0 * density_factor);
+            } else {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 8,
+                    pptCalcite_MassTransfer * 100091.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 12,
+                    pptBarite_MassTransfer * 233390.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 16,
+                    pptFeCO3_MassTransfer * 233390.0 * density_factor * 0.35051);
+            }
+            
+            // 娌夌Н閫熺巼
+            if (UseSI == 1) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 9, pptCalcite_MassTransfer_V); // cm/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 13, pptBarite_MassTransfer_V); // cm/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 17, pptFeCO3_MassTransfer_V); // cm/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 18, m_CR_selected); // mm/yr
+            } else {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 9, pptCalcite_MassTransfer_V * 0.393701); // inch/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 13, pptBarite_MassTransfer_V * 0.393701); // inch/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 17, pptFeCO3_MassTransfer_V * 0.393701); // inch/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 18, m_CR_selected * 39.37); // mil/yr
+            }
+            
+            if (Use_Corr_in_Deposition == 0) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 18, std::string(""));
+            }
+            
+            // WhatIf 鎯呮櫙
+            if (Run_MassTransfer_WhatIf == 1) {
+                int row_offset = (Iter_MT_WI - 1) * 32;
+                
+                if (usePTB == 0) {
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 8,
+                        pptCalcite_MassTransfer * 100091.0 * density_factor);
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 12,
+                        pptBarite_MassTransfer * 233390.0 * density_factor);
+                } else {
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 8,
+                        pptCalcite_MassTransfer * 100091.0 * density_factor * 0.35051);
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 12,
+                        pptBarite_MassTransfer * 233390.0 * density_factor * 0.35051);
+                }
+                
+                if (UseSI == 1) {
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 9, 
+                        pptCalcite_MassTransfer_V); // cm/yr
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 13, 
+                        pptBarite_MassTransfer_V); // cm/yr
+                } else {
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 9, 
+                        pptCalcite_MassTransfer_V * 0.393701); // inch/yr
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 13, 
+                        pptBarite_MassTransfer_V * 0.393701); // inch/yr
+                }
+            }
+        }
+        
+        // ==================== 楗卞拰鎸囨暟(SI)杈撳嚭 ====================
+        if (useSR == 0) {
+            // 杈撳嚭 SI 鍊硷紙瀵规暟褰㈠紡锛�
+            outputData.addData("Calcite", 14 - LoopTP, 4, SICal);
+            outputData.addData("Calcite", 14 - LoopTP, 5, dSICal);
+            outputData.addData("Calcite", 14 - LoopTP, 10, SIDol);
+            
+            outputData.addData("Barite", 14 - LoopTP, 3, SIBar);
+            outputData.addData("Barite", 14 - LoopTP, 4, dSIBar);
+            
+            outputData.addData("Other SO4s", 14 - LoopTP, 3, SIGyp);
+            outputData.addData("Other SO4s", 14 - LoopTP, 5, SIHemi);
+            outputData.addData("Other SO4s", 14 - LoopTP, 7, SIAn);
+            outputData.addData("Other SO4s", 14 - LoopTP, 9, SICel);
+            
+            outputData.addData("Halite", 14 - LoopTP, 3, SIHal);
+            outputData.addData("Halite", 14 - LoopTP, 4, dSIHal);
+            
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 3, SIFeSAm);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 5, SIFeS);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 7, SITrot);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 9, SIZnS);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 11, SICaF2);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 13, SISid);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 14, dSISid);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 16, SIZnCO3);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 18, SIPbS);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 20, SISrCO3);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 22, SIBaCO3);
+            
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 7, SICaOH2);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 4, SIMgOH2);
+            
+            outputData.addData("Silicates", 14 - LoopTP, 3, SIAmSilica);
+            outputData.addData("Silicates", 14 - LoopTP, 6, SIQuartz);
+            outputData.addData("Silicates", 14 - LoopTP, 9, SIChrysotile);
+            outputData.addData("Silicates", 14 - LoopTP, 12, SIDiopside);
+            outputData.addData("Silicates", 14 - LoopTP, 15, SIGreenalite);
+            
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 3, SICal);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 6, SIBar);
+            
+            // Deposition Prediction
+            if (Run_MassTransfer == 1) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 6, SICal);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 10, SIBar);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 14, SISid);
+            }
+            
+            // WhatIf 鎯呮櫙
+            if (Run_MassTransfer_WhatIf == 1) {
+                int row_offset = (Iter_MT_WI - 1) * 32;
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 6, SICal);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 10, SIBar);
+            }
+            
+            // RunStat 鏉′欢涓嬬殑杈撳嚭
+            if (RunStat == 1) {
+                if (RunStatSICalcSSP == 1) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Halite analysis", row, 6, SIHal);
+                } else if (RunStatSICalcSSP == 2) {
+                    if (RunStatGoalSeek == 1) {
+                        int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                        outputData.addData(myname, row, 20, SIHal);
+                    } else {
+                        int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                        outputData.addData("Halite analysis", row, 14, SIHal);
+                    }
+                } else if (RunStatSICalcSSP == 3) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Output data sheet", row, 12, SIHal);
+                }
+            }
+            
+        } else {
+            // 杈撳嚭楗卞拰搴︽瘮锛�10^SI锛�
+            outputData.addData("Calcite", 14 - LoopTP, 4, pow(10.0, SICal));
+            outputData.addData("Calcite", 14 - LoopTP, 5, pow(10.0, dSICal));
+            outputData.addData("Calcite", 14 - LoopTP, 10, pow(10.0, SIDol));
+            
+            outputData.addData("Barite", 14 - LoopTP, 3, pow(10.0, SIBar));
+            outputData.addData("Barite", 14 - LoopTP, 4, pow(10.0, SIBar - SIBarBH));
+            
+            // 闇�瑕佽皟鐢� outputData.addData
+            // Worksheets("Other SO4s").Cells(14 - LoopTP, 3) = 10 ^ SIGyp
+            // Worksheets("Other SO4s").Cells(14 - LoopTP, 5) = 10 ^ SIHemi
+            // Worksheets("Other SO4s").Cells(14 - LoopTP, 7) = 10 ^ SIAn
+            // Worksheets("Other SO4s").Cells(14 - LoopTP, 9) = 10 ^ SICel
+            // Worksheets("Halite").Cells(14 - LoopTP, 3) = 10 ^ SIHal
+            // Worksheets("Halite").Cells(14 - LoopTP, 4) = 10 ^ dSIHal
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 3) = 10 ^ SIFeSAm
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 5) = 10 ^ SIFeS
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 7) = 10 ^ SITrot
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 9) = 10 ^ SIZnS
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 11) = 10 ^ SICaF2
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 13) = 10 ^ SISid
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 14) = 10 ^ dSISid
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 16) = 10 ^ SIZnCO3
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 18) = 10 ^ SIPbS
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 20) = 10 ^ SISrCO3
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 22) = 10 ^ SIBaCO3
+            // Worksheets("Mg(OH)2,Ca(OH)2").Cells(14 - LoopTP, 7) = 10 ^ SICaOH2
+            // Worksheets("Mg(OH)2,Ca(OH)2").Cells(14 - LoopTP, 4) = 10 ^ SIMgOH2
+            // Worksheets("Silicates").Cells(14 - LoopTP, 3) = 10 ^ SIAmSilica
+            // Worksheets("Silicates").Cells(14 - LoopTP, 6) = 10 ^ SIQuartz
+            // Worksheets("Silicates").Cells(14 - LoopTP, 9) = 10 ^ SIChrysotile
+            // Worksheets("Silicates").Cells(14 - LoopTP, 12) = 10 ^ SIDiopside
+            // Worksheets("Silicates").Cells(14 - LoopTP, 15) = 10 ^ SIGreenalite
+            // Worksheets("Use Mass Transfer").Cells(22 - LoopTP, 3) = 10 ^ SICal
+            // Worksheets("Use Mass Transfer").Cells(22 - LoopTP, 6) = 10 ^ SIBar
+            
+            // Deposition Prediction
+            if (Run_MassTransfer == 1) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 6, pow(10.0, SICal));
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 10, pow(10.0, SIBar));
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 14, pow(10.0, SISid));
+            }
+            
+            // WhatIf 鎯呮櫙
+            if (Run_MassTransfer_WhatIf == 1) {
+                int row_offset = (Iter_MT_WI - 1) * 32;
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 6, pow(10.0, SICal));
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 10, pow(10.0, SIBar));
+            }
+        }
+        
+        // ==================== 鎶戝埗鍓傞闄╄瘎浼拌緭鍑� ====================
+        if (H2Oevap != 1) {
+            // Calcite 椋庨櫓璇勪及
+            if (mc.size() > 0 && mc[0] > 0.0000001 && HCO3 > 0.0000001) {
+                // 鍋囪 mc[0] 瀵瑰簲 iCa锛岄渶瑕佹牴鎹疄闄呯储寮曡皟鏁�
+                int row = 14 - LoopTP;
+                
+                outputData.addData("Calcite", row, 16, outputData.worksheets["Calcite"].numericData[{row, 1}]);
+                outputData.addData("Calcite", row, 17, outputData.worksheets["Calcite"].numericData[{row, 2}]);
+                outputData.addData("Calcite", row, 18, outputData.worksheets["Calcite"].numericData[{row, 4}]);
+                
+                // 娓呯┖ SIRisk 鏁扮粍涓殑鏌愪簺鍊�
+                if (InhNoCal == 5 || InhNoCal == 7 || InhNoCal == 8 || InhNoCal == 9 || 
+                    InhNoCal == 10 || InhNoCal == 14 || InhNoCal == 18) {
+                    // 妯℃嫙VB涓殑 Empty 璧嬪��
+                    if (SIRisk.size() > InhNoCal && SIRisk[InhNoCal].size() > LoopTP) {
+                        SIRisk[InhNoCal][LoopTP][2][2] = std::numeric_limits<double>::quiet_NaN();
+                        SIRisk[InhNoCal][LoopTP][3][2] = std::numeric_limits<double>::quiet_NaN();
+                    }
+                }
+                
+                if (InhNoCal == 20) {
+                    if (InhNo1 == 5 || InhNo1 == 7 || InhNo1 == 8 || InhNo1 == 9 || 
+                        InhNo1 == 10 || InhNo1 == 14 || InhNo1 == 18 || 
+                        InhNo2 == 5 || InhNo2 == 7 || InhNo2 == 8 || InhNo2 == 9 || 
+                        InhNo2 == 10 || InhNo2 == 14 || InhNo2 == 18) {
+                        if (SIRisk.size() > InhNoCal && SIRisk[InhNoCal].size() > LoopTP) {
+                            SIRisk[InhNoCal][LoopTP][2][2] = std::numeric_limits<double>::quiet_NaN();
+                            SIRisk[InhNoCal][LoopTP][3][2] = std::numeric_limits<double>::quiet_NaN();
+                        }
+                    }
+                }
+                
+                // 杈撳嚭椋庨櫓璇勪及鍊�
+                if (useSR == 0) {
+                    if (SIRisk.size() > InhNoCal && SIRisk[InhNoCal].size() > LoopTP) {
+                        outputData.addData("Calcite", row, 19, SIRisk[InhNoCal][LoopTP][1][2]);
+                        outputData.addData("Calcite", row, 20, SIRisk[InhNoCal][LoopTP][2][2]);
+                        outputData.addData("Calcite", row, 21, SIRisk[InhNoCal][LoopTP][3][2]);
+                    }
+                } else {
+                    if (SIRisk.size() > InhNoCal && SIRisk[InhNoCal].size() > LoopTP) {
+                        outputData.addData("Calcite", row, 19, pow(10.0, SIRisk[InhNoCal][LoopTP][1][2]));
+                        outputData.addData("Calcite", row, 20, pow(10.0, SIRisk[InhNoCal][LoopTP][2][2]));
+                        outputData.addData("Calcite", row, 21, pow(10.0, SIRisk[InhNoCal][LoopTP][3][2]));
+                    }
+                }
+            }
+            
+            // Barite 椋庨櫓璇勪及锛堢被浼煎鐞嗭紝涓虹畝娲佽捣瑙佺渷鐣ワ級
+            // If mc(iBa) > 0.0000001 And ma(iSO4) > 0.0000001 Then
+            //     Worksheets("Barite").Cells(14 - LoopTP, 16) = Worksheets("Barite").Cells(14 - LoopTP, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 17) = Worksheets("Barite").Cells(14 - LoopTP, 2)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 18) = Worksheets("Barite").Cells(14 - LoopTP, 3)
+            //     If UseSR = 0 Then
+            //     Worksheets("Barite").Cells(14 - LoopTP, 19) = SIRisk(InhNoBar, LoopTP, 1, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 20) = SIRisk(InhNoBar, LoopTP, 2, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 21) = SIRisk(InhNoBar, LoopTP, 3, 1)
+            //     Else
+            //     Worksheets("Barite").Cells(14 - LoopTP, 19) = 10 ^ SIRisk(InhNoBar, LoopTP, 1, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 20) = 10 ^ SIRisk(InhNoBar, LoopTP, 2, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 21) = 10 ^ SIRisk(InhNoBar, LoopTP, 3, 1)
+            //     End If
+            //     End If
+
+            // // Other SO4s 椋庨櫓璇勪及
+            //     If mc(iCa) > 0.00001 And ma(iSO4) > 0.0001 Then
+            //     If TK > 373.15 Then
+            //         If UseSI = 0 Then
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 16) = TF
+            //         Else
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 16) = (TF - 32) * 5 / 9
+            //         End If
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 17) = Worksheets("Other SO4s").Cells(14 - LoopTP, 2)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 18) = Worksheets("Other SO4s").Cells(14 - LoopTP, 7)
+            //         If UseSR = 0 Then
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 19) = SIRisk(InhNoAn, LoopTP, 1, 3)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 20) = SIRisk(InhNoAn, LoopTP, 2, 3)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 21) = SIRisk(InhNoAn, LoopTP, 3, 3)
+            //         Else
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 19) = 10 ^ SIRisk(InhNoAn, LoopTP, 1, 3)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 20) = 10 ^ SIRisk(InhNoAn, LoopTP, 2, 3)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 21) = 10 ^ SIRisk(InhNoAn, LoopTP, 3, 3)
+            //         End If
+            //     Else
+            //         If UseSI = 0 Then
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 16) = TF
+            //         Else
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 16) = (TF - 32) * 5 / 9
+            //         End If
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 17) = Worksheets("Other SO4s").Cells(14 - LoopTP, 2)
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 18) = Worksheets("Other SO4s").Cells(14 - LoopTP, 3)
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 19) = SIRisk(InhNoAn, LoopTP, 1, 3)
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 20) = SIRisk(InhNoAn, LoopTP, 2, 3)
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 21) = SIRisk(InhNoAn, LoopTP, 3, 3)
+            //     End If
+            //     End If
+                
+            //     // 'Dai 2020 update inhibition model for celestite
+            //     If mc(iSr) > 0.0000001 And ma(iSO4) > 0.0000001 Then
+            //         Worksheets("Other SO4s").Cells(26 - LoopTP, 16) = Worksheets("Other SO4s").Cells(14 - LoopTP, 1)
+            //         Worksheets("Other SO4s").Cells(26 - LoopTP, 17) = Worksheets("Other SO4s").Cells(14 - LoopTP, 2)
+            //         Worksheets("Other SO4s").Cells(26 - LoopTP, 18) = Worksheets("Other SO4s").Cells(14 - LoopTP, 9)
+            //         If UseSR = 0 Then
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 19) = SIRisk(InhNoCel, LoopTP, 1, 4)
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 20) = SIRisk(InhNoCel, LoopTP, 2, 4)
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 21) = SIRisk(InhNoCel, LoopTP, 3, 4)
+            //         Else
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 19) = 10 ^ SIRisk(InhNoCel, LoopTP, 1, 4)
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 20) = 10 ^ SIRisk(InhNoCel, LoopTP, 2, 4)
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 21) = 10 ^ SIRisk(InhNoCel, LoopTP, 3, 4)
+            //         End If
+            //     End If
+            // ... 鍏朵粬鐗╄川鐨勯闄╄瘎浼�
+        }
+    }
+    
+    // ==================== LoopTP鐗规畩鏉′欢杈撳嚭 ====================
+    // 绗竴閮ㄥ垎锛歀oopTP = 1 鏃剁殑杈撳嚭
+    if (LoopTP == 1) {
+        if (useSR == 0) {
+            // 杈撳嚭鍚勭鐭跨墿鐨勯ケ鍜屾寚鏁板埌Input宸ヤ綔琛�
+            outputData.addData("Input", 13, 9, SICal);
+            outputData.addData("Input", 15, 9, SIBar);
+            outputData.addData("Input", 17, 9, SIHal);
+            outputData.addData("Input", 19, 9, SIGyp);
+            outputData.addData("Input", 21, 9, SIHemi);
+            outputData.addData("Input", 23, 9, SIAn);
+            outputData.addData("Input", 25, 9, SICel);
+            outputData.addData("Input", 27, 9, SIFeS);
+            outputData.addData("Input", 29, 9, SIZnS);
+            outputData.addData("Input", 31, 9, SICaF2);
+            outputData.addData("Input", 33, 9, SISid);
+            outputData.addData("Input", 35, 9, SIAmSilica);
+            outputData.addData("Input", 37, 9, SIQuartz);
+            outputData.addData("Input", 39, 9, SIChrysotile);
+            outputData.addData("Input", 41, 9, SIDiopside);
+            outputData.addData("Input", 43, 9, SIGreenalite);
+        } else {
+            // 杈撳嚭楗卞拰搴︽瘮
+            outputData.addData("Input", 13, 9, pow(10.0, SICal));
+            outputData.addData("Input", 15, 9, pow(10.0, SIBar));
+            outputData.addData("Input", 17, 9, pow(10.0, SIHal));
+            outputData.addData("Input", 19, 9, pow(10.0, SIGyp));
+            outputData.addData("Input", 21, 9, pow(10.0, SIHemi));
+            outputData.addData("Input", 23, 9, pow(10.0, SIAn));
+            outputData.addData("Input", 25, 9, pow(10.0, SICel));
+            outputData.addData("Input", 27, 9, pow(10.0, SIFeS));
+            outputData.addData("Input", 29, 9, pow(10.0, SIZnS));
+            outputData.addData("Input", 31, 9, pow(10.0, SICaF2));
+            outputData.addData("Input", 33, 9, pow(10.0, SISid));
+            outputData.addData("Input", 35, 9, pow(10.0, SIAmSilica));
+            outputData.addData("Input", 37, 9, pow(10.0, SIQuartz));
+            outputData.addData("Input", 39, 9, pow(10.0, SIChrysotile));
+            outputData.addData("Input", 41, 9, pow(10.0, SIDiopside));
+            outputData.addData("Input", 43, 9, pow(10.0, SIGreenalite));
+        }
+        
+        // 杈撳嚭鍏朵粬鍙傛暟鍒癐nput宸ヤ綔琛�
+        outputData.addData("Input", 45, 9, pH_before_precipitation - DpHj);
+        outputData.addData("Input", 48, 9, ConcInhCal);
+        outputData.addData("Input", 50, 9, ConcInhBar);
+        outputData.addData("Input", 52, 9, ConcInhGyp);
+        outputData.addData("Input", 54, 9, ConcInhAn);
+        outputData.addData("Input", 56, 9, ConcInhCel);
+        outputData.addData("Input", 58, 9, ViscWatIst);
+        outputData.addData("Input", 60, 9, CpPerMl);
+        outputData.addData("Input", 62, 9, rhoTP);
+    }
+    
+    // 绗簩閮ㄥ垎锛歀oopTP = 10 鎴� LoopTP = 2锛堟牴鎹甊unGoalSeek锛夋椂鐨勮緭鍑�
+    if (RunGoalSeek != 1) {
+        if (LoopTP == 10) {
+            // 绫讳技LoopTP=1鐨勫鐞嗭紝浣嗚緭鍑哄埌绗�10鍒�
+            if (useSR == 0) {
+                outputData.addData("Input", 13, 10, SICal);
+                outputData.addData("Input", 15, 10, SIBar);
+                outputData.addData("Input", 19, 10, SIGyp);
+                outputData.addData("Input", 21, 10, SIHemi);
+                outputData.addData("Input", 23, 10, SIAn);
+                outputData.addData("Input", 25, 10, SICel);
+                outputData.addData("Input", 17, 10, SIHal);
+                outputData.addData("Input", 31, 10, SICaF2);
+                outputData.addData("Input", 33, 10, SISid);
+                outputData.addData("Input", 27, 10, SIFeS);
+                outputData.addData("Input", 29, 10, SIZnS);
+                outputData.addData("Input", 35, 10, SIAmSilica);
+                outputData.addData("Input", 37, 10, SIQuartz);
+                outputData.addData("Input", 39, 10, SIChrysotile);
+                outputData.addData("Input", 41, 10, SIDiopside);
+                outputData.addData("Input", 43, 10, SIGreenalite);
+            } else {
+                // 杈撳嚭楗卞拰搴︽瘮鍒扮10鍒�
+                outputData.addData("Input", 13, 10, pow(10.0, SICal));
+                outputData.addData("Input", 15, 10, pow(10.0, SIBar));
+                outputData.addData("Input", 19, 10, pow(10.0, SIGyp));
+                outputData.addData("Input", 21, 10, pow(10.0, SIHemi));
+                outputData.addData("Input", 23, 10, pow(10.0, SIAn));
+                outputData.addData("Input", 25, 10, pow(10.0, SICel));
+                outputData.addData("Input", 17, 10, pow(10.0, SIHal));
+                outputData.addData("Input", 31, 10, pow(10.0, SICaF2));
+                outputData.addData("Input", 33, 10, pow(10.0, SISid));
+                outputData.addData("Input", 27, 10, pow(10.0, SIFeS));
+                outputData.addData("Input", 29, 10, pow(10.0, SIZnS));
+                outputData.addData("Input", 35, 10, pow(10.0, SIAmSilica));
+                outputData.addData("Input", 37, 10, pow(10.0, SIQuartz));
+                outputData.addData("Input", 39, 10, pow(10.0, SIChrysotile));
+                outputData.addData("Input", 41, 10, pow(10.0, SIDiopside));
+                outputData.addData("Input", 43, 10, pow(10.0, SIGreenalite));
+            }
+            
+            outputData.addData("Input", 45, 10, pH_before_precipitation - DpHj);
+            outputData.addData("Input", 48, 10, ConcInhCal);
+            outputData.addData("Input", 50, 10, ConcInhBar);
+            outputData.addData("Input", 52, 10, ConcInhGyp);
+            outputData.addData("Input", 54, 10, ConcInhAn);
+            outputData.addData("Input", 56, 10, ConcInhCel);
+            outputData.addData("Input", 58, 10, ViscWatIst);
+            outputData.addData("Input", 60, 10, CpPerMl);
+            outputData.addData("Input", 62, 10, rhoTP);
+        }
+    } else {
+        // RunGoalSeek = 1 鐨勬儏鍐�
+        if (LoopTP == 2) {
+            // 绫讳技澶勭悊锛岃緭鍑哄埌绗�10鍒�
+            if (useSR == 0) {
+                outputData.addData("Input", 13, 10, SICal);
+                outputData.addData("Input", 15, 10, SIBar);
+                outputData.addData("Input", 19, 10, SIGyp);
+                outputData.addData("Input", 21, 10, SIHemi);
+                outputData.addData("Input", 23, 10, SIAn);
+                outputData.addData("Input", 25, 10, SICel);
+                outputData.addData("Input", 17, 10, SIHal);
+                outputData.addData("Input", 31, 10, SICaF2);
+                outputData.addData("Input", 33, 10, SISid);
+                outputData.addData("Input", 27, 10, SIFeS);
+                outputData.addData("Input", 29, 10, SIZnS);
+                outputData.addData("Input", 35, 10, SIAmSilica);
+                outputData.addData("Input", 37, 10, SIQuartz);
+                outputData.addData("Input", 39, 10, SIChrysotile);
+                outputData.addData("Input", 41, 10, SIDiopside);
+                outputData.addData("Input", 43, 10, SIGreenalite);
+            } else {
+                // 杈撳嚭楗卞拰搴︽瘮
+                outputData.addData("Input", 13, 10, pow(10.0, SICal));
+                outputData.addData("Input", 15, 10, pow(10.0, SIBar));
+                outputData.addData("Input", 19, 10, pow(10.0, SIGyp));
+                outputData.addData("Input", 21, 10, pow(10.0, SIHemi));
+                outputData.addData("Input", 23, 10, pow(10.0, SIAn));
+                outputData.addData("Input", 25, 10, pow(10.0, SICel));
+                outputData.addData("Input", 17, 10, pow(10.0, SIHal));
+                outputData.addData("Input", 31, 10, pow(10.0, SICaF2));
+                outputData.addData("Input", 33, 10, pow(10.0, SISid));
+                outputData.addData("Input", 27, 10, pow(10.0, SIFeS));
+                outputData.addData("Input", 29, 10, pow(10.0, SIZnS));
+                outputData.addData("Input", 35, 10, pow(10.0, SIAmSilica));
+                outputData.addData("Input", 37, 10, pow(10.0, SIQuartz));
+                outputData.addData("Input", 39, 10, pow(10.0, SIChrysotile));
+                outputData.addData("Input", 41, 10, pow(10.0, SIDiopside));
+                outputData.addData("Input", 43, 10, pow(10.0, SIGreenalite));
+            }
+            
+            outputData.addData("Input", 45, 10, pH_before_precipitation - DpHj);
+            outputData.addData("Input", 48, 10, ConcInhCal);
+            outputData.addData("Input", 50, 10, ConcInhBar);
+            outputData.addData("Input", 52, 10, ConcInhGyp);
+            outputData.addData("Input", 54, 10, ConcInhAn);
+            outputData.addData("Input", 56, 10, ConcInhCel);
+            outputData.addData("Input", 58, 10, ViscWatIst);
+            outputData.addData("Input", 60, 10, CpPerMl);
+            outputData.addData("Input", 62, 10, rhoTP);
+        }
+    }
+    
+    // ==================== 琛ㄥご鍜屽叾浠栦俊鎭緭鍑� ====================
+    if (RunGoalSeek != 1) {
+        // 璁剧疆琛ㄥご
+        outputData.addData("calcite", 3, 20, "SI(Inh=" + std::to_string(MaxInh / 2) + "mg/L)");
+        outputData.addData("Calcite", 3, 21, "SI (Inh=" + std::to_string(MaxInh) + "mg/L)");
+        outputData.addData("Barite", 3, 20, "SI (Inh=" + std::to_string(MaxInh / 2) + "mg/L)");
+        outputData.addData("Barite", 3, 21, "SI (Inh=" + std::to_string(MaxInh) + "mg/L)");
+        outputData.addData("Other SO4s", 3, 20, "SI (Inh=" + std::to_string(MaxInh / 2) + "mg/L)");
+        outputData.addData("Other SO4s", 3, 21, "SI (Inh=" + std::to_string(MaxInh) + "mg/L)");
+        outputData.addData("Other SO4s", 15, 20, "SI (Inh=" + std::to_string(MaxInh / 2) + "mg/L)");
+        outputData.addData("Other SO4s", 15, 21, "SI (Inh=" + std::to_string(MaxInh) + "mg/L)");
+        
+        // 杈撳嚭浜曞悕
+        int nob1 = nob;
+        if (nob > 2) nob1 = 2; // 鍙緭鍑�2涓簳鍚�
+        
+        for (int i = 0; i < nob1 && i < WellNameMix.size(); i++) {
+            outputData.addData("Calcite", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Barite", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Halite", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Other SO4s", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Silicates", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 1, i + 2, WellNameMix[i]);
+        }
+        
+        // 杈撳嚭MeOH鍜孧EG鏁版嵁
+        if (UseSI == 0) {
+            outputData.addData("Calcite", 1, 15, mass_MeOH / 0.7914 / 159.0);
+            outputData.addData("Calcite", 1, 12, mass_MEG / 1.1135 / 159.0);
+            outputData.addData("Barite", 2, 13, mass_MeOH / 0.7914 / 159.0);
+            outputData.addData("Barite", 3, 13, mass_MEG / 1.1135 / 159.0);
+            outputData.addData("Halite", 2, 13, mass_MeOH / 0.7914 / 159.0);
+            outputData.addData("Halite", 3, 13, mass_MEG / 1.1135 / 159.0);
+            outputData.addData("Other SO4s", 2, 14, mass_MeOH / 0.7914 / 159.0);
+            outputData.addData("Other SO4s", 3, 14, mass_MEG / 1.1135 / 159.0);
+        } else {
+            outputData.addData("Calcite", 1, 15, mass_MeOH / 0.7914 / 159.0 * 0.159);
+            outputData.addData("Calcite", 1, 10, mass_MEG / 1.1135 / 159.0 * 0.159);
+            outputData.addData("Barite", 2, 13, mass_MeOH / 0.7914 / 159.0 * 0.159);
+            outputData.addData("Barite", 3, 13, mass_MEG / 1.1135 / 159.0 * 0.159);
+            outputData.addData("Halite", 2, 13, mass_MeOH / 0.7914 / 159.0 * 0.159);
+            outputData.addData("Halite", 3, 13, mass_MEG / 1.1135 / 159.0 * 0.159);
+            outputData.addData("Other SO4s", 2, 14, mass_MeOH / 0.7914 / 159.0 * 0.159);
+            outputData.addData("Other SO4s", 3, 14, mass_MEG / 1.1135 / 159.0 * 0.159);
+        }
+        
+        // ==================== 娲诲害绯绘暟杈撳嚭 ====================
+        if (OutPutActCoefs == 1) {
+            // Calcite 宸ヤ綔琛ㄤ腑鐨勬椿搴︾郴鏁�
+            if (UseSI == 0) {
+                outputData.addData("Calcite", 14 - LoopTP, 24, TF);
+                outputData.addData("Calcite", 14 - LoopTP, 25, Ppsia);
+            } else {
+                outputData.addData("Calcite", 14 - LoopTP, 24, (TF - 32) * 5.0 / 9.0);
+                outputData.addData("Calcite", 14 - LoopTP, 25, Ppsia / 14.503774);
+            }
+            // 杈撳嚭鍚勭娲诲害绯绘暟
+            if (gCat.size() > 0 && gAn.size() > 0 && gNeut.size() > 0) {
+                // 闇�瑕佽皟鏁寸储寮曞�间互鍖归厤C++鐨�0鍩虹储寮�
+                // H+ 娲诲害绯绘暟 iH
+                if (gCat.size() > 0) outputData.addData("Calcite", 14 - LoopTP, 27, gCat[0]);
+                // OH- 娲诲害绯绘暟 iOH
+                if (gAn.size() > 0) outputData.addData("Calcite", 14 - LoopTP, 28, gAn[0]);
+                // Ca2+ 娲诲害绯绘暟 iCa
+                if (gCat.size() > 1) outputData.addData("Calcite", 14 - LoopTP, 29, gCat[1]);
+                // Mg2+ 娲诲害绯绘暟 iMg
+                if (gCat.size() > 2) outputData.addData("Calcite", 14 - LoopTP, 30, gCat[2]);
+                // HCO3- 娲诲害绯绘暟 iHCO3
+                if (gAn.size() > 1) outputData.addData("Calcite", 14 - LoopTP, 31, gAn[1]);
+                // CO3^2- 娲诲害绯绘暟 iCO3
+                if (gAn.size() > 2) outputData.addData("Calcite", 14 - LoopTP, 32, gAn[2]);
+                // Ac- 娲诲害绯绘暟 iAc
+                if (gAn.size() > 3) outputData.addData("Calcite", 14 - LoopTP, 33, gAn[3]);
+                
+                // 姘寸殑娲诲害
+                outputData.addData("Calcite", 14 - LoopTP, 26, aH2O);
+
+                // 鍏朵粬宸ヤ綔琛ㄧ殑娲诲害绯绘暟杈撳嚭锛岀被浼煎鐞�
+                // Worksheets("Barite").Cells(14 - LoopTP, 23) = TF
+                // Worksheets("Barite").Cells(14 - LoopTP, 24) = Ppsia
+                // If UseSI = 1 Then Worksheets("Barite").Cells(14 - LoopTP, 23) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Barite").Cells(14 - LoopTP, 24) = Ppsia / 14.503774
+                // Worksheets("Barite").Cells(14 - LoopTP, 25) = gCat(iBa)
+                // Worksheets("Barite").Cells(14 - LoopTP, 26) = gAn(iSO4)
+                // Worksheets("Other SO4s").Cells(14 - LoopTP, 24) = TF
+                // Worksheets("Other SO4s").Cells(14 - LoopTP, 25) = Ppsia
+                // If UseSI = 1 Then Worksheets("Other SO4s").Cells(14 - LoopTP, 24) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Other SO4s").Cells(14 - LoopTP, 25) = Ppsia / 14.503774
+                // Worksheets("Other SO4s").Cells(14 - LoopTP, 26) = gCat(iSr)
+                // Worksheets("Other SO4s").Cells(14 - LoopTP, 27) = gAn(iSO4)
+                // Worksheets("Halite").Cells(14 - LoopTP, 15) = TF
+                // Worksheets("Halite").Cells(14 - LoopTP, 16) = Ppsia
+                // If UseSI = 1 Then Worksheets("Halite").Cells(14 - LoopTP, 15) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Halite").Cells(14 - LoopTP, 16) = Ppsia / 14.503774
+                // Worksheets("Halite").Cells(14 - LoopTP, 17) = gCat(iNa)
+                // Worksheets("Halite").Cells(14 - LoopTP, 18) = gAn(iCl)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 26) = TF
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 27) = Ppsia
+                // If UseSI = 1 Then Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 26) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 27) = Ppsia / 14.503774
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 28) = gCat(iFe)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 29) = gCat(iZn)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 30) = gAn(intF)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 31) = gAn(iHS)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 32) = gCat(iPb)
+                
+                // Worksheets("Silicates").Cells(14 - LoopTP, 24) = TF
+                // Worksheets("Silicates").Cells(14 - LoopTP, 25) = Ppsia
+                // If UseSI = 1 Then Worksheets("Silicates").Cells(14 - LoopTP, 24) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Silicates").Cells(14 - LoopTP, 25) = Ppsia / 14.503774
+                // Worksheets("Silicates").Cells(14 - LoopTP, 26) = gNeut(iH4SiO4aq)
+            }
+        }
+    }
+    
+    // ==================== 灏嗘暟鎹啓鍏xcel锛堝鏋滄湁excelWriter锛�====================
+    if (excelWriter != nullptr) {
+        // 閬嶅巻鎵�鏈夊伐浣滆〃鍜屾暟鎹紝璋冪敤excelWriter鐨勬柟娉曞啓鍏�
+        for (auto& sheetPair : outputData.worksheets) {
+            const std::string& sheetName = sheetPair.first;
+            auto& worksheet = sheetPair.second;
+            
+            // 鍐欏叆鏁板�兼暟鎹�
+            for (auto& dataPair : worksheet.numericData) {
+                int row = dataPair.first.first;
+                int col = dataPair.first.second;
+                double value = dataPair.second;
+                excelWriter->writeCell(sheetName, row, col, value);
+            }
+            
+            // 鍐欏叆鏂囨湰鏁版嵁
+            for (auto& dataPair : worksheet.textData) {
+                int row = dataPair.first.first;
+                int col = dataPair.first.second;
+                const std::string& value = dataPair.second;
+                excelWriter->writeCell(sheetName, row, col, value);
+            }
+            
+            // 鍐欏叆甯冨皵鏁版嵁
+            for (auto& dataPair : worksheet.booleanData) {
+                int row = dataPair.first.first;
+                int col = dataPair.first.second;
+                bool value = dataPair.second;
+                excelWriter->writeCell(sheetName, row, col, value);
+            }
+        }
+    } else {
+        // 濡傛灉涓嶄娇鐢� excelWriter锛屽氨灏嗘暟鎹繚瀛樺埌鏂囦欢鎴栨暟鎹簱
+        // 渚嬪锛氫繚瀛樹负CSV鏂囦欢鎴朖SON鏍煎紡
+        std::cout << "鏁版嵁宸叉敹闆嗭紝浣嗘湭鍐欏叆Excel锛堟湭鎻愪緵ExcelWriter瀹炰緥锛�" << std::endl;
+        std::cout << "鍏辨敹闆嗕簡 " << outputData.worksheets.size() << " 涓伐浣滆〃鐨勬暟鎹�" << std::endl;
+    }
+}
+
+// ==================== 杈呭姪鍑芥暟瀹炵幇 ====================
+int calculateRowWithStat(int baseRow, int statTPnob, int loopTP, int offset = 0) {
+    return baseRow + statTPnob - loopTP + offset;
+}
+
+// ==================== ExcelWriter鐨勫叿浣撳疄鐜扮ず渚� ====================
+// 娉ㄦ剰锛氫互涓嬫槸鍑犵鍙兘鐨勫疄鐜版柟妗�
+
+// 鏂规1锛氫娇鐢–SV鏂囦欢杈撳嚭锛堣法骞冲彴锛�
+class CSVExcelWriter : public ExcelWriter {
+private:
+    std::string basePath;
+    std::map<std::string, std::ofstream> fileStreams;
+    
+public:
+    CSVExcelWriter(const std::string& path) : basePath(path) {}
+    
+    ~CSVExcelWriter() {
+        for (auto& stream : fileStreams) {
+            if (stream.second.is_open()) {
+                stream.second.close();
+            }
+        }
+    }
+    
+    void writeCell(const std::string& sheetName, int row, int col, double value) override {
+        std::string filename = basePath + "/" + sheetName + ".csv";
+        ensureFileOpen(filename);
+        
+        // CSV鏍煎紡锛氳,鍒�,鍊�
+        fileStreams[filename] << row << "," << col << "," << value << std::endl;
+    }
+    
+    void writeCell(const std::string& sheetName, int row, int col, const std::string& value) override {
+        std::string filename = basePath + "/" + sheetName + ".csv";
+        ensureFileOpen(filename);
+        
+        // 澶勭悊鍙兘鍖呭惈閫楀彿鐨勫瓧绗︿覆
+        std::string escapedValue = value;
+        std::replace(escapedValue.begin(), escapedValue.end(), ',', ';');
+        fileStreams[filename] << row << "," << col << ",\"" << escapedValue << "\"" << std::endl;
+    }
+    
+    void writeCell(const std::string& sheetName, int row, int col, int value) override {
+        writeCell(sheetName, row, col, static_cast<double>(value));
+    }
+    
+    void writeCell(const std::string& sheetName, int row, int col, bool value) override {
+        writeCell(sheetName, row, col, value ? "TRUE" : "FALSE");
+    }
+    
+    void clearCell(const std::string& sheetName, int row, int col) override {
+        // CSV涓竻绌哄崟鍏冩牸鍙互鍐欑┖鍊�
+        writeCell(sheetName, row, col, "");
+    }
+    
+    void setRange(const std::string& sheetName, const std::string& range, const std::string& value) override {
+        // 绠�鍖栧疄鐜帮細灏嗚寖鍥磋涓哄崟涓崟鍏冩牸
+        // 瀹為檯搴旂敤涓渶瑕佽В鏋愯寖鍥村瓧绗︿覆锛堝"A1:B10"锛�
+        std::cout << "CSVWriter: setRange not fully implemented for range: " << range << std::endl;
+    }
+    
+private:
+    void ensureFileOpen(const std::string& filename) {
+        if (fileStreams.find(filename) == fileStreams.end() || !fileStreams[filename].is_open()) {
+            fileStreams[filename].open(filename, std::ios::app);
+            if (!fileStreams[filename].is_open()) {
+                std::cerr << "鏃犳硶鎵撳紑鏂囦欢: " << filename << std::endl;
+            }
+        }
+    }
+};
+
+// 鏂规2锛氫娇鐢ㄧ涓夋柟搴擄紙濡侽penXLSX锛夌殑鍏蜂綋瀹炵幇
+#ifdef USE_OPENXLSX
+#include "OpenXLSX.hpp"
+class OpenXLSXWriter : public ExcelWriter {
+private:
+    OpenXLSX::XLDocument doc;
+    
+public:
+    OpenXLSXWriter(const std::string& filename) {
+        doc.create(filename);
+    }
+    
+    void writeCell(const std::string& sheetName, int row, int col, double value) override {
+        try {
+            auto wks = doc.workbook().worksheet(sheetName);
+            wks.cell(row, col).value() = value;
+        } catch (...) {
+            // 濡傛灉宸ヤ綔琛ㄤ笉瀛樺湪锛屽垱寤哄畠
+            doc.workbook().addWorksheet(sheetName);
+            auto wks = doc.workbook().worksheet(sheetName);
+            wks.cell(row, col).value() = value;
+        }
+    }
+    
+    // ... 鍏朵粬鏂规硶绫讳技瀹炵幇
+};
+#endif
+
+// 鏂规3锛氫娇鐢╓indows COM锛堜粎Windows锛�
+#ifdef _WIN32
+#include <windows.h>
+#include <oleauto.h>
+#include <comdef.h>
+class ExcelCOMWriter : public ExcelWriter {
+private:
+    IDispatch* excelApp = nullptr;
+    IDispatch* workbooks = nullptr;
+    IDispatch* workbook = nullptr;
+    std::map<std::string, IDispatch*> worksheets;
+    
+public:
+    ExcelCOMWriter() {
+        // 鍒濆鍖朇OM鍜孍xcel搴旂敤绋嬪簭
+        CoInitialize(nullptr);
+        // ... 鍒涘缓Excel瀹炰緥鐨勪唬鐮�
+    }
+    
+    ~ExcelCOMWriter() {
+        // 娓呯悊COM瀵硅薄
+        CoUninitialize();
+    }
+    
+    void writeCell(const std::string& sheetName, int row, int col, double value) override {
+        // 浣跨敤COM鎺ュ彛鍐欏叆鍗曞厓鏍�
+        // ... 瀹炵幇缁嗚妭
+    }
+    
+    // ... 鍏朵粬鏂规硶
+};
+#endif
+
+// ==================== 涓荤▼搴忕ず渚� ====================
+int main() {
+    // 绀轰緥鐢ㄦ硶
+    CSVExcelWriter csvWriter("./output");
+    
+    // 鍒濆鍖栧叏灞�鍙橀噺锛堝疄闄呭簲鐢ㄤ腑浠庢枃浠舵垨鏁版嵁搴撹鍙栵級
+    RunStat = 1;
+    LoopTP = 1;
+    TF = 150.0;  // 鍗庢皬搴�
+    Ppsia = 5000.0;
+    
+    // 璋冪敤杞崲鍚庣殑鍑芥暟
+    LoopTPWrite(&csvWriter);
+    
+    std::cout << "鏁版嵁杈撳嚭瀹屾垚" << std::endl;
+    
+    return 0;
 }
