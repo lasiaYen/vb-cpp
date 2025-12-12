@@ -11750,6 +11750,443 @@ void B2_ReadinAllData(SampleData* data)
     };
 }
 
+void B3_CalcConcs(double& API)
+{
+    int i, c, a, n, iNG, iden;
+    double molAlkF = 0, molTACF = 0, molTNH4F = 0;
+    double molTH3BO3F = 0, molTH2SaqF = 0, molTH4SiO4F = 0;
+    double molTFeF;
+
+    xMeOH = 0;
+    xMEG = 0;
+    Alk = 0;
+    TAc = 0;
+    TH2Saq = 0;
+    TDS = 0;
+    TH4SiO4 = 0;
+    TNH4 = 0;
+    TH3BO3 = 0;
+    TFe = 0;
+
+    nTCO2 = 0;
+    nTCH4 = 0;
+    nTH2S = 0;
+    mass_w = 0;
+    Mass_o = 0;
+    mass_MeOH = 0;
+    mass_MEG = 0;
+
+    API = 0;
+    SGG = 0;
+    QTotal = 0;
+    TC = 0;
+    VgTP = 0;
+    VO = 0;
+
+    total_moles = 0;
+    VW = 0;
+    VO = 0;
+    VgTP = 0;
+    SGG = 0;
+
+    nTCO2EOS = 0;
+    nTH2sEOS = 0;
+
+    double molcF[15]; double molaF[15]; double molnF[10];
+    for (c = 0; c < NumCat; c++)
+    {
+        mc[c] = 0;
+        molcF[c] = 0;
+    }
+    for (a = 0; a < NumAn; a++)
+    {
+        ma[a] = 0;
+        molaF[a] = 0;
+    }
+    for (n = 0; n < NumNeut; n++)
+    {
+        mn[n] = 0;
+        molnF[n] = 0;
+    }
+    for (i = 0; i < 15; i++)
+        z[i] = 0;
+
+    /* ---- Sum basic volumes and masses ---- */
+    for (i = 0; i < simContext.nob; i++)
+    {
+        VW += simContext.VwMix[i];
+        VgTP += simContext.VgTPMix[i];
+        VO += simContext.VoMix[i];
+        mass_w += simContext.mass_w_Mix[i];
+        Mass_o += simContext.mass_o_Mix[i];
+    }
+
+    mass_w_0 = mass_w;
+
+    /* ---- Determine mixing fractions ---- */
+    if (simContext.Run_Seawater_Mixing == 0 && simContext.Run_MixingTwoWells == 0 &&
+        simContext.RunStatMix == 0 && RunShellMultiflash != 1)
+    {
+
+        for (i = 0; i < simContext.nob; i++)
+        {
+            simContext.MixFrac[i] = simContext.mass_w_Mix[i] / mass_w;
+            simContext.MixFracOil[i] = simContext.VoMix[i] / VO;
+            simContext.MixFracGas[i] = simContext.VgTPMix[i] / VgTP;
+        }
+    }
+
+    if (simContext.Run_Seawater_Mixing == 1 || simContext.RunStatMix == 1)
+    {
+        simContext.MixFracOil[0] = 1; simContext.MixFracOil[1] = 0;
+        simContext.MixFracGas[0] = 1; simContext.MixFracGas[1] = 0;
+
+        simContext.MixFrac[0] = simContext.mass_w_Mix[0] / mass_w;
+        simContext.MixFrac[1] = 1 - simContext.MixFrac[0];
+    }
+
+    double MixFracTwoWells[11] = { 0 };
+    if (simContext.Run_MixingTwoWells == 1)
+    {
+        for (i = 0; i < simContext.nob; i++)
+        {
+            MixFracTwoWells[0] = simContext.mass_w_Mix[0] / mass_w;
+            MixFracTwoWells[1] = 1 - MixFracTwoWells[0];
+            simContext.MixFracOil[i] = simContext.MixFrac[i];
+            simContext.MixFracGas[i] = simContext.MixFrac[i];
+        }
+    }
+
+    /* ---- Component mixing ---- */
+    for (i = 0; i < simContext.nob; i++)
+    {
+        double MF = (simContext.Run_MixingTwoWells == 1) ? MixFracTwoWells[i] : simContext.MixFrac[i];
+
+        /* cations */
+        mc[iH] += MF * simContext.HstpMix[i];
+        mc[iNa] += MF * simContext.NaMix[i];
+        mc[iK] += MF * simContext.KMix[i];
+        mc[iMg] += MF * simContext.MgMix[i];
+        mc[iCa] += MF * simContext.CaMix[i];
+        mc[iSr] += MF * simContext.SrMix[i];
+        mc[iBa] += MF * simContext.BaMix[i];
+        mc[iFe] += MF * simContext.FeMix[i];
+        mc[iZn] += MF * simContext.ZnMix[i];
+        mc[iPb] += MF * simContext.PbMix[i];
+        mc[iNH4] += MF * simContext.NH4STPMix[i];
+
+        if (simContext.Run_MixingTwoWells != 1)
+            mc[iRa] += MF * simContext.RaMix[i];
+
+        /* anions */
+        ma[iOH] += MF * simContext.OHstpMix[i];
+        ma[iCl] += MF * simContext.ClMix[i];
+        ma[iAc] += MF * simContext.ACstpMix[i];
+        ma[iH2BO3] += MF * simContext.H2BO3stpMix[i];
+        ma[iHCO3] += MF * simContext.HCO3stpMix[i];
+        ma[iCO3] += MF * simContext.CO3stpMix[i];
+        ma[iSO4] += MF * simContext.SO4Mix[i];
+        ma[iBr] += MF * simContext.BrMix[i];
+        ma[intF] += MF * simContext.FMix[i];
+
+        /* neutral species */
+        TH4SiO4 += MF * simContext.TH4SiO4Mix[i];
+        Alk += MF * simContext.AlkMix[i];
+        TAc += MF * simContext.TAcMix[i];
+        TNH4 += MF * simContext.TNH4Mix[i];
+        TH3BO3 += MF * simContext.TH3BO3Mix[i];
+
+        /* cosolvents */
+        mass_MeOH += simContext.mass_MeOH_mix[i];
+        mass_MEG += simContext.mass_MEG_mix[i];
+
+        /* densities */
+        API += simContext.OilDensityMix[i] * simContext.MixFracOil[i];
+        SGG += simContext.GasDensityMix[i] * simContext.MixFracGas[i];
+
+        /* gas */
+        for (iNG = 0; iNG < 15; iNG++)
+            z[iNG] += simContext.zMix[i][iNG] * simContext.Total_molesMix[i];
+
+        total_moles += simContext.Total_molesMix[i];
+        nTCO2 += simContext.nTCO2Mix[i];
+        nTCH4 += simContext.nTCH4Mix[i];
+        nTH2S += simContext.nTH2SMix[i];
+
+        nTCO2EOS += simContext.nTCO2MixEOS[i];
+        nTH2sEOS += simContext.nTH2SMixEOS[i];
+    }
+
+    TFe = mc[iFe];
+
+    /* ---- EOS logic ---- */
+    if (useEOS > 0) {
+
+        nTCO2 = nTCO2EOS;
+        nTH2S = nTH2sEOS;
+
+        if (total_moles > 0) {
+            for (iNG = 0; iNG < 15; iNG++) {
+                z[iNG] /= total_moles;
+                if (z[iNG] < 1e-7) z[iNG] = 0;
+                z_before_precipitation[iNG] = z[iNG];
+            }
+
+            double zHC = z[0];
+            for (iNG = 3; iNG < 14; iNG++)
+                zHC += z[iNG];
+
+            if (zHC == 0)
+            {
+                useEOS = 0;
+                if (simContext.Run_Seawater_Mixing != 1 &&
+                    simContext.Run_MixingTwoWells != 1 && simContext.Run10TestCases != 1)
+                    simContext.errmsg[13] = 14;
+            }
+
+            SumofZ = 0;
+            for (iNG = 0; iNG < 15; iNG++)
+                SumofZ += z[iNG];
+        }
+
+        if ((simContext.Run_Seawater_Mixing == 1 ||
+            simContext.Run_MixingTwoWells == 1) &&
+            simContext.LoopMixing == 1)
+            useEOS = 0;
+
+        /* mixing moles */
+        if (simContext.Run_MixingTwoWells == 1)
+        {
+            for (i = 0; i < simContext.nob; i++)
+            {
+
+                double mixFracTwoWells_i = simContext.MixFrac[i];
+
+                for (c = 0; c < NumCat; c++)
+                    molcF[c] += molc[c][i] * mixFracTwoWells_i;
+
+                for (a = 0; a < NumAn; a++)
+                    molaF[a] += mola[a][i] * mixFracTwoWells_i;
+
+                for (n = 0; n < NumNeut; n++)
+                    molnF[n] += moln[n][i] * mixFracTwoWells_i;
+
+                molAlkF += simContext.molAlk[i] * mixFracTwoWells_i;
+                molTACF += simContext.molTAC[i] * mixFracTwoWells_i;
+                molTNH4F += simContext.molTNH4[i] * mixFracTwoWells_i;
+                molTH3BO3F += simContext.molTH3BO3[i] * mixFracTwoWells_i;
+                molTH2SaqF += simContext.molTH2Saq[i] * mixFracTwoWells_i;
+                molTH4SiO4F += simContext.molTH4SiO4[i] * mixFracTwoWells_i;
+            }
+
+        }
+        else {
+
+            for (i = 0; i < simContext.nob; i++)
+            {
+                double mixFrac_i = simContext.MixFrac[i];
+
+                for (c = 0; c < NumCat; c++)
+                    molcF[c] += molc[c][i] * mixFrac_i;
+
+                for (a = 0; a < NumAn; a++)
+                    molaF[a] += mola[a][i] * mixFrac_i;
+
+                for (n = 0; n < NumNeut; n++)
+                    molnF[n] += moln[n][i] * mixFrac_i;
+
+
+
+                molAlkF += simContext.molAlk[i] * mixFrac_i;
+                molTACF += simContext.molTAC[i] * mixFrac_i;
+                molTNH4F += simContext.molTNH4[i] * mixFrac_i;
+                molTH3BO3F += simContext.molTH3BO3[i] * mixFrac_i;
+                molTH2SaqF += simContext.molTH2Saq[i] * mixFrac_i;
+                molTH4SiO4F += simContext.molTH4SiO4[i] * mixFrac_i;
+            }
+        }
+
+        molTFeF = molcF[iFe];
+    }
+
+    /* ---- cosolvent mole fractions ---- */
+    if (mass_MeOH > 0)
+        xMeOH = (mass_MeOH / 32.0) / ((mass_MeOH / 32.0) + (mass_w / 18.0));
+
+    if (mass_MEG > 0)
+        xMEG = (mass_MEG / 62.07) / ((mass_MEG / 62.07) + (mass_w / 18.0));
+
+    CalcIonicStrength();
+
+    if (mass_MeOH > 0)
+        IStCosolvent = ISt * mass_w / (mass_w + mass_MeOH);
+    if (mass_MEG > 0)
+        IStCosolvent = ISt * mass_w / (mass_w + mass_MEG);
+
+    /* --------------------------------------- */
+    /* =========== Non-EOS branch ============= */
+    /* --------------------------------------- */
+
+    if (useEOS == 0)
+    {
+        if (simContext.useTPVol == 1)
+            fTPFunc(1);
+        else
+            fTPFunc(0);
+
+        SGG = SGG / (Patm * 28.97 / (0.08206 * TK));
+        API = 141.5 / (API / (fH2ODensity(TK, PBar) / 1000.0)) - 131.5;
+
+        C1_ThermodynamicEquilConsts();
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+
+        nTCO2_before_precipitation = nTCO2;
+        nTH2S_before_precipitation = nTH2S;
+
+        PengRobinson3();
+        RatioOilBPoints = fRatioOilBPoints(API);
+
+        //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+        C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+
+        fmn;
+
+        CalcIonicStrength();
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+        ////Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+        C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+
+        rhoTP = CalcRhoTP(TK, TC, PBar, Patm);
+
+        yCH4 = PCH4 / Ppsia;
+        simContext.yCO2 = PCO2 / Ppsia;
+        simContext.yH2S = PH2S / Ppsia;
+
+        /* ---- calculate TDS at STP ---- */
+        if (TC == 25)
+            simContext.rho25c = rhoTP;
+        else
+        {
+
+            fTPFunc(0);
+            C1_ThermodynamicEquilConsts();
+            C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+
+            nTCO2_before_precipitation = nTCO2;
+            nTH2S_before_precipitation = nTH2S;
+
+            PengRobinson3();
+            RatioOilBPoints = fRatioOilBPoints(API);
+            //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+            C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+
+            fmn;
+            CalcIonicStrength();
+            C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+            //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+            C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+
+            simContext.rho25c = CalcRhoTP(TK, TC, PBar, Patm);
+        }
+    }
+
+    /* --------------------------------------- */
+    /* ============== EOS branch ============== */
+    /* --------------------------------------- */
+
+    if (useEOS != 0) {
+        if (simContext.useTPVol == 1)
+            fTPFunc(1);
+        else
+            fTPFunc(0);
+
+        nTCO2_before_precipitation = nTCO2EOS;
+        nTH2S_before_precipitation = nTH2sEOS;
+        Total_moles_before_precipitation = total_moles;
+
+        bool temp_ParametersWereRead = false;
+        DoubleVec temp_gNeut(2);
+        temp_gNeut[0] = gNeut[iCO2aq];
+        temp_gNeut[1] = gNeut[iH2Saq];
+        MultiPhaseFlash(temp_ParametersWereRead,
+            mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1,
+            TK, PBar, total_moles, z,
+            temp_gNeut,
+            aH2O, density, compositions, phi, Compr, beta,
+            zOutput, mass_phase, MW_Phase, &No_Phases);
+
+        /* compute water mass */
+        mass_w = total_moles * beta[2] * compositions[14][3] * 0.01801528;
+
+        if (mass_w == 0) {
+            simContext.errmsg[13] = 14;
+            useEOS = 0;
+            goto L4000;
+        }
+
+        ////Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+        C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+        fmn;
+
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+        //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+        C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+
+        /* Recompute API + SGG */
+        fTPFunc(3);
+
+        temp_ParametersWereRead = false;
+        temp_gNeut[0] = gNeut[iCO2aq];
+        temp_gNeut[1] = gNeut[iH2Saq];
+        MultiPhaseFlash(temp_ParametersWereRead,
+            mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1,
+            TK, PBar, total_moles, z,
+            temp_gNeut,
+            aH2O, density, compositions, phi, Compr, beta,
+            zOutput, mass_phase, MW_Phase, &No_Phases);
+
+        if (beta[0] > 0 && density[0] < 0.3)
+            SGG = density[0] * 1000.0 / (Patm * 28.97 / (0.08206 * TK));
+        else
+            SGG = 0.6;
+
+        if (beta[1] > 0 && density[1] > 0.3)
+            API = 141.5 / (density[1] / (fH2ODensity(TK, PBar) / 1000.0)) - 131.5;
+        else
+            API = 30;
+    }
+
+L4000:
+    TDS = 0;
+    CalculateTDSDen = 0;
+
+    for (iden = 1; iden < NumCat; iden++)
+        CalculateTDSDen += 0.001 * mc[iden] * MWCat[iden];
+
+    for (iden = 1; iden < NumAn; iden++)
+        CalculateTDSDen += 0.001 * ma[iden] * MWAn[iden];
+
+    for (iden = 1; iden < NumNeut; iden++)
+        CalculateTDSDen += 0.001 * mn[iden] * MWNeut[iden];
+
+    TDS = CalculateTDSDen / (1 + CalculateTDSDen) * simContext.rho25c * 1000000.0;
+
+    for (c = 0; c < NumCat; c++)
+        mcInit[c] = mc[c];
+
+    for (a = 0; a < NumAn; a++)
+        maInit[a] = ma[a];
+
+    AlkInit = Alk;
+    TH4SiO4Init = TH4SiO4;
+    TNH4Init = TNH4;
+    TH3BO3Init = TH3BO3;
+    TAcInit = TAc;
+    TFeInit = TFe;
+
+    fmn;
+}
+
 
 int main()
 {
@@ -11760,7 +12197,7 @@ int main()
     mockData_sheetInput(&data);
     B1_InitializeIndices();  //  初始化
     B2_ReadinAllData(&data);
-
+    B3_CalcConcs(data.API);
     printf("ReadInputPartC ended\n");
     printf("Calc Result: TDS = %f, simContext.yCO2 = %f, simContext.yH2S = %f\n", TDS, simContext.yCO2, simContext.yH2S);
     printf("Alkalinity Alk = %f, Tatal Ac TAc = %f\n", Alk, TAc);
