@@ -1,15 +1,26 @@
 void InitializeOptionClearCellContent()
 {
+<<<<<<< HEAD
     // ����������ʼ������ VBA �߼���
     UseSR = 0; simContext.UseTPCalciteSheet = 0;
     simContext.Read_InputII = 0;
     //int NCount_II = 0;  //NCount_II:InitializeO��CountNOB;   - ����ǰ���н���ֵ���ں����и�ֵ��ʹ�ã����ע�͵�
+=======
+    // 锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷始锟斤拷锟斤拷锟斤拷 VBA 锟竭硷拷锟斤拷
+    UseSR = 0; simContext.UseTPCalciteSheet = 0;
+    simContext.Read_InputII = 0;
+    //int NCount_II = 0;  //NCount_II:InitializeO锟斤拷CountNOB;   - 锟斤拷锟斤拷前锟斤拷锟叫斤拷锟斤拷值锟斤拷锟节猴拷锟斤拷锟叫革拷值锟斤拷使锟矫ｏ拷锟斤拷锟阶拷偷锟�
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     useEOS = 0;
     simContext.LoopMixing = 0; simContext.UseMolal = 0; //iTP = 0
     RunShellMultiflash = 0; H2Oevap = 0;
     simContext.Run_CalcConcFactor = 0;
 
+<<<<<<< HEAD
     // ��Щ����ӦΪȫ�ֱ���
+=======
+    // 锟斤拷些锟斤拷锟斤拷应为全锟街憋拷锟斤拷
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     //int RunGoalSeek, RunStatGoalSeek; Run_MassTransfer;
     //RunH2SGUI, RunSMT, RunStat, RunH2SPartition;
 
@@ -18,9 +29,15 @@ void InitializeOptionClearCellContent()
     Run_MassTransfer = (Run_MassTransfer == 1 ? 1 : 0);
 
     // If Worksheets("Input").Range("I11") = "Saturation Ratio values" Then UseSR = 1;
+<<<<<<< HEAD
     //û�������������ǲ������UseSR=1;��ע�͵���
 
     usePTB = 1;   //Ŀǰ����һ��Ϊ 1
+=======
+    //没锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟角诧拷锟斤拷锟斤拷锟経seSR=1;锟斤拷注锟酵碉拷锟斤拷
+
+    usePTB = 1;   //目前锟斤拷锟斤拷一锟斤拷为 1
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     /*
     if (simContext.RunH2SGUI != 1 && RunSMT != 1 && simContext.RunStat != 1) {
          if Worksheets("Calcite").Range("F3") == "mg/L"
@@ -30,7 +47,11 @@ void InitializeOptionClearCellContent()
     }
     */
 
+<<<<<<< HEAD
     // ============== �������� Excel ��ղ���������Ϊע�� ==============
+=======
+    // ============== 锟斤拷锟斤拷锟斤拷锟斤拷 Excel 锟斤拷詹锟斤拷锟斤拷锟斤拷锟斤拷锟轿拷锟� ==============
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     if (RunSMT != 1) {
         if (simContext.RunH2SGUI != 1) {
 
@@ -74,12 +95,20 @@ void InitializeOptionClearCellContent()
         }
     }
 
+<<<<<<< HEAD
     //double feed_Composition[15];�������partD��ʹ�ã�������Ϊ�ֲ����ˣ��˴�����
+=======
+    //double feed_Composition[15];锟斤拷锟斤拷锟斤拷锟絧artD锟斤拷使锟矫ｏ拷锟斤拷锟斤拷锟斤拷为锟街诧拷锟斤拷锟剿ｏ拷锟剿达拷锟斤拷锟斤拷
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
 
     DpHj = 0;
 
 
+<<<<<<< HEAD
     // ============== �ڶ��� Excel ��գ������жϣ�==============
+=======
+    // ============== 锟节讹拷锟斤拷 Excel 锟斤拷眨锟斤拷锟斤拷锟斤拷卸希锟�==============
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     if (RunSMT != 1) {
         if (RunH2SPartition != 1) {
 
@@ -111,14 +140,22 @@ void CountNOB()
     //extern int RunStatMix, Run_Seawater_Mixing, RunMultiMix, RunMultiMixSlb;
     //extern int Read_InputII, Run1000Cases;
 
+<<<<<<< HEAD
     // ��ʼ��
+=======
+    // 锟斤拷始锟斤拷
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     simContext.nob = 0;
     Ncount = 0;
     NCount_II = 0;
     //simContext.nob_Input = 0;
     //simContext.nob_InputII = 0;
     simContext.Run1000Cases = 0;
+<<<<<<< HEAD
     RunStatReservoirCalc = 0;//û���������ֵ��ֵ������
+=======
+    RunStatReservoirCalc = 0;//没锟斤拷锟斤拷锟斤拷锟斤拷锟街碉拷锟街碉拷锟斤拷锟斤拷锟�
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
 
     if (RunStatReservoirCalc == 1)
     {
@@ -214,10 +251,17 @@ void CountNOB()
         End If
         */
     }
+<<<<<<< HEAD
     // ====================== ��� else: ��ȡ Input Sheet �Ĺ�ѡ�� ======================
     else
     {
         //�Ķ�����������ĸ�ѡ����ȷ��Ҫʹ����Щ����
+=======
+    // ====================== 锟斤拷锟� else: 锟斤拷取 Input Sheet 锟侥癸拷选锟斤拷 ======================
+    else
+    {
+        //锟侥讹拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷母锟窖★拷锟斤拷锟饺凤拷锟揭癸拷锟斤拷锟叫╋拷锟斤拷锟�
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
         for (int i = 0; i < 5; i++)
         {
 
@@ -230,7 +274,11 @@ void CountNOB()
 
         //nob_Input = nob;
 
+<<<<<<< HEAD
         //�Ķ�����������ĸ�ѡ����ȷ��Ҫʹ����Щ����
+=======
+        //锟侥讹拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷母锟窖★拷锟斤拷锟饺凤拷锟揭癸拷锟斤拷锟叫╋拷锟斤拷锟�
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
         for (int i = 0; i < 100; i++)
         {
             /*
@@ -290,10 +338,17 @@ void CountNOB()
 }
 
 
+<<<<<<< HEAD
 //B3�л��޸�data��API����������ֱ�����ô���
 void B3_CalcConcs(double& API)
 {
     /*  �ֲ��������� */
+=======
+//B3锟叫伙拷锟睫革拷data锟斤拷API锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷直锟斤拷锟斤拷锟矫达拷锟斤拷
+void B3_CalcConcs(double& API)
+{
+    /*  锟街诧拷锟斤拷锟斤拷锟斤拷锟斤拷 */
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     int i, c, a, n, iNG, iden;
     double molAlkF = 0, molTACF = 0, molTNH4F = 0;
     double molTH3BO3F = 0, molTH2SaqF = 0, molTH4SiO4F = 0;
@@ -335,7 +390,11 @@ void B3_CalcConcs(double& API)
     nTH2sEOS = 0;
 
     /* ---- Reset arrays ---- */
+<<<<<<< HEAD
     //�����������������B3��ʹ��
+=======
+    //锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟紹3锟斤拷使锟斤拷
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     double molcF[15]; double molaF[15]; double molnF[10];
     for (c = 0; c < NumCat; c++)
     {
@@ -405,10 +464,17 @@ void B3_CalcConcs(double& API)
     for (i = 0; i < simContext.nob; i++)
     {
         /*
+<<<<<<< HEAD
         ע��vb���ж�Run_MixingTwoWells�Ƿ�Ϊ1
         ��Ϊ1����Щ���鶼���һ��MixFracTwoWells[i]
 
         ����˵���MixFrac[i],������������һ��MF������Ҫ�˵�ֵ�������ظ�������ʱ
+=======
+        注锟斤拷vb锟斤拷锟叫讹拷Run_MixingTwoWells锟角凤拷为1
+        锟斤拷为1锟斤拷锟斤拷些锟斤拷锟介都锟斤拷锟揭伙拷锟組ixFracTwoWells[i]
+
+        锟斤拷锟斤拷说锟斤拷锟組ixFrac[i],锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷一锟斤拷MF锟斤拷锟斤拷锟斤拷要锟剿碉拷值锟斤拷锟斤拷锟斤拷锟截革拷锟斤拷锟斤拷锟斤拷时
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
         */
         double MF = (simContext.Run_MixingTwoWells == 1) ? MixFracTwoWells[i] : simContext.MixFrac[i];
 
@@ -425,7 +491,11 @@ void B3_CalcConcs(double& API)
         mc[iPb] += MF * simContext.PbMix[i];
         mc[iNH4] += MF * simContext.NH4STPMix[i];
 
+<<<<<<< HEAD
         //��Ϊ1ʱ�Żḳֵ���iRa
+=======
+        //锟斤拷为1时锟脚会赋值锟斤拷锟絠Ra
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
         if (simContext.Run_MixingTwoWells != 1)
             mc[iRa] += MF * simContext.RaMix[i];
 
@@ -479,7 +549,11 @@ void B3_CalcConcs(double& API)
         if (total_moles > 0) {
             for (iNG = 0; iNG < 15; iNG++) {
                 z[iNG] /= total_moles;
+<<<<<<< HEAD
                 //���ܻᵼ��c��vb��Ϊ��ͬ�Ĵ���
+=======
+                //锟斤拷锟杰会导锟斤拷c锟斤拷vb锟斤拷为锟斤拷同锟侥达拷锟斤拷
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
                 if (z[iNG] < 1e-7) z[iNG] = 0;
                 z_before_precipitation[iNG] = z[iNG];
             }
@@ -845,12 +919,20 @@ void B4_CalcFinalBrine()
                         //Worksheets("Input").Range("h46").Value = mass_MEG / 1.1135 / 159.0;
                         if (simContext.UseSI == 1)
                             //Worksheets("Input").Range("h45").Value = mass_MeOH / 1.1135 / 159 * 0.159
+<<<<<<< HEAD
                             double aaa123 = 0;// ռλ��䣬ȷ�Ϻ���ɾ��
+=======
+                            double aaa123 = 0;// 占位锟斤拷洌凤拷虾锟斤拷锟缴撅拷锟�
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     }
 
 label100:
     return;
+<<<<<<< HEAD
     // ��תĿ��
+=======
+    // 锟斤拷转目锟斤拷
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
 }
 
 
@@ -944,7 +1026,6 @@ void OutputActivityCoefficients()
 }
 
 
-
 void B5_CalculateSIvalues(double& API)
 {
     if (LoopTP == 10) {
@@ -959,7 +1040,11 @@ void B5_CalculateSIvalues(double& API)
     SIQuartz = 0; SIDiopside = 0; SIChrysotile = 0;
     SIGreenalite = 0;
 
+<<<<<<< HEAD
     // --- Copy mcInit �� mc, maInit �� ma
+=======
+    // --- Copy mcInit 锟斤拷 mc, maInit 锟斤拷 ma
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     for (int c = 0; c < NumCat; c++) {
         mc[c] = mcInit[c];
     }
@@ -1017,7 +1102,11 @@ void B5_CalculateSIvalues(double& API)
     }
 
     // ================================
+<<<<<<< HEAD
     //        useEOS != 0 ��֧
+=======
+    //        useEOS != 0 锟斤拷支
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     // ================================
 
     if (useEOS != 0)
@@ -1048,7 +1137,11 @@ void B5_CalculateSIvalues(double& API)
 
         if (compositions[14][3] < 0.5 || mass_w < 1e-7)
         {
+<<<<<<< HEAD
             //���˱�Ǳ�����ʱ��ˮ���������˳����㡣
+=======
+            //锟斤拷锟剿憋拷潜锟斤拷锟斤拷锟绞憋拷锟剿拷锟斤拷锟斤拷锟斤拷锟斤拷顺锟斤拷锟斤拷恪�
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
             simContext.errmsg[7] = 8;
             ISt = 0; pH = 0; rhoTP = 0; H2Oevap = 1;
             goto exit_label_500;
@@ -1167,7 +1260,11 @@ void B5_CalculateSIvalues(double& API)
     // ================================
     if (RunShellMultiflash != 1)
     {
+<<<<<<< HEAD
         // ���㱥�Ͷ�ָ��
+=======
+        // 锟斤拷锟姐饱锟酵讹拷指锟斤拷
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
         SICal = log10(mc[iCa] * simContext.HCO3 * gCat[iCa] * gNCat[iCa] *
             gAn[iHCO3] * gNAn[iHCO3] * K2HCO3 / (aH * KspCalcite));
 
@@ -1196,7 +1293,11 @@ void B5_CalculateSIvalues(double& API)
 
         SISrCO3 = log10(mc[iSr] * simContext.HCO3 * gCat[iSr] * gNCat[iSr] * gAn[iHCO3] * gNAn[iHCO3] * K2HCO3 / (aH * KspSrCO3));
 
+<<<<<<< HEAD
         // If Use_ZnCl2Const = 1 Then ע�͵����������
+=======
+        // If Use_ZnCl2Const = 1 Then 注锟酵碉拷锟斤拷锟斤拷锟斤拷锟斤拷锟�
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
         SIZnS = log10(mc[iZn] * simContext.HS * gCat[iZn] * gAn[iHS] * gNAn[iHS] / aH / KspZnS);
 
         SIPbS = log10(mc[iPb] * simContext.HS * gCat[iPb] * gAn[iHS] * gNAn[iHS] / aH / KspPbS);
@@ -1204,8 +1305,13 @@ void B5_CalculateSIvalues(double& API)
         SIZnCO3 = log10(mc[iZn] * simContext.CO3 * gCat[iZn] * gAn[iCO3] / KspZnCO3);
 
         // added by Dai 2016
+<<<<<<< HEAD
         // ��Ҫ�ȶ��� SICal ����
         SICal = 0.0; // �����ʼֵ
+=======
+        // 锟斤拷要锟饺讹拷锟斤拷 SICal 锟斤拷锟斤拷
+        SICal = 0.0; // 锟斤拷锟斤拷锟绞贾�
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
 
         if (xMeOH > 0 && mc[iCa] * simContext.HCO3 > 0)
         {
@@ -1251,6 +1357,172 @@ exit_label_500:
 }
 
 
+
+double fbInhBar(int InhNo, double SI)
+{
+    return bi[InhNo - 1][0]
+        + bi[InhNo - 1][1] * SI
+        + bi[InhNo - 1][2] / TK
+        + bi[InhNo - 1][3] * log10(1.0 / aH)
+        + bi[InhNo - 1][4] * fabs(log10(mc[iBa] / ma[iSO4]));
+}
+
+
+double flogT0Bar(double SI)
+{
+    double value;
+
+    value = -3.153194285
+        + (-0.92635504 / SI)
+        + (716.694987 / TK)
+        + (1879.905802 / (SI * TK))
+        + 0.189075542 * fabs(log10(mc[iBa] / ma[iSO4]));   // Zhaoyi Dai 2020
+
+    // Amy 2013 correction for MeOH
+    if (xMeOH > 0.0)
+        value += 1.1136 * SI * (1.0 - 1.2976 * xMeOH) * xMeOH;
+
+    // Amy 2013 correction for MEG
+    if (xMEG > 0.0)
+        value += 4.8464 * xMEG;
+
+    return value;
+}
+
+
+double fbInhCal(int InhNo, double SI)
+{
+    return
+        ci[InhNo - 1][0]                         // ci(InhNo,1)
+        + ci[InhNo - 1][1] * SI                  // ci(InhNo,2) * SI
+        + ci[InhNo - 1][2] / TK                  // ci(InhNo,3) / TK
+        + ci[InhNo - 1][3] * log10(1.0 / aH)     // ci(InhNo,4) * Log10(1/aH)
+        + ci[InhNo - 1][4]                       // ci(InhNo,5)
+        * fabs(log10(mc[iCa] / simContext.HCO3));     // Abs(Log10(mc(iCa)/HCO3))
+}
+
+
+double fCinhCal(double SI, double tInh, double& fSafetyCal)
+{
+    double bInhCalMixed;
+
+    if (InhNoCal == 20)
+    {
+        // 注意：所有 VB 下标均需 -1
+        bInhCal[simContext.InhNo1 - 1] = pow(10.0, fbInhCal(simContext.InhNo1, SI));
+        bInhCal[simContext.InhNo2 - 1] = pow(10.0, fbInhCal(simContext.InhNo2, SI));
+
+        bInhCalMixed = simContext.FracInhNo1 * bInhCal[simContext.InhNo1 - 1]
+            + (1.0 - simContext.FracInhNo1) * bInhCal[simContext.InhNo2 - 1];
+
+        return (1.0 / bInhCalMixed)
+            * log10(fSafetyCal * tInh / t0Cal);
+    }
+    else
+    {
+        bInhCal[InhNoCal - 1] = pow(10.0, fbInhCal(InhNoCal, SI));
+
+        return (1.0 / bInhCal[InhNoCal - 1])
+            * log10(fSafetyCal * tInh / t0Cal);
+    }
+}
+
+double fCinhBar(double SI, double tInh, double& fSafetyBar)
+{
+    double bInhBarMixed;
+
+    if (InhNoBar == 20)
+    {
+        bInhBar[simContext.InhNo1 - 1] = pow(10.0, fbInhBar(simContext.InhNo1, SI));
+
+        bInhBar[simContext.InhNo2 - 1] = pow(10.0, fbInhBar(simContext.InhNo2, SI));
+
+        bInhBarMixed =
+            simContext.FracInhNo1 * bInhBar[simContext.InhNo1 - 1] +
+            (1.0 - simContext.FracInhNo1) * bInhBar[simContext.InhNo2 - 1];
+
+        return (1.0 / bInhBarMixed) * log10(fSafetyBar * tInh / t0Bar);
+    }
+    else
+    {
+        bInhBar[InhNoBar - 1] = pow(10.0, fbInhBar(InhNoBar, SI));
+
+        return (1.0 / bInhBar[InhNoBar - 1]) * log10(fSafetyBar * tInh / t0Bar);
+    }
+}
+
+double flogT0Cal(double SI)
+{
+    return
+        -5.36
+        + 1.5 / SI
+        + 1779.17 / TK
+        + 0.95 * fabs(log10(mc[iCa] / ma[iHCO3]));
+}
+
+
+double flogT0Gyp(double SI)
+{
+    return (-6.2971 - 0.2212 / SI + 2171.2067 / (TK * pow(SI, 0.2852)) + 1.715 / (1.0 + sqrt(ISt)));//ISt ^ 0.5
+}
+
+
+double fbInhGyp(int InhNo, double SI)
+{
+    return gi[InhNo - 1][0] + gi[InhNo - 1][2] / (TK * SI) + gi[InhNo - 1][3] *
+        log10(1.0 / aH) + gi[InhNo - 1][4] * abs(log10(mc[iCa] / ma[iSO4]));
+}
+
+double fCinhGyp(double SI, double tInh, double& fSafetyGyp, double& t0Gyp)
+{
+
+    bInhGyp[InhNoGyp - 1] = pow(10.0, fbInhGyp(InhNoGyp, SI));
+
+    return (1.0 / bInhGyp[InhNoGyp - 1]) *
+        log10(fSafetyGyp * tInh / t0Gyp);
+}
+
+
+double flogT0An(double SI)
+{
+    return (2.15 - 2.83 / SI - 885.8 / TK + 1766.3 / (SI * TK));
+}
+
+
+double fbInhAn(int InhNo, double SI)
+{
+    return ai[InhNo - 1][0] + ai[InhNo - 1][1] * SI + ai[InhNo - 1][2] / TK + ai[InhNo - 1][3]
+        * log10(1.0 / aH) + ai[InhNo - 1][4] * abs(log10(mc[iCa] / ma[iSO4]));
+}
+
+
+double fCinhAn(double SI, double tInh, double& fsafetyAn, double& t0An)
+{
+    bInhAn[InhNoAn - 1] = pow(10, fbInhAn(InhNoAn, SI));
+    return (1 / bInhAn[InhNoAn - 1]) * log10(fsafetyAn * tInh / t0An);
+}
+
+
+double flogT0Cel(double SI)
+{
+    return  -1.713 - 3.411 / SI + 2646.1 / (SI * TK);
+}
+
+
+double fbInhCel(double InhNo, double SI)
+{
+    return celi[InhNo - 1][0] + celi[InhNo - 1][1] * SI + celi[InhNo - 1][2] / TK;
+}
+
+
+double fCinhCel(double SI, double tInh, double& fSafetyCel, double& t0Cel)
+{
+    bInhCel[InhNoCel - 1] = pow(10, fbInhCel(InhNoCel, SI));
+    return (1.0 / bInhCel[InhNoCel - 1]) * log10(fSafetyCel * tInh / t0Cel);
+}
+
+
+
 void B6_InhibitorNeeded()
 {
     /* ---------- Barite ---------- */
@@ -1259,31 +1531,37 @@ void B6_InhibitorNeeded()
 
     if (mc[iBa] * ma[iSO4] > 0.0)
     {
-        if (LoopTP == 1 || RunWhatIf == 1 || Run1000Cases == 1 || LoopResChem == 1)
+        if (LoopTP == 1 || simContext.RunWhatIf == 1 || simContext.Run1000Cases == 1 || simContext.LoopResChem == 1)
         {
-            InhNoBar = InhNo;
+            InhNoBar = simContext.InhNo;
 
-            if (SelectInh == 1)
+            if (simContext.SelectInh == 1)
             {
+                //此处C语言未作下标偏移，因为涉及到InhNoBar等
+                //因此，对于数组[i]，要进行数组[i - 1], 传入i时不能-1，因为在fbInhBar里会做偏移
                 int iMaxBar = 1;
                 double bInhBarMax = fbInhBar(iMaxBar, SIBar);
 
                 for (int i = 1; i <= 19; i++)
                 {
-                    bInhBar[i] = fbInhBar(i, SIBar);
-                    if (bInhBar[i] > bInhBarMax)
+                    bInhBar[i - 1] = fbInhBar(i, SIBar);
+                    if (bInhBar[i - 1] > bInhBarMax)
                     {
                         iMaxBar = i;
-                        bInhBarMax = bInhBar[i];
+                        bInhBarMax = bInhBar[i - 1];
                     }
                 }
                 InhNoBar = iMaxBar;
             }
 
-            if (SelectInh == 1)
+            if (simContext.SelectInh == 1)
                 InhNoBar = 2;   /* VB: always choose BHPMP */
 
+<<<<<<< HEAD
             /* Excel writes �� remove �� optional store */
+=======
+            /* Excel writes 锟斤拷 remove 锟斤拷 optional store */
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
             InhNameSelected_Barite = InhName[InhNoBar];
         }
 
@@ -1294,7 +1572,7 @@ void B6_InhibitorNeeded()
             if (log10(tInh) > BarExpon10 && BarExpon10 < 8.0)
             {
                 t0Bar = pow(10.0, BarExpon10);
-                ConcInhBar = fCinhBar(SIBar, tInh);
+                ConcInhBar = fCinhBar(SIBar, tInh, fSafetyBar);
             }
         }
     }
@@ -1303,34 +1581,38 @@ void B6_InhibitorNeeded()
     /* ---------- Calcite ---------- */
     double fSafetyCal = 1.0;
     ConcInhCal = 0.0;
+    double ConcInhGyp;
 
-    if (mc[iCa] * HCO3 > 0.0)
+    if (mc[iCa] * simContext.HCO3 > 0.0)
     {
-        if (LoopTP == 1 || RunWhatIf == 1 || Run1000Cases == 1 || LoopResChem == 1)
+        if (LoopTP == 1 || simContext.RunWhatIf == 1 || simContext.Run1000Cases == 1 || simContext.LoopResChem == 1)
         {
-            InhNoCal = InhNo;
+            InhNoCal = simContext.InhNo;
 
-            if (SelectInh == 1)
+            if (simContext.SelectInh == 1)
             {
                 int iMaxCal = 1;
                 double bInhCalMax = fbInhCal(iMaxCal, SICal);
 
                 for (int i = 1; i <= 19; i++)
                 {
-                    bInhCal[i] = fbInhCal(i, SICal);
-                    if (bInhCal[i] > bInhCalMax)
+                    bInhCal[i - 1] = fbInhCal(i, SICal);
+                    if (bInhCal[i - 1] > bInhCalMax)
                     {
                         iMaxCal = i;
-                        bInhCalMax = bInhCal[i];
+                        bInhCalMax = bInhCal[i - 1];
                     }
                 }
                 InhNoCal = iMaxCal;
             }
 
-            if (SelectInh == 1)
-                InhNoCal = 1;   /* always choose NTMP */
+            if (simContext.SelectInh == 1)
+                InhNoCal = 1;
+            /*
+            Worksheets("Calcite").Cells(2, 7) = InhName(InhNoCal)
+            Worksheets("Input").Cells(47, 10) = InhName(InhNoCal)
+            */
 
-            InhNameSelected_Calcite = InhName[InhNoCal];
         }
 
         if (SICal > 0.001)
@@ -1339,8 +1621,8 @@ void B6_InhibitorNeeded()
 
             if (log10(tInh) > CalExpon10 && CalExpon10 < 8.0)
             {
-                t0Cal = pow(10.0, CalExpon10);
-                ConcInhCal = fCinhCal(SICal, tInh);
+                double t0Cal = pow(10.0, CalExpon10);
+                ConcInhCal = fCinhCal(SICal, tInh, fSafetyCal);
             }
         }
     }
@@ -1354,7 +1636,7 @@ void B6_InhibitorNeeded()
     {
         InhNoGyp = 4;
 
-        InhNameSelected_Gypsum = InhName[InhNoGyp];
+        //Worksheets("Input").Cells(51, 10) = InhName(InhNoGyp) 
 
         if (SIGyp > 0.1)
         {
@@ -1364,12 +1646,12 @@ void B6_InhibitorNeeded()
             {
                 if (TK < 373.0)
                 {
-                    t0Gyp = pow(10.0, GypExpon10);
-                    ConcInhGyp = fCinhGyp(SIGyp, tInh);
+                    double t0Gyp = pow(10.0, GypExpon10);
+                    ConcInhGyp = fCinhGyp(SIGyp, tInh, fSafetyGyp, t0Gyp);
                 }
                 else
                 {
-                    ConcInhGyp = NAN;  /* VB Null */
+                    ConcInhGyp = 0;  /* VB Null */
                 }
             }
         }
@@ -1377,13 +1659,13 @@ void B6_InhibitorNeeded()
 
 
     /* ---------- Anhydrite ---------- */
-    double fSafetyAn = 1.0;
+    double fsafetyAn = 1.0;
     ConcInhAn = 0.0;
 
     if (mc[iCa] * ma[iSO4] > 0.0)
     {
         InhNoAn = 4;
-        InhNameSelected_Anhydrite = InhName[InhNoAn];
+        // Worksheets("Input").Cells(53, 10) = InhName(InhNoAn)
 
         if (SIAn > 0.1)
         {
@@ -1393,17 +1675,14 @@ void B6_InhibitorNeeded()
             {
                 if (TK > 373.0)
                 {
-                    t0An = pow(10.0, AnExpon10);
-                    ConcInhAn = fCinhAn(SIAn, tInh);
+                    double t0An = pow(10.0, AnExpon10);
+                    ConcInhAn = fCinhAn(SIAn, tInh, fsafetyAn, t0An);
                 }
                 else
-                {
-                    ConcInhAn = NAN;
-                }
+                    ConcInhAn = 0;
             }
         }
     }
-
 
     /* ---------- Celestite (SrSO4) ---------- */
     double fSafetyCel = 1.0;
@@ -1411,17 +1690,26 @@ void B6_InhibitorNeeded()
 
     if (mc[iSr] * ma[iSO4] > 0.0)
     {
+<<<<<<< HEAD
         if (InhNo <= 11)
             InhNoCel = 3;      /* phosphonate �� DTPMP */
         else if (InhNo <= 14)
             InhNoCel = 12;     /* carboxylates �� PPCA */
         else
             InhNoCel = 17;     /* others �� PVS */
+=======
+        if (simContext.InhNo <= 11)
+            InhNoCel = 3;      /* phosphonate → DTPMP */
+        else if (simContext.InhNo <= 14)
+            InhNoCel = 12;     /* carboxylates → PPCA */
+        else
+            InhNoCel = 17;     /* others 锟斤拷 PVS */
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
 
-        if (SelectInh == 1)
+        if (simContext.SelectInh == 1)
             InhNoCel = 3;      /* always choose DTPMP */
 
-        InhNameSelected_Celestite = InhName[InhNoCel];
+        //Worksheets("Input").Cells(55, 10) = InhName(InhNoCel)
 
         if (SICel > 0.001)
         {
@@ -1429,8 +1717,8 @@ void B6_InhibitorNeeded()
 
             if (log10(tInh) > CelExpon10 && CelExpon10 < 8.0)
             {
-                t0Cel = pow(10.0, CelExpon10);
-                ConcInhCel = fCinhCel(SICel, tInh);
+                double t0Cel = pow(10.0, CelExpon10);
+                ConcInhCel = fCinhCel(SICel, tInh, fSafetyCel, t0Cel);
             }
         }
     }
@@ -1440,12 +1728,21 @@ void B6_InhibitorNeeded()
 void LoopTPSI(double& API)
 {
     B5_CalculateSIvalues(API);
+<<<<<<< HEAD
     pH_before_precipitation = pH;  // �������ǰ pH������ SqSoft
 
     if (H2Oevap != 1)
         B6_InhibitorNeeded();   // �������Ƽ���
 
     // Calcite: ���� LoopTP = 1 ʱ�Ļ�׼ SI
+=======
+    pH_before_precipitation = pH;  // 锟斤拷锟斤拷锟斤拷锟角� pH锟斤拷锟斤拷锟斤拷 SqSoft
+
+    if (H2Oevap != 1)
+        B6_InhibitorNeeded();   // 锟斤拷锟斤拷锟斤拷锟狡硷拷锟斤拷
+
+    // Calcite: 锟斤拷锟斤拷 LoopTP = 1 时锟侥伙拷准 SI
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     if (LoopTP == 1)
     {
         SICalBh = SICal;
@@ -1463,7 +1760,11 @@ void LoopTPSI(double& API)
         SISrCO3BH = SISrCO3;
     }
 
+<<<<<<< HEAD
     // ---- SqueezeSoftPitzer ��Ҫ����� ----
+=======
+    // ---- SqueezeSoftPitzer 锟斤拷要锟斤拷锟斤拷锟� ----
+>>>>>>> 03d1b4ed85054094454d2895d886e2e54ff347e1
     double TCO2BH, pHBH;
     double BHConcInhCal, BHConcInhBar, WHConcInhCal, WHConcInhBar, SICalWH, SIBarWH;
     if (RunGoalSeek != 1)
@@ -1705,7 +2006,7 @@ int A1_Start_ScaleSoftPitzer()
             PBar = Ppsia / 14.503774;
             TC = (TF - 32) * 5.0 / 9.0;
 
-            LoopTPSI();
+            LoopTPSI(data.API);
 
             if (H2Oevap != 1) {
 
@@ -1753,7 +2054,7 @@ int A1_Start_ScaleSoftPitzer()
                 PBar = Ppsia / 14.503774;
             }
 
-            LoopTPSI();
+            LoopTPSI(data.API);
             LoopTPWrite();
 
             if (H2Oevap == 1)
@@ -1818,7 +2119,7 @@ label201:
 
 void B7_ScaleRisk()
 {
-    // --- 变量声明（你需要根据实际项目类型补充） ---
+    // 缁撴瀯浣撳叏灞�鍙橀噺
     // double mc[], ma[], TK, tInh, xMeOH, xMEG, HCO3;
     // double SIRisk[ ... ];
     // double ConcInhBarRisk[], ConcInhCalRisk[], ConcInhAnRisk[];
