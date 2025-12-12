@@ -946,6 +946,31 @@ double SIMgOH2, SICaOH2;
 DoubleVec CaseCount_II;
 int Iter_MT_WI = 0;
 
+DoubleMatrix bi(20, DoubleVec(20, 0));
+DoubleMatrix ci(20, DoubleVec(20, 0));
+DoubleMatrix gi(20, DoubleVec(20, 0));
+DoubleMatrix ai(20, DoubleVec(20, 0));
+DoubleMatrix celi(20, DoubleVec(20, 0));
+
+DoubleVec bInhBar(20, 0);
+DoubleVec EaRInh(20, 0);
+DoubleVec LnAInh(20, 0);
+
+DoubleVec bInhCal(20);
+DoubleVec bInhGyp(20, 0);
+DoubleVec bInhAn(20, 0);
+DoubleVec bInhCel(20, 0);
+double InhNoBar;
+double tInh;
+int InhNoCal;
+double t0Cal;
+double t0Bar;
+int InhNoGyp;
+int ConcInhAn;
+int InhNoAn;
+int InhNoCel;
+double ConcInhCel;
+
 /********************************************************************************************************/
 
 // 针对Shell Input Excel表格的样品数据结构体
