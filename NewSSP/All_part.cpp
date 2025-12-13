@@ -367,6 +367,7 @@ public:
     const double TWIInit = -1;   // vb 中没有赋初值
     const double UseSI = 0;    // vb 中没有赋初值，但是判断UseSI = 0会进入，暂时 表示0, 在InputPartB中会影响simContext.VgTPMix
     const double PWIInit = -1;       // vb 中没有赋初值
+    double SIPyrr = 0; // vb 中没有赋初值
 
     int Run10TestCases = 0;
     int Loop10;
@@ -396,6 +397,7 @@ public:
     double HS;
     double H2Saq;
 
+    int useSR = 0;
 
     // 源代码中未说明类型，按逻辑推测为int
     int RunNORM;
@@ -506,7 +508,7 @@ public:
 
         // 处理可能包含逗号的字符串
         std::string escapedValue = value;
-        std::replace(escapedValue.begin(), escapedValue.end(), ',', ';');
+        escapedValue.replace(escapedValue.begin(), escapedValue.end(), ',', ';'); // 替换引号
         fileStreams[filename] << row << "," << col << ",\"" << escapedValue << "\"" << std::endl;
     }
 
@@ -762,7 +764,6 @@ double SumOfCations, SumOfAnions; // 仅在CalcIonicStrength、QualityControlCal
 double RatioOilBPoints;
 
 double ISt; double DpHj;
-double pH;
 
 int NumCat = 12, NumAn = 13, NumNeut = 8;//final不变量
 
@@ -771,6 +772,7 @@ double KgoCO2 = 0, KgoH2S = 0;  //A13_CalcH2SFugacity、C1_ThermodynamicEquilCon
 double KgwCH4 = 0, KgoCH4 = 0; // C1_ThermodynamicEquilConsts、C4_SSPEquilCalcs、fTotalCO2H2Smoles
 double KgwH2S = 0;         //C1_ThermodynamicEquilConsts、C4_SSPEquilCalcs、C4_EOS_TCO2_SSPEquilCalcs、C5_CalcpHPCO2PH2SSTP、QualityControlCalculations、fTotalCO2H2Smoles
 
+// 平衡常数
 double KspCalcite = 0, KspBarite = 0, KspCelestite = 0;
 double KspHemihydrate = 0, KspGypsum = 0, KspAnhydrite = 0, KspSiderite = 0, KspHalite = 0;
 
@@ -785,15 +787,19 @@ double xMeOH = 0; // 多处被赋值多处被调用
 double KspZnCO3 = 0, KspCaOH2 = 0, KspMgOH2 = 0, KspSrCO3 = 0, KspBaCO3 = 0, KH4SiO4 = 0, KH3SiO3 = 0;//确认仅在C1被赋值，因此在C1首次调用
 double KspChrysotile = 0, KspDiopside = 0, KspGreenalite = 0, KspQuartz = 0, KspAmSilica = 0;//确认仅在C1被赋值，因此在C1首次调用
 
-double DRaBarite = 0, DRaCelestite = 0, DRaAnhydrite = 0, GammaSolidRaBarite = 0, GammaSolidRaCelestite = 0, GammaSolidRaAnhydrite = 0;//确认仅在C1被赋值，因此在C1首次调用，生命周期似乎很简单
-double KstFeSaq = 0;//确认仅在C1被赋值，因此在C1首次调用
+// 镭共沉淀参数
+double RaBaSO4ppt = 0.0;
+double RaCaSO4ppt = 0.0;
+double RaSrSO4ppt = 0.0;
+double DRaBarite = 0.0, DRaCelestite = 0.0, DRaAnhydrite = 0.0, GammaSolidRaBarite = 0.0, GammaSolidRaCelestite = 0.0, GammaSolidRaAnhydrite = 0.0;//确认仅在C1被赋值，因此在C1首次调用，生命周期似乎很简单
+double KstFeSaq = 0.0;//确认仅在C1被赋值，因此在C1首次调用
 
 double BetaDot[20] = { 0 };// 
 
 double xMEG = 0;
 double aH2O = 0;
 
-DoubleVec gNeut(15, 0); double zOutput[15] = { 0 }; DoubleVec z(20, 0); double gL[20] = { 0 };
+double zOutput[15] = { 0 }; DoubleVec z(20, 0);
 DoubleVec density(3, 0);
 double ChCat[15] = { 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0 }; double ChAn[15] = { -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -1, -2, -2, 0 ,0 };
 
@@ -816,7 +822,6 @@ double gNMean[10] = { 1,1,1,1,1,1,0,0,0,0 };
 
 //---------------
 double aNH2O = 0;
-DoubleVec mn(15, 0);
 //double gCat[15] = { 0 };
 //double gAn[15] = { 0 };
 double gDot[20] = { 0 };
@@ -887,7 +892,6 @@ double PCO2, PH2S, PCH4;
 double TH4SiO4_Greenalite, TH4SiO4_Dipside, TH4SiO4_Chrysotile; // 出现在C4_SSPEquilCalcs、C4_EOS_TCO2_SSPEquilCalcs  两个函数
 double hydHS;
 double S, hydAc, AC, HAcaq, hydH2BO3, H2BO3, hydNH3, NH3, hydH2SiO4, H2SiO4, H3SiO4, H4SiO4;
-double pptAmSilica;
 double faH;
 
 //TrueFlash新加入的全局变量
@@ -924,10 +928,7 @@ double TZn = 0.0;          // 总Zn浓度
 double TCO2 = 0.0;         // 总CO2浓度
 double TDS = 0.0;          // 总溶解固体
 double TCa = 0.0;          // 总Ca
-//double simContext.yH2S = 0.0;         // H2S气体摩尔分数    -已定义
-//double simContext.yCO2 = 0.0;         // CO2气体摩尔分数    -已定义
 double CalculateTDSDen = 0.0; // 计算TDS密度
-//double simContext.rho25c = 1.0;       // 25°C密度    -已定义
 
 // C5_CalcpHPCO2PH2SSTP 变量
 // double KgwCO2;
@@ -968,13 +969,14 @@ double Patm;
 double PBar;
 double TK;
 
-double SArea;
-double QBrineFlow;
-double radiusC[11];
-double radiusA[12];
+double SArea = 0.0;        // 表面积
+double QBrineFlow = 0.0;   // 盐水流量
+DoubleVec radiusC(11, 0.0);
+DoubleVec radiusA(11, 0.0);
 
 //PartB新加入的两个全局变量，目前单组份用不到，先保留
-double PipeID = 0, PipeL = 0;
+double PipeID = 0; // 管道内径
+double PipeL = 0; // 管道长度
 
 
 // -------------------------------------------------------------
@@ -1015,10 +1017,37 @@ double TAcInit;
 double TFeInit;
 double mass_w_0;
 
-double pH_before_precipitation;
 int LoopTP;
 
+// 饱和指数 (SI)
+// double SIBar = 0.0;
+// double SIGyp = 0.0;
+// double SIHemi = 0.0;
+// double SIAn = 0.0;
+// double SICel = 0.0;
+// double SIHal = 0.0;
+// double SICaF2 = 0.0;
+// double SICal = 0.0;
+// double SISid = 0.0;
+// double SIZnCO3 = 0.0;
+// double SIFeSAm = 0.0;
+// double SIFeS = 0.0;
+// double SITrot = 0.0;
+// double SIPyrr = 0.0;
+// double SIZnS = 0.0;
+// double SIPbS = 0.0;
+// double SICaOH2 = 0.0;
+// double SIMgOH2 = 0.0;
+// double SIAmSilica = 0.0;
+// double SIQuartz = 0.0;
+// double SIGreenalite = 0.0;
+// double SIDiopside = 0.0;
+// double SIChrysotile = 0.0;
+// double SISrCO3 = 0.0;
+// double SIBaCO3 = 0.0;
 double SICal, SIBar, SIGyp, SIHemi, SIAn, SICel, SIHal, SICaF2, SISid, SIFeS, SIZnS, SIBaCO3, SISrCO3;
+double SIDol, SIFeSAm, SITrot, SIPbS, SIZnCO3, SIAmSilica, SIQuartz, SIDiopside;
+double SIChrysotile, SIGreenalite;
 
 //左边的可能是局部的，待优化
 double SICalBh;
@@ -1043,11 +1072,13 @@ double dSICal, dSIBar, dSIHal, dSISid, dSIFeS;
 
 int RunSSP = 1;
 
-
-double pptCal, pptBar, pptSid, pptGyp, pptHemi, pptAn, pptCel, pptHal;
-double pptFeS, pptZnS, pptZnCO3, pptPbS, pptCaF2;
-double pptMgOH2, pptCaOH2, pptFeSAm, pptTrot;
-double pptQuartz, pptGreenalite, pptDiopside, pptChrysotile;
+// 沉淀量变量
+double pptCal=0.0, pptBar=0.0, pptSid=0.0, pptGyp=0.0, pptHemi=0.0, pptAn=0.0, pptCel=0.0, pptHal=0.0;
+double pptFeS=0.0, pptZnS=0.0, pptZnCO3=0.0, pptPbS=0.0, pptCaF2=0.0;
+double pptMgOH2=0.0, pptCaOH2=0.0, pptFeSAm=0.0, pptTrot=0.0;
+double pptQuartz=0.0, pptGreenalite=0.0, pptDiopside=0.0, pptChrysotile=0.0, pptAmSilica=0.0;
+double pptSrCO3 = 0.0;
+double pptBaCO3 = 0.0;
 
 double pptFeCO3_NoMassTransfer, pptFeCO3_MassTransfer = 0;
 double pptCalcite_MassTransfer, pptCalcite_NoMassTransfer = 0;
@@ -1055,14 +1086,18 @@ double pptBarite_MassTransfer, pptBarite_NoMassTransfer = 0;
 double pptCelestite_MassTransfer, pptCelestite_NoMassTransfer = 0;
 double pptFeS_MassTransfer, pptFeS_NoMassTransfer = 0;
 
+// Dai 2020 deposition 沉积速率
+double pptCalcite_MassTransfer_V = 0.0;
+double pptBarite_MassTransfer_V = 0.0;
+double pptFeCO3_MassTransfer_V = 0.0;
 
-double SIDol, SIFeSAm, SITrot, SIPbS, SIZnCO3, SIAmSilica, SIQuartz, SIDiopside;
-double SIChrysotile, SIGreenalite;
+DoubleVec mcMT(11, 0); // 传质后的阳离子浓度
+DoubleVec maMT(11, 0);  // 传质后的阴离子浓度
+DoubleVec mcEq(11, 0);   // 平衡浓度
+DoubleVec mcKin(11, 0);  // 动力学浓度
 
-DoubleVec mcMT(11, 0);
-DoubleVec maMT(11, 0);
-
-double TFe_MT, AlkMT;
+double TFe_MT; // 传质后的总铁
+double AlkMT; // 传质后的碱度
 
 double PBubblePt; double VgTP_MT, VO_MT, VW_MT;
 double a1;
@@ -1110,7 +1145,7 @@ DoubleVec DiffA(12, 0);
 DoubleVec Diff(10, 0);
 
 // SIRisk[抑制剂编号][LoopTP][参数索引][物质类型]
-std::vector<std::vector<std::vector<std::vector<double>>>> SIRisk;
+std::vector<std::vector<std::vector<DoubleVec>>> SIRisk;
 // 井名数组
 StrVec WellNameMix;
 
@@ -1127,50 +1162,67 @@ double fSafetyCel;
 double fSafetyGyp;
 
 // 化学物质浓度数组
-std::vector<double> mc;  // 阳离子浓度
-std::vector<double> ma;  // 阴离子浓度
+DoubleVec mc(15, 0);  // 阳离子浓度
+DoubleVec ma(15, 0);  // 阴离子浓度
+DoubleVec mn(15, 0);  // 中性离子浓度
 
 // 活度系数数组
-std::vector<double> gCat;   // 阳离子活度系数
-std::vector<double> gAn;    // 阴离子活度系数
-std::vector<double> gNeut;  // 中性分子活度系数
-std::vector<double> gGas;   // 气体活度系数
+DoubleVec gCat(15, 0);   // 阳离子活度系数
+DoubleVec gAn(15, 0);    // 阴离子活度系数
+DoubleVec gNeut(15, 0); // 中性分子活度系数
+DoubleVec gGas(15, 0);   // 气体活度系数
+DoubleVec gL(15, 0);     // 油相活度系数
 
-double pptCalcite_NoMassTransfer = 0.0;
-double pptBarite_NoMassTransfer = 0.0;
-double pptGyp = 0.0;
-double pptHemi = 0.0;
-double pptAn = 0.0;
-double pptCel = 0.0;
-double pptHal = 0.0;
-double pptFeSAm = 0.0;
-double pptFeS_NoMassTransfer = 0.0;
-double pptTrot = 0.0;
-double pptZnS = 0.0;
-double pptCaF2 = 0.0;
-double pptFeCO3_NoMassTransfer = 0.0;
-double pptZnCO3 = 0.0;
-double pptPbS = 0.0;
-double pptSrCO3 = 0.0;
-double pptBaCO3 = 0.0;
-double pptAmSilica = 0.0;
-double pptQuartz = 0.0;
-double pptChrysotile = 0.0;
-double pptDiopside = 0.0;
-double pptGreenalite = 0.0;
-double pptMgOH2 = 0.0;
-double pptCaOH2 = 0.0;
-double pptCalcite_MassTransfer = 0.0;
-double pptBarite_MassTransfer = 0.0;
-double pptFeCO3_MassTransfer = 0.0;
-double pptCalcite_MassTransfer_V = 0.0;
-double pptBarite_MassTransfer_V = 0.0;
-double pptFeCO3_MassTransfer_V = 0.0;
 
 double ConcInhGyp;
 double m_CR_selected = 0.0;
-double PBubblePt = 0.0;
+// double PBubblePt = 0.0;
 int Use_Corr_in_Deposition = 0;
+
+
+// pH变量
+double pH=0.0;
+double pH_before_precipitation=0.0;
+double pHaftercalciteppt = 0.0;
+double pHafterAmsilicappt = 0.0;
+double pHafterQuartzppt = 0.0;
+double pHafterGreenaliteppt = 0.0;
+double pHafterDiopsideppt = 0.0;
+double pHafterChrysotileppt = 0.0;
+double pHafterMgOH2ppt = 0.0;
+double pHafterCaOH2ppt = 0.0;
+double pHafterFeCO3ppt = 0.0;
+   
+
+// 条件标志
+int MultiplePpt = 0;     
+
+// 最大沉积速率
+double pptMax_MassTransfer_V = 0.0;
+double pptTotal_MassTransfer_V = 0.0;
+
+int StatTPnob = 0;
+double location = 0.0;
+double depth = 0.0;
+// double Time_lsl_burst = 0.0;
+double lgt_calcite_MT = 0.0;
+double lgt_barite_MT = 0.0;
+// double ViscWatIst = 0.0;
+// double CpPerMl = 0.0;
+// double pptCalcite_NoMassTransfer = 0.0;
+// double pptBarite_NoMassTransfer = 0.0;
+double TDSHalite = 0.0;
+double Rho25cHalite = 0.0;
+// double pptSrCO3 = 0.0;
+// double pptBaCO3 = 0.0;
+
+int i_Inhibitor_MT=0;
+double c_Inhibitor_MT=0.0;
+double Time_lsl_burst=0.0;
+int Use_lsl_stability=0;
+double PipeRough=0.0;
+double ReNO = 0.0;
+double Hold_l=0.0;
 /********************************************************************************************************/
 
 // 针对Shell Input Excel表格的样品数据结构体
@@ -3961,13 +4013,13 @@ void C2_PitzerActCoefs_T_P_ISt(DoubleVec& gNeut, double& aH2O, double tk, double
 }
 
 
-void CubicRoots(double coef1, double coef2, double coef3, double coef4, double* root1, double* root2, double* root3)
+void CubicRoots(double coef1, double coef2, double coef3, double coef4, double& root1, double& root2, double& root3)
 {
     double QCubic, Rcubic, Xcubic, Theta;
     double pi = 3.14159265358979;
-    *root1 = 0.0;
-    *root2 = 0.0;
-    *root3 = 0.0;
+    root1 = 0.0;
+    root2 = 0.0;
+    root3 = 0.0;
 
     QCubic = (pow(coef2, 2.0) - 3.0 * coef3) / 9.0;
     Rcubic = (2.0 * pow(coef2, 3.0) - 9.0 * coef2 * coef3 + 27.0 * coef4) / 54.0;
@@ -3977,16 +4029,16 @@ void CubicRoots(double coef1, double coef2, double coef3, double coef4, double* 
         double A = pow(fabs(Rcubic) + sqrt(pow(Rcubic, 2.0) - pow(QCubic, 3.0)), 1.0 / 3.0);
         double B = QCubic / A;
         double sigh = (Rcubic > 0) ? 1.0 : ((Rcubic < 0) ? -1.0 : 0.0);
-        *root1 = -sigh * (A + B) - coef2 / 3.0;
+        root1 = -sigh * (A + B) - coef2 / 3.0;
     }
     else {
         /* 三个实根 */
         Xcubic = Rcubic / sqrt(pow(QCubic, 3.0));
         /* 使用反三角恒等式 arccos(x) = atan(-x/sqrt(-x^2+1)) + pi/2 */
         Theta = atan(-Xcubic / sqrt(1.0 - Xcubic * Xcubic)) + pi / 2.0;
-        *root1 = -2.0 * sqrt(QCubic) * cos(Theta / 3.0) - coef2 / 3.0;
-        *root2 = -2.0 * sqrt(QCubic) * cos((Theta + 2.0 * pi) / 3.0) - coef2 / 3.0;
-        *root3 = -2.0 * sqrt(QCubic) * cos((Theta + 4.0 * pi) / 3.0) - coef2 / 3.0;
+        root1 = -2.0 * sqrt(QCubic) * cos(Theta / 3.0) - coef2 / 3.0;
+        root2 = -2.0 * sqrt(QCubic) * cos((Theta + 2.0 * pi) / 3.0) - coef2 / 3.0;
+        root3 = -2.0 * sqrt(QCubic) * cos((Theta + 4.0 * pi) / 3.0) - coef2 / 3.0;
     }
 }
 
@@ -4002,19 +4054,19 @@ void CubicRoots(double coef1, double coef2, double coef3, double coef4, double* 
  * @param root1(double*) 输出根1
  * @param root2(double*) 输出根2
  */
-void QuadraticRoots(double coef1, double coef2, double coef3, double* root1, double* root2)
+void QuadraticRoots(double coef1, double coef2, double coef3, double& root1, double& root2)
 {
     double qroot;
     double discriminant = pow(coef2, 2.0) - 4.0 * coef1 * coef3;
     if (discriminant < 0.0) {
         /* 无实根 */
-        *root1 = NAN;
-        *root2 = NAN;
+        root1 = NAN;
+        root2 = NAN;
         return;
     }
     qroot = -0.5 * (coef2 - sqrt(discriminant));
-    *root1 = coef3 / qroot;
-    *root2 = qroot / coef1;
+    root1 = coef3 / qroot;
+    root2 = qroot / coef1;
 }
 
 
@@ -4107,7 +4159,7 @@ void PengRobinson3() {
     coef4 = -AStarPR * BStarPr + pow(BStarPr, 2) + pow(BStarPr, 3);
 
     // 求解立方方程
-    CubicRoots(coef1, coef2, coef3, coef4, &root1, &root2, &root3);
+    CubicRoots(coef1, coef2, coef3, coef4, root1, root2, root3);
 
     // 选择最大的根作为气体压缩因子
     Znew = root1;
@@ -8310,13 +8362,13 @@ void MeSWhileloop(int im, int igas, double* HSOld, double ZP1, double ZP2, doubl
             simContext.HS = -coef4 / coef3;
         }
         else {
-            QuadraticRoots(coef2, coef3, coef4, &root1, &root2);
+            QuadraticRoots(coef2, coef3, coef4, root1, root2);
             simContext.HS = (root2 > root1) ? root2 : root1;
         }
         if (simContext.HS <= 0) return;
     }
     else {
-        CubicRoots(coef1, coef2, coef3, coef4, &root1, &root2, &root3);
+        CubicRoots(coef1, coef2, coef3, coef4, root1, root2, root3);
         simContext.HS = root1;
         if (root2 > simContext.HS) simContext.HS = root2;
         if (root3 > simContext.HS) simContext.HS = root3;
@@ -8443,13 +8495,13 @@ double fMeSSpeciation(int im, int igas) {
                 simContext.HS = -coef4 / coef3;
             }
             else {
-                QuadraticRoots(coef2, coef3, coef4, &root1, &root2);
+                QuadraticRoots(coef2, coef3, coef4, root1, root2);
                 simContext.HS = (root2 > root1) ? root2 : root1;
             }
             if (simContext.HS <= 0.0) return NAN; /* VB: GoTo 1000 */
         }
         else {
-            CubicRoots(coef1, coef2, coef3, coef4, &root1, &root2, &root3);
+            CubicRoots(coef1, coef2, coef3, coef4, root1, root2, root3);
             simContext.HS = root1;
             if (root2 > simContext.HS) simContext.HS = root2;
             if (root3 > simContext.HS) simContext.HS = root3;
@@ -8608,7 +8660,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                 coef2 = t1 + t2 + t3 - (s1 + s2 + s3);
                 coef3 = t1 * t2 + t1 * t3 + t2 * t3 - (s1 * t2 + s1 * t3 + s3 * t1 + s3 * t2 + s2 * t1 + s2 * t3);
                 coef4 = t1 * t2 * t3 - (t1 * t2 * s3 + t1 * t3 * s2 + t2 * t3 * s1);
-                CubicRoots(coef1, coef2, coef3, coef4, &root1, &root2, &root3);
+                CubicRoots(coef1, coef2, coef3, coef4, root1, root2, root3);
                 Vg_ZRT = root1;
                 if (root2 > Vg_ZRT) Vg_ZRT = root2;
                 if (root3 > Vg_ZRT) Vg_ZRT = root3;
@@ -8648,7 +8700,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     b = -(mc[im] * mass_w + nTCO2) / mass_w;
                     cc = (mc[im] * nTCO2 - Ksp * (nTCO2 / PCO2) * (aH * aH) / ((K1H2CO3 * aH2O) * K2HCO3 * KgwCO2 * gGas[iCO2g] * gCat[im] * gNCat[im])) / mass_w;
                 }
-                QuadraticRoots(a, b, cc, &ppt, &root2);
+                QuadraticRoots(a, b, cc, ppt, root2);
             }
 
             if (igas == 3) {
@@ -8685,7 +8737,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                     b = -(mc[im] * mass_w + nTH2S) / mass_w;
                     cc = (mc[im] * nTH2S - Ksp * (nTH2S / PH2S) * (aH * aH) / (K1H2S * KgwH2S * gGas[iH2Sg] * gCat[im] * gNCat[im])) / mass_w;
                 }
-                QuadraticRoots(a, b, cc, &ppt, &root2);
+                QuadraticRoots(a, b, cc, ppt, root2);
             }
 
             if (igas == 8) {
@@ -8877,7 +8929,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
             coef2 = t1 + t2 + t3 - (s1 + s2 + s3);
             coef3 = t1 * t2 + t1 * t3 + t2 * t3 - (s1 * t2 + s1 * t3 + s3 * t1 + s3 * t2 + s2 * t1 + s2 * t3);
             coef4 = t1 * t2 * t3 - (t1 * t2 * s3 + t1 * t3 * s2 + t2 * t3 * s1);
-            CubicRoots(coef1, coef2, coef3, coef4, &root1, &root2, &root3);
+            CubicRoots(coef1, coef2, coef3, coef4, root1, root2, root3);
             Vg_ZRT = root1;
             if (root2 > Vg_ZRT) Vg_ZRT = root2;
             if (root3 > Vg_ZRT) Vg_ZRT = root3;
@@ -8913,7 +8965,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                 b = -(mc[im] + simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] * (K1H2CO3 * aH2O) / (aH * gAn[iHCO3] * gNAn[iHCO3]));
                 cc = (mc[im] * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] * (K1H2CO3 * aH2O) / (aH * gAn[iHCO3] * gNAn[iHCO3]) - Ksp * aH / K2HCO3);
             }
-            QuadraticRoots(a, b, cc, &ppt, &root2);
+            QuadraticRoots(a, b, cc, ppt, root2);
         }
 
         if (igas == 3) {
@@ -8946,7 +8998,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
                 b = -(mc[im] + simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] * K1H2S / (aH * gAn[iHS] * gNAn[iHS]));
                 cc = (mc[im] * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] * K1H2S / (aH * gAn[iHS] * gNAn[iHS]) - Ksp * aH);
             }
-            QuadraticRoots(a, b, cc, &ppt, &root2);
+            QuadraticRoots(a, b, cc, ppt, root2);
         }
 
         if (igas == 8) {
@@ -13928,15 +13980,6 @@ void LoopTPVisHeatCap() {
 }
 
 
-int i_Inhibitor_MT;
-double c_Inhibitor_MT;
-double Time_lsl_burst;
-int Use_lsl_stability;
-double PipeRough;
-double ReNO = 0.0;
-double Hold_l;
-
-
 void MassTransferCoefficients(double& API)
 {
     /*
@@ -14262,33 +14305,6 @@ void MassTransferCoefficients(double& API)
     c_Inhibitor_MT = c_Inhibitor_MT_original;
 
 }
-
-
-
-
-int StatTPnob = 0;
-double location = 0.0;
-double depth = 0.0;
-double Time_lsl_burst = 0.0;
-double lgt_calcite_MT = 0.0;
-double lgt_barite_MT = 0.0;
-double ViscWatIst = 0.0;
-double CpPerMl = 0.0;
-double pHaftercalciteppt = 0.0;
-double pHafterAmsilicappt = 0.0;
-double pHafterQuartzppt = 0.0;
-double pHafterGreenaliteppt = 0.0;
-double pHafterDiopsideppt = 0.0;
-double pHafterChrysotileppt = 0.0;
-double pHafterMgOH2ppt = 0.0;
-double pHafterCaOH2ppt = 0.0;
-double pptCalcite_NoMassTransfer = 0.0;
-double pptBarite_NoMassTransfer = 0.0;
-double TDSHalite = 0.0;
-double Rho25cHalite = 0.0;
-double pptSrCO3 = 0.0;
-double pptBaCO3 = 0.0;
-
 
 // ==================== 主转换函数 ====================
 void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
@@ -14859,7 +14875,7 @@ void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
         }
 
         // ==================== 饱和指数(SI)输出 ====================
-        if (useSR == 0) {
+        if (simContext.useSR == 0) {
             // 输出 SI 值（对数形式）
             outputData.addData("Calcite", 14 - LoopTP, 4, SICal);
             outputData.addData("Calcite", 14 - LoopTP, 5, dSICal);
@@ -15023,7 +15039,7 @@ void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
                 }
 
                 // 输出风险评估值
-                if (useSR == 0) {
+                if (simContext.useSR == 0) {
                     if (SIRisk.size() > InhNoCal && SIRisk[InhNoCal].size() > LoopTP) {
                         outputData.addData("Calcite", row, 19, SIRisk[InhNoCal][LoopTP][1][2]);
                         outputData.addData("Calcite", row, 20, SIRisk[InhNoCal][LoopTP][2][2]);
@@ -15110,7 +15126,7 @@ void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
     // ==================== LoopTP特殊条件输出 ====================
     // 第一部分：LoopTP = 1 时的输出
     if (LoopTP == 1) {
-        if (useSR == 0) {
+        if (simContext.useSR == 0) {
             // 输出各种矿物的饱和指数到Input工作表
             outputData.addData("Input", 13, 9, SICal);
             outputData.addData("Input", 15, 9, SIBar);
@@ -15154,7 +15170,7 @@ void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
         outputData.addData("Input", 48, 9, ConcInhCal);
         outputData.addData("Input", 50, 9, ConcInhBar);
         outputData.addData("Input", 52, 9, ConcInhGyp);
-        outputData.addData("Input", 54, 9, ConcInhAn);
+        outputData.addData("Input", 54, 9, static_cast<double>(ConcInhAn));
         outputData.addData("Input", 56, 9, ConcInhCel);
         outputData.addData("Input", 58, 9, ViscWatIst);
         outputData.addData("Input", 60, 9, CpPerMl);
@@ -15167,7 +15183,7 @@ void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
         if (LoopTP == 10)
         {
             // 类似LoopTP=1的处理，但输出到第10列
-            if (useSR == 0)
+            if (simContext.useSR == 0)
             {
                 outputData.addData("Input", 13, 10, SICal);
                 outputData.addData("Input", 15, 10, SIBar);
@@ -15221,7 +15237,7 @@ void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
         // RunGoalSeek = 1 的情况
         if (LoopTP == 2) {
             // 类似处理，输出到第10列
-            if (useSR == 0) {
+            if (simContext.useSR == 0) {
                 outputData.addData("Input", 13, 10, SICal);
                 outputData.addData("Input", 15, 10, SIBar);
                 outputData.addData("Input", 19, 10, SIGyp);
@@ -15263,7 +15279,7 @@ void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
             outputData.addData("Input", 48, 10, ConcInhCal);
             outputData.addData("Input", 50, 10, ConcInhBar);
             outputData.addData("Input", 52, 10, ConcInhGyp);
-            outputData.addData("Input", 54, 10, ConcInhAn);
+            outputData.addData("Input", 54, 10, static_cast<double>(ConcInhAn));
             outputData.addData("Input", 56, 10, ConcInhCel);
             outputData.addData("Input", 58, 10, ViscWatIst);
             outputData.addData("Input", 60, 10, CpPerMl);
@@ -15429,6 +15445,592 @@ void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
     }
 }
 
+void LoopTPppt() {
+    // 初始化所有沉淀量为0
+    pptCal = 0.0; pptBar = 0.0; pptSid = 0.0; pptGyp = 0.0; pptHemi = 0.0;
+    pptAn = 0.0; pptCel = 0.0; pptHal = 0.0; pptFeS = 0.0; pptZnS = 0.0;
+    pptZnCO3 = 0.0; pptPbS = 0.0; pptCaF2 = 0.0; pptMgOH2 = 0.0; pptCaOH2 = 0.0;
+    pptFeSAm = 0.0; pptTrot = 0.0; pptAmSilica = 0.0; pptQuartz = 0.0;
+    pptGreenalite = 0.0; pptDiopside = 0.0; pptChrysotile = 0.0;
+    pptFeCO3_NoMassTransfer = 0.0; pptFeCO3_MassTransfer = 0.0;
+    pptCalcite_MassTransfer = 0.0; pptCalcite_NoMassTransfer = 0.0;
+    pptBarite_MassTransfer = 0.0; pptBarite_NoMassTransfer = 0.0;
+    pptCelestite_MassTransfer = 0.0; pptCelestite_NoMassTransfer = 0.0;
+    pptBarite_MassTransfer_V = 0.0; pptCalcite_MassTransfer_V = 0.0;
+    pptFeCO3_MassTransfer_V = 0.0;
+    pptFeS_MassTransfer = 0.0; pptFeS_NoMassTransfer = 0.0;
+
+    // 初始化pH值
+    pHaftercalciteppt = pH_before_precipitation;
+    pHafterMgOH2ppt = pH_before_precipitation;
+    pHafterCaOH2ppt = pH_before_precipitation;
+    pHafterAmsilicappt = pH_before_precipitation;
+    pHafterQuartzppt = pH_before_precipitation;
+    pHafterGreenaliteppt = pH_before_precipitation;
+    pHafterDiopsideppt = pH_before_precipitation;
+    pHafterChrysotileppt = pH_before_precipitation;
+
+    // 如果是第一次循环且有传质，初始化传质浓度
+    if (LoopTP == 1 && Run_MassTransfer == 1) {
+        // 确保mcMT和maMT有足够大小
+        if (mcMT.size() < mc.size()) mcMT.resize(mc.size());
+        if (maMT.size() < ma.size()) maMT.resize(ma.size());
+        
+        mcMT[iCa] = mc[iCa];
+        mcMT[iBa] = mc[iBa];
+        maMT[iSO4] = ma[iSO4];
+        AlkMT = 0.0; // 碱度需要从其他地方获取
+        
+        mcMT[iFe] = mc[iFe];
+        TFe_MT = 0.0; // 总铁需要从其他地方获取
+    }
+
+    // ==================== Barite (BaSO4) 沉淀计算 ====================
+    double ppt = 0.0;
+    if (SIBar > 0) {
+        double a = 1.0;
+        double b = -(mc[iBa] + ma[iSO4]);
+        double c = mc[iBa] * ma[iSO4] - KspBarite / (gCat[iBa] * gAn[iSO4] * std::pow(gNMean[iBa], 2));
+        
+        double root2 = 0.0;
+        QuadraticRoots(a, b, c, ppt, root2);
+        
+        // 计算平衡浓度
+        if (mcEq.size() <= iBa) mcEq.resize(iBa + 1);
+        mcEq[iBa] = mc[iBa] - ppt;
+        
+        // 镭共沉淀计算
+        RaBaSO4ppt = mc[iRa] / (1.0 + ((mc[iBa] - ppt) * gCat[iBa] * GammaSolidRaBarite / 
+                                      (ppt * DRaBarite * gCat[iRa])));
+    }
+    pptBarite_NoMassTransfer = ppt;
+    
+    // Barite 传质计算
+    if (SIBar > 0 && Run_MassTransfer == 1) {
+        // 确保km数组有足够大小
+        if (km.size() > 0) {
+            double km_BaSO4 = km[0]; // 假设索引0对应BaSO4的传质系数
+            
+            // 计算动力学浓度
+            mcKin[iBa] = (std::exp(-km_BaSO4 * SArea / QBrineFlow) * (mc[iBa] - mcEq[iBa]) + mcEq[iBa]);
+            pptBarite_MassTransfer = mc[iBa] - mcKin[iBa];
+            
+            // 更新传质浓度
+            mcMT[iBa] = mcKin[iBa];
+            maMT[iSO4] = ma[iSO4] - pptBarite_MassTransfer;
+            
+            // Dai 2020 deposition - 计算沉积速率
+            double density_factor = simContext.rho25c - TDS * 0.000001;
+            pptBarite_MassTransfer_V = pptBarite_MassTransfer * 233390.0 * density_factor * 
+                                     QBrineFlow / 1000.0 * 3600.0 * 24.0 * 365.0 / 
+                                     (4480.0 * pi * PipeID * PipeL); // cm/yr
+        }
+    }
+
+    // ==================== Gypsum (CaSO4·2H2O) 沉淀计算 ====================
+    ppt = 0.0;
+    if (SIGyp > 0) {
+        double a = 1.0;
+        double b = -(mc[iCa] + ma[iSO4]);
+        double c = mc[iCa] * ma[iSO4] - KspGypsum / 
+                   (std::pow(aH2O, 2) * gCat[iCa] * gAn[iSO4] * std::pow(aNH2O, 2) * std::pow(gNMean[iCa], 2));
+        
+        double root2 = 0.0;
+        QuadraticRoots(a, b, c, ppt, root2);
+    }
+    pptGyp = ppt;
+
+    // ==================== Hemihydrate (CaSO4·0.5H2O) 沉淀计算 ====================
+    ppt = 0.0;
+    if (SIHemi > 0) {
+        double a = 1.0;
+        double b = -(mc[iCa] + ma[iSO4]);
+        double c = mc[iCa] * ma[iSO4] - KspHemihydrate / 
+                   (std::pow(aH2O, 0.5) * gCat[iCa] * gAn[iSO4] * std::pow(aNH2O, 0.5) * std::pow(gNMean[iCa], 2));
+        
+        double root2 = 0.0;
+        QuadraticRoots(a, b, c, ppt, root2);
+    }
+    pptHemi = ppt;
+
+    // ==================== Anhydrite (CaSO4) 沉淀计算 ====================
+    ppt = 0.0;
+    if (SIAn > 0) {
+        double a = 1.0;
+        double b = -(mc[iCa] + ma[iSO4]);
+        double c = mc[iCa] * ma[iSO4] - KspAnhydrite / 
+                   (gCat[iCa] * gAn[iSO4] * std::pow(gNMean[iCa], 2));
+        
+        double root2 = 0.0;
+        QuadraticRoots(a, b, c, ppt, root2);
+        
+        // 镭共沉淀计算
+        RaCaSO4ppt = mc[iRa] / (1.0 + ((mc[iCa] - ppt) * gCat[iCa] * GammaSolidRaAnhydrite / 
+                                      (ppt * DRaAnhydrite * gCat[iRa])));
+    }
+    pptAn = ppt;
+
+    // ==================== Celestite (SrSO4) 沉淀计算 ====================
+    ppt = 0.0;
+    if (SICel > 0) {
+        double a = 1.0;
+        double b = -(mc[iSr] + ma[iSO4]);
+        double c = mc[iSr] * ma[iSO4] - KspCelestite / 
+                   (gCat[iSr] * gAn[iSO4] * std::pow(gNMean[iSr], 2));
+        
+        double root2 = 0.0;
+        QuadraticRoots(a, b, c, ppt, root2);
+        
+        // 计算平衡浓度
+        if (mcEq.size() <= iSr) mcEq.resize(iSr + 1);
+        mcEq[iSr] = mc[iSr] - ppt;
+        
+        // 镭共沉淀计算
+        RaSrSO4ppt = mc[iRa] / (1.0 + ((mc[iSr] - ppt) * gCat[iSr] * GammaSolidRaCelestite / 
+                                      (ppt * DRaCelestite * gCat[iRa])));
+    }
+    pptCel = ppt;
+    pptCelestite_NoMassTransfer = ppt;
+
+    // ==================== Halite (NaCl) 沉淀计算 ====================
+    ppt = 0.0;
+    if (SIHal > 0) {
+        // 保存原始值
+        double TNa = mc[iNa];
+        double TCl = ma[iCl];
+        double TKTemp = TK;
+        double PBarTemp = PBar;
+        double TCTemp = TC;
+        double PatmTemp = Patm;
+        
+        // 第一次计算
+        double a = 1.0;
+        double b = -(mc[iNa] + ma[iCl]);
+        double c = mc[iNa] * ma[iCl] - KspHalite / 
+                   (gCat[iNa] * gAn[iCl] * std::pow(gNMean[iNa], 2));
+        
+        double root2 = 0.0;
+        QuadraticRoots(a, b, c, ppt, root2);
+        
+        // 更新浓度
+        mc[iNa] = mc[iNa] - ppt;
+        ma[iCl] = ma[iCl] - ppt;
+        
+        // 迭代计算直到收敛
+        int iteration = 0;
+        const int maxIterations = 100;
+        
+        while (std::abs(ppt) >= 0.001 && iteration < maxIterations) {
+            // 重新计算离子强度和活度系数
+            CalcIonicStrength();
+            C1_ThermodynamicEquilConsts();
+            C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+            
+            // 重新计算沉淀量
+            a = 1.0;
+            b = -(mc[iNa] + ma[iCl]);
+            c = mc[iNa] * ma[iCl] - KspHalite / 
+                (gCat[iNa] * gAn[iCl] * std::pow(gNMean[iNa], 2));
+            
+            QuadraticRoots(a, b, c, ppt, root2);
+            
+            // 更新浓度
+            mc[iNa] = mc[iNa] - ppt;
+            ma[iCl] = ma[iCl] - ppt;
+            
+            iteration++;
+        }
+        
+        // 计算实际沉淀量
+        pptHal = TNa - mc[iNa];
+        
+        // 在标准条件下计算TDS和密度
+        TK = 298.15;
+        TC = 25.0;
+        PBar = 1.01325;
+        Patm = 1.0;
+        
+        CalcIonicStrength();
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+        
+        // 计算密度
+        Rho25cHalite = CalcRhoTP(TK, TC, PBar, Patm);
+        
+        // 计算TDS（简化版本）
+        TDSHalite = 0.0;
+        double CalculateTDSDen = 0.0;
+        
+        // 阳离子贡献
+        for (size_t i = 1; i < mc.size(); i++) {
+            CalculateTDSDen += 0.001 * mc[i] * MWCat[i];
+        }
+        
+        // 阴离子贡献
+        for (size_t i = 1; i < ma.size(); i++) {
+            CalculateTDSDen += 0.001 * ma[i] * MWAn[i];
+        }
+        
+        // 中性物质贡献
+        for (size_t i = 1; i < mn.size(); i++) {
+            CalculateTDSDen += 0.001 * mn[i] * MWNeut[i];
+        }
+        
+        // 恢复原始值
+        mc[iNa] = TNa;
+        ma[iCl] = TCl;
+        TK = TKTemp;
+        TC = TCTemp;
+        PBar = PBarTemp;
+        Patm = PatmTemp;
+        Ppsia = PBar * 14.503774;
+        
+        // 重新计算活度系数
+        CalcIonicStrength();
+        C1_ThermodynamicEquilConsts();
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+    } else {
+        TDSHalite = TDS;
+        Rho25cHalite = simContext.rho25c;
+    }
+
+    // ==================== Fluorite (CaF2) 沉淀计算 ====================
+    ppt = 0.0;
+    if (SICaF2 > 0) {
+        // 立方方程系数
+        double coef1 = 1.0;
+        double coef2 = -1.0 * (mc[iCa] + ma[intF]);
+        double coef3 = (4.0 * mc[iCa] * ma[intF] + std::pow(ma[intF], 2)) / 4.0;
+        double coef4 = -1.0 * (mc[iCa] * std::pow(ma[intF], 2) - 
+                             KspCaF2 / (gCat[iCa] * std::pow(gAn[intF], 2))) / 4.0;
+        
+        double root1 = 0.0, root2 = 0.0, root3 = 0.0;
+        CubicRoots(coef1, coef2, coef3, coef4, root1, root2, root3);
+        
+        // 选择最小的正根
+        ppt = root1;
+        if (root2 != 0.0 && root2 < ppt) ppt = root2;
+        if (root3 != 0.0 && root3 < ppt) ppt = root3;
+    }
+    pptCaF2 = ppt;
+
+    // ==================== Calcite (CaCO3) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SICal > 0) {
+        // 调用SSP平衡计算 vb代码中注释了
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 5, 2, KspCalcite);  // ppt_or_not=1, iMetals=5(Ca), iGas=2(CO2)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 5, 2, KspCalcite);
+        // }
+        
+        pptCalcite_NoMassTransfer = ppt;
+        
+        // 计算平衡浓度
+        mcEq[iCa] = mc[iCa] - ppt;
+    }
+    pHaftercalciteppt = pH;
+
+    // Calcite 传质计算
+    if (SICal > 0 && Run_MassTransfer == 1) {
+        // 假设km[1]对应CaHCO3+的传质系数
+        if (km.size() > 1) {
+            double km_CaHCO3 = km[1];
+            
+            // 计算动力学浓度
+            mcKin[iCa] = std::exp(-km_CaHCO3 * SArea / QBrineFlow) * (mc[iCa] - mcEq[iCa]) + mcEq[iCa];
+            pptCalcite_MassTransfer = mc[iCa] - mcKin[iCa];
+            
+            // 更新传质浓度
+            mcMT[iCa] = mcKin[iCa];
+            AlkMT = AlkMT - 2.0 * pptCalcite_MassTransfer;  // 假设AlkMT已初始化
+            
+            // Dai 2020 deposition - 计算沉积速率
+            double density_factor = simContext.rho25c - TDS * 0.000001;
+            pptCalcite_MassTransfer_V = pptCalcite_MassTransfer * 100091.0 * density_factor * 
+                                      QBrineFlow / 1000.0 * 3600.0 * 24.0 * 365.0 / 
+                                      (2710.0 * pi * PipeID * PipeL); // cm/yr
+        }
+    }
+
+    // ==================== Siderite (FeCO3) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SISid > 0) {
+        // 如果有方解石沉淀，使用方解石沉淀后的pH
+        // if (SICal > 0) pH = pHaftercalciteppt;
+        
+        // 调用SSP平衡计算
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 2, KspSiderite);  // ppt_or_not=1, iMetals=8(Fe), iGas=2(CO2)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 2, KspSiderite);
+        // }
+        
+        pptFeCO3_NoMassTransfer = ppt;
+        
+        // 计算平衡浓度
+        mcEq[iFe] = mc[iFe] - ppt;
+    }
+    pHafterFeCO3ppt = pH;
+
+    // Siderite 传质计算
+    if (SISid > 0 && Run_MassTransfer == 1) {
+        // 假设km[2]对应FeHCO3+的传质系数
+        if (km.size() > 2) {
+            double km_FeHCO3 = km[2];
+            
+            // 计算动力学浓度
+            mcKin[iFe] = std::exp(-km_FeHCO3 * SArea / QBrineFlow) * (mc[iFe] - mcEq[iFe]) + mcEq[iFe];
+            pptFeCO3_MassTransfer = mc[iFe] - mcKin[iFe];
+            
+            // 更新传质浓度
+            mcMT[iFe] = mcKin[iFe];
+            AlkMT = AlkMT - 2.0 * pptFeCO3_MassTransfer;
+            
+            // Dai 2021 corrosion deposition - 计算沉积速率
+            double density_factor = simContext.rho25c - TDS * 0.000001;
+            pptFeCO3_MassTransfer_V = pptFeCO3_MassTransfer * 100091.0 * density_factor * 
+                                     QBrineFlow / 1000.0 * 3600.0 * 24.0 * 365.0 / 
+                                     (3960.0 * pi * PipeID * PipeL); // cm/yr
+        }
+    }
+
+    // ==================== 计算总沉积速率 ====================
+    // Dai 2020 deposition
+    pptTotal_MassTransfer_V = pptBarite_MassTransfer_V + pptCalcite_MassTransfer_V;
+    if (pptTotal_MassTransfer_V > pptMax_MassTransfer_V) {
+        pptMax_MassTransfer_V = pptTotal_MassTransfer_V;
+    }
+    
+    // Dai 2021 corrosion deposition
+    pptTotal_MassTransfer_V = pptTotal_MassTransfer_V + pptFeCO3_MassTransfer_V;
+    if (pptTotal_MassTransfer_V > pptMax_MassTransfer_V) {
+        pptMax_MassTransfer_V = pptTotal_MassTransfer_V;
+    }
+
+    // ==================== Zinc Carbonate (ZnCO3) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIZnCO3 > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 9, 2, KspZnCO3);  // ppt_or_not=1, iMetals=9(Zn), iGas=2(CO2)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 9, 2, KspZnCO3);
+        // }
+        pptZnCO3 = ppt;
+    }
+
+    // ==================== Amorphous Iron Sulfide (FeS) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIFeSAm > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 3, KspFeSAm);  // ppt_or_not=1, iMetals=8(Fe), iGas=3(H2S)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 3, KspFeSAm);
+        // }
+        pptFeSAm = ppt;
+    }
+
+    // ==================== Mackinawite (FeS) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIFeS > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 3, KspFeS);  // ppt_or_not=1, iMetals=8(Fe), iGas=3(H2S)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 3, KspFeS);
+        // }
+        pptFeS_NoMassTransfer = ppt;
+    }
+
+    // ==================== Troilite (FeS) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SITrot > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 3, KspTrot);  // ppt_or_not=1, iMetals=8(Fe), iGas=3(H2S)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 3, KspTrot);
+        // }
+        pptTrot = ppt;
+    }
+
+    // ==================== Pyrrotite (FeS) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (simContext.SIPyrr > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 3, KspPyrr);  // ppt_or_not=1, iMetals=8(Fe), iGas=3(H2S)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 3, KspPyrr);
+        // }
+        // pptPyrr = ppt;  // 变量未在顶部声明
+    }
+
+    // ==================== Zinc Sulfide (ZnS) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIZnS > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 9, 3, KspZnS);  // ppt_or_not=1, iMetals=9(Zn), iGas=3(H2S)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 9, 3, KspZnS);
+        // }
+        pptZnS = ppt;
+    }
+
+    // ==================== Lead Sulfide (PbS) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIPbS > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 10, 3, KspPbS);  // ppt_or_not=1, iMetals=10(Pb), iGas=3(H2S)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 10, 3, KspPbS);
+        // }
+        pptPbS = ppt;
+    }
+
+    // ==================== Calcium Hydroxide (Ca(OH)2) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SICaOH2 > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 5, 8, KspCaOH2);  // ppt_or_not=1, iMetals=5(Ca), iGas=8(信号不改变气体)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 5, 8, KspCaOH2);
+        // }
+        pptCaOH2 = ppt;
+    }
+    pHafterCaOH2ppt = pH;
+
+    // ==================== Magnesium Hydroxide (Mg(OH)2) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIMgOH2 > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 4, 9, KspMgOH2);  // ppt_or_not=1, iMetals=4(Mg), iGas=9(信号不改变气体)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 4, 9, KspMgOH2);
+        // }
+        pptMgOH2 = ppt;
+    }
+    pHafterMgOH2ppt = pH;
+
+    // ==================== Amorphous Silica (SiO2) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIAmSilica > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 10, KspAmSilica);  // iMetals=8(Fe), iGas=10(信号)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 10, KspAmSilica);
+        // }
+        pptAmSilica = ppt;
+    }
+    pHafterAmsilicappt = pH;
+
+    // ==================== Quartz (SiO2) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIQuartz > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 11, KspQuartz);  // iMetals=8(Fe), iGas=11(信号)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 11, KspQuartz);
+        // }
+        pptQuartz = ppt;
+    }
+    pHafterQuartzppt = pH;
+
+    // ==================== Greenalite (Fe3Si2O5(OH)4) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIGreenalite > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 12, KspGreenalite);  // iMetals=8(Fe), iGas=12(信号)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 12, KspGreenalite);
+        // }
+        pptGreenalite = ppt;
+    }
+    pHafterGreenaliteppt = pH;
+
+    // ==================== Diopside (CaMgSi2O6) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIDiopside > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 13, KspDiopside);  // iMetals=8(Fe), iGas=13(信号)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 13, KspDiopside);
+        // }
+        pptDiopside = ppt;
+    }
+    pHafterDiopsideppt = pH;
+
+    // ==================== Chrysotile (Mg3Si2O5(OH)4) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIChrysotile > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 8, 14, KspChrysotile);  // iMetals=8(Fe), iGas=14(信号)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 8, 14, KspChrysotile);
+        // }
+        pptChrysotile = ppt;
+    }
+    pHafterChrysotileppt = pH;
+
+    // ==================== Strontium Carbonate (SrCO3) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SISrCO3 > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 6, 2, KspSrCO3);  // ppt_or_not=1, iMetals=6(Sr), iGas=2(CO2)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 6, 2, KspSrCO3);
+        // }
+        pptSrCO3 = ppt;
+    }
+
+    // ==================== Barium Carbonate (BaCO3) 沉淀计算 ====================
+    ppt = 0.0;
+    pH = pH_before_precipitation;
+    
+    if (SIBaCO3 > 0) {
+        // if (useEOS == 0) {
+            C4_SSPEquilCalcs(1, 6, 2, KspBaCO3);  // ppt_or_not=1, iMetals=6(Ba), iGas=2(CO2)
+        // } else {
+        //     C4_EOS_TCO2_SSPEquilCalcs(1, 6, 2, KspBaCO3);
+        // }
+        pptBaCO3 = ppt;
+    }
+
+    // ==================== 多重沉淀计算 ====================
+    if (MultiplePpt == 1) {
+        // Call LoopTPMultiple();  // 需要实现此函数
+    }
+}
 
 int A1_Start_ScaleSoftPitzer(SampleData& data)
 {
@@ -15565,23 +16167,18 @@ int A1_Start_ScaleSoftPitzer(SampleData& data)
 
     if (RunGoalSeek != 1)
     {
-
         for (LoopTP = 0; LoopTP < 10; LoopTP++)
         {
-
             if (simContext.UseTPCalciteSheet == 0)
             {
-
                 TF = simContext.TBH - deltaT * (LoopTP - 1);
                 TK = (TF - 32) * 5.0 / 9.0 + 273.15;
 
                 Ppsia = simContext.PBH - deltaP * (LoopTP - 1);
                 Patm = Ppsia / 14.696;
-
             }
             else
             {
-
                 // TF = Worksheets("Calcite").Cells(14 - LoopTP, 1)
                 // Ppsia = Worksheets("Calcite").Cells(14 - LoopTP, 2)
 
@@ -15601,31 +16198,24 @@ int A1_Start_ScaleSoftPitzer(SampleData& data)
 
             if (H2Oevap != 1)
             {
-
                 if (ISt != 0)
                 {
                     LoopTPVisHeatCap();
 
                     if (Run_MassTransfer == 1)
                         MassTransferCoefficients(data.API);
-
                 }
                 LoopTPppt();
             }
             LoopTPWrite();
-
             if (H2Oevap == 1)
                 goto label201;
         }
-
     }
     else // RunGoalSeek == 1
     {
-
         for (LoopTP = 0; LoopTP < 2; LoopTP++) {
-
             if (LoopTP == 0) {
-
                 TF = simContext.TBH;
                 TK = (TF - 32) * 5.0 / 9.0 + 273.15;
                 TC = (TF - 32) * 5.0 / 9.0;
@@ -15634,9 +16224,7 @@ int A1_Start_ScaleSoftPitzer(SampleData& data)
                 Patm = Ppsia / 14.696;
                 PBar = Ppsia / 14.503774;
             }
-
             if (LoopTP == 1) {
-
                 TF = simContext.TWH;
                 TK = (TF - 32) * 5.0 / 9.0 + 273.15;
                 TC = (TF - 32) * 5.0 / 9.0;
@@ -15645,15 +16233,12 @@ int A1_Start_ScaleSoftPitzer(SampleData& data)
                 Patm = Ppsia / 14.696;
                 PBar = Ppsia / 14.503774;
             }
-
             LoopTPSI(data.API);
             //LoopTPWrite();
-
             if (H2Oevap == 1)
                 goto label201;
         }
     }
-
     // mytime1 = Time
     //nettime = (mytime1 - mytime)
 
@@ -15666,14 +16251,10 @@ label201:
 
     if (RunGoalSeek == 0 && Run_MassTransfer == 0)
     {
-
         //ErrorMsgBox();
-
         if (simContext.UseSI == 1) {
-
             simContext.TBH = (simContext.TBH - 32) * 5.0 / 9.0;
             simContext.TWH = (simContext.TWH - 32) * 5.0 / 9.0;
-
             simContext.PBH = simContext.PBH / 14.503774;
             simContext.PWH = simContext.PWH / 14.503774;
 
