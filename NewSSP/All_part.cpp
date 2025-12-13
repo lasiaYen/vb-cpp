@@ -6,7 +6,9 @@
 #include<float.h>
 #include <vector>
 #include <iostream>
+#include<fstream>
 #include<string>
+#include <map>
 #pragma warning(disable:4996)
 
 template<typename T>
@@ -177,7 +179,7 @@ public:
         pHMeterSTPWI.resize(40, DoubleVec(10, 0));
         ConcFactorWI.resize(40, DoubleVec(10, 0));
 
-
+        nob = 1;
 
         errmsg.resize(20, 0);
     }
@@ -366,12 +368,13 @@ public:
     const double UseSI = 0;    // vb 中没有赋初值，但是判断UseSI = 0会进入，暂时 表示0, 在InputPartB中会影响simContext.VgTPMix
     const double PWIInit = -1;       // vb 中没有赋初值
 
-    int Run10TestCases;
+    int Run10TestCases = 0;
     int Loop10;
     int Run_Seawater_Mixing;
     int LoopMixing;
     int LoopResChem;
     int Run_MixingTwoWells;
+    int Run_MassTransfer_WhatIf = 0;
 
     int UseTPCalciteSheet;
     double useTPVol;//   - 修改  by彭非 //int simContext.useTPVol;
@@ -410,6 +413,132 @@ public:
 };
 SimulationContext simContext;
 
+// ==================== Excel操作接口类（抽象层）====================
+class ExcelWriter {
+public:
+    virtual ~ExcelWriter() = default;
+
+    virtual void writeCell(const std::string& sheetName, int row, int col, double value) = 0;
+    virtual void writeCell(const std::string& sheetName, int row, int col, const std::string& value) = 0;
+    virtual void writeCell(const std::string& sheetName, int row, int col, int value) = 0;
+    virtual void writeCell(const std::string& sheetName, int row, int col, bool value) = 0;
+    virtual void clearCell(const std::string& sheetName, int row, int col) = 0;
+    virtual void setRange(const std::string& sheetName, const std::string& range, const std::string& value) = 0;
+
+protected:
+    // 行/列计算辅助方法
+    int calculateRow(int baseRow, int loopTP, int offset = 0) {
+        return baseRow - loopTP + offset;
+    }
+
+    int calculateRowWithStat(int baseRow, int statTPnob, int loopTP, int offset = 0) {
+        return baseRow + statTPnob - loopTP + offset;
+    }
+
+    int calculateRowWithIter(int baseRow, int loopTP, int iter, int offset = 0) {
+        return baseRow - loopTP + (iter - 1) * 32 + offset;
+    }
+};
+
+// ==================== 数据存储结构 ====================
+struct OutputData {
+    // 按工作表组织的数据结构
+    struct WorksheetData {
+        std::string name;
+        std::map<std::pair<int, int>, double> numericData;      // (row, col) -> value
+        std::map<std::pair<int, int>, std::string> textData;    // (row, col) -> text
+        std::map<std::pair<int, int>, bool> booleanData;        // (row, col) -> boolean
+    };
+
+    std::map<std::string, WorksheetData> worksheets;
+
+    void addData(const std::string& sheet, int row, int col, double value) {
+        worksheets[sheet].numericData[{row, col}] = value;
+    }
+
+    void addData(const std::string& sheet, int row, int col, const std::string& value) {
+        worksheets[sheet].textData[{row, col}] = value;
+    }
+
+    void addData(const std::string& sheet, int row, int col, bool value) {
+        worksheets[sheet].booleanData[{row, col}] = value;
+    }
+};
+
+
+
+// ==================== 辅助函数实现 ====================
+int calculateRowWithStat(int baseRow, int statTPnob, int loopTP, int offset = 0) {
+    return baseRow + statTPnob - loopTP + offset;
+}
+
+// ==================== ExcelWriter的具体实现示例 ====================
+// 注意：以下是几种可能的实现方案
+
+// 方案1：使用CSV文件输出（跨平台）
+class CSVExcelWriter : public ExcelWriter {
+private:
+    std::string basePath;
+    std::map<std::string, std::ofstream> fileStreams;
+
+public:
+    CSVExcelWriter(const std::string& path) : basePath(path) {}
+
+    ~CSVExcelWriter() {
+        for (auto& stream : fileStreams) {
+            if (stream.second.is_open()) {
+                stream.second.close();
+            }
+        }
+    }
+
+    void writeCell(const std::string& sheetName, int row, int col, double value) override {
+        std::string filename = basePath + "/" + sheetName + ".csv";
+        ensureFileOpen(filename);
+
+        // CSV格式：行, 列, 值
+        fileStreams[filename] << row << "," << col << "," << value << std::endl;
+    }
+
+    void writeCell(const std::string& sheetName, int row, int col, const std::string& value) override {
+        std::string filename = basePath + "/" + sheetName + ".csv";
+        ensureFileOpen(filename);
+
+        // 处理可能包含逗号的字符串
+        std::string escapedValue = value;
+        std::replace(escapedValue.begin(), escapedValue.end(), ',', ';');
+        fileStreams[filename] << row << "," << col << ",\"" << escapedValue << "\"" << std::endl;
+    }
+
+    void writeCell(const std::string& sheetName, int row, int col, int value) override {
+        writeCell(sheetName, row, col, static_cast<double>(value));
+    }
+
+    void writeCell(const std::string& sheetName, int row, int col, bool value) override {
+        writeCell(sheetName, row, col, value ? "TRUE" : "FALSE");
+    }
+
+    void clearCell(const std::string& sheetName, int row, int col) override {
+        // CSV中清空单元格可以写空值
+        writeCell(sheetName, row, col, "");
+    }
+
+    void setRange(const std::string& sheetName, const std::string& range, const std::string& value) override {
+        // 简化实现：将范围视为单个单元格
+        // 实际应用中需要解析范围字符串（如"A1:B10"）
+        std::cout << "CSVWriter: setRange not fully implemented for range: " << range << std::endl;
+    }
+
+private:
+    void ensureFileOpen(const std::string& filename) {
+        if (fileStreams.find(filename) == fileStreams.end() || !fileStreams[filename].is_open()) {
+            fileStreams[filename].open(filename, std::ios::app);
+            if (!fileStreams[filename].is_open()) {
+                std::cerr << "无法打开文件: " << filename << std::endl;
+            }
+        }
+    }
+};
 
 const double pi = 3.14159265358979;    // π (圆周率)
 
@@ -666,7 +795,6 @@ double aH2O = 0;
 
 DoubleVec gNeut(15, 0); double zOutput[15] = { 0 }; DoubleVec z(20, 0); double gL[20] = { 0 };
 DoubleVec density(3, 0);
-double mc[15] = { 0 }; double ma[15] = { 0 };
 double ChCat[15] = { 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 0, 0 }; double ChAn[15] = { -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -1, -2, -2, 0 ,0 };
 
 double b0[15][15] = { 0 }; double b1[15][15] = { 0 }; double b2[15][15] = { 0 };
@@ -688,11 +816,11 @@ double gNMean[10] = { 1,1,1,1,1,1,0,0,0,0 };
 
 //---------------
 double aNH2O = 0;
-double mn[15] = { 0 };
-double gCat[15] = { 0 };
-double gAn[15] = { 0 };
+DoubleVec mn(15, 0);
+//double gCat[15] = { 0 };
+//double gAn[15] = { 0 };
 double gDot[20] = { 0 };
-double gGas[15] = { 0 };
+//double gGas[15] = { 0 };
 
 double MWCat[15] = { 0 }, MWAn[15] = { 0 }, MWNeut[10] = { 0 };
 
@@ -849,7 +977,7 @@ double radiusA[12];
 double PipeID = 0, PipeL = 0;
 
 
-
+// -------------------------------------------------------------
 // 12月11日后新增的全局变量 
 // 新增的变量
 double dSIMeOHBar;
@@ -965,12 +1093,84 @@ double tInh;
 int InhNoCal;
 double t0Cal;
 double t0Bar;
+double t0An;
+double t0Cel;
+double t0Gyp;
 int InhNoGyp;
 int ConcInhAn;
 int InhNoAn;
 int InhNoCel;
 double ConcInhCel;
+double dens;
+std::string Flow_Pattern;
+std::string Flow_Regime;
+double Eff_D, Eff_V;
+DoubleVec DiffC(11, 0);
+DoubleVec DiffA(12, 0);
+DoubleVec Diff(10, 0);
 
+// SIRisk[抑制剂编号][LoopTP][参数索引][物质类型]
+std::vector<std::vector<std::vector<std::vector<double>>>> SIRisk;
+// 井名数组
+StrVec WellNameMix;
+
+// 工作表名称
+std::string myname;
+
+// 传质系数数组
+DoubleVec km;
+
+double fSafetyBar;
+double fSafetyCal;
+double fsafetyAn;
+double fSafetyCel;
+double fSafetyGyp;
+
+// 化学物质浓度数组
+std::vector<double> mc;  // 阳离子浓度
+std::vector<double> ma;  // 阴离子浓度
+
+// 活度系数数组
+std::vector<double> gCat;   // 阳离子活度系数
+std::vector<double> gAn;    // 阴离子活度系数
+std::vector<double> gNeut;  // 中性分子活度系数
+std::vector<double> gGas;   // 气体活度系数
+
+double pptCalcite_NoMassTransfer = 0.0;
+double pptBarite_NoMassTransfer = 0.0;
+double pptGyp = 0.0;
+double pptHemi = 0.0;
+double pptAn = 0.0;
+double pptCel = 0.0;
+double pptHal = 0.0;
+double pptFeSAm = 0.0;
+double pptFeS_NoMassTransfer = 0.0;
+double pptTrot = 0.0;
+double pptZnS = 0.0;
+double pptCaF2 = 0.0;
+double pptFeCO3_NoMassTransfer = 0.0;
+double pptZnCO3 = 0.0;
+double pptPbS = 0.0;
+double pptSrCO3 = 0.0;
+double pptBaCO3 = 0.0;
+double pptAmSilica = 0.0;
+double pptQuartz = 0.0;
+double pptChrysotile = 0.0;
+double pptDiopside = 0.0;
+double pptGreenalite = 0.0;
+double pptMgOH2 = 0.0;
+double pptCaOH2 = 0.0;
+double pptCalcite_MassTransfer = 0.0;
+double pptBarite_MassTransfer = 0.0;
+double pptFeCO3_MassTransfer = 0.0;
+double pptCalcite_MassTransfer_V = 0.0;
+double pptBarite_MassTransfer_V = 0.0;
+double pptFeCO3_MassTransfer_V = 0.0;
+
+double ConcInhGyp;
+double m_CR_selected = 0.0;
+double PBubblePt = 0.0;
+int Use_Corr_in_Deposition = 0;
 /********************************************************************************************************/
 
 // 针对Shell Input Excel表格的样品数据结构体
@@ -3340,7 +3540,7 @@ void C2_PitzerActCoefs_T_P_ISt(DoubleVec& gNeut, double& aH2O, double tk, double
     a1 = 16.945176;
 
     // dens0 等系数用于密度计算，但后续直接调用 fH2ODensity(tk, pBar)，因此此处计算被覆盖。
-    double dens = fH2ODensity(tk, pBar);
+    dens = fH2ODensity(tk, pBar);
 
     // APhi 计算：Debye-Hückel 参数
     double APhi = (1.0 / 3.0) * pow((2 * pi * NAv * dens), 0.5) * pow((eElec * eElec / (4 * pi * eps0 * Dielec * kBoltz * tk)), 1.5);
@@ -4425,7 +4625,7 @@ double fAphicalc(double tk, double pBar)
     double U4 = -2.0525, U5 = 3115.9, U6 = -182.89;
     double U7 = -8032.5, U8 = 4214200.0, U9 = 2.1417;
 
-    double D1000, cc, b, Dielec, dens;
+    double D1000, cc, b, Dielec;
     double term1, term2, result;
 
     D1000 = U1 * exp(U2 * tk + U3 * tk * tk);
@@ -4504,7 +4704,7 @@ double CalcRhoTP(double tk, double tc, double pBar, double patm) {
     // 按设定的tk值计算。如果不是STP条件（patm !=1），则计算Δ压力=1e-6 bar时的过量性能
 
     double AphiP, AphiPPlus, X14, gX14, gpX14, X20, gX20, gpX20, X12, gX12, gpX12;
-    double mt, Av, Fv, Ex_Pitzer, V_ex, V_ion, dens, VperKgWater, MassperKgwater;
+    double mt, Av, Fv, Ex_Pitzer, V_ex, V_ion, VperKgWater, MassperKgwater;
     int m, a, c, n, iden;
 
     C2_Pitzer2019(tk, tc, pBar, patm);
@@ -11169,6 +11369,8 @@ void C2_PitzerActCoefsConstants()
     Lna[iH3BO3][iSO4] = 0.018;
 }
 
+
+
 void B1_InitializeIndices()
 {
     mf_ParametersWereRead = false;
@@ -11313,7 +11515,7 @@ void B1_InitializeIndices()
     V0_n[iFeSaq] = 35.71;
 
     /* ---------- bi(...) assignments ---------- */
-    /*
+
     for (i = 0; i < 11; i++) {
         bi[i][1] = -1.09852;
         bi[i][2] = 947.26074;
@@ -11408,7 +11610,7 @@ void B1_InitializeIndices()
     EaRInh[15] = 4872.3;  LnAInh[15] = -1.469;
     EaRInh[16] = 2822.5;  LnAInh[16] = -8.586;
     EaRInh[18] = 8064.9;  LnAInh[18] = 6.761;
-    */
+
 }
 
 
@@ -11750,8 +11952,303 @@ void B2_ReadinAllData(SampleData* data)
     };
 }
 
+
+void InitializeOptionClearCellContent()
+{
+    // 基本变量初始化（按 VBA 逻辑）
+    UseSR = 0; simContext.UseTPCalciteSheet = 0;
+    simContext.Read_InputII = 0;
+    //int NCount_II = 0;  //NCount_II:InitializeO、CountNOB;   - 但在前者中仅赋值，在后者中赋值再使用，因此注释掉
+    useEOS = 0;
+    simContext.LoopMixing = 0; simContext.UseMolal = 0; //iTP = 0
+    RunShellMultiflash = 0; H2Oevap = 0;
+    simContext.Run_CalcConcFactor = 0;
+
+    // 这些变量应为全局变量
+    //int RunGoalSeek, RunStatGoalSeek; Run_MassTransfer;
+    //RunH2SGUI, RunSMT, RunStat, RunH2SPartition;
+
+    RunGoalSeek = (RunGoalSeek == 1 ? 1 : 0);
+    RunStatGoalSeek = (RunStatGoalSeek == 1 ? 1 : 0);
+    Run_MassTransfer = (Run_MassTransfer == 1 ? 1 : 0);
+
+    // If Worksheets("Input").Range("I11") = "Saturation Ratio values" Then UseSR = 1;
+    //没看懂，发现总是不会进入UseSR=1;先注释掉了
+
+    usePTB = 1;   //目前来看一定为 1
+    /*
+    if (simContext.RunH2SGUI != 1 && RunSMT != 1 && simContext.RunStat != 1) {
+         if Worksheets("Calcite").Range("F3") == "mg/L"
+             usePTB = 0;
+         else
+             usePTB = 1;
+    }
+    */
+
+    // ============== 以下所有 Excel 清空操作都保留为注释 ==============
+    if (RunSMT != 1) {
+        if (simContext.RunH2SGUI != 1) {
+
+            // Worksheets("Input").Range("P14:T22").Value = Null;
+            // Worksheets("input II").Range("C83:Cx91").Value = Null;
+            // Worksheets("input II").Range("C80:Cx80").Value = Null;
+            // Worksheets("input").Range("H10:H37").Value = Null;
+            // Worksheets("input").Range("H43:H49").Value = Null;
+            // Worksheets("input").Range("H62:H79").Value = Null;
+
+            // Worksheets("Well#1+Water").Range("B5:AC15") = Null;
+            // Worksheets("Well#1+Water").Range("B40:AG50") = Null;
+
+            // Worksheets("Mixing Two Wells").Range("B5:AC15") = Null;
+            // Worksheets("Mixing Two Wells").Range("B40:AG50") = Null;
+
+            // Worksheets("Calcite").Range("D16:G25") = Null;
+            // Worksheets("Calcite").Range("P20:P27") = Null;
+
+            // Worksheets("Barite").Range("C16:E25") = Null;
+            // Worksheets("Halite").Range("C16:E25") = Null;
+
+            // Worksheets("Other SO4s").Range("C17:J26") = Null;
+            // Worksheets("Sulfides,Fluorite,Carbonates").Range("C17:J26") = Null;
+
+            // Worksheets("Use Mass Transfer").Range("A12:H21") = Null;
+
+            // Deposition Prediction
+            // Worksheets("Deposition Prediction").Range("C25:R34") = Null;
+            // Worksheets("Deposition Prediction").Range("C41:R50") = Null;
+
+            // Corrosion
+            // Worksheets("Corrosion").Range("C25:N34") = Null;
+            // Worksheets("Corrosion").Range("C41:N50") = Null;
+
+            // Activity coefficients
+            // Worksheets("Calcite").Range("Q4:AG13") = Null;
+            // Worksheets("Barite").Range("Q4:Z13") = Null;
+            // Worksheets("Other SO4s").Range("Q4:AA13") = Null;
+            // Worksheets("Silicates").Range("X2:Z13") = Null;
+        }
+    }
+
+    //double feed_Composition[15];这个仅在partD中使用，所以设为局部的了，此处忽略
+
+    DpHj = 0;
+
+
+    // ============== 第二段 Excel 清空（条件判断）==============
+    if (RunSMT != 1) {
+        if (RunH2SPartition != 1) {
+
+            // For i = 1 to 17:
+            for (int i = 0; i < 17; i++) {
+                // Worksheets("Input").Cells(11+2*i, 9).Value = Null;
+                // Worksheets("Input").Cells(11+2*i,10).Value = Null;
+            }
+
+            // For i = 1 to 7:
+            for (int i = 0; i < 7; i++) {
+                // Worksheets("Input").Cells(46+2*i,9) = Null;
+                // Worksheets("Input").Cells(46+2*i,10) = Null;
+            }
+
+            // Worksheets("Multiple Ppt").Unprotect("eesi");
+            // Worksheets("Multiple Ppt").Range("A4:P100") = Null;
+            // Worksheets("Multiple Ppt").Protect("eesi");
+        }
+    }
+}
+
+
+void CountNOB()
+{
+
+    //nob, Ncount, NCount_II, nob_Input, nob_InputII;
+    //extern int RunStatReservoirCalc, RunStatGoalSeek, RunStatSICalcSSP;
+    //extern int RunStatMix, Run_Seawater_Mixing, RunMultiMix, RunMultiMixSlb;
+    //extern int Read_InputII, Run1000Cases;
+
+    // 初始化
+    //simContext.nob = 0;
+    Ncount = 0;
+    NCount_II = 0;
+    //simContext.nob_Input = 0;
+    //simContext.nob_InputII = 0;
+    simContext.Run1000Cases = 0;
+    RunStatReservoirCalc = 0;//没见过给这个值赋值？？？
+
+    if (RunStatReservoirCalc == 1)
+    {
+        simContext.nob = 2;
+        simContext.CaseCount[0] = 1;   // CaseCount(1)
+        simContext.CaseCount[1] = 9;   // CaseCount(2)
+    }
+    else if (RunStatGoalSeek == 1)
+    {
+        simContext.nob = 2;
+        /*
+        If Worksheets("Halite module").Range("H18").Value = "Use produced water composition" Then
+            CaseCount(1) = 1: CaseCount(2) = 9:
+            Worksheets("Output data sheet").Range("Q8") = "Produced water"
+        End If
+
+        If Worksheets("Halite module").Range("H18").Value = "Use calculated reservoir water composition" Then
+            CaseCount(1) = 5: CaseCount(2) = 9:
+            Worksheets("Output data sheet").Range("Q8") = "Calculated reservoir water"
+        End If
+        */
+    }
+
+    // ====================== RunStatSICalcSSP = 1 (Halite 1 water) ======================
+    else if (RunStatSICalcSSP == 1)
+    {
+        /*
+        If Worksheets("Halite module").Range("G33").Value = "Use produced water composition" Then
+            nob = 1: CaseCount(1) = 1
+            Worksheets("Halite analysis").Range("C3") = "Produced water"
+            Worksheets("Halite analysis").Range("b18") = "Figure 1. Plots of halite SI and pressure versus temperature based on calculated reservoir water composition."
+        End If
+            If Worksheets("Halite module").Range("G33").Value = "Use calculated reservoir water composition" Then
+            nob = 1: CaseCount(1) = 5
+            Worksheets("Halite analysis").Range("c3") = "Calculated reservoir water"
+            Worksheets("Halite analysis").Range("b18") = "Figure 1. Plots of halite SI and pressure versus temperature based on calculated reservoir water composition."
+        End If
+        If Worksheets("Halite module").Range("G33").Value = "Use fresh water composition" Then
+            nob = 1: CaseCount(1) = 9
+            Worksheets("Halite analysis").Range("c3") = "Fresh water"
+            Worksheets("Halite analysis").Range("b18") = "Figure 1. Plots of halite SI and pressure versus temperature based on calculated reservoir water composition."
+        End If
+        */
+    }
+    else if (RunStatSICalcSSP == 2)
+    {
+        simContext.nob = 2;
+        simContext.CaseCount[1] = 9;  // CaseCount(2)
+
+        /*
+        If Worksheets("Halite module").Range("I33").Value = "Use produced water composition" Then
+            CaseCount(1) = 1
+            Worksheets("Halite analysis").Range("K3") = "Produced water and fresh water"
+            Worksheets("Halite analysis").Range("J18") = "Figure 2. Plots of halite SI/SR and pressure versus temperature based on mixing produced water with fresh water.
+        End If
+        If Worksheets("Halite module").Range("I33").Value = "Use calculated reservoir water composition" Then
+            CaseCount(1) = 5
+            Worksheets("Halite analysis").Range("K3") = "Calculated reservoir water and fresh water"
+            Worksheets("Halite analysis").Range("J18") = "Plots of halite SI/SR and pressure versus temperature based on mixing produced water with fresh water."
+        End If
+        */
+
+    }
+
+    // ====================== RunStatSICalcSSP = 3 ======================
+    else if (RunStatSICalcSSP == 3)
+    {
+        /*
+        If Worksheets("Halite module").Range("H18").Value = "Use produced water composition" Then
+            nob = 1: CaseCount(1) = 1
+            Worksheets("Output data sheet").Range("J3") = "Produced water"
+        End If
+        If Worksheets("Halite module").Range("H18").Value = "Use calculated reservoir water composition" Then
+            nob = 1: CaseCount(1) = 5
+            Worksheets("Output data sheet").Range("J3") = "Calculated reservoir water"
+        End If
+        */
+    }
+    else if (simContext.RunStatMix == 1)
+    {
+        simContext.nob = 2;
+        simContext.CaseCount[1] = 9;
+        /*
+        If Worksheets("Halite module").Range("I33").Value = "Use produced water composition" Then
+            CaseCount(1) = 1
+            Worksheets("Halite analysis").Range("T3") = "Produced water and fresh water"
+            Worksheets("Halite analysis").Range("R18") = "Figure 3. Plot of halite SI/SR versus mixing ratio at bottom and surface T and P based on mixing produced water with fresh water."
+        End If
+        If Worksheets("Halite module").Range("I33").Value = "Use calculated reservoir water composition" Then
+            CaseCount(1) = 5
+            Worksheets("Halite analysis").Range("T3") = "Calculated reservoir water and fresh water"
+            Worksheets("Halite analysis").Range("R18") = "Figure 3. Plot of halite SI/SR versus mixing ratio at bottom and surface T and P based on mixing calculated reservoir water with fresh water."
+        End If
+        */
+    }
+    // ====================== 最后 else: 读取 Input Sheet 的勾选框 ======================
+    else
+    {
+        //阅读输入表顶部的复选框，以确定要使用哪些井。
+        for (int i = 0; i < 5; i++)
+        {
+
+            // if Worksheets("Input").Cells(3, 2+i+1) = True
+                //nob++;
+                //CaseCount[i - Ncount] = i;
+            //else   
+                //Ncount++;
+        }
+
+        //nob_Input = nob;
+
+        //阅读输入表顶部的复选框，以确定要使用哪些井。
+        for (int i = 0; i < 100; i++)
+        {
+            /*
+            If Worksheets("Input II").Cells(3, 2 + i).Value = True Then
+                nob = nob + 1
+                CaseCount_II(i - NCount_II) = i
+            Else
+                NCount_II = NCount_II + 1
+            End If
+            */
+
+            //nob_InputII = nob - nob_Input;
+        }
+
+        //if (nob_InputII > 0)
+        //    Read_InputII = 1;
+        //if (nob == 0) {
+        //    printf("No box on Row 3 of the Input sheet is selected.\n");
+        //    exit(0);
+        //}
+    }
+
+    // ====================== Seawater mixing ======================
+    if (simContext.Run_Seawater_Mixing == 1)
+    {
+        simContext.CaseCount[0] = 1;
+        simContext.CaseCount[1] = 2;
+        simContext.nob = 2;
+    }
+
+    // ====================== Multi-mix ======================
+    if (simContext.RunMultiMix == 1 || RunMultiMixSlb == 1)
+    {
+
+        Ncount = 0;
+        simContext.nob = 0;
+
+        for (int i = 0; i < 5; i++) {
+            /*
+            If Worksheets("Input").Cells(3, 2 + i).Value = True Then
+                nob = nob + 1
+                CaseCount(i - Ncount) = i
+            Else
+                Ncount = Ncount + 1
+            End If
+            */
+        }
+
+        //nob_InputII = 0;
+        //nob_Input = nob;
+
+        //if (nob == 0) {
+        //    printf("You must select Brines from the Input Sheet to run.\n");
+        //    exit(0);
+        //}
+    }
+}
+
+
+//B3中会修改data的API，所以这里直接引用传递
 void B3_CalcConcs(double& API)
 {
+    /*  局部变量声明 */
     int i, c, a, n, iNG, iden;
     double molAlkF = 0, molTACF = 0, molTNH4F = 0;
     double molTH3BO3F = 0, molTH2SaqF = 0, molTH4SiO4F = 0;
@@ -11792,6 +12289,8 @@ void B3_CalcConcs(double& API)
     nTCO2EOS = 0;
     nTH2sEOS = 0;
 
+    /* ---- Reset arrays ---- */
+    //下面这三个数组仅在B3中使用
     double molcF[15]; double molaF[15]; double molnF[10];
     for (c = 0; c < NumCat; c++)
     {
@@ -11860,6 +12359,12 @@ void B3_CalcConcs(double& API)
     /* ---- Component mixing ---- */
     for (i = 0; i < simContext.nob; i++)
     {
+        /*
+        注意vb是判断Run_MixingTwoWells是否为1
+        若为1，这些数组都会乘一个MixFracTwoWells[i]
+
+        否则乘的是MixFrac[i],所以这里先用一个MF来保存要乘的值，避免重复索引耗时
+        */
         double MF = (simContext.Run_MixingTwoWells == 1) ? MixFracTwoWells[i] : simContext.MixFrac[i];
 
         /* cations */
@@ -11875,6 +12380,7 @@ void B3_CalcConcs(double& API)
         mc[iPb] += MF * simContext.PbMix[i];
         mc[iNH4] += MF * simContext.NH4STPMix[i];
 
+        //不为1时才会赋值这个iRa
         if (simContext.Run_MixingTwoWells != 1)
             mc[iRa] += MF * simContext.RaMix[i];
 
@@ -11920,13 +12426,15 @@ void B3_CalcConcs(double& API)
     TFe = mc[iFe];
 
     /* ---- EOS logic ---- */
-    if (useEOS > 0) {
-
+    if (useEOS > 0)
+    {
         nTCO2 = nTCO2EOS;
         nTH2S = nTH2sEOS;
 
-        if (total_moles > 0) {
-            for (iNG = 0; iNG < 15; iNG++) {
+        if (total_moles > 0)
+        {
+            for (iNG = 0; iNG < 15; iNG++)
+            {
                 z[iNG] /= total_moles;
                 if (z[iNG] < 1e-7) z[iNG] = 0;
                 z_before_precipitation[iNG] = z[iNG];
@@ -11959,7 +12467,6 @@ void B3_CalcConcs(double& API)
         {
             for (i = 0; i < simContext.nob; i++)
             {
-
                 double mixFracTwoWells_i = simContext.MixFrac[i];
 
                 for (c = 0; c < NumCat; c++)
@@ -12049,7 +12556,7 @@ void B3_CalcConcs(double& API)
         //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
         C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
 
-        fmn;
+        fmn();
 
         CalcIonicStrength();
         C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
@@ -12135,7 +12642,8 @@ void B3_CalcConcs(double& API)
         /* Recompute API + SGG */
         fTPFunc(3);
 
-        temp_ParametersWereRead = false;
+        //bool temp_ParametersWereRead = false;
+        //DoubleVec temp_gNeut(2);
         temp_gNeut[0] = gNeut[iCO2aq];
         temp_gNeut[1] = gNeut[iH2Saq];
         MultiPhaseFlash(temp_ParametersWereRead,
@@ -12184,7 +12692,3022 @@ L4000:
     TAcInit = TAc;
     TFeInit = TFe;
 
-    fmn;
+    fmn();
+}
+
+
+void B4_CalcFinalBrine()
+{
+
+    if (simContext.nob == 1 && simContext.Run_CalcConcFactor == 0) {
+
+        for (int i = 8; i < 36; i++) {
+            // Worksheets("Input").Cells(i + 1, 8).Value = "";
+        }
+        for (int i = 41; i < 48; i++) {
+            // Worksheets("Input").Cells(i + 1, 8).Value = "";
+        }
+        for (int i = 51; i < 53; i++) {
+            // Worksheets("Input").Cells(i + 1, 8).Value = "";
+        }
+        for (int i = 56; i < 78; i++) {
+            // Worksheets("Input").Cells(i + 1, 8).Value = "";
+        }
+
+    }
+    else
+    {
+
+        if (simContext.Run_Seawater_Mixing == 1 || simContext.Run_MixingTwoWells == 1)
+            goto label100;
+
+        if (simContext.UseMolal == 0)
+        {
+
+            //Worksheets("Input").Range("h10").Value = mc[iNa] * (22990 * (simContext.rho25c - TDS / 1000000.0));
+
+            //Worksheets("Input").Range("h11").Value = mc[iK] * (39102 * (simContext.rho25c - TDS / 1000000.0));
+
+            //Worksheets("Input").Range("h12").Value = mc[iMg] * (24305 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h13").Value = mc[iCa] * (40080 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h14").Value = mc[iSr] * (87620 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h15").Value = mc[iBa] * (137330 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h16").Value = TFe* (55847 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h17").Value = mc[iZn] * (65380 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h18").Value = mc[iPb] * (207200 * (simContext.rho25c - TDS / 1000000.0));
+
+            //Worksheets("Input").Range("h19").Value = ma[iCl] * (35450 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h20").Value = ma[iSO4] * (96064 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h21").Value = ma[intF] * (18998 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h22").Value = ma[iBr] * (79904 * (simContext.rho25c - TDS / 1000000.0));
+            //
+            //Worksheets("Input").Range("h23").Value = TH4SiO4* (28085 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h24").Value = Alk* (61019 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h26").Value = TAc* (60054 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h27").Value = TNH4* (17031 * (simContext.rho25c - TDS / 1000000.0));
+            //Worksheets("Input").Range("h28").Value = TH3BO3* (10811 * (simContext.rho25c - TDS / 1000000.0));
+            //
+            //Worksheets("Input").Range("h62").Value = mc[iRa] * 1e12 * (226 * (simContext.rho25c - TDS / 1000000.0));
+
+        }
+        else
+        {
+            //Worksheets("Input").Range("h10").Value = mc[iNa];
+
+            //Worksheets("Input").Range("h11").Value = mc[iK];
+            //Worksheets("Input").Range("h12").Value = mc[iMg];
+            //Worksheets("Input").Range("h13").Value = mc[iCa];
+            //Worksheets("Input").Range("h14").Value = mc[iSr];
+            //Worksheets("Input").Range("h15").Value = mc[iBa];
+            //Worksheets("Input").Range("h16").Value = TFe;
+            //Worksheets("Input").Range("h17").Value = mc[iZn];
+            //Worksheets("Input").Range("h18").Value = mc[iPb];
+
+            //Worksheets("Input").Range("h19").Value = ma[iCl];
+            //Worksheets("Input").Range("h20").Value = ma[iSO4];
+            //Worksheets("Input").Range("h21").Value = ma[intF];
+            //Worksheets("Input").Range("h22").Value = ma[iBr];
+            //Worksheets("Input").Range("h23").Value = TH4SiO4;
+            //Worksheets("Input").Range("h24").Value = Alk;
+            //Worksheets("Input").Range("h26").Value = TAc;
+            //Worksheets("Input").Range("h27").Value = TNH4;
+            //Worksheets("Input").Range("h28").Value = TH3BO3;
+        }
+
+        //Worksheets("Input").Range("h29").Value = TDS;
+
+        //Worksheets("Input").Range("h30").Value = rho25c;
+
+        //Worksheets("Input").Range("h31").Value = yCO2 * 100;
+
+        //Worksheets("Input").Range("h33").Value = (H2Saq + HS)* (34080 * (rho25c - TDS / 1000000.0));
+
+        //Worksheets("Input").Range("h34").Value = pH - DpHj;
+
+        //Worksheets("Input").Range("h35").Value = VgTP / 28.31685;
+        if (simContext.UseSI == 1)
+            //Worksheets("Input").Range("h35").Value =  = VgTP / 1000.0;
+
+        //Worksheets("Input").Range("h36").Value = VO;
+            if (simContext.UseSI == 1) //Worksheets("Input").Range("h36").Value  = VO * 0.159;
+
+                //Worksheets("Input").Range("h37").Value = VW;
+                if (simContext.UseSI == 1) //Worksheets("Input").Range("h37").Value  = VW * 0.159;
+
+                    //Worksheets("Input").Range("h45").Value =  mass_MeOH / 0.7914 / 159.0;
+                    if (simContext.UseSI == 1) //Worksheets("Input").Range("h45").Value = tmp45 * 0.159;
+
+                        //Worksheets("Input").Range("h46").Value = mass_MEG / 1.1135 / 159.0;
+                        if (simContext.UseSI == 1)
+                            //Worksheets("Input").Range("h45").Value = mass_MeOH / 1.1135 / 159 * 0.159
+                            double aaa123 = 0;// 占位语句，确认后请删除
+    }
+
+label100:
+    return;
+    // 跳转目标
+}
+
+
+void OutputActivityCoefficients()
+{
+    /*
+    Worksheets("Calcite").Range("x1:ax13").Value = ""
+    Worksheets("Barite").Range("w1:z13").Value = ""
+    Worksheets("Halite").Range("O1:R13").Value = ""
+    Worksheets("Other SO4s").Range("x1:aa13").Value = ""
+    Worksheets("Sulfides,Fluorite,Carbonates").Range("z1:ap13").Value = ""
+    */
+
+    if (simContext.OutPutActCoefs == 1)
+    {
+        /*
+            Worksheets("Calcite").Range("x2") = "Activity coefficients"
+            Worksheets("Calcite").Range("z3") = "aH2O"
+            Worksheets("Calcite").Range("aa3") = "gH"
+            Worksheets("Calcite").Range("ab3") = "gOH"
+            Worksheets("Calcite").Range("ac3") = "gCa"
+            Worksheets("Calcite").Range("ad3") = "gMg"
+            Worksheets("Calcite").Range("ae3") = "gHCO3"
+            Worksheets("Calcite").Range("af3") = "gCO3"
+            Worksheets("Calcite").Range("ag3") = "gAc"
+
+
+            Worksheets("Barite").Range("w2") = "Activity coefficients"
+
+            Worksheets("Barite").Range("y3") = "gBa"
+            Worksheets("Barite").Range("z3") = "gSO4"
+
+            Worksheets("Halite").Range("O2") = "Activity coefficients"
+
+            Worksheets("Halite").Range("Q3") = "gNa"
+            Worksheets("Halite").Range("R3") = "gCl"
+
+            Worksheets("Other SO4s").Range("x2") = "Activity coefficients"
+
+            Worksheets("Other SO4s").Range("z3") = "gSr"
+            Worksheets("Other SO4s").Range("aa3") = "gSO4"
+
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("z2") = "Activity coefficients"
+
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("ab3") = "gFe"
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("ac3") = "gZn"
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("ad3") = "gF"
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("ae3") = "gHS"
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("af3") = "gPb"
+
+            Worksheets("Silicates").Range("x2") = "Activity coefficients" 'Dai added 2020
+            Worksheets("Silicates").Range("z3") = "gSilicates" 'Dai added 2020
+        */
+    }
+    if (simContext.UseSI == 0)
+    {
+        /*
+            Worksheets("Calcite").Range("x3") = "T(F)"
+            Worksheets("Calcite").Range("y3") = "P(psia)"
+            Worksheets("Barite").Range("w3") = "T(F)"
+            Worksheets("Barite").Range("x3") = "P(psia)"
+            Worksheets("Halite").Range("O3") = "T(F)"
+            Worksheets("Halite").Range("P3") = "P(psia)"
+            Worksheets("Other SO4s").Range("x3") = "T(F)"
+            Worksheets("Other SO4s").Range("y3") = "P(psia)"
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("z3") = "T(F)"
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("aa3") = "P(psia)"
+            Worksheets("Silicates").Range("x3") = "T(F)" 'Dai added 2020
+            Worksheets("Silicates").Range("y3") = "P(psia)" 'Dai added 2020
+        */
+    }
+    else
+    {
+        /*
+            Worksheets("Calcite").Range("Q3") = "T(C)"
+            Worksheets("Calcite").Range("R3") = "P(Bar)"
+            Worksheets("Barite").Range("O3") = "T(C)"
+            Worksheets("Barite").Range("P3") = "P(Bar)"
+            Worksheets("Halite").Range("O3") = "T(C)"
+            Worksheets("Halite").Range("P3") = "P(Bar)"
+            Worksheets("Other SO4s").Range("x3") = "T(C)"
+            Worksheets("Other SO4s").Range("y3") = "P(Bar)"
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("z3") = "T(C)"
+            Worksheets("Sulfides,Fluorite,Carbonates").Range("aa3") = "P(Bar)"
+            Worksheets("Silicates").Range("x3") = "T(C)" 'Dai added 2020
+            Worksheets("Silicates").Range("y3") = "P(Bar)" 'Dai added 2020
+        */
+
+    }
+
+}
+
+
+void B5_CalculateSIvalues(double& API)
+{
+    if (LoopTP == 10) {
+        pH = pH;
+    }
+
+    // --- Initialize SI values (use 0 to represent Null)
+    SICal = 0; SIDol = 0; SISid = 0; SIBar = 0; SIGyp = 0;
+    SIHemi = 0; SIAn = 0; SICel = 0; SIHal = 0; SICaF2 = 0;
+    SIFeS = 0; SIFeSAm = 0; SITrot = 0; SIZnS = 0; SIBaCO3 = 0;
+    SISrCO3 = 0; SIPbS = 0; SIZnCO3 = 0; SIAmSilica = 0;
+    SIQuartz = 0; SIDiopside = 0; SIChrysotile = 0;
+    SIGreenalite = 0;
+
+    // --- Copy mcInit → mc, maInit → ma
+    for (int c = 0; c < NumCat; c++) {
+        mc[c] = mcInit[c];
+    }
+    for (int a = 0; a < NumAn; a++) {
+        ma[a] = maInit[a];
+    }
+
+    Alk = AlkInit;
+    TH4SiO4 = TH4SiO4Init;
+    TNH4 = TNH4Init;
+    TH3BO3 = TH3BO3Init;
+    TAc = TAcInit;
+    TFe = TFeInit;
+
+    if (Run_MassTransfer == 1 && LoopTP > 1) {
+        mc[iCa] = mcMT[iCa];
+        mc[iBa] = mcMT[iBa];
+        ma[iSO4] = maMT[iSO4];
+        Alk = AlkMT;
+
+        mc[iFe] = mcMT[iFe];
+        TFe = TFe_MT;
+    }
+
+    // --- Core thermodynamic calculations
+    CalcIonicStrength();
+    C1_ThermodynamicEquilConsts();
+    C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+
+    if (useEOS == 0)
+    {
+        PengRobinson3();
+        RatioOilBPoints = fRatioOilBPoints(API);
+
+        //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+        C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+        fmn;
+
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+        //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+        C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+
+        PBubblePt = nTCH4 / t1 + nTCO2 / t2 + nTH2S / t3;
+
+        if (Run_MassTransfer == 1) {
+            if (Ppsia > PBubblePt)
+                VgTP_MT = 0;
+            else
+                VgTP_MT = Vg_ZRT * Znew * RAtm * 14.696 * TK / 1000.0;
+
+            VO_MT = VO * 159 / 1000.0;
+            VW_MT = VW * 159 / 1000.0;
+            QBrineFlow = VW_MT * 1e6 / 86400.0;
+        }
+    }
+
+    // ================================
+    //        useEOS != 0 分支
+    // ================================
+
+    if (useEOS != 0)
+    {
+        if (a1 < 20.0 / ISt) a1 = 2;
+        else a1 = 20.0 / ISt;
+
+        for (int c = 0; c < NumCat; c++) mc[c] = mcInit[c] * a1;
+        for (int a = 0; a < NumAn; a++) ma[a] = maInit[a] * a1;
+
+        Alk = AlkInit * a1;
+        TH4SiO4 = TH4SiO4Init * a1;
+        TNH4 = TNH4Init * a1;
+        TH3BO3 = TH3BO3Init * a1;
+        TAc = TAcInit * a1;
+        TFe = TFeInit * a1;
+
+        CalcIonicStrength();
+        C1_ThermodynamicEquilConsts();
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+
+        DoubleVec temp_gNeut(2);
+        temp_gNeut[0] = gNeut[iCO2aq]; temp_gNeut[1] = gNeut[iH2Saq];
+        MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, z, temp_gNeut,
+            aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
+
+        mass_w = total_moles * beta[2] * compositions[14][3] * 0.01801528;
+
+        if (compositions[14][3] < 0.5 || mass_w < 1e-7)
+        {
+            //当此标记被触发时，水会蒸发并退出计算。
+            simContext.errmsg[7] = 8;
+            ISt = 0; pH = 0; rhoTP = 0; H2Oevap = 1;
+            goto exit_label_500;
+        }
+
+        if (mass_w / mass_w_0 < 0.05) {
+            simContext.errmsg[7] = 8;
+            ISt = 0; pH = 0; rhoTP = 0; H2Oevap = 1;
+            goto exit_label_500;
+        }
+
+        // ---- rescale concentrations
+        for (int c = 0; c < NumCat; c++)
+            mc[c] = mcInit[c] * mass_w_0 / mass_w;
+
+        for (int a = 0; a < NumAn; a++)
+            ma[a] = maInit[a] * mass_w_0 / mass_w;
+
+        Alk = AlkInit * mass_w_0 / mass_w;
+        TH4SiO4 = TH4SiO4Init * mass_w_0 / mass_w;
+        TNH4 = TNH4Init * mass_w_0 / mass_w;
+        TH3BO3 = TH3BO3Init * mass_w_0 / mass_w;
+        TAc = TAcInit * mass_w_0 / mass_w;
+        double mass_wOld = mass_w;
+
+        // ---- mass transfer override
+        if (Run_MassTransfer == 1 && LoopTP > 1)
+        {
+            mc[iCa] = mcMT[iCa] * mass_w_0 / mass_w;
+            mc[iBa] = mcMT[iBa] * mass_w_0 / mass_w;
+            ma[iSO4] = maMT[iSO4] * mass_w_0 / mass_w;
+            Alk = AlkMT * mass_w_0 / mass_w;
+        }
+
+        CalcIonicStrength();
+        if (ISt > 25) {
+            simContext.errmsg[7] = 8;
+            ISt = 0; pH = 0; rhoTP = 0; H2Oevap = 1;
+            goto exit_label_500;
+        }
+
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+        temp_gNeut[0] = gNeut[iCO2aq]; temp_gNeut[1] = gNeut[iH2Saq];
+        MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, z, temp_gNeut,
+            aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
+
+        mass_w = total_moles * beta[2] * compositions[14][3] * 0.01801528;
+        Iteration = 0;
+
+        while ((mass_wOld - mass_w) * (mass_wOld - mass_w) > 0.0001 * mass_w * mass_w)
+        {
+            if (compositions[14][3] < 0.5 || mass_w < 1e-7)
+            {
+                simContext.errmsg[7] = 8; ISt = 0; pH = 0; rhoTP = 0; H2Oevap = 1;
+                goto exit_label_500;
+            }
+
+            for (int c = 0; c < NumCat; c++)
+                mc[c] = mc[c] * mass_wOld / mass_w;
+            for (int a = 0; a < NumAn; a++)
+                ma[a] = ma[a] * mass_wOld / mass_w;
+
+            Alk *= mass_wOld / mass_w;
+            TH4SiO4 *= mass_wOld / mass_w;
+            TNH4 *= TNH4Init * mass_wOld / mass_w;
+            TH3BO3 *= TH3BO3Init * mass_wOld / mass_w;
+            TAc *= TAcInit * mass_wOld / mass_w;
+            mass_wOld = mass_w;
+
+            CalcIonicStrength();
+            C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+            temp_gNeut[0] = gNeut[iCO2aq]; temp_gNeut[1] = gNeut[iH2Saq];
+            MultiPhaseFlash(mf_ParametersWereRead, mf_TCr, mf_PCr, mf_Omega, mf_MWgas, mf_kPr, mf_c0, mf_c1, TK, PBar, total_moles, z, temp_gNeut,
+                aH2O, density, compositions, phi, Compr, beta, zOutput, mass_phase, MW_Phase, &No_Phases);
+
+            mass_w = total_moles * beta[2] * compositions[14][3] * 0.01801528;
+            mass_w = 0.5 * (mass_wOld + mass_w);
+
+            Iteration++;
+            if (Iteration > 10)
+            {
+                simContext.errmsg[7] = 8; ISt = 0; pH = 0; rhoTP = 0; H2Oevap = 1;
+                goto exit_label_500;
+            }
+        }
+
+        // more calculations
+        //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+        C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+        fmn;
+        C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
+        //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
+        C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
+
+        // Bubble point evaluation
+        QPBubblePt = 1;
+        if (No_Phases == 3) QPBubblePt = 0;
+        else if (No_Phases == 2) {
+            if ((beta[0] > 0 && density[0] < 0.3) ||
+                (beta[1] > 0 && density[1] < 0.3))
+                QPBubblePt = 0;
+        }
+
+        if (Run_MassTransfer == 1)
+        {
+            if (QPBubblePt == 1) VgTP_MT = 0;
+            else VgTP_MT = beta[0] * total_moles * Compr[0] * RBar * TK / PBar / 1000.0;
+
+            VO_MT = VO * 159 / 1000.0;
+            VW_MT = VW * 159 / 1000.0;
+        }
+    }
+
+    // ================================
+    //   ShellMultiFlash not used
+    // ================================
+    if (RunShellMultiflash != 1)
+    {
+        // 计算饱和度指数
+        SICal = log10(mc[iCa] * simContext.HCO3 * gCat[iCa] * gNCat[iCa] *
+            gAn[iHCO3] * gNAn[iHCO3] * K2HCO3 / (aH * KspCalcite));
+
+        SIDol = log10(mc[iCa] * mc[iMg] * pow(simContext.CO3, 2) *
+            gCat[iCa] * gCat[iMg] * pow(gAn[iCO3], 2) / KspDol);
+
+        SISid = log10(mc[iFe] * simContext.HCO3 * gCat[iFe] * gAn[iHCO3] * K2HCO3 / (aH * KspSiderite));
+
+        SIBar = log10(mc[iBa] * ma[iSO4] * gCat[iBa] * gAn[iSO4] / KspBarite) + dSIMeOHBar + dSIMEGBar;
+
+        SIGyp = log10(mc[iCa] * ma[iSO4] * gCat[iCa] * gAn[iSO4] * pow(aH2O, 2) *
+            pow(gNMean[iCaSO42H2O], 2) * pow(aNH2O, 2) / KspGypsum);
+
+        SIHemi = log10(mc[iCa] * ma[iSO4] * gCat[iCa] * gAn[iSO4] * pow(aH2O, 0.5) *
+            pow(gNMean[ihemiCaSO4], 2) * pow(aNH2O, 0.5) / KspHemihydrate);
+
+        SIAn = log10(mc[iCa] * ma[iSO4] * gCat[iCa] * gAn[iSO4] * pow(gNMean[iCaSO4], 2) / KspAnhydrite);
+
+        SICel = log10(mc[iSr] * ma[iSO4] * gCat[iSr] * gAn[iSO4] * pow(gNMean[iSrSO4], 2) / KspCelestite);
+
+        SIHal = log10(mc[iNa] * ma[iCl] * gCat[iNa] * gAn[iCl] / KspHalite) + dSIMeOHHal + dSIMEGHal;
+
+        SICaF2 = log10((mc[iCa] * pow(ma[intF], 2) * gCat[iCa] * pow(gAn[intF], 2) / KspCaF2));
+
+        SIBaCO3 = log10(mc[iBa] * simContext.HCO3 * gCat[iBa] * gNCat[iBa] * gAn[iHCO3] * gNAn[iHCO3] * K2HCO3 / (aH * KspBaCO3));
+
+        SISrCO3 = log10(mc[iSr] * simContext.HCO3 * gCat[iSr] * gNCat[iSr] * gAn[iHCO3] * gNAn[iHCO3] * K2HCO3 / (aH * KspSrCO3));
+
+        // If Use_ZnCl2Const = 1 Then 注释掉的条件语句
+        SIZnS = log10(mc[iZn] * simContext.HS * gCat[iZn] * gAn[iHS] * gNAn[iHS] / aH / KspZnS);
+
+        SIPbS = log10(mc[iPb] * simContext.HS * gCat[iPb] * gAn[iHS] * gNAn[iHS] / aH / KspPbS);
+
+        SIZnCO3 = log10(mc[iZn] * simContext.CO3 * gCat[iZn] * gAn[iCO3] / KspZnCO3);
+
+        // added by Dai 2016
+        // 需要先定义 SICal 变量
+        SICal = 0.0; // 假设初始值
+
+        if (xMeOH > 0 && mc[iCa] * simContext.HCO3 > 0)
+        {
+            double temp = mc[iCa] * simContext.HCO3;
+            double logTerm = log10(temp);
+            double denominator = 1.0 + pow(logTerm, 2);
+            SICal = SICal + (10.0432 * logTerm / denominator) * xMeOH;
+            SIHal = SIHal - (0.0696 * exp(xMeOH)) * mc[iCa] * ma[iCl] * xMeOH;
+        }
+
+        if (xMEG > 0 && mc[iCa] * simContext.HCO3 > 0)
+        {
+            double temp = mc[iCa] * simContext.HCO3;
+            double logTerm = log10(temp);
+            double denominator = 1.0 + pow(logTerm, 2);
+            SICal = SICal + (8.4131 * logTerm / denominator) * xMEG;
+        }
+
+        // Silicate SI values. No MeOH/MEG is considered at this time.
+        // Also, all SiO2 is assumed to remain as H4SiO4 and not ionized.
+        SIAmSilica = log10(H4SiO4 * gNeut[iH4SiO4aq] / KspAmSilica);
+        SIQuartz = log10(H4SiO4 * gNeut[iH4SiO4aq] / KspQuartz);
+
+        SIDiopside = log10((mc[iCa] * mc[iMg] * pow(H4SiO4, 2) * gCat[iCa] *
+            gCat[iMg] * pow(gNeut[iH4SiO4aq], 2) / pow(aH, 4)) / KspDiopside);
+
+        SIChrysotile = log10((pow(mc[iMg], 3) * pow(H4SiO4, 2) *
+            pow(gCat[iMg], 3) * pow(gNeut[iH4SiO4aq], 2) / pow(aH, 6)) / KspChrysotile);
+
+        SIGreenalite = log10((pow(mc[iFe], 3) * pow(H4SiO4, 2) *
+            pow(gCat[iFe], 3) * pow(gNeut[iH4SiO4aq], 2) / pow(aH, 6)) / KspGreenalite);
+
+        OH = KH2O / (pow(10, -pH) * gAn[iOH]);
+
+        SIMgOH2 = log10((mc[iMg] * gCat[iMg] * pow(OH * gAn[iOH], 2)) / KspMgOH2);
+        SICaOH2 = log10((mc[iCa] * gCat[iCa] * pow(OH * gAn[iOH], 2)) / KspCaOH2);
+
+        rhoTP = CalcRhoTP(TK, TC, PBar, Patm);
+    }
+
+exit_label_500:
+    return;
+}
+
+
+
+double fbInhBar(int InhNo, double SI)
+{
+    return bi[InhNo - 1][0]
+        + bi[InhNo - 1][1] * SI
+        + bi[InhNo - 1][2] / TK
+        + bi[InhNo - 1][3] * log10(1.0 / aH)
+        + bi[InhNo - 1][4] * fabs(log10(mc[iBa] / ma[iSO4]));
+}
+
+
+double flogT0Bar(double SI)
+{
+    double value;
+
+    value = -3.153194285
+        + (-0.92635504 / SI)
+        + (716.694987 / TK)
+        + (1879.905802 / (SI * TK))
+        + 0.189075542 * fabs(log10(mc[iBa] / ma[iSO4]));   // Zhaoyi Dai 2020
+
+    // Amy 2013 correction for MeOH
+    if (xMeOH > 0.0)
+        value += 1.1136 * SI * (1.0 - 1.2976 * xMeOH) * xMeOH;
+
+    // Amy 2013 correction for MEG
+    if (xMEG > 0.0)
+        value += 4.8464 * xMEG;
+
+    return value;
+}
+
+
+double fbInhCal(int InhNo, double SI)
+{
+    return
+        ci[InhNo - 1][0]                         // ci(InhNo,1)
+        + ci[InhNo - 1][1] * SI                  // ci(InhNo,2) * SI
+        + ci[InhNo - 1][2] / TK                  // ci(InhNo,3) / TK
+        + ci[InhNo - 1][3] * log10(1.0 / aH)     // ci(InhNo,4) * Log10(1/aH)
+        + ci[InhNo - 1][4]                       // ci(InhNo,5)
+        * fabs(log10(mc[iCa] / simContext.HCO3));     // Abs(Log10(mc(iCa)/HCO3))
+}
+
+
+double fCinhCal(double SI, double tInh)
+{
+    double bInhCalMixed;
+
+    if (InhNoCal == 20)
+    {
+        // 注意：所有 VB 下标均需 -1
+        bInhCal[simContext.InhNo1 - 1] = pow(10.0, fbInhCal(simContext.InhNo1, SI));
+        bInhCal[simContext.InhNo2 - 1] = pow(10.0, fbInhCal(simContext.InhNo2, SI));
+
+        bInhCalMixed = simContext.FracInhNo1 * bInhCal[simContext.InhNo1 - 1]
+            + (1.0 - simContext.FracInhNo1) * bInhCal[simContext.InhNo2 - 1];
+
+        return (1.0 / bInhCalMixed)
+            * log10(fSafetyCal * tInh / t0Cal);
+    }
+    else
+    {
+        bInhCal[InhNoCal - 1] = pow(10.0, fbInhCal(InhNoCal, SI));
+
+        return (1.0 / bInhCal[InhNoCal - 1])
+            * log10(fSafetyCal * tInh / t0Cal);
+    }
+}
+
+double fCinhBar(double SI, double tInh)
+{
+    double bInhBarMixed;
+
+    if (InhNoBar == 20)
+    {
+        bInhBar[simContext.InhNo1 - 1] = pow(10.0, fbInhBar(simContext.InhNo1, SI));
+
+        bInhBar[simContext.InhNo2 - 1] = pow(10.0, fbInhBar(simContext.InhNo2, SI));
+
+        bInhBarMixed =
+            simContext.FracInhNo1 * bInhBar[simContext.InhNo1 - 1] +
+            (1.0 - simContext.FracInhNo1) * bInhBar[simContext.InhNo2 - 1];
+
+        return (1.0 / bInhBarMixed) * log10(fSafetyBar * tInh / t0Bar);
+    }
+    else
+    {
+        bInhBar[InhNoBar - 1] = pow(10.0, fbInhBar(InhNoBar, SI));
+
+        return (1.0 / bInhBar[InhNoBar - 1]) * log10(fSafetyBar * tInh / t0Bar);
+    }
+}
+
+double flogT0Cal(double SI)
+{
+    return
+        -5.36
+        + 1.5 / SI
+        + 1779.17 / TK
+        + 0.95 * fabs(log10(mc[iCa] / ma[iHCO3]));
+}
+
+
+double flogT0Gyp(double SI)
+{
+    return (-6.2971 - 0.2212 / SI + 2171.2067 / (TK * pow(SI, 0.2852)) + 1.715 / (1.0 + sqrt(ISt)));//ISt ^ 0.5
+}
+
+
+double fbInhGyp(int InhNo, double SI)
+{
+    return gi[InhNo - 1][0] + gi[InhNo - 1][2] / (TK * SI) + gi[InhNo - 1][3] *
+        log10(1.0 / aH) + gi[InhNo - 1][4] * abs(log10(mc[iCa] / ma[iSO4]));
+}
+
+double fCinhGyp(double SI, double tInh)
+{
+
+    bInhGyp[InhNoGyp - 1] = pow(10.0, fbInhGyp(InhNoGyp, SI));
+
+    return (1.0 / bInhGyp[InhNoGyp - 1]) *
+        log10(fSafetyGyp * tInh / t0Gyp);
+}
+
+
+double flogT0An(double SI)
+{
+    return (2.15 - 2.83 / SI - 885.8 / TK + 1766.3 / (SI * TK));
+}
+
+
+double fbInhAn(int InhNo, double SI)
+{
+    return ai[InhNo - 1][0] + ai[InhNo - 1][1] * SI + ai[InhNo - 1][2] / TK + ai[InhNo - 1][3]
+        * log10(1.0 / aH) + ai[InhNo - 1][4] * abs(log10(mc[iCa] / ma[iSO4]));
+}
+
+
+double fCinhAn(double SI, double tInh)
+{
+    bInhAn[InhNoAn - 1] = pow(10, fbInhAn(InhNoAn, SI));
+    return (1 / bInhAn[InhNoAn - 1]) * log10(fsafetyAn * tInh / t0An);
+}
+
+
+double flogT0Cel(double SI)
+{
+    return  -1.713 - 3.411 / SI + 2646.1 / (SI * TK);
+}
+
+
+double fbInhCel(double InhNo, double SI)
+{
+    return celi[InhNo - 1][0] + celi[InhNo - 1][1] * SI + celi[InhNo - 1][2] / TK;
+}
+
+
+double fCinhCel(double SI, double tInh)
+{
+    bInhCel[InhNoCel - 1] = pow(10, fbInhCel(InhNoCel, SI));
+    return (1.0 / bInhCel[InhNoCel - 1]) * log10(fSafetyCel * tInh / t0Cel);
+}
+
+
+
+void B6_InhibitorNeeded()
+{
+    /* ---------- Barite ---------- */
+    fSafetyBar = 1.0;
+    ConcInhBar = 0.0;
+
+    if (mc[iBa] * ma[iSO4] > 0.0)
+    {
+        if (LoopTP == 1 || simContext.RunWhatIf == 1 || simContext.Run1000Cases == 1 || simContext.LoopResChem == 1)
+        {
+            InhNoBar = simContext.InhNo;
+
+            if (simContext.SelectInh == 1)
+            {
+                //此处C语言未作下标偏移，因为涉及到InhNoBar等
+                //因此，对于数组[i]，要进行数组[i - 1], 传入i时不能-1，因为在fbInhBar里会做偏移
+                int iMaxBar = 1;
+                double bInhBarMax = fbInhBar(iMaxBar, SIBar);
+
+                for (int i = 1; i <= 19; i++)
+                {
+                    bInhBar[i - 1] = fbInhBar(i, SIBar);
+                    if (bInhBar[i - 1] > bInhBarMax)
+                    {
+                        iMaxBar = i;
+                        bInhBarMax = bInhBar[i - 1];
+                    }
+                }
+                InhNoBar = iMaxBar;
+            }
+
+            if (simContext.SelectInh == 1)
+                InhNoBar = 2;   /* VB: always choose BHPMP */
+
+            /* Excel writes → remove → optional store */
+            /*
+            Worksheets("Barite").Cells(2, 6) = InhName(InhNoBar)
+            Worksheets("Input").Cells(49, 10) = InhName(InhNoBar)
+            */
+        }
+
+        if (SIBar > 0.001)
+        {
+            double BarExpon10 = flogT0Bar(SIBar);
+
+            if (log10(tInh) > BarExpon10 && BarExpon10 < 8.0)
+            {
+                t0Bar = pow(10.0, BarExpon10);
+                ConcInhBar = fCinhBar(SIBar, tInh);
+            }
+        }
+    }
+
+
+    /* ---------- Calcite ---------- */
+    fSafetyCal = 1.0;
+    ConcInhCal = 0.0;
+    ConcInhGyp;
+
+    if (mc[iCa] * simContext.HCO3 > 0.0)
+    {
+        if (LoopTP == 1 || simContext.RunWhatIf == 1 || simContext.Run1000Cases == 1 || simContext.LoopResChem == 1)
+        {
+            InhNoCal = simContext.InhNo;
+
+            if (simContext.SelectInh == 1)
+            {
+                int iMaxCal = 1;
+                double bInhCalMax = fbInhCal(iMaxCal, SICal);
+
+                for (int i = 1; i <= 19; i++)
+                {
+                    bInhCal[i - 1] = fbInhCal(i, SICal);
+                    if (bInhCal[i - 1] > bInhCalMax)
+                    {
+                        iMaxCal = i;
+                        bInhCalMax = bInhCal[i - 1];
+                    }
+                }
+                InhNoCal = iMaxCal;
+            }
+
+            if (simContext.SelectInh == 1)
+                InhNoCal = 1;
+            /*
+            Worksheets("Calcite").Cells(2, 7) = InhName(InhNoCal)
+            Worksheets("Input").Cells(47, 10) = InhName(InhNoCal)
+            */
+
+        }
+
+        if (SICal > 0.001)
+        {
+            double CalExpon10 = flogT0Cal(SICal);
+
+            if (log10(tInh) > CalExpon10 && CalExpon10 < 8.0)
+            {
+                double t0Cal = pow(10.0, CalExpon10);
+                ConcInhCal = fCinhCal(SICal, tInh);
+            }
+        }
+    }
+
+
+    /* ---------- Gypsum ---------- */
+    fSafetyGyp = 1.0;
+    ConcInhGyp = 0.0;
+
+    if (mc[iCa] * ma[iSO4] > 0.0)
+    {
+        InhNoGyp = 4;
+
+        //Worksheets("Input").Cells(51, 10) = InhName(InhNoGyp) 
+
+        if (SIGyp > 0.1)
+        {
+            double GypExpon10 = flogT0Gyp(SIGyp);
+
+            if (log10(tInh) > GypExpon10 && GypExpon10 < 8.0)
+            {
+                if (TK < 373.0)
+                {
+                    t0Gyp = pow(10.0, GypExpon10);
+                    ConcInhGyp = fCinhGyp(SIGyp, tInh);
+                }
+                else
+                {
+                    ConcInhGyp = 0;  /* VB Null */
+                }
+            }
+        }
+    }
+
+    /* ---------- Anhydrite ---------- */
+    fsafetyAn = 1.0;
+    ConcInhAn = 0.0;
+
+    if (mc[iCa] * ma[iSO4] > 0.0)
+    {
+        InhNoAn = 4;
+        // Worksheets("Input").Cells(53, 10) = InhName(InhNoAn)
+
+        if (SIAn > 0.1)
+        {
+            double AnExpon10 = flogT0An(SIAn);
+
+            if (log10(tInh) > AnExpon10 && AnExpon10 < 8.0)
+            {
+                if (TK > 373.0)
+                {
+                    t0An = pow(10.0, AnExpon10);
+                    ConcInhAn = fCinhAn(SIAn, tInh);
+                }
+                else
+                    ConcInhAn = 0;
+            }
+        }
+    }
+
+    /* ---------- Celestite (SrSO4) ---------- */
+    fSafetyCel = 1.0;
+    ConcInhCel = 0.0;
+
+    if (mc[iSr] * ma[iSO4] > 0.0)
+    {
+        if (simContext.InhNo <= 11)
+            InhNoCel = 3;      /* phosphonate → DTPMP */
+        else if (simContext.InhNo <= 14)
+            InhNoCel = 12;     /* carboxylates → PPCA */
+        else
+            InhNoCel = 17;     /* others → PVS */
+
+        if (simContext.SelectInh == 1)
+            InhNoCel = 3;      /* always choose DTPMP */
+
+        //Worksheets("Input").Cells(55, 10) = InhName(InhNoCel)
+
+        if (SICel > 0.001)
+        {
+            double CelExpon10 = flogT0Cel(SICel);
+
+            if (log10(tInh) > CelExpon10 && CelExpon10 < 8.0)
+            {
+                t0Cel = pow(10.0, CelExpon10);
+                ConcInhCel = fCinhCel(SICel, tInh);
+            }
+        }
+    }
+}
+
+
+void B7_ScaleRisk()
+{
+    // Barite MIC=0: Barite index=1, calcite index=2
+    if (mc[iBa] > 1e-7 && ma[iSO4] > 1e-7)
+    {
+        double BarExpon10 = log10(tInh);
+
+        double a = -1.1136 * (xMeOH - 1.2976 * pow(xMeOH, 2)) * TK;
+        double b = 716.694987 + (BarExpon10 - -3.153194285
+            - 0 * mc[iCa]
+            - 0.189075542 * fabs(log10(mc[iBa] / ma[iSO4]))
+            - 4.8404 * xMEG) * TK;
+        double cc = (-0.92635504 * TK - 1879.905802);
+
+        if (xMeOH == 0)
+        {
+            SIRisk[InhNoBar][LoopTP][1][1] = -cc / b;
+        }
+        else
+        {
+            double qroot = -0.5 * (b - sqrt(b * b - 4 * a * cc));
+            double root1 = cc / qroot;
+            qroot = -0.5 * (b + sqrt(b * b - 4 * a * cc));
+            double root2 = cc / qroot;
+
+            SIRisk[InhNoBar][LoopTP][1][1] = root2;
+        }
+
+        if (SIRisk[InhNoBar][LoopTP][1][1] < 0)
+            SIRisk[InhNoBar][LoopTP][1][1] = 0;
+
+        double tInhRisk = tInh;
+
+        for (int iRisk = 1; iRisk <= simContext.NoRiskcalc - 1; iRisk++)
+        {
+            double SIRiskLow = SIRisk[InhNoBar][LoopTP][iRisk][1];
+            double SIRiskHigh = 5.0;
+            double SIBarRisk = 0;
+
+            for (int k = 1; k <= 10; k++)
+            {
+                SIBarRisk = (SIRiskLow + SIRiskHigh) / 2.0;
+                double t0Bar = pow(10, flogT0Bar(SIBarRisk));
+
+                if (t0Bar == 0) {
+                    SIBarRisk = 0.0;
+                    break;
+                }
+
+                double Dep1 = fCinhBar(SIBarRisk, tInhRisk) - simContext.ConcInhBarRisk[iRisk];
+
+                if (Dep1 > 0)
+                    SIRiskHigh = SIBarRisk;
+                else
+                    SIRiskLow = SIBarRisk;
+            }
+
+            SIRisk[InhNoBar][LoopTP][iRisk + 1][1] = SIBarRisk;
+            if (SIRisk[InhNoBar][LoopTP][iRisk + 1][1] < 0)
+                SIRisk[InhNoBar][LoopTP][iRisk + 1][1] = 0;
+        }
+    }
+
+    // Calcite MIC = 0
+    if (mc[iCa] > 1e-7 && simContext.HCO3 > 1e-7)
+    {
+        double CalExpon10 = log10(tInh);
+        double b = 1876.4 + (CalExpon10 - 4.22) * TK;
+        double cc = (13.8 * TK - 6259.6);
+
+        double root2 = -cc / b;
+        SIRisk[InhNoCal][LoopTP][1][2] = root2;
+
+        if (SIRisk[InhNoCal][LoopTP][1][2] < 0)
+            SIRisk[InhNoCal][LoopTP][1][2] = 0;
+
+        double tInhRisk = tInh;
+
+        for (int iRisk = 1; iRisk <= simContext.NoRiskcalc - 1; iRisk++)
+        {
+            double SIRiskLow = SIRisk[InhNoCal][LoopTP][iRisk][2];
+            double SIRiskHigh = 5.0;
+            double SICalRisk = 0;
+
+            for (int k = 1; k <= 10; k++)
+            {
+                SICalRisk = (SIRiskLow + SIRiskHigh) / 2.0;
+                double t0Cal = pow(10, flogT0Cal(SICalRisk));
+
+                if (t0Cal == 0) {
+                    SICalRisk = 0.0;
+                    break;
+                }
+
+                double Dep1 = fCinhCal(SICalRisk, tInhRisk) - simContext.ConcInhCalRisk[iRisk];
+                if (Dep1 > 0)
+                    SIRiskHigh = SICalRisk;
+                else
+                    SIRiskLow = SICalRisk;
+            }
+
+            if (InhNoCal < 6 || InhNoCal > 9)
+            {
+                SIRisk[InhNoCal][LoopTP][iRisk + 1][2] = SICalRisk;
+                if (SIRisk[InhNoCal][LoopTP][iRisk + 1][2] < 0)
+                    SIRisk[InhNoCal][LoopTP][iRisk + 1][2] = 0;
+            }
+
+            if (InhNoCal == 14)
+            {
+                if (simContext.InhNo1 > 5 && simContext.InhNo1 < 10)
+                    SIRisk[InhNoCal][LoopTP][iRisk + 1][2] = NAN;
+
+                if (simContext.InhNo2 > 5 && simContext.InhNo2 < 10)
+                    SIRisk[InhNoCal][LoopTP][iRisk + 1][2] = NAN;
+            }
+        }
+    }
+
+    // Anhydrite MIC = 0
+    if (mc[iCa] > 1e-5 && ma[iSO4] > 1e-4)
+    {
+        if (TK > 373)
+        {
+            double AnExpon10 = log10(tInh);
+            double b = 885.8 + (AnExpon10 - 2.15) * TK;
+            double cc = 2.83 * TK - 1766.3;
+
+            double root2 = -cc / b;
+
+            SIRisk[InhNoAn][LoopTP][1][3] = root2;
+            if (root2 < 0)
+                SIRisk[InhNoAn][LoopTP][1][3] = 0;
+
+            double tInhRisk = tInh;
+
+            for (int iRisk = 1; iRisk <= simContext.NoRiskcalc - 1; iRisk++)
+            {
+                double SIRiskLow = SIRisk[InhNoAn][LoopTP][iRisk][3];
+                double SIRiskHigh = 5.0;
+                double SIAnRisk = 0;
+
+                for (int k = 1; k <= 10; k++)
+                {
+                    SIAnRisk = (SIRiskLow + SIRiskHigh) / 2;
+                    double t0An = pow(10, flogT0An(SIAnRisk));
+
+                    if (t0An == 0)
+                    {
+                        SIAnRisk = 0.0;
+                        break;
+                    }
+
+                    double Dep1 = fCinhAn(SIAnRisk, tInhRisk) - simContext.ConcInhAnRisk[iRisk];
+                    if (Dep1 > 0)
+                        SIRiskHigh = SIAnRisk;
+                    else
+                        SIRiskLow = SIAnRisk;
+                }
+
+                SIRisk[InhNoAn][LoopTP][iRisk + 1][3] = SIAnRisk;
+                if (SIRisk[InhNoAn][LoopTP][iRisk + 1][3] < 0)
+                    SIRisk[InhNoAn][LoopTP][iRisk + 1][3] = 0;
+            }
+        }
+    }
+}
+
+
+void LoopTPSI(double& API)
+{
+    B5_CalculateSIvalues(API);
+    pH_before_precipitation = pH;  // 保存沉淀前 pH，用于 SqSoft
+
+    if (H2Oevap != 1)
+        B6_InhibitorNeeded();   // 计算抑制剂量
+
+    // Calcite: 保存 LoopTP = 1 时的基准 SI
+    if (LoopTP == 1)
+    {
+        SICalBh = SICal;
+        SIBarBH = SIBar;
+        SIGypBH = SIGyp;
+        SIHemiBH = SIHemi;
+        SIAnBH = SIAn;
+        SICelBH = SICel;
+        SIHalBH = SIHal;
+        SICaF2BH = SICaF2;
+        SISidBH = SISid;
+        SIFeSBH = SIFeS;
+        SIZnSBH = SIZnS;
+        SIBaCO3BH = SIBaCO3;
+        SISrCO3BH = SISrCO3;
+    }
+
+    // ---- SqueezeSoftPitzer 需要的输出 ----
+    double TCO2BH, pHBH;
+    double BHConcInhCal, BHConcInhBar, WHConcInhCal, WHConcInhBar, SICalWH, SIBarWH;
+    if (RunGoalSeek != 1)
+    {
+        if (LoopTP == 1)
+        {
+            TCO2BH = simContext.HCO3 + simContext.CO3 + simContext.CO2aq;
+            pHBH = pH_before_precipitation;
+            BHConcInhCal = ConcInhCal;
+            BHConcInhBar = ConcInhBar;
+        }
+        if (LoopTP == 10)
+        {
+            WHConcInhCal = ConcInhCal;
+            WHConcInhBar = ConcInhBar;
+            SICalWH = SICal;
+            SIBarWH = SIBar;
+        }
+    }
+    else { // RunGoalSeek == 1
+        if (LoopTP == 1) {
+            TCO2BH = simContext.HCO3 + simContext.CO3 + simContext.CO2aq;
+            pHBH = pH_before_precipitation;
+            BHConcInhCal = ConcInhCal;
+            BHConcInhBar = ConcInhBar;
+        }
+        if (LoopTP == 2) {
+            WHConcInhCal = ConcInhCal;
+            WHConcInhBar = ConcInhBar;
+            SICalWH = SICal;
+            SIBarWH = SIBar;
+        }
+    }
+
+    // ----- 计算 ΔSI -----
+    double dSIGyp, dSIHemi, dSIAn, dSICel, dSICaF2;
+
+    if (RunGoalSeek != 1)
+    {
+        dSICal = SICal - SICalBh;
+        dSIBar = SIBar - SIBarBH;
+        dSIGyp = SIGyp - SIGypBH;
+        dSIHemi = SIHemi - SIHemiBH;
+        dSIAn = SIAn - SIAnBH;
+        dSICel = SICel - SICelBH;
+        dSIHal = SIHal - SIHalBH;
+        dSICaF2 = SICaF2 - SICaF2BH;
+        dSISid = SISid - SISidBH;
+        dSIFeS = SIFeS - SIFeSBH;
+
+        if (RunSSP == 1 && H2Oevap != 1)
+        {
+            B7_ScaleRisk();   // Compute risk
+        }
+    }
+
+    // ----- 全部沉淀量清零 -----
+
+    pptCal = pptBar = pptSid = pptGyp = pptHemi = pptAn = pptCel = pptHal = 0;
+    pptFeS = pptZnS = pptZnCO3 = pptPbS = pptCaF2 = 0;
+    pptMgOH2 = pptCaOH2 = pptFeSAm = pptTrot = 0;
+    pptAmSilica = pptQuartz = pptGreenalite = pptDiopside = pptChrysotile = 0;
+
+    pptFeCO3_NoMassTransfer = pptFeCO3_MassTransfer = 0;
+    pptCalcite_MassTransfer = pptCalcite_NoMassTransfer = 0;
+    pptBarite_MassTransfer = pptBarite_NoMassTransfer = 0;
+    pptCelestite_MassTransfer = pptCelestite_NoMassTransfer = 0;
+    pptFeS_MassTransfer = pptFeS_NoMassTransfer = 0;
+}
+
+double ViscWatIst, CpPerMl;
+
+void LoopTPVisHeatCap() {
+    // Density calculation
+    double dens0 = 999.83952;
+    a1 = 16.945176; double a2 = -0.0079870401, a3 = -0.000046170461;
+    double a4 = 0.00000010556302, a5 = -2.8054253e-10, a6 = 0.01687985;
+    double a7 = 0.043922, a8 = -0.000076, a9 = 0.000000126, a10 = 0.00000000319;
+
+    double dens1atm = (dens0 + a1 * TC + a2 * pow(TC, 2) + a3 * pow(TC, 3) +
+        a4 * pow(TC, 4) + a5 * pow(TC, 5)) / (1 + a6 * TC);
+    dens = dens1atm + (a7 + a8 * TC + a9 * pow(TC, 2) + a10 * pow(TC, 3)) * (Patm - 1);
+
+    // Salt fraction
+    double WtFrSalt = ISt / (ISt + 20.0);
+    double SumM = 31.83 * WtFrSalt / (1 - WtFrSalt);
+
+    a1 = 0.0046581; a2 = 0.00014712; a3 = -0.0000017413; a4 = 0.0000000044668;
+    a5 = 0.0026539; a6 = -0.000073598; a7 = 0.0000009171; a8 = -0.0000000027177;
+
+    double Den0overDenIst = (1 - WtFrSalt) * (1 + 0.001 * dens1atm * SumM * (
+        (a1 + a2 * TC + a3 * pow(TC, 2) + a4 * pow(TC, 3)) +
+        (a5 + a6 * TC + a7 * pow(TC, 2) + a8 * pow(TC, 3)) * sqrt(ISt)
+        ));
+    double DenIst = 0.001 * dens / Den0overDenIst;
+
+    // Kinematic viscosity of pure water
+    double ViscWatKinam0 = pow(10, -1.464 + 205.4 / (TK - 153.0));
+    if (TC > 150) {
+        ViscWatKinam0 = pow(10, -1.416 + 175.2 / (TK - 177.2));
+    }
+
+    // Relative viscosity calculation
+    a1 = 0.18788; a2 = -0.0037532; a3 = 0.0019142; a4 = -0.007951;
+    a5 = -0.69447; a6 = 0.013646; a7 = -0.001413; a8 = -0.0054073;
+
+    double RelativeKinViscWater = pow(10, (a1 * ISt + a2 * pow(ISt, 2) + a3 * pow(ISt, 3) + a4 * ISt * TC) +
+        (a5 * ISt + a6 * pow(ISt, 2) + a7 * pow(ISt, 3) + a8 * ISt * TC) * log10(ViscWatKinam0));
+    double ViscWatKinamIst = RelativeKinViscWater * ViscWatKinam0;
+    ViscWatIst = ViscWatKinamIst * DenIst * exp(0.0000567 * Ppsia); // dynamic viscosity in cP
+
+    // Heat capacity calculation
+    double RCp = 8.314;
+
+    // Polynomial coefficients for Cp
+    double Cp01 = (1.42910599e-12 * pow(TK, 6) - 3.0405349e-9 * pow(TK, 5) + 2.68432001e-6 * pow(TK, 4) -
+        0.00125862425 * pow(TK, 3) + 0.330571467 * pow(TK, 2) - 46.1155258 * TK + 2678.82979) * RCp;
+    double Cp02 = (-4.75805453e-11 * pow(TK, 6) + 1.0269399e-7 * pow(TK, 5) - 9.21125253e-5 * pow(TK, 4) +
+        0.043953835 * pow(TK, 3) - 11.7702434 * pow(TK, 2) + 1677.55304 * TK - 99455.8841) * RCp;
+    double aj = (-7.62506036e-13 * pow(TK, 6) + 1.70111051e-9 * pow(TK, 5) - 1.56757109e-6 * pow(TK, 4) +
+        0.000765652877 * pow(TK, 3) - 0.209217557 * pow(TK, 2) + 30.360998 * TK - 1827.83946) * RCp;
+    double b0Cp = (-6.43096664e-11 * pow(TK, 6) + 1.3960701e-7 * pow(TK, 5) - 0.000125978879 * pow(TK, 4) +
+        0.0604944374 * pow(TK, 3) - 16.3067026 * pow(TK, 2) + 2340.14685 * TK - 139737.502) * 1e-6;
+    double b1Cp = (-1.723664970418e-10 * pow(TK, 6) + 3.741076393426e-7 * pow(TK, 5) - 0.0003375079792185 * pow(TK, 4) +
+        0.1620205208996 * pow(TK, 3) - 43.65554038758 * pow(TK, 2) + 6261.081592614 * TK - 373498.3550791) * 1e-6;
+    double cj = (6.65778657e-12 * pow(TK, 6) - 1.44552177e-8 * pow(TK, 5) + 1.30444127e-5 * pow(TK, 4) -
+        0.00626293561 * pow(TK, 3) + 1.68757513 * pow(TK, 2) - 242.00911 * TK + 14433.8114) * 1e-6;
+
+    // Pressure adjustment
+    double Cp01400 = (1.1151399759e-12 * pow(TK, 6) - 2.3524142054e-9 * pow(TK, 5) + 2.0567964964e-6 * pow(TK, 4) -
+        0.00095381633879 * pow(TK, 3) + 0.24738105724 * pow(TK, 2) - 34.015476356 * TK + 1945.6172051) * RCp;
+    double Cp02400 = (-3.2956183298e-11 * pow(TK, 6) + 7.0838438096e-8 * pow(TK, 5) - 6.3240160287e-5 * pow(TK, 4) +
+        0.030014769748 * pow(TK, 3) - 7.9888685643 * pow(TK, 2) + 1130.8904696 * TK - 66540.444671) * RCp;
+    double AJ400 = (-3.368047257e-12 * pow(TK, 6) + 7.1124201481e-9 * pow(TK, 5) - 6.2311623578e-6 * pow(TK, 4) +
+        0.0028997187171 * pow(TK, 3) - 0.75599605111 * pow(TK, 2) + 104.72624175 * TK - 6022.1138681) * RCp;
+    double b0400 = (-3.1301714299e-11 * pow(TK, 6) + 6.792050067e-8 * pow(TK, 5) - 6.1270715171e-5 * pow(TK, 4) +
+        0.029417824308 * pow(TK, 3) - 7.9306534931 * pow(TK, 2) + 1138.6367071 * TK - 68057.583888) * 1e-6;
+    double b1400 = (-1.7188829774e-10 * pow(TK, 6) + 3.7305662383e-7 * pow(TK, 5) - 0.00033655325035 * pow(TK, 4) +
+        0.16156170942 * pow(TK, 3) - 43.532509995 * pow(TK, 2) + 6243.6263496 * TK - 372474.54806) * 1e-6;
+    double CJ400 = (4.3505452423e-12 * pow(TK, 6) - 9.431670242e-9 * pow(TK, 5) + 8.5005436339e-6 * pow(TK, 4) -
+        0.004077397537 * pow(TK, 3) + 1.097972865 * pow(TK, 2) - 157.41127409 * TK + 9388.9944053) * 1e-6;
+
+    // Linear pressure interpolation
+    double Cp01PT = Cp01 - (Cp01 - Cp01400) * (Patm - 1) / (400 - 1);
+    double Cp02PT = Cp02 - (Cp02 - Cp02400) * (Patm - 1) / (400 - 1);
+    double AJPT = aj - (aj - AJ400) * (Patm - 1) / (400 - 1);
+    double b0PT = b0Cp - (b0Cp - b0400) * (Patm - 1) / (400 - 1);
+    double b1PT = b1Cp - (b1Cp - b1400) * (Patm - 1) / (400 - 1);
+    double CJPT = cj - (cj - CJ400) * (Patm - 1) / (400 - 1);
+
+    double bCp = 1.2;
+    double neu = 2;
+    double hISt = log(1 + bCp * sqrt(ISt)) / (2 * bCp);
+    double alphaCp = 2;
+    double zM = 1;
+    double zX = -1;
+    double BJNaCl = b0PT + 2 * b1PT * (1 - (1 + alphaCp * sqrt(ISt)) * exp(-alphaCp * sqrt(ISt))) / (alphaCp * alphaCp * ISt);
+
+    double n1Water = 1000.0 / 18.0153;
+    double CpPhi = Cp02PT + neu * fabs(zM * zX) * AJPT * hISt - 2 * 1 * 1 * RCp * TK * TK * (ISt * BJNaCl + ISt * ISt * 1 * 1 * CJPT);
+    double Cp0 = Cp01PT * 55.508;
+    double CpCp = n1Water * Cp01PT + ISt * CpPhi;
+    double massCp = 1000 + ISt * 58.45;
+    double SaltMass = ISt * 58.45;
+    double VtotalCp = (1000 + SaltMass) / simContext.rho25c;
+    double CpPerGram = CpCp / massCp;
+    CpPerMl = (CpCp / VtotalCp) * 0.239; // cal/(ml*C)
+}
+
+
+int i_Inhibitor_MT;
+double c_Inhibitor_MT;
+double Time_lsl_burst;
+int Use_lsl_stability;
+double PipeRough;
+double ReNO = 0.0;
+double Hold_l;
+
+
+void MassTransferCoefficients(double& API)
+{
+    /*
+    Note:this function has  a major problem: the variable `n` is used in the variables <thick_lsl> and
+    shear_lsl>. However, n is used in loops in many places.
+    */
+    int n = 9;
+
+    // Convert cm to m
+    double PipeID_m = PipeID / 100.0;
+    double PipeL_m = PipeL / 100.0;
+
+    // Superficial velocities
+    VgTP_MT = fmax(0.000001, VgTP_MT);
+    double V_s_g = VgTP_MT / 86400.0 / (pi * pow(PipeID_m / 2.0, 2));
+    double V_s_l = (VO_MT + VW_MT) / 86400.0 / (pi * pow(PipeID_m / 2.0, 2));
+    double V_s_m = V_s_g + V_s_l;
+
+    // Reduced gas properties
+    double P_reduced_g = Ppsia / (708.75 - 57.7 * SGG);
+    double T_reduced_g = (TF + 460.0) / (169.0 + 314.0 * SGG);
+
+    // Ratio_gas_visc coefficients
+    a1 = -2.462; double  a2 = 2.97, a3 = -0.2862, a4 = 0.008054, a5 = 2.808, a6 = -3.498;
+    double a7 = 0.3603, a8 = -0.01044, a9 = -0.7933, a10 = 1.396, a11 = -0.1491, a12 = 0.00441;
+    double a13 = 0.08393, a14 = -0.1864, a15 = 0.02033, a16 = -0.0006095;
+
+    double Ratio_gas_visc = a1 + a2 * P_reduced_g + a3 * pow(P_reduced_g, 2) + a4 * pow(P_reduced_g, 3)
+        + T_reduced_g * (a5 + a6 * P_reduced_g + a7 * pow(P_reduced_g, 2) + a8 * pow(P_reduced_g, 3))
+        + pow(T_reduced_g, 2) * (a9 + a10 * P_reduced_g + a11 * pow(P_reduced_g, 2) + a12 * pow(P_reduced_g, 3))
+        + pow(T_reduced_g, 3) * (a13 + a14 * P_reduced_g + a15 * pow(P_reduced_g, 2) + a16 * pow(P_reduced_g, 3));
+
+    double Visc_g = ((1.709 / 100000.0 - 2.062 / 1000000.0 * SGG) * TF + 8.188 / 1000.0 - 6.15 / 1000.0 * log10(SGG))
+        / T_reduced_g * exp(Ratio_gas_visc);
+
+    // Liquid properties
+    double SGO = 141.5 / (131.5 + API);
+    double SGL = (VO_MT * SGO + VW_MT * rhoTP * 1000.0 / dens) / (VO_MT + VW_MT);
+
+    double rho_gas_MT = SGG * (Patm * 28.97 / (0.08206 * TK));
+    double rho_liquid_MT = SGL * dens;
+
+    // Surface tension
+    double surf_tension_og = (39.0 - 0.2571 * API - (TF - 68.0) * 1.5 / 32.0) / 1000.0;
+    double surf_tension_wg = -0.11538 * pow(1 - TK / 647.096, 2.471) + 0.2151 * pow(1 - TK / 647.096, 1.233);
+    double surf_tension_lg = (VO_MT * surf_tension_og + VW_MT * surf_tension_wg) / (VO_MT + VW_MT);
+
+    // Dimensionless numbers
+    double N_v_l = V_s_l * pow(rho_liquid_MT / surf_tension_lg / 9.8, 0.25);
+    double N_v_g = V_s_g * pow(rho_liquid_MT / surf_tension_lg / 9.8, 0.25);
+    double N_dia = PipeID_m * sqrt(rho_liquid_MT * 9.8 / surf_tension_lg);
+    double N_visc_l = ViscWatIst / 1000.0 * pow(9.8 / pow(surf_tension_lg, 3) / rho_liquid_MT, 0.25);
+
+    // Liquid hold up
+    double X_1 = log10(N_visc_l + 3.0);
+    double CN_l = pow(10, -2.69851 + 0.15841 * X_1 - 0.551 * pow(X_1, 2) + 0.54785 * pow(X_1, 3) - 0.12195 * pow(X_1, 4));
+    double X_2 = N_v_l * CN_l / (pow(N_v_g, 0.575) * N_dia) * pow(PBar / 1.01325, 0.1);
+    double X_3 = N_v_g * pow(N_visc_l, 0.38) / pow(N_dia, 2.14);
+    double a_sign = (X_3 - 0.012) / fabs(X_3 - 0.012);
+    X_3 = (1 - a_sign) / 2 * 0.012 + (1 + a_sign) / 2 * X_3;
+    double fai_MT = 0.91163 - 4.82176 * X_3 + 1232.25 * pow(X_3, 2) - 22253.6 * pow(X_3, 3) + 116174.3 * pow(X_3, 4);
+    if (X_3 <= 0.01) fai_MT = 1.0;
+
+    Hold_l = fai_MT * (-0.10307 + 0.61777 * (log10(X_2) + 6) - 0.63295 * pow(log10(X_2) + 6, 2)
+        + 0.29598 * pow(log10(X_2) + 6, 3) - 0.0401 * pow(log10(X_2) + 6, 4));
+
+    if (VgTP_MT < (VO_MT + VW_MT) * 0.018)
+        Hold_l = 1.0;
+    else if (Hold_l<0.01 || VgTP_MT>(VO_MT + VW_MT) * 1000 || Hold_l >= 1.0)
+        Hold_l = 1.0 - 0.5 * (1.0 + V_s_m / 0.8 - sqrt(pow(1 + V_s_m / 0.8, 2) - 4.0 * V_s_g / 0.8));
+    else if (Hold_l < 0)
+        Hold_l = V_s_l / V_s_m;
+
+    // Flow pattern
+    if (V_s_g > 3.1 * pow(9.8 * surf_tension_lg * (rho_liquid_MT - rho_gas_MT) / pow(rho_gas_MT, 2), 0.25))
+    {
+        Flow_Pattern = "Annular";
+        Eff_D = (1 - sqrt(1 - Hold_l)) * PipeID_m;
+        Eff_V = V_s_l / Hold_l;
+    }
+    else if (V_s_g > 0.429 * V_s_l + 0.546 * pow(9.8 * surf_tension_lg * (rho_liquid_MT - rho_gas_MT) / pow(rho_liquid_MT, 2), 0.25))
+    {
+        Flow_Pattern = "SlugChurn";
+        Eff_D = PipeID_m;
+        Eff_V = V_s_l / Hold_l;
+    }
+    else
+    {
+        Flow_Pattern = "Bubbly";
+        Eff_D = PipeID_m;
+        Eff_V = (VO_MT + VW_MT + VgTP_MT) / 86400.0 / (pi * pow(Eff_D / 2.0, 2));
+    }
+
+    // Diffusion coefficients
+    const double com_factor_for_DiffC = 10000.0 / pi / (ViscWatIst / 1000.0) * TK / 4.71 * 1.3806488e-23;
+    //原句：DiffC[iCa] = 10000.0 / (radiusC[iCa] * 1e-10) / pi / (ViscWatIst / 1000.0) * TK / 4.71 * 1.3806488e-23;
+    // 将重复的部分抽取出来
+    DiffC[iCa] = com_factor_for_DiffC / (radiusC[iCa] * 1e-10);
+    DiffC[iFe] = com_factor_for_DiffC / (radiusC[iFe] * 1e-10);
+    DiffC[iBa] = com_factor_for_DiffC / (radiusC[iBa] * 1e-10);
+    DiffC[iSr] = com_factor_for_DiffC / (radiusC[iSr] * 1e-10);
+
+    const double com_factor_for_DiffA = 10000.0 / pi / (ViscWatIst / 1000.0) * TK / 4.0 * 1.3806488e-23;
+    //原句：DiffA[iCO3] = 10000.0 / (radiusA[iCO3] * 1e-10) / pi / (ViscWatIst / 1000.0) * TK / 4.0 * 1.3806488e-23;
+    DiffA[iCO3] = com_factor_for_DiffA / (radiusA[iCO3] * 1e-10);
+    DiffA[iSO4] = com_factor_for_DiffA / (radiusA[iSO4] * 1e-10);
+    DiffA[iHCO3] = com_factor_for_DiffA / (radiusA[iHCO3] * 1e-10);
+    DiffA[iHS] = com_factor_for_DiffA / (radiusA[iHS] * 1e-10);
+
+    Diff[iCaHCO32] = 3.0 / (1.0 / DiffC[iCa] + 2.0 / DiffA[iHCO3]);
+    Diff[iFeHCO32] = 3.0 / (1.0 / DiffC[iFe] + 2.0 / DiffA[iHCO3]);
+    Diff[iFeHS2] = 3.0 / (1.0 / DiffC[iFe] + 2.0 / DiffA[iHS]);
+    Diff[iBaSO4] = 2.0 / (1.0 / DiffC[iBa] + 1.0 / DiffA[iSO4]);
+    Diff[iSrSO4] = 2.0 / (1.0 / DiffC[iSr] + 1.0 / DiffA[iSO4]);
+    Diff[iCaSO4] = 2.0 / (1.0 / DiffC[iCa] + 1.0 / DiffA[iSO4]);
+
+    // ----------------- Mass transfer coefficients (continued) -----------------
+
+    // Reynolds number and friction factor
+    double ReNO = rhoTP * 1000.0 * Eff_V * Eff_D / (ViscWatIst / 1000.0);
+    double f_Churchill = pow(pow(8.0 / ReNO, 12.0) + pow(pow(2.457 * log(1.0 / (pow(7.0 / ReNO, 0.9) + 0.27 * PipeRough / 1000.0 / Eff_D)), 16.0) + pow(37530.0 / ReNO, 16.0), -3.0 / 2.0), 1.0 / 12.0) * 8.0;
+    if (ReNO < 7.0) f_Churchill = 64.0 / ReNO;
+
+    // ----------------- Barite (BaSO4) -----------------
+    double ScNO = ViscWatIst / 1000.0 / (rhoTP * 1000.0) / (Diff[iBaSO4] / 10000.0);
+    double LengthEntry = LoopTP * PipeL_m;
+    double GzNO = ReNO * ScNO * (Eff_D / LengthEntry);
+    double ShNO_La = 3.66 + 0.0668 * GzNO / (1.0 + 0.04 * pow(GzNO, 2.0 / 3.0));
+    double ShNO;
+
+    if (ReNO < 2300.0) {
+        Flow_Regime = "Laminar";
+        ShNO = ShNO_La;
+    }
+    else if (ReNO < 3100.0) {
+        Flow_Regime = "Transitional";
+        double ShNO_lc = 3.66 + 0.0668 * (GzNO / ReNO * 2100.0) / (1.0 + 0.04 * pow(GzNO / ReNO * 2100.0, 2.0 / 3.0));
+        ShNO = pow(pow(ShNO_La, 10.0) + pow(1.0 / (pow(ShNO_lc, 2.0)) + pow(4.8 + 0.079 * ReNO * pow(f_Churchill / 8.0, 0.5) * ScNO / pow(1 + pow(ScNO, 0.8), 5.0 / 6.0), -2.0), -5.0), 1.0 / 10.0);
+    }
+    else {
+        Flow_Regime = "Turbulent";
+        ShNO = (f_Churchill / 8.0) * (ReNO - 1000.0) * ScNO / (1.0 + 12.7 * pow(f_Churchill / 8.0, 0.5) * (pow(ScNO, 2.0 / 3.0) - 1.0));
+    }
+    km[iBaSO4] = ShNO * (Diff[iBaSO4] / 10000.0) / Eff_D * 100.0;
+
+    // ----------------- Calcite (CaHCO3) -----------------
+    ScNO = ViscWatIst / 1000.0 / (rhoTP * 1000.0) / (Diff[iCaHCO32] / 10000.0);
+    LengthEntry = LoopTP * PipeL_m;
+    GzNO = ReNO * ScNO * (Eff_D / LengthEntry);
+    ShNO_La = 3.66 + 0.0668 * GzNO / (1.0 + 0.04 * pow(GzNO, 2.0 / 3.0));
+
+    if (ReNO < 2300.0) {
+        ShNO = ShNO_La;
+    }
+    else if (ReNO < 3100.0) {
+        double ShNO_lc = 3.66 + 0.0668 * (GzNO / ReNO * 2100.0) / (1.0 + 0.04 * pow(GzNO / ReNO * 2100.0, 2.0 / 3.0));
+        ShNO = pow(pow(ShNO_La, 10.0) + pow(1.0 / (pow(ShNO_lc, 2.0)) + pow(4.8 + 0.079 * ReNO * pow(f_Churchill / 8.0, 0.5) * ScNO / pow(1 + pow(ScNO, 0.8), 5.0 / 6.0), -2.0), -5.0), 1.0 / 10.0);
+    }
+    else {
+        ShNO = (f_Churchill / 8.0) * (ReNO - 1000.0) * ScNO / (1.0 + 12.7 * pow(f_Churchill / 8.0, 0.5) * (pow(ScNO, 2.0 / 3.0) - 1.0));
+    }
+    km[iCaHCO32] = ShNO * (Diff[iCaHCO32] / 10000.0) / Eff_D * 100.0;
+
+    // ----------------- Siderite (FeHCO3) -----------------
+    ScNO = ViscWatIst / 1000.0 / (rhoTP * 1000.0) / (Diff[iFeHCO32] / 10000.0);
+    LengthEntry = LoopTP * PipeL_m;
+    GzNO = ReNO * ScNO * (Eff_D / LengthEntry);
+    ShNO_La = 3.66 + 0.0668 * GzNO / (1.0 + 0.04 * pow(GzNO, 2.0 / 3.0));
+
+    if (ReNO < 2300.0)
+    {
+        ShNO = ShNO_La;
+    }
+    else if (ReNO < 3100.0)
+    {
+        double ShNO_lc = 3.66 + 0.0668 * (GzNO / ReNO * 2100.0) / (1.0 + 0.04 * pow(GzNO / ReNO * 2100.0, 2.0 / 3.0));
+        ShNO = pow(pow(ShNO_La, 10.0) + pow(1.0 / (pow(ShNO_lc, 2.0)) + pow(4.8 + 0.079 * ReNO * pow(f_Churchill / 8.0, 0.5) * ScNO / pow(1 + pow(ScNO, 0.8), 5.0 / 6.0), -2.0), -5.0), 1.0 / 10.0);
+    }
+    else
+    {
+        ShNO = (f_Churchill / 8.0) * (ReNO - 1000.0) * ScNO / (1.0 + 12.7 * pow(f_Churchill / 8.0, 0.5) * (pow(ScNO, 2.0 / 3.0) - 1.0));
+    }
+    km[iFeHCO32] = ShNO * (Diff[iFeHCO32] / 10000.0) / Eff_D * 100.0;
+    // Surface-limited rate adjustment
+    km[iFeHCO32] = 1.0 / (1.0 / km[iFeHCO32] + 1.0 / (exp(21.6) * exp(-70400.0 / TK / 8.31) / 10.0));
+
+    // ----------------- Laminar sublayer stability -----------------
+    double lgt_barite_MT = 1000.0;
+    if (SIBar > 0.001)
+    {
+        lgt_barite_MT = fmin(flogT0Bar(SIBar) + pow(10.0, fbInhBar(i_Inhibitor_MT, SIBar)) * c_Inhibitor_MT, 1000.0);
+    }
+
+    double lgt_calcite_MT = 1000.0;
+    if (SICal > 0.001)
+    {
+
+        lgt_calcite_MT = fmin(flogT0Cal(SICal) + pow(10, fbInhCal(i_Inhibitor_MT, SICal)) * c_Inhibitor_MT, 1000.0);
+
+        if (i_Inhibitor_MT == 5 || i_Inhibitor_MT == 7 || i_Inhibitor_MT == 8 ||
+            i_Inhibitor_MT == 9 || i_Inhibitor_MT == 10 || i_Inhibitor_MT == 14 ||
+            i_Inhibitor_MT == 18)
+        {
+            lgt_calcite_MT = fmin(flogT0Cal(SICal), 1000.0);
+
+            if (LoopTP == 1 && Iter_MT_WI == 1) {
+                /*
+                MsgBox ("SSP does not include inhibitor impacts on calcite batch crystallization induction time
+                for 5-EDTMP, 7-HEBMP, 8-PhnAA, 9-PAPEMP, 10-PBTC, 14-PASP, and 18-AA/AMPS.
+                Click OK to continue deposition prediction.")
+                */
+            }
+        }
+    }
+
+    Time_lsl_burst = 0;   // initialize
+
+    if (ReNO > 2300) {
+
+        double n_power = 0.8391 * log(ReNO) - 2.5488;
+
+        double thick_lsl = pow(
+            pow(11.6, 2) * ViscWatIst / 1000.0 /
+            (rhoTP * 1000.0) * pow(Eff_D / 2.0, 1.0 / n) / Eff_V * n,
+            n / (n + 1.0)
+        );
+
+        double shear_lsl = Eff_V / pow(Eff_D / 2.0, 1.0 / n) / n
+            * pow(thick_lsl, 1.0 / n - 1.0) * ViscWatIst / 1000.0;
+
+        Time_lsl_burst = 300.0 * ViscWatIst / 1000.0 / shear_lsl;
+
+        if (Use_lsl_stability == 1) {
+
+            if (SIBar > 0) {
+                if (lgt_barite_MT > log10(Time_lsl_burst))
+                    km[iBaSO4] = 0;
+            }
+
+            if (SICal > 0) {
+                if (lgt_calcite_MT > log10(Time_lsl_burst))
+                    km[iCaHCO32] = 0;
+            }
+        }
+    }
+
+    /* ******** inhibitor molar weights ******** */
+    double MW_Inh[20];
+    MW_Inh[0] = 299; MW_Inh[1] = 685; MW_Inh[2] = 573; MW_Inh[3] = 492; MW_Inh[4] = 436;
+    MW_Inh[5] = 206; MW_Inh[6] = 249; MW_Inh[7] = 270; MW_Inh[8] = 600; MW_Inh[9] = 270;
+    MW_Inh[10] = 389; MW_Inh[11] = 3800; MW_Inh[12] = 116; MW_Inh[13] = 114;
+    MW_Inh[14] = 205.5; MW_Inh[15] = 2897; MW_Inh[16] = 107; MW_Inh[17] = 279;
+
+    /* backup original */
+    int i_Inhibitor_MT_original = i_Inhibitor_MT;
+    double c_Inhibitor_MT_original = c_Inhibitor_MT;
+
+
+    DoubleVec Keq_inhibitor_dep_barite(20, 0);
+    DoubleVec Theta0_inhibitor_dep_barite(20, 0);
+    DoubleVec Keq_inhibitor_dep_calcite(20, 0);
+    DoubleVec Theta0_inhibitor_dep_calcite(20, 0);
+    /* --- barite inhibition constants --- */
+    Keq_inhibitor_dep_barite[2] =
+        exp(-902.2 + 47533.3 / TK + 131.02 * log(TK));
+    Theta0_inhibitor_dep_barite[2] = 0;
+
+    Keq_inhibitor_dep_barite[11] =
+        exp(-637.7 + 32441.7 / TK + 93.01 * log(TK));
+    Theta0_inhibitor_dep_barite[11] =
+        0.00204 * exp(1784.0 / TK);
+
+    Keq_inhibitor_dep_barite[15] =
+        exp(-347.1 + 15692.3 / TK + 51.66 * log(TK));
+    Theta0_inhibitor_dep_barite[15] =
+        0.001021 * exp(1792.0 / TK);
+
+    /* inhibitor group selection */
+    if (i_Inhibitor_MT == 1 || i_Inhibitor_MT == 2 || i_Inhibitor_MT == 3 ||
+        i_Inhibitor_MT == 4 || i_Inhibitor_MT == 5 || i_Inhibitor_MT == 6 ||
+        i_Inhibitor_MT == 7 || i_Inhibitor_MT == 8 || i_Inhibitor_MT == 9 ||
+        i_Inhibitor_MT == 10 || i_Inhibitor_MT == 11)
+    {
+        c_Inhibitor_MT = c_Inhibitor_MT / MW_Inh[i_Inhibitor_MT - 1] * MW_Inh[2];
+        i_Inhibitor_MT = 3;
+    }
+    else if (i_Inhibitor_MT == 12 || i_Inhibitor_MT == 13 ||
+        i_Inhibitor_MT == 14 || i_Inhibitor_MT == 15)
+    {
+        c_Inhibitor_MT = c_Inhibitor_MT / MW_Inh[i_Inhibitor_MT - 1] * MW_Inh[11];
+        i_Inhibitor_MT = 12;
+    }
+    else {
+        c_Inhibitor_MT = c_Inhibitor_MT / MW_Inh[i_Inhibitor_MT - 1] * MW_Inh[15];
+        i_Inhibitor_MT = 16;
+    }
+
+    km[iBaSO4] = km[iBaSO4] *
+        (1 - Keq_inhibitor_dep_barite[i_Inhibitor_MT - 1] * c_Inhibitor_MT /
+            (1 + Keq_inhibitor_dep_barite[i_Inhibitor_MT - 1] * c_Inhibitor_MT) *
+            (1 - Theta0_inhibitor_dep_barite[i_Inhibitor_MT - 1]));
+
+    /* restore for calcite */
+    i_Inhibitor_MT = i_Inhibitor_MT_original;
+    c_Inhibitor_MT = c_Inhibitor_MT_original;
+
+    /* --- calcite inhibition --- */
+    Keq_inhibitor_dep_calcite[2] = exp(-4127.0 / TK + 14.923);
+    Theta0_inhibitor_dep_calcite[2] = 0;
+
+    if (i_Inhibitor_MT != 3) {
+        c_Inhibitor_MT = c_Inhibitor_MT / MW_Inh[i_Inhibitor_MT - 1] * MW_Inh[2];
+        i_Inhibitor_MT = 3;
+    }
+
+    km[iCaHCO32] = km[iCaHCO32] *
+        (1 - Keq_inhibitor_dep_calcite[i_Inhibitor_MT - 1] * c_Inhibitor_MT /
+            (1 + Keq_inhibitor_dep_calcite[i_Inhibitor_MT - 1] * c_Inhibitor_MT) *
+            (1 - Theta0_inhibitor_dep_calcite[i_Inhibitor_MT - 1]));
+
+    /* restore final */
+    i_Inhibitor_MT = i_Inhibitor_MT_original;
+    c_Inhibitor_MT = c_Inhibitor_MT_original;
+
+}
+
+
+
+
+int StatTPnob = 0;
+double location = 0.0;
+double depth = 0.0;
+double Time_lsl_burst = 0.0;
+double lgt_calcite_MT = 0.0;
+double lgt_barite_MT = 0.0;
+double ViscWatIst = 0.0;
+double CpPerMl = 0.0;
+double pHaftercalciteppt = 0.0;
+double pHafterAmsilicappt = 0.0;
+double pHafterQuartzppt = 0.0;
+double pHafterGreenaliteppt = 0.0;
+double pHafterDiopsideppt = 0.0;
+double pHafterChrysotileppt = 0.0;
+double pHafterMgOH2ppt = 0.0;
+double pHafterCaOH2ppt = 0.0;
+double pptCalcite_NoMassTransfer = 0.0;
+double pptBarite_NoMassTransfer = 0.0;
+double TDSHalite = 0.0;
+double Rho25cHalite = 0.0;
+double pptSrCO3 = 0.0;
+double pptBaCO3 = 0.0;
+
+
+// ==================== 主转换函数 ====================
+void LoopTPWrite(ExcelWriter* excelWriter = nullptr) {
+    // 创建数据存储对象
+    OutputData outputData;
+
+    // 第一部分：条件写入 location 和 depth
+    if (simContext.RunStat == 1) {
+        if (RunStatSICalcSSP == 1) {
+            // VB: Worksheets("Halite analysis").Cells(6 + StatTPnob - LoopTP, 2) = location
+            // VB: Worksheets("Halite analysis").Cells(6 + StatTPnob - LoopTP, 3) = depth
+            int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+            outputData.addData("Halite analysis", row, 2, location);
+            outputData.addData("Halite analysis", row, 3, depth);
+
+        }
+        else if (RunStatSICalcSSP == 2) {
+            if (RunStatGoalSeek == 1) {
+                // VB: Worksheets("Output data sheet").Cells(11 + StatTPnob - LoopTP, 16) = location
+                // VB: Worksheets("Output data sheet").Cells(11 + StatTPnob - LoopTP, 17) = depth
+                int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                outputData.addData("Output data sheet", row, 16, location);
+                outputData.addData("Output data sheet", row, 17, depth);
+            }
+            else {
+                // VB: Worksheets("Halite analysis").Cells(6 + StatTPnob - LoopTP, 10) = location
+                // VB: Worksheets("Halite analysis").Cells(6 + StatTPnob - LoopTP, 11) = depth
+                int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                outputData.addData("Halite analysis", row, 10, location);
+                outputData.addData("Halite analysis", row, 11, depth);
+            }
+        }
+        else if (RunStatSICalcSSP == 3) {
+            // VB: Worksheets("Output data sheet").Cells(6 + StatTPnob - LoopTP, 8) = location
+            // VB: Worksheets("Output data sheet").Cells(6 + StatTPnob - LoopTP, 9) = depth
+            int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+            outputData.addData("Output data sheet", row, 8, location);
+            outputData.addData("Output data sheet", row, 9, depth);
+        }
+    }
+
+    // 第二部分：当 RunGoalSeek 不为1时的输出
+    if (RunGoalSeek != 1) {
+        if (simContext.UseSI == 0) {
+            // 使用英制单位输出温度和压力
+            // Calcite 工作表
+            outputData.addData("Calcite", 14 - LoopTP, 1, TF);
+            outputData.addData("Calcite", 14 - LoopTP, 2, Ppsia);
+
+            // Barite 工作表
+            outputData.addData("Barite", 14 - LoopTP, 1, TF);
+            outputData.addData("Barite", 14 - LoopTP, 2, Ppsia);
+
+            // Other SO4s 工作表
+            outputData.addData("Other SO4s", 14 - LoopTP, 1, TF);
+            outputData.addData("Other SO4s", 14 - LoopTP, 2, Ppsia);
+
+            // Halite 工作表
+            outputData.addData("Halite", 14 - LoopTP, 1, TF);
+            outputData.addData("Halite", 14 - LoopTP, 2, Ppsia);
+
+            // Sulfides,Fluorite,Carbonates 工作表
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 1, TF);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 2, Ppsia);
+
+            // Use Mass Transfer 工作表
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 1, TF);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 2, Ppsia);
+
+            // Dai 2020 deposition - Run_MassTransfer = 1
+            if (Run_MassTransfer == 1) {
+                double distance_ft = (LoopTP - 1) * PipeL * 0.0328084; // 转换为英尺
+
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 3, distance_ft);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 4, TF);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 5, Ppsia);
+
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 3, distance_ft);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 4, TF);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 5, Ppsia);
+
+                // 输出流动参数
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 6, Flow_Pattern);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 7, Flow_Regime);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 8, ReNO);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 9, Hold_l);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 10, Time_lsl_burst);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 11, lgt_calcite_MT);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 12, lgt_barite_MT);
+            }
+
+            // Dai 2020 deposition - Run_MassTransfer_WhatIf = 1
+            if (simContext.Run_MassTransfer_WhatIf == 1) {
+                double distance_ft = (LoopTP - 1) * PipeL * 0.0328084; // 转换为英尺
+                int row_offset = (Iter_MT_WI - 1) * 32;
+
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 3, distance_ft);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 4, TF);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 5, Ppsia);
+
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 3, distance_ft);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 4, TF);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 5, Ppsia);
+
+                // 输出流动参数
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 6, Flow_Pattern);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 7, Flow_Regime);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 8, ReNO);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 9, Hold_l);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 10, Time_lsl_burst);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 11, lgt_calcite_MT);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 12, lgt_barite_MT);
+            }
+
+            // Mg(OH)2,Ca(OH)2 工作表
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 1, TF);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 2, Ppsia);
+
+            // Silicates 工作表
+            outputData.addData("Silicates", 14 - LoopTP, 1, TF);
+            outputData.addData("Silicates", 14 - LoopTP, 2, Ppsia);
+
+            // 根据 RunStat 条件输出
+            if (simContext.RunStat == 1) {
+                if (RunStatSICalcSSP == 1) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Halite analysis", row, 4, TF);
+                    outputData.addData("Halite analysis", row, 5, Ppsia);
+                }
+                else if (RunStatSICalcSSP == 2) {
+                    if (RunStatGoalSeek == 1) {
+                        int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                        outputData.addData(myname, row, 18, TF);
+                        outputData.addData(myname, row, 19, Ppsia);
+                    }
+                    else {
+                        int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                        outputData.addData("Halite analysis", row, 12, TF);
+                        outputData.addData("Halite analysis", row, 13, Ppsia);
+                    }
+                }
+                else if (RunStatSICalcSSP == 3) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Output data sheet", row, 10, TF);
+                    outputData.addData("Output data sheet", row, 11, Ppsia);
+                }
+            }
+
+        }
+        else if (simContext.UseSI == 1) {
+            // 使用SI单位制（摄氏度，Bar）
+            double TC = (TF - 32) * 5.0 / 9.0;    // 华氏度转摄氏度
+            double Pbar = Ppsia / 14.503774;      // psi转bar
+
+            // Calcite 工作表
+            outputData.addData("Calcite", 14 - LoopTP, 1, TC);
+            outputData.addData("Calcite", 14 - LoopTP, 2, Pbar);
+
+            // Barite 工作表
+            outputData.addData("Barite", 14 - LoopTP, 1, TC);
+            outputData.addData("Barite", 14 - LoopTP, 2, Pbar);
+
+            // Other SO4s 工作表
+            outputData.addData("Other SO4s", 14 - LoopTP, 1, TC);
+            outputData.addData("Other SO4s", 14 - LoopTP, 2, Pbar);
+
+            // Halite 工作表
+            outputData.addData("Halite", 14 - LoopTP, 1, TC);
+            outputData.addData("Halite", 14 - LoopTP, 2, Pbar);
+
+            // Sulfides,Fluorite,Carbonates 工作表
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 1, TC);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 2, Pbar);
+
+            // Use Mass Transfer 工作表
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 1, TC);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 2, Pbar);
+
+            // Dai 2020 deposition - Run_MassTransfer = 1 (SI单位)
+            if (Run_MassTransfer == 1) {
+                double distance_m = (LoopTP - 1) * PipeL / 100.0; // 转换为米
+
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 3, distance_m);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 4, TC);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 5, Pbar);
+
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 3, distance_m);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 4, TC);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 5, Pbar);
+
+                // 输出流动参数
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 6, Flow_Pattern);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 7, Flow_Regime);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 8, ReNO);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 9, Hold_l);
+                outputData.addData("Deposition Prediction", 35 - LoopTP, 10, Time_lsl_burst);
+            }
+
+            // Dai 2020 deposition - Run_MassTransfer_WhatIf = 1 (SI单位)
+            if (simContext.Run_MassTransfer_WhatIf == 1) {
+                double distance_m = (LoopTP - 1) * PipeL / 100.0; // 转换为米
+                int row_offset = (Iter_MT_WI - 1) * 32;
+
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 3, distance_m);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 4, TC);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 5, Pbar);
+
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 3, distance_m);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 4, TC);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 5, Pbar);
+
+                // 输出流动参数
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 6, Flow_Pattern);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 7, Flow_Regime);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 8, ReNO);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 9, Hold_l);
+                outputData.addData("Deposition Prediction_WhatIf", 35 - LoopTP + row_offset, 10, Time_lsl_burst);
+            }
+
+            // Mg(OH)2,Ca(OH)2 工作表
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 1, TC);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 2, Pbar);
+
+            // Silicates 工作表
+            outputData.addData("Silicates", 14 - LoopTP, 1, TC);
+            outputData.addData("Silicates", 14 - LoopTP, 2, Pbar);
+
+            // 根据 RunStat 条件输出
+            if (simContext.RunStat == 1) {
+                if (RunStatSICalcSSP == 1) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Halite analysis", row, 4, TC);
+                    outputData.addData("Halite analysis", row, 5, Pbar);
+                }
+                else if (RunStatSICalcSSP == 2) {
+                    if (RunStatGoalSeek == 1) {
+                        int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                        outputData.addData(myname, row, 18, TC);
+                        outputData.addData(myname, row, 19, Pbar);
+                    }
+                    else {
+                        int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                        outputData.addData("Halite analysis", row, 12, TC);
+                        outputData.addData("Halite analysis", row, 13, Pbar);
+                    }
+                }
+                else if (RunStatSICalcSSP == 3) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Output data sheet", row, 10, TC);
+                    outputData.addData("Output data sheet", row, 11, Pbar);
+                }
+            }
+        }
+
+        // ==================== 检查Amy部分 ====================
+        // pH输出
+        outputData.addData("Calcite", 14 - LoopTP, 3, pH_before_precipitation - DpHj);
+
+        // 抑制剂浓度清空逻辑
+        // 注意：在C++中，我们通常不直接"清空"变量，而是设置特定值或使用可选类型
+        // 这里模拟VB中的Empty值设置
+        if (InhNoCal == 5 || InhNoCal == 7 || InhNoCal == 8 || InhNoCal == 9 ||
+            InhNoCal == 10 || InhNoCal == 14 || InhNoCal == 18) {
+            ConcInhCal = std::numeric_limits<double>::quiet_NaN(); // 表示"空"值
+        }
+
+        if (InhNoCal == 20) {
+            if (simContext.InhNo1 == 5 || simContext.InhNo1 == 7 || simContext.InhNo1 == 9 || simContext.InhNo1 == 8 ||
+                simContext.InhNo1 == 10 || simContext.InhNo1 == 14 || simContext.InhNo1 == 18) {
+                ConcInhCal = std::numeric_limits<double>::quiet_NaN();
+            }
+            if (simContext.InhNo2 == 5 || simContext.InhNo2 == 7 || simContext.InhNo2 == 8 || simContext.InhNo2 == 9 ||
+                simContext.InhNo2 == 10 || simContext.InhNo2 == 11 || simContext.InhNo2 == 14 || simContext.InhNo2 == 18) {
+                ConcInhCal = std::numeric_limits<double>::quiet_NaN();
+            }
+        }
+
+        // 输出抑制剂浓度
+        outputData.addData("Calcite", 14 - LoopTP, 7, ConcInhCal);
+        outputData.addData("Calcite", 14 - LoopTP, 8, pHaftercalciteppt - DpHj);
+        outputData.addData("Calcite", 14 - LoopTP, 11, ISt * (simContext.rho25c - TDS / 1000000.0));
+
+        outputData.addData("Barite", 14 - LoopTP, 6, ConcInhBar);
+        outputData.addData("Halite", 14 - LoopTP, 6, rhoTP);
+
+        outputData.addData("Silicates", 14 - LoopTP, 5, pHafterAmsilicappt - DpHj);
+        outputData.addData("Silicates", 14 - LoopTP, 8, pHafterQuartzppt - DpHj);
+        outputData.addData("Silicates", 14 - LoopTP, 17, pHafterGreenaliteppt - DpHj);
+        outputData.addData("Silicates", 14 - LoopTP, 14, pHafterDiopsideppt - DpHj);
+        outputData.addData("Silicates", 14 - LoopTP, 11, pHafterChrysotileppt - DpHj);
+
+        outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 3, pH_before_precipitation - DpHj);
+        outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 6, pHafterMgOH2ppt - DpHj);
+        outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 9, pHafterCaOH2ppt - DpHj);
+
+        // ==================== 沉淀量计算和输出 ====================
+        double density_factor = simContext.rho25c - TDS * 0.000001;
+        double halite_density_factor = Rho25cHalite - TDSHalite / 1000000.0;
+
+        if (usePTB == 0) {
+            // 使用 mg/L 单位
+            // Calcite 沉淀量
+            double pptCalcite_mgL = pptCalcite_NoMassTransfer * 100091.0 * density_factor;
+            outputData.addData("Calcite", 14 - LoopTP, 6, pptCalcite_mgL);
+
+            // Barite 沉淀量
+            double pptBarite_mgL = pptBarite_NoMassTransfer * 233390.0 * density_factor;
+            outputData.addData("Barite", 14 - LoopTP, 5, pptBarite_mgL);
+
+            // 其他硫酸盐沉淀量
+            outputData.addData("Other SO4s", 14 - LoopTP, 4, pptGyp * 172172.0 * density_factor);
+            outputData.addData("Other SO4s", 14 - LoopTP, 6, pptHemi * 145148.0 * density_factor);
+            outputData.addData("Other SO4s", 14 - LoopTP, 8, pptAn * 136140.0 * density_factor);
+            outputData.addData("Other SO4s", 14 - LoopTP, 10, pptCel * 183680.0 * density_factor);
+
+            // Halite 沉淀量
+            double pptHal_mgL = pptHal * 58443.0 * halite_density_factor;
+            outputData.addData("Halite", 14 - LoopTP, 5, pptHal_mgL);
+
+            // 硫化物、氟化物、碳酸盐沉淀量
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 4, pptFeSAm * 87910.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 6, pptFeS_NoMassTransfer * 87910.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 8, pptTrot * 87910.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 10, pptZnS * 97440.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 12, pptCaF2 * 78080.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 15, pptFeCO3_NoMassTransfer * 115861.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 17, pptZnCO3 * 125417.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 19, pptPbS * 239265.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 21, pptSrCO3 * 147639.0 * density_factor);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 23, pptBaCO3 * 197349.0 * density_factor);
+
+            // 硅酸盐沉淀量
+            outputData.addData("Silicates", 14 - LoopTP, 4, pptAmSilica * 60084.0 * density_factor);
+            outputData.addData("Silicates", 14 - LoopTP, 7, pptQuartz * 60084.0 * density_factor);
+            outputData.addData("Silicates", 14 - LoopTP, 10, pptChrysotile * 277110.0 * density_factor / 2.0);
+            outputData.addData("Silicates", 14 - LoopTP, 13, pptDiopside * 216550.0 * density_factor / 2.0);
+            outputData.addData("Silicates", 14 - LoopTP, 16, pptGreenalite * 371770.0 * density_factor / 3.0);
+
+            // 氢氧化物沉淀量
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 5, pptMgOH2 * 58321.0 * density_factor);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 8, pptCaOH2 * 74094.0 * density_factor);
+
+        }
+        else if (usePTB == 1) {
+            // 使用 PTB 单位（磅/千桶）
+            const double PTB_FACTOR = 0.35051;
+
+            // Calcite 沉淀量
+            double pptCalcite_ptb = pptCalcite_NoMassTransfer * 100091.0 * density_factor * PTB_FACTOR;
+            outputData.addData("Calcite", 14 - LoopTP, 6, pptCalcite_ptb);
+
+            // Barite 沉淀量
+            double pptBarite_ptb = pptBarite_NoMassTransfer * 233390.0 * density_factor * PTB_FACTOR;
+            outputData.addData("Barite", 14 - LoopTP, 5, pptBarite_ptb);
+
+            // 其他硫酸盐沉淀量
+            outputData.addData("Other SO4s", 14 - LoopTP, 4, pptGyp * 172172.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Other SO4s", 14 - LoopTP, 6, pptHemi * 145148.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Other SO4s", 14 - LoopTP, 8, pptAn * 136140.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Other SO4s", 14 - LoopTP, 10, pptCel * 183680.0 * density_factor * PTB_FACTOR);
+
+            // Halite 沉淀量
+            double pptHal_ptb = pptHal * 58443.0 * halite_density_factor * PTB_FACTOR;
+            outputData.addData("Halite", 14 - LoopTP, 5, pptHal_ptb);
+
+            // 硫化物、氟化物、碳酸盐沉淀量
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 4, pptFeSAm * 87910.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 6, pptFeS_NoMassTransfer * 87910.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 8, pptTrot * 87910.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 10, pptZnS * 97440.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 12, pptCaF2 * 78080.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 15, pptFeCO3_NoMassTransfer * 115861.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 17, pptZnCO3 * 125417.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 19, pptPbS * 239265.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 21, pptSrCO3 * 147639.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 23, pptBaCO3 * 197349.0 * density_factor * PTB_FACTOR);
+
+            // 硅酸盐沉淀量
+            outputData.addData("Silicates", 14 - LoopTP, 4, pptAmSilica * 60084.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Silicates", 14 - LoopTP, 7, pptQuartz * 60084.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Silicates", 14 - LoopTP, 10, pptChrysotile * 277110.0 * density_factor / 2.0 * PTB_FACTOR);
+            outputData.addData("Silicates", 14 - LoopTP, 13, pptDiopside * 216550.0 * density_factor / 2.0 * PTB_FACTOR);
+            outputData.addData("Silicates", 14 - LoopTP, 16, pptGreenalite * 371770.0 * density_factor / 3.0 * PTB_FACTOR);
+
+            // 氢氧化物沉淀量
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 5, pptMgOH2 * 58321.0 * density_factor * PTB_FACTOR);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 8, pptCaOH2 * 74094.0 * density_factor * PTB_FACTOR);
+        }
+
+        // 根据RunStat条件输出Halite数据
+        if (simContext.RunStat == 1) {
+            double pptHal_output = 0.0;
+            if (usePTB == 0) {
+                pptHal_output = pptHal * 58443.0 * halite_density_factor;
+            }
+            else {
+                pptHal_output = pptHal * 58443.0 * halite_density_factor * 0.35051;
+            }
+
+            if (RunStatSICalcSSP == 1) {
+                int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                outputData.addData("Halite analysis", row, 7, pptHal_output);
+                outputData.addData("Halite analysis", row, 8, rhoTP);
+            }
+            else if (RunStatSICalcSSP == 2) {
+                if (RunStatGoalSeek == 1) {
+                    int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                    outputData.addData(myname, row, 22, rhoTP);
+                    outputData.addData(myname, row, 21, pptHal_output);
+                }
+                else {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Halite analysis", row, 15, pptHal_output);
+                    outputData.addData("Halite analysis", row, 16, rhoTP);
+                }
+            }
+            else if (RunStatSICalcSSP == 3) {
+                int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                outputData.addData("Output data sheet", row, 13, pptHal_output);
+                outputData.addData("Output data sheet", row, 14, rhoTP);
+            }
+        }
+
+        // ==================== 气泡点检测输出 ====================
+        if (useEOS == 0) {
+            std::string bubbleStatus = (Ppsia > PBubblePt) ? "Yes" : "No";
+            outputData.addData("Calcite", 14 - LoopTP, 9, bubbleStatus);
+        }
+        else {
+            std::string bubbleStatus = (QPBubblePt == 1) ? "Yes" : "No";
+            outputData.addData("Calcite", 14 - LoopTP, 9, bubbleStatus);
+        }
+
+        // ==================== 传质相关输出 ====================
+        // Use Mass Transfer 工作表
+        if (usePTB == 0) {
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 4,
+                pptCalcite_NoMassTransfer * 100091.0 * density_factor);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 7,
+                pptBarite_NoMassTransfer * 233390.0 * density_factor);
+        }
+        else {
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 4,
+                pptCalcite_NoMassTransfer * 100091.0 * density_factor * 0.35051);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 7,
+                pptBarite_NoMassTransfer * 233390.0 * density_factor * 0.35051);
+        }
+
+        // Dai 2020 deposition - 传质输出
+        if (Run_MassTransfer == 1) {
+            // Calcite
+            if (usePTB == 0) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 7,
+                    pptCalcite_NoMassTransfer * 100091.0 * density_factor);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 11,
+                    pptBarite_NoMassTransfer * 233390.0 * density_factor);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 15,
+                    pptFeCO3_NoMassTransfer * 233390.0 * density_factor);
+            }
+            else {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 7,
+                    pptCalcite_NoMassTransfer * 100091.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 11,
+                    pptBarite_NoMassTransfer * 233390.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 15,
+                    pptFeCO3_NoMassTransfer * 233390.0 * density_factor * 0.35051);
+            }
+        }
+
+        // WhatIf 情景
+        if (simContext.Run_MassTransfer_WhatIf == 1) {
+            if (usePTB == 0) {
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + (Iter_MT_WI - 1) * 32, 7,
+                    pptCalcite_NoMassTransfer * 100091.0 * density_factor);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + (Iter_MT_WI - 1) * 32, 11,
+                    pptBarite_NoMassTransfer * 233390.0 * density_factor);
+            }
+            else {
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + (Iter_MT_WI - 1) * 32, 7,
+                    pptCalcite_NoMassTransfer * 100091.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + (Iter_MT_WI - 1) * 32, 11,
+                    pptBarite_NoMassTransfer * 233390.0 * density_factor * 0.35051);
+            }
+        }
+
+        // 如果有传质，输出传质沉淀量
+        if (Run_MassTransfer == 1) {
+            if (usePTB == 0) {
+                outputData.addData("Use Mass Transfer", 22 - LoopTP, 5,
+                    pptCalcite_MassTransfer * 100091.0 * density_factor);
+                outputData.addData("Use Mass Transfer", 22 - LoopTP, 8,
+                    pptBarite_MassTransfer * 233390.0 * density_factor);
+            }
+            else {
+                outputData.addData("Use Mass Transfer", 22 - LoopTP, 5,
+                    pptCalcite_MassTransfer * 100091.0 * density_factor * 0.35051);
+                outputData.addData("Use Mass Transfer", 22 - LoopTP, 8,
+                    pptBarite_MassTransfer * 233390.0 * density_factor * 0.35051);
+            }
+
+            // Deposition Prediction 工作表
+            if (usePTB == 0) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 8,
+                    pptCalcite_MassTransfer * 100091.0 * density_factor);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 12,
+                    pptBarite_MassTransfer * 233390.0 * density_factor);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 16,
+                    pptFeCO3_MassTransfer * 233390.0 * density_factor);
+            }
+            else {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 8,
+                    pptCalcite_MassTransfer * 100091.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 12,
+                    pptBarite_MassTransfer * 233390.0 * density_factor * 0.35051);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 16,
+                    pptFeCO3_MassTransfer * 233390.0 * density_factor * 0.35051);
+            }
+
+            // 沉积速率
+            if (simContext.UseSI == 1)
+            {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 9, pptCalcite_MassTransfer_V); // cm/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 13, pptBarite_MassTransfer_V); // cm/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 17, pptFeCO3_MassTransfer_V); // cm/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 18, m_CR_selected); // mm/yr
+            }
+            else {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 9, pptCalcite_MassTransfer_V * 0.393701); // inch/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 13, pptBarite_MassTransfer_V * 0.393701); // inch/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 17, pptFeCO3_MassTransfer_V * 0.393701); // inch/yr
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 18, m_CR_selected * 39.37); // mil/yr
+            }
+
+            if (Use_Corr_in_Deposition == 0) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 18, std::string(""));
+            }
+
+            // WhatIf 情景
+            if (simContext.Run_MassTransfer_WhatIf == 1) {
+                int row_offset = (Iter_MT_WI - 1) * 32;
+
+                if (usePTB == 0) {
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 8,
+                        pptCalcite_MassTransfer * 100091.0 * density_factor);
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 12,
+                        pptBarite_MassTransfer * 233390.0 * density_factor);
+                }
+                else {
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 8,
+                        pptCalcite_MassTransfer * 100091.0 * density_factor * 0.35051);
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 12,
+                        pptBarite_MassTransfer * 233390.0 * density_factor * 0.35051);
+                }
+
+                if (simContext.UseSI == 1) {
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 9,
+                        pptCalcite_MassTransfer_V); // cm/yr
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 13,
+                        pptBarite_MassTransfer_V); // cm/yr
+                }
+                else {
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 9,
+                        pptCalcite_MassTransfer_V * 0.393701); // inch/yr
+                    outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 13,
+                        pptBarite_MassTransfer_V * 0.393701); // inch/yr
+                }
+            }
+        }
+
+        // ==================== 饱和指数(SI)输出 ====================
+        if (useSR == 0) {
+            // 输出 SI 值（对数形式）
+            outputData.addData("Calcite", 14 - LoopTP, 4, SICal);
+            outputData.addData("Calcite", 14 - LoopTP, 5, dSICal);
+            outputData.addData("Calcite", 14 - LoopTP, 10, SIDol);
+
+            outputData.addData("Barite", 14 - LoopTP, 3, SIBar);
+            outputData.addData("Barite", 14 - LoopTP, 4, dSIBar);
+
+            outputData.addData("Other SO4s", 14 - LoopTP, 3, SIGyp);
+            outputData.addData("Other SO4s", 14 - LoopTP, 5, SIHemi);
+            outputData.addData("Other SO4s", 14 - LoopTP, 7, SIAn);
+            outputData.addData("Other SO4s", 14 - LoopTP, 9, SICel);
+
+            outputData.addData("Halite", 14 - LoopTP, 3, SIHal);
+            outputData.addData("Halite", 14 - LoopTP, 4, dSIHal);
+
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 3, SIFeSAm);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 5, SIFeS);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 7, SITrot);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 9, SIZnS);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 11, SICaF2);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 13, SISid);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 14, dSISid);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 16, SIZnCO3);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 18, SIPbS);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 20, SISrCO3);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 14 - LoopTP, 22, SIBaCO3);
+
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 7, SICaOH2);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 14 - LoopTP, 4, SIMgOH2);
+
+            outputData.addData("Silicates", 14 - LoopTP, 3, SIAmSilica);
+            outputData.addData("Silicates", 14 - LoopTP, 6, SIQuartz);
+            outputData.addData("Silicates", 14 - LoopTP, 9, SIChrysotile);
+            outputData.addData("Silicates", 14 - LoopTP, 12, SIDiopside);
+            outputData.addData("Silicates", 14 - LoopTP, 15, SIGreenalite);
+
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 3, SICal);
+            outputData.addData("Use Mass Transfer", 22 - LoopTP, 6, SIBar);
+
+            // Deposition Prediction
+            if (Run_MassTransfer == 1) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 6, SICal);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 10, SIBar);
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 14, SISid);
+            }
+
+            // WhatIf 情景
+            if (simContext.Run_MassTransfer_WhatIf == 1) {
+                int row_offset = (Iter_MT_WI - 1) * 32;
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 6, SICal);
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 10, SIBar);
+            }
+
+            // RunStat 条件下的输出
+            if (simContext.RunStat == 1) {
+                if (RunStatSICalcSSP == 1) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Halite analysis", row, 6, SIHal);
+                }
+                else if (RunStatSICalcSSP == 2) {
+                    if (RunStatGoalSeek == 1) {
+                        int row = calculateRowWithStat(11, StatTPnob, LoopTP);
+                        outputData.addData(myname, row, 20, SIHal);
+                    }
+                    else {
+                        int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                        outputData.addData("Halite analysis", row, 14, SIHal);
+                    }
+                }
+                else if (RunStatSICalcSSP == 3) {
+                    int row = calculateRowWithStat(6, StatTPnob, LoopTP);
+                    outputData.addData("Output data sheet", row, 12, SIHal);
+                }
+            }
+
+        }
+        else {
+            // 输出饱和度比（10^SI）
+            outputData.addData("Calcite", 14 - LoopTP, 4, pow(10.0, SICal));
+            outputData.addData("Calcite", 14 - LoopTP, 5, pow(10.0, dSICal));
+            outputData.addData("Calcite", 14 - LoopTP, 10, pow(10.0, SIDol));
+
+            outputData.addData("Barite", 14 - LoopTP, 3, pow(10.0, SIBar));
+            outputData.addData("Barite", 14 - LoopTP, 4, pow(10.0, SIBar - SIBarBH));
+
+            // 需要调用 outputData.addData
+            // Worksheets("Other SO4s").Cells(14 - LoopTP, 3) = 10 ^ SIGyp
+            // Worksheets("Other SO4s").Cells(14 - LoopTP, 5) = 10 ^ SIHemi
+            // Worksheets("Other SO4s").Cells(14 - LoopTP, 7) = 10 ^ SIAn
+            // Worksheets("Other SO4s").Cells(14 - LoopTP, 9) = 10 ^ SICel
+            // Worksheets("Halite").Cells(14 - LoopTP, 3) = 10 ^ SIHal
+            // Worksheets("Halite").Cells(14 - LoopTP, 4) = 10 ^ dSIHal
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 3) = 10 ^ SIFeSAm
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 5) = 10 ^ SIFeS
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 7) = 10 ^ SITrot
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 9) = 10 ^ SIZnS
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 11) = 10 ^ SICaF2
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 13) = 10 ^ SISid
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 14) = 10 ^ dSISid
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 16) = 10 ^ SIZnCO3
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 18) = 10 ^ SIPbS
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 20) = 10 ^ SISrCO3
+            // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 22) = 10 ^ SIBaCO3
+            // Worksheets("Mg(OH)2,Ca(OH)2").Cells(14 - LoopTP, 7) = 10 ^ SICaOH2
+            // Worksheets("Mg(OH)2,Ca(OH)2").Cells(14 - LoopTP, 4) = 10 ^ SIMgOH2
+            // Worksheets("Silicates").Cells(14 - LoopTP, 3) = 10 ^ SIAmSilica
+            // Worksheets("Silicates").Cells(14 - LoopTP, 6) = 10 ^ SIQuartz
+            // Worksheets("Silicates").Cells(14 - LoopTP, 9) = 10 ^ SIChrysotile
+            // Worksheets("Silicates").Cells(14 - LoopTP, 12) = 10 ^ SIDiopside
+            // Worksheets("Silicates").Cells(14 - LoopTP, 15) = 10 ^ SIGreenalite
+            // Worksheets("Use Mass Transfer").Cells(22 - LoopTP, 3) = 10 ^ SICal
+            // Worksheets("Use Mass Transfer").Cells(22 - LoopTP, 6) = 10 ^ SIBar
+
+            // Deposition Prediction
+            if (Run_MassTransfer == 1) {
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 6, pow(10.0, SICal));
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 10, pow(10.0, SIBar));
+                outputData.addData("Deposition Prediction", 51 - LoopTP, 14, pow(10.0, SISid));
+            }
+
+            // WhatIf 情景
+            if (simContext.Run_MassTransfer_WhatIf == 1) {
+                int row_offset = (Iter_MT_WI - 1) * 32;
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 6, pow(10.0, SICal));
+                outputData.addData("Deposition Prediction_WhatIf", 51 - LoopTP + row_offset, 10, pow(10.0, SIBar));
+            }
+        }
+
+        // ==================== 抑制剂风险评估输出 ====================
+        if (H2Oevap != 1) {
+            // Calcite 风险评估
+            if (mc.size() > 0 && mc[0] > 0.0000001 && simContext.HCO3 > 0.0000001) {
+                // 假设 mc[0] 对应 iCa，需要根据实际索引调整
+                int row = 14 - LoopTP;
+
+                outputData.addData("Calcite", row, 16, outputData.worksheets["Calcite"].numericData[{row, 1}]);
+                outputData.addData("Calcite", row, 17, outputData.worksheets["Calcite"].numericData[{row, 2}]);
+                outputData.addData("Calcite", row, 18, outputData.worksheets["Calcite"].numericData[{row, 4}]);
+
+                // 清空 SIRisk 数组中的某些值
+                if (InhNoCal == 5 || InhNoCal == 7 || InhNoCal == 8 || InhNoCal == 9 ||
+                    InhNoCal == 10 || InhNoCal == 14 || InhNoCal == 18) {
+                    // 模拟VB中的 Empty 赋值
+                    if (SIRisk.size() > InhNoCal && SIRisk[InhNoCal].size() > LoopTP) {
+                        SIRisk[InhNoCal][LoopTP][2][2] = std::numeric_limits<double>::quiet_NaN();
+                        SIRisk[InhNoCal][LoopTP][3][2] = std::numeric_limits<double>::quiet_NaN();
+                    }
+                }
+
+                if (InhNoCal == 20) {
+                    if (simContext.InhNo1 == 5 || simContext.InhNo1 == 7 || simContext.InhNo1 == 8 || simContext.InhNo1 == 9 ||
+                        simContext.InhNo1 == 10 || simContext.InhNo1 == 14 || simContext.InhNo1 == 18 ||
+                        simContext.InhNo2 == 5 || simContext.InhNo2 == 7 || simContext.InhNo2 == 8 || simContext.InhNo2 == 9 ||
+                        simContext.InhNo2 == 10 || simContext.InhNo2 == 14 || simContext.InhNo2 == 18) {
+                        if (SIRisk.size() > InhNoCal && SIRisk[InhNoCal].size() > LoopTP) {
+                            SIRisk[InhNoCal][LoopTP][2][2] = std::numeric_limits<double>::quiet_NaN();
+                            SIRisk[InhNoCal][LoopTP][3][2] = std::numeric_limits<double>::quiet_NaN();
+                        }
+                    }
+                }
+
+                // 输出风险评估值
+                if (useSR == 0) {
+                    if (SIRisk.size() > InhNoCal && SIRisk[InhNoCal].size() > LoopTP) {
+                        outputData.addData("Calcite", row, 19, SIRisk[InhNoCal][LoopTP][1][2]);
+                        outputData.addData("Calcite", row, 20, SIRisk[InhNoCal][LoopTP][2][2]);
+                        outputData.addData("Calcite", row, 21, SIRisk[InhNoCal][LoopTP][3][2]);
+                    }
+                }
+                else {
+                    if (SIRisk.size() > InhNoCal && SIRisk[InhNoCal].size() > LoopTP) {
+                        outputData.addData("Calcite", row, 19, pow(10.0, SIRisk[InhNoCal][LoopTP][1][2]));
+                        outputData.addData("Calcite", row, 20, pow(10.0, SIRisk[InhNoCal][LoopTP][2][2]));
+                        outputData.addData("Calcite", row, 21, pow(10.0, SIRisk[InhNoCal][LoopTP][3][2]));
+                    }
+                }
+            }
+
+            // Barite 风险评估（类似处理，为简洁起见省略）
+            // If mc(iBa) > 0.0000001 And ma(iSO4) > 0.0000001 Then
+            //     Worksheets("Barite").Cells(14 - LoopTP, 16) = Worksheets("Barite").Cells(14 - LoopTP, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 17) = Worksheets("Barite").Cells(14 - LoopTP, 2)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 18) = Worksheets("Barite").Cells(14 - LoopTP, 3)
+            //     If UseSR = 0 Then
+            //     Worksheets("Barite").Cells(14 - LoopTP, 19) = SIRisk(InhNoBar, LoopTP, 1, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 20) = SIRisk(InhNoBar, LoopTP, 2, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 21) = SIRisk(InhNoBar, LoopTP, 3, 1)
+            //     Else
+            //     Worksheets("Barite").Cells(14 - LoopTP, 19) = 10 ^ SIRisk(InhNoBar, LoopTP, 1, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 20) = 10 ^ SIRisk(InhNoBar, LoopTP, 2, 1)
+            //     Worksheets("Barite").Cells(14 - LoopTP, 21) = 10 ^ SIRisk(InhNoBar, LoopTP, 3, 1)
+            //     End If
+            //     End If
+
+            // // Other SO4s 风险评估
+            //     If mc(iCa) > 0.00001 And ma(iSO4) > 0.0001 Then
+            //     If TK > 373.15 Then
+            //         If UseSI = 0 Then
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 16) = TF
+            //         Else
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 16) = (TF - 32) * 5 / 9
+            //         End If
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 17) = Worksheets("Other SO4s").Cells(14 - LoopTP, 2)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 18) = Worksheets("Other SO4s").Cells(14 - LoopTP, 7)
+            //         If UseSR = 0 Then
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 19) = SIRisk(InhNoAn, LoopTP, 1, 3)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 20) = SIRisk(InhNoAn, LoopTP, 2, 3)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 21) = SIRisk(InhNoAn, LoopTP, 3, 3)
+            //         Else
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 19) = 10 ^ SIRisk(InhNoAn, LoopTP, 1, 3)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 20) = 10 ^ SIRisk(InhNoAn, LoopTP, 2, 3)
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP, 21) = 10 ^ SIRisk(InhNoAn, LoopTP, 3, 3)
+            //         End If
+            //     Else
+            //         If UseSI = 0 Then
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 16) = TF
+            //         Else
+            //         Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 16) = (TF - 32) * 5 / 9
+            //         End If
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 17) = Worksheets("Other SO4s").Cells(14 - LoopTP, 2)
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 18) = Worksheets("Other SO4s").Cells(14 - LoopTP, 3)
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 19) = SIRisk(InhNoAn, LoopTP, 1, 3)
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 20) = SIRisk(InhNoAn, LoopTP, 2, 3)
+            //     Worksheets("Other SO4s").Cells(15 - LoopTP - 1, 21) = SIRisk(InhNoAn, LoopTP, 3, 3)
+            //     End If
+            //     End If
+
+            //     // 'Dai 2020 update inhibition model for celestite
+            //     If mc(iSr) > 0.0000001 And ma(iSO4) > 0.0000001 Then
+            //         Worksheets("Other SO4s").Cells(26 - LoopTP, 16) = Worksheets("Other SO4s").Cells(14 - LoopTP, 1)
+            //         Worksheets("Other SO4s").Cells(26 - LoopTP, 17) = Worksheets("Other SO4s").Cells(14 - LoopTP, 2)
+            //         Worksheets("Other SO4s").Cells(26 - LoopTP, 18) = Worksheets("Other SO4s").Cells(14 - LoopTP, 9)
+            //         If UseSR = 0 Then
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 19) = SIRisk(InhNoCel, LoopTP, 1, 4)
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 20) = SIRisk(InhNoCel, LoopTP, 2, 4)
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 21) = SIRisk(InhNoCel, LoopTP, 3, 4)
+            //         Else
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 19) = 10 ^ SIRisk(InhNoCel, LoopTP, 1, 4)
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 20) = 10 ^ SIRisk(InhNoCel, LoopTP, 2, 4)
+            //             Worksheets("Other SO4s").Cells(26 - LoopTP, 21) = 10 ^ SIRisk(InhNoCel, LoopTP, 3, 4)
+            //         End If
+            //     End If
+            // ... 其他物质的风险评估
+        }
+    }
+
+    // ==================== LoopTP特殊条件输出 ====================
+    // 第一部分：LoopTP = 1 时的输出
+    if (LoopTP == 1) {
+        if (useSR == 0) {
+            // 输出各种矿物的饱和指数到Input工作表
+            outputData.addData("Input", 13, 9, SICal);
+            outputData.addData("Input", 15, 9, SIBar);
+            outputData.addData("Input", 17, 9, SIHal);
+            outputData.addData("Input", 19, 9, SIGyp);
+            outputData.addData("Input", 21, 9, SIHemi);
+            outputData.addData("Input", 23, 9, SIAn);
+            outputData.addData("Input", 25, 9, SICel);
+            outputData.addData("Input", 27, 9, SIFeS);
+            outputData.addData("Input", 29, 9, SIZnS);
+            outputData.addData("Input", 31, 9, SICaF2);
+            outputData.addData("Input", 33, 9, SISid);
+            outputData.addData("Input", 35, 9, SIAmSilica);
+            outputData.addData("Input", 37, 9, SIQuartz);
+            outputData.addData("Input", 39, 9, SIChrysotile);
+            outputData.addData("Input", 41, 9, SIDiopside);
+            outputData.addData("Input", 43, 9, SIGreenalite);
+        }
+        else {
+            // 输出饱和度比
+            outputData.addData("Input", 13, 9, pow(10.0, SICal));
+            outputData.addData("Input", 15, 9, pow(10.0, SIBar));
+            outputData.addData("Input", 17, 9, pow(10.0, SIHal));
+            outputData.addData("Input", 19, 9, pow(10.0, SIGyp));
+            outputData.addData("Input", 21, 9, pow(10.0, SIHemi));
+            outputData.addData("Input", 23, 9, pow(10.0, SIAn));
+            outputData.addData("Input", 25, 9, pow(10.0, SICel));
+            outputData.addData("Input", 27, 9, pow(10.0, SIFeS));
+            outputData.addData("Input", 29, 9, pow(10.0, SIZnS));
+            outputData.addData("Input", 31, 9, pow(10.0, SICaF2));
+            outputData.addData("Input", 33, 9, pow(10.0, SISid));
+            outputData.addData("Input", 35, 9, pow(10.0, SIAmSilica));
+            outputData.addData("Input", 37, 9, pow(10.0, SIQuartz));
+            outputData.addData("Input", 39, 9, pow(10.0, SIChrysotile));
+            outputData.addData("Input", 41, 9, pow(10.0, SIDiopside));
+            outputData.addData("Input", 43, 9, pow(10.0, SIGreenalite));
+        }
+
+        // 输出其他参数到Input工作表
+        outputData.addData("Input", 45, 9, pH_before_precipitation - DpHj);
+        outputData.addData("Input", 48, 9, ConcInhCal);
+        outputData.addData("Input", 50, 9, ConcInhBar);
+        outputData.addData("Input", 52, 9, ConcInhGyp);
+        outputData.addData("Input", 54, 9, ConcInhAn);
+        outputData.addData("Input", 56, 9, ConcInhCel);
+        outputData.addData("Input", 58, 9, ViscWatIst);
+        outputData.addData("Input", 60, 9, CpPerMl);
+        outputData.addData("Input", 62, 9, rhoTP);
+    }
+
+    // 第二部分：LoopTP = 10 或 LoopTP = 2（根据RunGoalSeek）时的输出
+    if (RunGoalSeek != 1)
+    {
+        if (LoopTP == 10)
+        {
+            // 类似LoopTP=1的处理，但输出到第10列
+            if (useSR == 0)
+            {
+                outputData.addData("Input", 13, 10, SICal);
+                outputData.addData("Input", 15, 10, SIBar);
+                outputData.addData("Input", 19, 10, SIGyp);
+                outputData.addData("Input", 21, 10, SIHemi);
+                outputData.addData("Input", 23, 10, SIAn);
+                outputData.addData("Input", 25, 10, SICel);
+                outputData.addData("Input", 17, 10, SIHal);
+                outputData.addData("Input", 31, 10, SICaF2);
+                outputData.addData("Input", 33, 10, SISid);
+                outputData.addData("Input", 27, 10, SIFeS);
+                outputData.addData("Input", 29, 10, SIZnS);
+                outputData.addData("Input", 35, 10, SIAmSilica);
+                outputData.addData("Input", 37, 10, SIQuartz);
+                outputData.addData("Input", 39, 10, SIChrysotile);
+                outputData.addData("Input", 41, 10, SIDiopside);
+                outputData.addData("Input", 43, 10, SIGreenalite);
+            }
+            else {
+                // 输出饱和度比到第10列
+                outputData.addData("Input", 13, 10, pow(10.0, SICal));
+                outputData.addData("Input", 15, 10, pow(10.0, SIBar));
+                outputData.addData("Input", 19, 10, pow(10.0, SIGyp));
+                outputData.addData("Input", 21, 10, pow(10.0, SIHemi));
+                outputData.addData("Input", 23, 10, pow(10.0, SIAn));
+                outputData.addData("Input", 25, 10, pow(10.0, SICel));
+                outputData.addData("Input", 17, 10, pow(10.0, SIHal));
+                outputData.addData("Input", 31, 10, pow(10.0, SICaF2));
+                outputData.addData("Input", 33, 10, pow(10.0, SISid));
+                outputData.addData("Input", 27, 10, pow(10.0, SIFeS));
+                outputData.addData("Input", 29, 10, pow(10.0, SIZnS));
+                outputData.addData("Input", 35, 10, pow(10.0, SIAmSilica));
+                outputData.addData("Input", 37, 10, pow(10.0, SIQuartz));
+                outputData.addData("Input", 39, 10, pow(10.0, SIChrysotile));
+                outputData.addData("Input", 41, 10, pow(10.0, SIDiopside));
+                outputData.addData("Input", 43, 10, pow(10.0, SIGreenalite));
+            }
+
+            outputData.addData("Input", 45, 10, pH_before_precipitation - DpHj);
+            outputData.addData("Input", 48, 10, ConcInhCal);
+            outputData.addData("Input", 50, 10, ConcInhBar);
+            outputData.addData("Input", 52, 10, ConcInhGyp);
+            outputData.addData("Input", 54, 10, static_cast<double>(ConcInhAn));
+            outputData.addData("Input", 56, 10, ConcInhCel);
+            outputData.addData("Input", 58, 10, ViscWatIst);
+            outputData.addData("Input", 60, 10, CpPerMl);
+            outputData.addData("Input", 62, 10, rhoTP);
+        }
+    }
+    else {
+        // RunGoalSeek = 1 的情况
+        if (LoopTP == 2) {
+            // 类似处理，输出到第10列
+            if (useSR == 0) {
+                outputData.addData("Input", 13, 10, SICal);
+                outputData.addData("Input", 15, 10, SIBar);
+                outputData.addData("Input", 19, 10, SIGyp);
+                outputData.addData("Input", 21, 10, SIHemi);
+                outputData.addData("Input", 23, 10, SIAn);
+                outputData.addData("Input", 25, 10, SICel);
+                outputData.addData("Input", 17, 10, SIHal);
+                outputData.addData("Input", 31, 10, SICaF2);
+                outputData.addData("Input", 33, 10, SISid);
+                outputData.addData("Input", 27, 10, SIFeS);
+                outputData.addData("Input", 29, 10, SIZnS);
+                outputData.addData("Input", 35, 10, SIAmSilica);
+                outputData.addData("Input", 37, 10, SIQuartz);
+                outputData.addData("Input", 39, 10, SIChrysotile);
+                outputData.addData("Input", 41, 10, SIDiopside);
+                outputData.addData("Input", 43, 10, SIGreenalite);
+            }
+            else {
+                // 输出饱和度比
+                outputData.addData("Input", 13, 10, pow(10.0, SICal));
+                outputData.addData("Input", 15, 10, pow(10.0, SIBar));
+                outputData.addData("Input", 19, 10, pow(10.0, SIGyp));
+                outputData.addData("Input", 21, 10, pow(10.0, SIHemi));
+                outputData.addData("Input", 23, 10, pow(10.0, SIAn));
+                outputData.addData("Input", 25, 10, pow(10.0, SICel));
+                outputData.addData("Input", 17, 10, pow(10.0, SIHal));
+                outputData.addData("Input", 31, 10, pow(10.0, SICaF2));
+                outputData.addData("Input", 33, 10, pow(10.0, SISid));
+                outputData.addData("Input", 27, 10, pow(10.0, SIFeS));
+                outputData.addData("Input", 29, 10, pow(10.0, SIZnS));
+                outputData.addData("Input", 35, 10, pow(10.0, SIAmSilica));
+                outputData.addData("Input", 37, 10, pow(10.0, SIQuartz));
+                outputData.addData("Input", 39, 10, pow(10.0, SIChrysotile));
+                outputData.addData("Input", 41, 10, pow(10.0, SIDiopside));
+                outputData.addData("Input", 43, 10, pow(10.0, SIGreenalite));
+            }
+
+            outputData.addData("Input", 45, 10, pH_before_precipitation - DpHj);
+            outputData.addData("Input", 48, 10, ConcInhCal);
+            outputData.addData("Input", 50, 10, ConcInhBar);
+            outputData.addData("Input", 52, 10, ConcInhGyp);
+            outputData.addData("Input", 54, 10, ConcInhAn);
+            outputData.addData("Input", 56, 10, ConcInhCel);
+            outputData.addData("Input", 58, 10, ViscWatIst);
+            outputData.addData("Input", 60, 10, CpPerMl);
+            outputData.addData("Input", 62, 10, rhoTP);
+        }
+    }
+
+    // ==================== 表头和其他信息输出 ====================
+    if (RunGoalSeek != 1) {
+        // 设置表头
+        outputData.addData("calcite", 3, 20, "SI(Inh=" + std::to_string(simContext.MaxInh / 2) + "mg/L)");
+        outputData.addData("Calcite", 3, 21, "SI (Inh=" + std::to_string(simContext.MaxInh) + "mg/L)");
+        outputData.addData("Barite", 3, 20, "SI (Inh=" + std::to_string(simContext.MaxInh / 2) + "mg/L)");
+        outputData.addData("Barite", 3, 21, "SI (Inh=" + std::to_string(simContext.MaxInh) + "mg/L)");
+        outputData.addData("Other SO4s", 3, 20, "SI (Inh=" + std::to_string(simContext.MaxInh / 2) + "mg/L)");
+        outputData.addData("Other SO4s", 3, 21, "SI (Inh=" + std::to_string(simContext.MaxInh) + "mg/L)");
+        outputData.addData("Other SO4s", 15, 20, "SI (Inh=" + std::to_string(simContext.MaxInh / 2) + "mg/L)");
+        outputData.addData("Other SO4s", 15, 21, "SI (Inh=" + std::to_string(simContext.MaxInh) + "mg/L)");
+
+        // 输出井名
+        int nob1 = simContext.nob;
+        if (simContext.nob > 2) nob1 = 2; // 只输出2个井名
+
+        for (int i = 0; i < nob1 && i < WellNameMix.size(); i++) {
+            outputData.addData("Calcite", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Barite", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Halite", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Other SO4s", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Sulfides,Fluorite,Carbonates", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Silicates", 1, i + 2, WellNameMix[i]);
+            outputData.addData("Mg(OH)2,Ca(OH)2", 1, i + 2, WellNameMix[i]);
+        }
+
+        // 输出MeOH和MEG数据
+        if (simContext.UseSI == 0) {
+            outputData.addData("Calcite", 1, 15, mass_MeOH / 0.7914 / 159.0);
+            outputData.addData("Calcite", 1, 12, mass_MEG / 1.1135 / 159.0);
+            outputData.addData("Barite", 2, 13, mass_MeOH / 0.7914 / 159.0);
+            outputData.addData("Barite", 3, 13, mass_MEG / 1.1135 / 159.0);
+            outputData.addData("Halite", 2, 13, mass_MeOH / 0.7914 / 159.0);
+            outputData.addData("Halite", 3, 13, mass_MEG / 1.1135 / 159.0);
+            outputData.addData("Other SO4s", 2, 14, mass_MeOH / 0.7914 / 159.0);
+            outputData.addData("Other SO4s", 3, 14, mass_MEG / 1.1135 / 159.0);
+        }
+        else {
+            outputData.addData("Calcite", 1, 15, mass_MeOH / 0.7914 / 159.0 * 0.159);
+            outputData.addData("Calcite", 1, 10, mass_MEG / 1.1135 / 159.0 * 0.159);
+            outputData.addData("Barite", 2, 13, mass_MeOH / 0.7914 / 159.0 * 0.159);
+            outputData.addData("Barite", 3, 13, mass_MEG / 1.1135 / 159.0 * 0.159);
+            outputData.addData("Halite", 2, 13, mass_MeOH / 0.7914 / 159.0 * 0.159);
+            outputData.addData("Halite", 3, 13, mass_MEG / 1.1135 / 159.0 * 0.159);
+            outputData.addData("Other SO4s", 2, 14, mass_MeOH / 0.7914 / 159.0 * 0.159);
+            outputData.addData("Other SO4s", 3, 14, mass_MEG / 1.1135 / 159.0 * 0.159);
+        }
+
+        // ==================== 活度系数输出 ====================
+        if (simContext.OutPutActCoefs == 1) {
+            // Calcite 工作表中的活度系数
+            if (simContext.UseSI == 0) {
+                outputData.addData("Calcite", 14 - LoopTP, 24, TF);
+                outputData.addData("Calcite", 14 - LoopTP, 25, Ppsia);
+            }
+            else {
+                outputData.addData("Calcite", 14 - LoopTP, 24, (TF - 32) * 5.0 / 9.0);
+                outputData.addData("Calcite", 14 - LoopTP, 25, Ppsia / 14.503774);
+            }
+            // 输出各种活度系数
+            if (gCat.size() > 0 && gAn.size() > 0 && gNeut.size() > 0) {
+                // 需要调整索引值以匹配C++的0基索引
+                // H+ 活度系数 iH
+                if (gCat.size() > 0) outputData.addData("Calcite", 14 - LoopTP, 27, gCat[0]);
+                // OH- 活度系数 iOH
+                if (gAn.size() > 0) outputData.addData("Calcite", 14 - LoopTP, 28, gAn[0]);
+                // Ca2+ 活度系数 iCa
+                if (gCat.size() > 1) outputData.addData("Calcite", 14 - LoopTP, 29, gCat[1]);
+                // Mg2+ 活度系数 iMg
+                if (gCat.size() > 2) outputData.addData("Calcite", 14 - LoopTP, 30, gCat[2]);
+                // HCO3- 活度系数 iHCO3
+                if (gAn.size() > 1) outputData.addData("Calcite", 14 - LoopTP, 31, gAn[1]);
+                // CO3^2- 活度系数 iCO3
+                if (gAn.size() > 2) outputData.addData("Calcite", 14 - LoopTP, 32, gAn[2]);
+                // Ac- 活度系数 iAc
+                if (gAn.size() > 3) outputData.addData("Calcite", 14 - LoopTP, 33, gAn[3]);
+
+                // 水的活度
+                outputData.addData("Calcite", 14 - LoopTP, 26, aH2O);
+
+                // 其他工作表的活度系数输出，类似处理
+                // Worksheets("Barite").Cells(14 - LoopTP, 23) = TF
+                // Worksheets("Barite").Cells(14 - LoopTP, 24) = Ppsia
+                // If UseSI = 1 Then Worksheets("Barite").Cells(14 - LoopTP, 23) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Barite").Cells(14 - LoopTP, 24) = Ppsia / 14.503774
+                // Worksheets("Barite").Cells(14 - LoopTP, 25) = gCat(iBa)
+                // Worksheets("Barite").Cells(14 - LoopTP, 26) = gAn(iSO4)
+                // Worksheets("Other SO4s").Cells(14 - LoopTP, 24) = TF
+                // Worksheets("Other SO4s").Cells(14 - LoopTP, 25) = Ppsia
+                // If UseSI = 1 Then Worksheets("Other SO4s").Cells(14 - LoopTP, 24) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Other SO4s").Cells(14 - LoopTP, 25) = Ppsia / 14.503774
+                // Worksheets("Other SO4s").Cells(14 - LoopTP, 26) = gCat(iSr)
+                // Worksheets("Other SO4s").Cells(14 - LoopTP, 27) = gAn(iSO4)
+                // Worksheets("Halite").Cells(14 - LoopTP, 15) = TF
+                // Worksheets("Halite").Cells(14 - LoopTP, 16) = Ppsia
+                // If UseSI = 1 Then Worksheets("Halite").Cells(14 - LoopTP, 15) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Halite").Cells(14 - LoopTP, 16) = Ppsia / 14.503774
+                // Worksheets("Halite").Cells(14 - LoopTP, 17) = gCat(iNa)
+                // Worksheets("Halite").Cells(14 - LoopTP, 18) = gAn(iCl)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 26) = TF
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 27) = Ppsia
+                // If UseSI = 1 Then Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 26) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 27) = Ppsia / 14.503774
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 28) = gCat(iFe)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 29) = gCat(iZn)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 30) = gAn(intF)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 31) = gAn(iHS)
+                // Worksheets("Sulfides,Fluorite,Carbonates").Cells(14 - LoopTP, 32) = gCat(iPb)
+
+                // Worksheets("Silicates").Cells(14 - LoopTP, 24) = TF
+                // Worksheets("Silicates").Cells(14 - LoopTP, 25) = Ppsia
+                // If UseSI = 1 Then Worksheets("Silicates").Cells(14 - LoopTP, 24) = (TF - 32) * 5 / 9
+                // If UseSI = 1 Then Worksheets("Silicates").Cells(14 - LoopTP, 25) = Ppsia / 14.503774
+                // Worksheets("Silicates").Cells(14 - LoopTP, 26) = gNeut(iH4SiO4aq)
+            }
+        }
+    }
+
+    // ==================== 将数据写入Excel（如果有excelWriter）====================
+    if (excelWriter != nullptr) {
+        // 遍历所有工作表和数据，调用excelWriter的方法写入
+        for (auto& sheetPair : outputData.worksheets) {
+            const std::string& sheetName = sheetPair.first;
+            auto& worksheet = sheetPair.second;
+
+            // 写入数值数据
+            for (auto& dataPair : worksheet.numericData) {
+                int row = dataPair.first.first;
+                int col = dataPair.first.second;
+                double value = dataPair.second;
+                excelWriter->writeCell(sheetName, row, col, value);
+            }
+
+            // 写入文本数据
+            for (auto& dataPair : worksheet.textData) {
+                int row = dataPair.first.first;
+                int col = dataPair.first.second;
+                const std::string& value = dataPair.second;
+                excelWriter->writeCell(sheetName, row, col, value);
+            }
+
+            // 写入布尔数据
+            for (auto& dataPair : worksheet.booleanData) {
+                int row = dataPair.first.first;
+                int col = dataPair.first.second;
+                bool value = dataPair.second;
+                excelWriter->writeCell(sheetName, row, col, value);
+            }
+        }
+    }
+    else {
+        // 如果不使用 excelWriter，就将数据保存到文件或数据库
+        // 例如：保存为CSV文件或JSON格式
+        std::cout << "数据已收集，但未写入Excel（未提供ExcelWriter实例）" << std::endl;
+        std::cout << "共收集了 " << outputData.worksheets.size() << " 个工作表的数据" << std::endl;
+    }
+}
+
+
+int A1_Start_ScaleSoftPitzer(SampleData& data)
+{
+    RunSSP = 1;
+    simContext.RunStat = 0;
+    simContext.RunQualityControlChecks = 0;
+    simContext.RunH2SGUI = 0; simContext.RunNORM = 0;
+
+    /*
+    Worksheets("Calcite").Range("B1:J1").Value = Null
+    Worksheets("Calcite").Range("C4:K13").Value = Null
+    Worksheets("Calcite").Range("p4:u13").Value = Null
+    Worksheets("Barite").Range("C4:F13").Value = Null
+    Worksheets("Barite").Range("B1:J1").Value = Null
+    Worksheets("Barite").Range("p4:u13").Value = Null
+    Worksheets("Other SO4s").Range("c4:J13").Value = Null
+    Worksheets("Other SO4s").Range("B1:J1").Value = Null
+    Worksheets("Other SO4s").Range("P4:U14").Value = Null
+    Worksheets("Other SO4s").Range("P16:U25").Value = Null
+    Worksheets("Halite").Range("C4:F13").Value = Null
+    Worksheets("Halite").Range("B1:J1").Value = Null
+    Worksheets("Sulfides,Fluorite,Carbonates").Range("C4:W13").Value = Null
+    Worksheets("Sulfides,Fluorite,Carbonates").Range("B1:J1").Value = Null
+    Worksheets("Silicates").Range("C4:Q13").Value = Null
+    Worksheets("Silicates").Range("B1:J1").Value = Null
+    Worksheets("Mg(OH)2,Ca(OH)2").Range("C4:I13").Value = Null
+    Worksheets("Mg(OH)2,Ca(OH)2").Range("B1:J1").Value = Null
+    */
+
+    InitializeOptionClearCellContent();
+
+    // ReDim CaseCount(5), CaseCount_II(110) 
+    CaseCount_II.resize(110, 0);
+
+    CountNOB();
+    B1_InitializeIndices();
+    B2_ReadinAllData(&data);
+    B3_CalcConcs(data.API);
+    B4_CalcFinalBrine();
+    OutputActivityCoefficients();
+
+
+    // deltaT = (TBH - TWH) / 9
+    double deltaT = (simContext.TBH - simContext.TWH) / 9.0;
+    double deltaP = (simContext.PBH - simContext.PWH) / 9.0;
+    /*
+    Worksheets("Calcite").Cells(13, 1) = TBH
+    Worksheets("Calcite").Cells(4, 1) = TWH
+    Worksheets("Calcite").Cells(13, 2) = PBH
+    Worksheets("Calcite").Cells(4, 2) = PWH
+   */
+   // SI 单位转换逻辑
+    if (simContext.UseSI == 1) {
+        simContext.TBH = (simContext.TBH - 32.0) * 5.0 / 9.0;
+        simContext.TWH = (simContext.TWH - 32.0) * 5.0 / 9.0;
+        simContext.PBH /= 14.503774;
+        simContext.PWH /= 14.503774;
+    }
+    /*
+      Worksheets("Deposition Prediction").Range("F7") = TBH
+      Worksheets("Deposition Prediction").Range("H7") = TWH
+      Worksheets("Deposition Prediction").Range("G7") = PBH
+      Worksheets("Deposition Prediction").Range("I7") = PWH
+      Worksheets("Deposition Prediction").Range("J7") = VgTP / 28.31685 'Mscf/d
+      Worksheets("Deposition Prediction").Range("K7") = VO 'bpd
+      Worksheets("Deposition Prediction").Range("L7") = VW 'bpd
+
+      Worksheets("Deposition Prediction_WhatIf").Range("F7") = TBH
+      Worksheets("Deposition Prediction_WhatIf").Range("H7") = TWH
+      Worksheets("Deposition Prediction_WhatIf").Range("G7") = PBH
+      Worksheets("Deposition Prediction_WhatIf").Range("I7") = PWH
+      Worksheets("Deposition Prediction_WhatIf").Range("J7") = VgTP / 28.31685 'Mscf/d
+      Worksheets("Deposition Prediction_WhatIf").Range("K7") = VO 'bpd
+      Worksheets("Deposition Prediction_WhatIf").Range("L7") = VW 'bpd
+
+      'dai 2021 corrosion
+      Worksheets("Corrosion").Range("F7") = TBH
+      Worksheets("Corrosion").Range("H7") = TWH
+      Worksheets("Corrosion").Range("G7") = PBH
+      Worksheets("Corrosion").Range("I7") = PWH
+      Worksheets("Corrosion").Range("J7") = VgTP / 28.31685 'Mscf/d
+      Worksheets("Corrosion").Range("K7") = VO 'bpd
+      Worksheets("Corrosion").Range("L7") = VW 'bpd
+
+      Worksheets("Corrosion").Range("F11") = TBH
+      Worksheets("Corrosion").Range("H11") = TWH
+      Worksheets("Corrosion").Range("G11") = PBH
+      Worksheets("Corrosion").Range("I11") = PWH
+      Worksheets("Corrosion").Range("J11") = VgTP / 28.31685 'Mscf/d
+      Worksheets("Corrosion").Range("K11") = VO 'bpd
+      Worksheets("Corrosion").Range("L11") = VW 'bpd
+
+    */
+
+    if (Iter_MT_WI == 0) Iter_MT_WI = 1;
+
+    if (simContext.UseSI == 1)
+    {
+        /*
+        Worksheets("Deposition Prediction").Range("F7") = (TBH - 32) * 5 / 9    'default T as TF, P as psia, Output TBH, TWH etc to calcite sheet
+        Worksheets("Deposition Prediction").Range("H7") = (TWH - 32) * 5 / 9
+        Worksheets("Deposition Prediction").Range("G7") = PBH / 14.503774
+        Worksheets("Deposition Prediction").Range("I7") = PWH / 14.503774
+        Worksheets("Deposition Prediction").Range("J7") = VgTP / 1000 'Mm3/d
+        Worksheets("Deposition Prediction").Range("K7") = VO * 0.159 'm3/d
+        Worksheets("Deposition Prediction").Range("L7") = VW * 0.159 'm3/d
+
+        Worksheets("Deposition Prediction_WhatIf").Range("F7") = (TBH - 32) * 5 / 9    'default T as TF, P as psia, Output TBH, TWH etc to calcite sheet
+        Worksheets("Deposition Prediction_WhatIf").Range("H7") = (TWH - 32) * 5 / 9
+        Worksheets("Deposition Prediction_WhatIf").Range("G7") = PBH / 14.503774
+        Worksheets("Deposition Prediction_WhatIf").Range("I7") = PWH / 14.503774
+        Worksheets("Deposition Prediction_WhatIf").Range("J7") = VgTP / 1000 'Mm3/d
+        Worksheets("Deposition Prediction_WhatIf").Range("K7") = VO * 0.159 'm3/d
+        Worksheets("Deposition Prediction_WhatIf").Range("L7") = VW * 0.159 'm3/d
+
+        'dai 2021 corrosion
+        Worksheets("Corrosion").Range("F7") = (TBH - 32) * 5 / 9
+        Worksheets("Corrosion").Range("H7") = (TWH - 32) * 5 / 9
+        Worksheets("Corrosion").Range("G7") = PBH / 14.503774
+        Worksheets("Corrosion").Range("I7") = PWH / 14.503774
+        Worksheets("Corrosion").Range("J7") = VgTP / 1000 'Mm3/d
+        Worksheets("Corrosion").Range("K7") = VO * 0.159 'm3/d
+        Worksheets("Corrosion").Range("L7") = VW * 0.159 'm3/d
+
+        Worksheets("Corrosion").Range("F11") = (TBH - 32) * 5 / 9
+        Worksheets("Corrosion").Range("H11") = (TWH - 32) * 5 / 9
+        Worksheets("Corrosion").Range("G11") = PBH / 14.503774
+        Worksheets("Corrosion").Range("I11") = PWH / 14.503774
+        Worksheets("Corrosion").Range("J11") = VgTP / 1000 'Mm3/d
+        Worksheets("Corrosion").Range("K11") = VO * 0.159 'm3/d
+        Worksheets("Corrosion").Range("L11") = VW * 0.159 'm3/d
+        */
+    }
+
+    if (RunGoalSeek != 1)
+    {
+
+        for (LoopTP = 0; LoopTP < 10; LoopTP++)
+        {
+
+            if (simContext.UseTPCalciteSheet == 0)
+            {
+
+                TF = simContext.TBH - deltaT * (LoopTP - 1);
+                TK = (TF - 32) * 5.0 / 9.0 + 273.15;
+
+                Ppsia = simContext.PBH - deltaP * (LoopTP - 1);
+                Patm = Ppsia / 14.696;
+
+            }
+            else
+            {
+
+                // TF = Worksheets("Calcite").Cells(14 - LoopTP, 1)
+                // Ppsia = Worksheets("Calcite").Cells(14 - LoopTP, 2)
+
+                if (simContext.UseSI == 1)
+                {
+                    //TF = Worksheets("Calcite").Cells(14 - LoopTP, 1) * 9 / 5 + 32
+                    //Ppsia = Worksheets("Calcite").Cells(14 - LoopTP, 2) * 14.503774
+                }
+                TK = (TF - 32) * 5.0 / 9.0 + 273.15;
+                Patm = Ppsia / 14.696;
+            }
+
+            PBar = Ppsia / 14.503774;
+            TC = (TF - 32) * 5.0 / 9.0;
+
+            LoopTPSI(data.API);
+
+            if (H2Oevap != 1)
+            {
+
+                if (ISt != 0)
+                {
+                    LoopTPVisHeatCap();
+
+                    if (Run_MassTransfer == 1)
+                        MassTransferCoefficients(data.API);
+
+                }
+                LoopTPppt();
+            }
+            LoopTPWrite();
+
+            if (H2Oevap == 1)
+                goto label201;
+        }
+
+    }
+    else // RunGoalSeek == 1
+    {
+
+        for (LoopTP = 0; LoopTP < 2; LoopTP++) {
+
+            if (LoopTP == 0) {
+
+                TF = simContext.TBH;
+                TK = (TF - 32) * 5.0 / 9.0 + 273.15;
+                TC = (TF - 32) * 5.0 / 9.0;
+
+                Ppsia = simContext.PBH;
+                Patm = Ppsia / 14.696;
+                PBar = Ppsia / 14.503774;
+            }
+
+            if (LoopTP == 1) {
+
+                TF = simContext.TWH;
+                TK = (TF - 32) * 5.0 / 9.0 + 273.15;
+                TC = (TF - 32) * 5.0 / 9.0;
+
+                Ppsia = simContext.PWH;
+                Patm = Ppsia / 14.696;
+                PBar = Ppsia / 14.503774;
+            }
+
+            LoopTPSI(data.API);
+            //LoopTPWrite();
+
+            if (H2Oevap == 1)
+                goto label201;
+        }
+    }
+
+    // mytime1 = Time
+    //nettime = (mytime1 - mytime)
+
+    if (RunSSP == 1) {
+        // Worksheets("Input").Range("R28") = nettime * 24 * 3600
+    }
+
+label201:
+    // Application.ScreenUpdating = True
+
+    if (RunGoalSeek == 0 && Run_MassTransfer == 0)
+    {
+
+        //ErrorMsgBox();
+
+        if (simContext.UseSI == 1) {
+
+            simContext.TBH = (simContext.TBH - 32) * 5.0 / 9.0;
+            simContext.TWH = (simContext.TWH - 32) * 5.0 / 9.0;
+
+            simContext.PBH = simContext.PBH / 14.503774;
+            simContext.PWH = simContext.PWH / 14.503774;
+
+            /*
+            MsgBox "Calculation is finished. No. of brine mixed = " & nob & Chr(13) & Chr(13) & "The initial and final temperatures are " & TBH & " and " & TWH & " C;" & Chr(13) _
+            & "Initial and final pressures are " & PBH & " and " & PWH & " Bar." & Chr(13) & Chr(13) & "Flash calculation option =" & useEOS & "." & Chr(13) & Chr(13) _
+            & "Calculation Option(s) on Row 51 used for Input 1 is " & usepHmix(1)  '
+
+            */
+
+        }
+        else
+        {
+            /*
+            MsgBox "Calculation is finished. No. of brine mixed = " & nob & Chr(13) & Chr(13) & "The initial and final temperatures are " & TBH & " and " & TWH & " F;" & Chr(13) _
+            & "Initial and final pressures are " & PBH & " and " & PWH & " psia." & Chr(13) & Chr(13) & "Flash calculation option =" & useEOS & "." & Chr(13) & Chr(13) _
+            & "Calculation Option(s) on Row 51 used for Input 1 is " & Chr(13) & usepHmix(1)
+            */
+        }
+    }
+
+    if (Run_MassTransfer != 1 || simContext.Run10TestCases != 1 ||
+        simContext.RunWhatIf != 1 || simContext.Run_Seawater_Mixing != 1 ||
+        simContext.Run_MixingTwoWells != 1)
+    {
+        // Worksheets(mySheet).Activate
+        // Worksheets(mySheet).Range("A1").Select
+    }
+
+    if (RunGoalSeek != 1 && Run_MassTransfer != 1)
+    {
+        return 0;  //End
+    }
+    return 0;
 }
 
 
@@ -12195,10 +15718,10 @@ int main()
     initData();
     pointerInit_pf();
     mockData_sheetInput(&data);
-    B1_InitializeIndices();  //  初始化
-    B2_ReadinAllData(&data);
-    B3_CalcConcs(data.API);
-    printf("ReadInputPartC ended\n");
+    A1_Start_ScaleSoftPitzer(data);
+    //B1_InitializeIndices();  //  初始化
+    //B2_ReadinAllData(&data);
+
     printf("Calc Result: TDS = %f, simContext.yCO2 = %f, simContext.yH2S = %f\n", TDS, simContext.yCO2, simContext.yH2S);
     printf("Alkalinity Alk = %f, Tatal Ac TAc = %f\n", Alk, TAc);
     // cleanMemory_pf();
