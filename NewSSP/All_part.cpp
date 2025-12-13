@@ -1123,7 +1123,7 @@ DoubleVec bInhCal(20);
 DoubleVec bInhGyp(20, 0);
 DoubleVec bInhAn(20, 0);
 DoubleVec bInhCel(20, 0);
-double InhNoBar;
+double InhNoBar;    
 double tInh;
 int InhNoCal;
 double t0Cal;
@@ -1145,7 +1145,17 @@ DoubleVec DiffA(12, 0);
 DoubleVec Diff(10, 0);
 
 // SIRisk[抑制剂编号][LoopTP][参数索引][物质类型]
-std::vector<std::vector<std::vector<DoubleVec>>> SIRisk;
+// std::vector<std::vector<std::vector<DoubleVec>>> SIRisk;
+std::vector<std::vector<std::vector<DoubleVec>>> SIRisk(
+    20,  // 第一维大小
+    std::vector<std::vector<DoubleVec>>(
+        10,  // 第二维大小
+        std::vector<DoubleVec>(
+            10,  // 第三维大小
+            DoubleVec(4)  // DoubleVec初始化为大小为4
+        )
+    )
+);
 // 井名数组
 StrVec WellNameMix;
 
@@ -1391,8 +1401,8 @@ void mockData_sheetInput(SampleData* data)
     data->Conc_Multiplier = 1.0;
     data->T_pH = 0.0;
     data->P_pH = 0.0;
-    data->T_Q = 30.0;
-    data->P_Q = 5.0;
+    data->T_Q = 340.0;
+    data->P_Q = 7000.0;
 
     /* ---------- sample_oil_phase_information ---------- */
     data->C1_o = 74.16;
@@ -8621,7 +8631,8 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
 
     DoubleVec gNeutAq = { gNeut[iCO2aq], gNeut[iH2Saq] }; // Array for MultiPhaseFlash
 
-
+    // i=5 pH 不同
+    // i=6 mc [7,8,9]不同
     for (int i = 0; i < 30; i++) {
         pH = (pHHigh + pHLow) / 2.0;
         aH = pow(10.0, -pH);
@@ -8820,8 +8831,10 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
             PCO2 = compositions[1][3] * phi[1][2] * Ppsia / gGas[iCO2g];
             PH2S = compositions[2][3] * phi[2][2] * Ppsia / gGas[iH2Sg];
         }
+        // CO2aq 计算结果不同  PCO2 不同 
         simContext.CO2aq = KgwCO2 * PCO2 * gGas[iCO2g] / (gNeut[iCO2aq] * gNNeut[iCO2aq]);
         simContext.H2Saq = KgwH2S * PH2S * gGas[iH2Sg] / (gNeut[iH2Saq] * gNNeut[iH2Saq]);
+        // HCO3计算结果不同 
         simContext.HCO3 = (K1H2CO3 * aH2O) * simContext.CO2aq * gNeut[iCO2aq] * gNNeut[iCO2aq] / (aH * gAn[iHCO3] * gNAn[iHCO3]);
         simContext.CO3 = K2HCO3 * simContext.HCO3 * gAn[iHCO3] * gNAn[iHCO3] / (aH * gAn[iCO3] * gNAn[iCO3]);
         simContext.HS = K1H2S * simContext.H2Saq * gNeut[iH2Saq] * gNNeut[iH2Saq] / (aH * gAn[iHS] * gNAn[iHS]);
@@ -8875,7 +8888,7 @@ void C4_SSPEquilCalcs(int ppt_or_not, int im, int igas, double Ksp)
             H3SiO4 = H2SiO4 * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH3SiO3 * gAn[iH3SiO4] * gNAn[iH3SiO4]);
             H4SiO4 = H2SiO4 * aH * aH * gAn[iH2SiO4] * gNAn[iH2SiO4] / (KH4SiO4 * KH3SiO3 * gNeut[iH4SiO4aq] * gNNeut[iH4SiO4aq]);
         }
-
+        // faH计算不同 HCO3不同 CO3 不同
         faH = Alk - 2.0 * ppt - (simContext.HCO3 + 2.0 * simContext.CO3 + simContext.HS + 2.0 * S + AC + NH3 + H2BO3 + H3SiO4 + 2.0 * H2SiO4 + OH - H);
         ypH[i] = faH;
         xpH[i] = pH;
@@ -11738,7 +11751,7 @@ void B2_ReadinAllData(SampleData* data)
         {
             simContext.j = 6;
         }
-        // simContext.TBH = Worksheets(mySheet).Cells(39, j + 2)
+        simContext.TBH = data->T_initial;
         if (simContext.RunMultiMix == 1)
         {
             // simContext.TBH = Worksheets("MultiMix").Cells(2 + simContext.LoopResChem, 3).Value
@@ -11795,7 +11808,7 @@ void B2_ReadinAllData(SampleData* data)
             simContext.TBH = 482;
         }
 
-        // simContext.TWH = Worksheets(mySheet).Cells(40, j + 2)
+        simContext.TWH = data->T_final;
         if (simContext.RunMultiMix == 1)
         {
             // simContext.TWH = Worksheets("MultiMix").Cells(2 + simContext.LoopResChem, 3).Value
@@ -11982,6 +11995,12 @@ void B2_ReadinAllData(SampleData* data)
     {
         simContext.tInh = 1;
     }
+    // SelectInh = Worksheets("Input").Range("O4").Value
+    // InhNo = Worksheets("Input").Range("O5").Value
+    // InhNo1 = Worksheets("input").Range("o7").Value
+    // FracInhNo1 = Worksheets("Input").Range("o8").Value / 100
+    // InhNo2 = Worksheets("Input").Range("o9").Value
+    simContext.InhNo2 = 18;
 
     for (int i = 0; i < 10; i++)
     {
@@ -12639,7 +12658,7 @@ void B3_CalcConcs(double& API)
             //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
             C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
 
-            fmn;
+            fmn();
             CalcIonicStrength();
             C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
             //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
@@ -12685,7 +12704,7 @@ void B3_CalcConcs(double& API)
 
         ////Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
         C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
-        fmn;
+        fmn();
 
         C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
         //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
@@ -13002,7 +13021,7 @@ void B5_CalculateSIvalues(double& API)
 
         //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
         C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
-        fmn;
+        fmn();
 
         C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
         //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
@@ -13144,7 +13163,7 @@ void B5_CalculateSIvalues(double& API)
         // more calculations
         //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
         C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
-        fmn;
+        fmn();
         C2_PitzerActCoefs_T_P_ISt(gNeut, aH2O, TK, TC, PBar, Patm);
         //Call C4_SSPEquilCalcs(0, 5, 2, KspCalcite)
         C4_SSPEquilCalcs(0, 4, 2, KspCalcite);
@@ -13176,7 +13195,8 @@ void B5_CalculateSIvalues(double& API)
         // 计算饱和度指数
         SICal = log10(mc[iCa] * simContext.HCO3 * gCat[iCa] * gNCat[iCa] *
             gAn[iHCO3] * gNAn[iHCO3] * K2HCO3 / (aH * KspCalcite));
-
+        // vb 0.565472 cpp 0.564576 gCat vb 0.062964 cpp 0.0628701
+        // CO3 vb 4.183682E-06 cpp 4.182635E-06
         SIDol = log10(mc[iCa] * mc[iMg] * pow(simContext.CO3, 2) *
             gCat[iCa] * gCat[iMg] * pow(gAn[iCO3], 2) / KspDol);
 
@@ -13210,8 +13230,9 @@ void B5_CalculateSIvalues(double& API)
         SIZnCO3 = log10(mc[iZn] * simContext.CO3 * gCat[iZn] * gAn[iCO3] / KspZnCO3);
 
         // added by Dai 2016
-        // 需要先定义 SICal 变量
-        SICal = 0.0; // 假设初始值
+        SIFeSAm = log10(mc[iFe] * simContext.HS * gCat[iFe] * gAn[iHS] * gNAn[iHS] / aH / KspFeSAm);
+        SIFeS = log10(mc[iFe] * simContext.HS * gCat[iFe] * gAn[iHS] * gNAn[iHS] / aH / KspFeS);
+        SITrot = log10(mc[iFe] * simContext.HS * gCat[iFe] * gAn[iHS] * gNAn[iHS] / aH / KspTrot);
 
         if (xMeOH > 0 && mc[iCa] * simContext.HCO3 > 0)
         {
@@ -13234,13 +13255,13 @@ void B5_CalculateSIvalues(double& API)
         // Also, all SiO2 is assumed to remain as H4SiO4 and not ionized.
         SIAmSilica = log10(H4SiO4 * gNeut[iH4SiO4aq] / KspAmSilica);
         SIQuartz = log10(H4SiO4 * gNeut[iH4SiO4aq] / KspQuartz);
-
+        // vb -0.630987 cpp -0.0.631902
         SIDiopside = log10((mc[iCa] * mc[iMg] * pow(H4SiO4, 2) * gCat[iCa] *
             gCat[iMg] * pow(gNeut[iH4SiO4aq], 2) / pow(aH, 4)) / KspDiopside);
 
         SIChrysotile = log10((pow(mc[iMg], 3) * pow(H4SiO4, 2) *
             pow(gCat[iMg], 3) * pow(gNeut[iH4SiO4aq], 2) / pow(aH, 6)) / KspChrysotile);
-
+        // vb -0.01688 cpp -0.017644
         SIGreenalite = log10((pow(mc[iFe], 3) * pow(H4SiO4, 2) *
             pow(gCat[iFe], 3) * pow(gNeut[iH4SiO4aq], 2) / pow(aH, 6)) / KspGreenalite);
 
@@ -13260,11 +13281,11 @@ exit_label_500:
 
 double fbInhBar(int InhNo, double SI)
 {
-    return bi[InhNo - 1][0]
-        + bi[InhNo - 1][1] * SI
-        + bi[InhNo - 1][2] / TK
-        + bi[InhNo - 1][3] * log10(1.0 / aH)
-        + bi[InhNo - 1][4] * fabs(log10(mc[iBa] / ma[iSO4]));
+    return bi[InhNo][0]
+        + bi[InhNo][1] * SI
+        + bi[InhNo][2] / TK
+        + bi[InhNo][3] * log10(1.0 / aH)
+        + bi[InhNo][4] * fabs(log10(mc[iBa] / ma[iSO4]));
 }
 
 
@@ -13293,11 +13314,11 @@ double flogT0Bar(double SI)
 double fbInhCal(int InhNo, double SI)
 {
     return
-        ci[InhNo - 1][0]                         // ci(InhNo,1)
-        + ci[InhNo - 1][1] * SI                  // ci(InhNo,2) * SI
-        + ci[InhNo - 1][2] / TK                  // ci(InhNo,3) / TK
-        + ci[InhNo - 1][3] * log10(1.0 / aH)     // ci(InhNo,4) * Log10(1/aH)
-        + ci[InhNo - 1][4]                       // ci(InhNo,5)
+        ci[InhNo][0]                         // ci(InhNo,1)
+        + ci[InhNo][1] * SI                  // ci(InhNo,2) * SI
+        + ci[InhNo][2] / TK                  // ci(InhNo,3) / TK
+        + ci[InhNo][3] * log10(1.0 / aH)     // ci(InhNo,4) * Log10(1/aH)
+        + ci[InhNo][4]                       // ci(InhNo,5)
         * fabs(log10(mc[iCa] / simContext.HCO3));     // Abs(Log10(mc(iCa)/HCO3))
 }
 
@@ -13309,20 +13330,20 @@ double fCinhCal(double SI, double tInh)
     if (InhNoCal == 20)
     {
         // 注意：所有 VB 下标均需 -1
-        bInhCal[simContext.InhNo1 - 1] = pow(10.0, fbInhCal(simContext.InhNo1, SI));
-        bInhCal[simContext.InhNo2 - 1] = pow(10.0, fbInhCal(simContext.InhNo2, SI));
+        bInhCal[simContext.InhNo1] = pow(10.0, fbInhCal(simContext.InhNo1, SI));
+        bInhCal[simContext.InhNo2] = pow(10.0, fbInhCal(simContext.InhNo2, SI));
 
-        bInhCalMixed = simContext.FracInhNo1 * bInhCal[simContext.InhNo1 - 1]
-            + (1.0 - simContext.FracInhNo1) * bInhCal[simContext.InhNo2 - 1];
+        bInhCalMixed = simContext.FracInhNo1 * bInhCal[simContext.InhNo1]
+            + (1.0 - simContext.FracInhNo1) * bInhCal[simContext.InhNo2];
 
         return (1.0 / bInhCalMixed)
             * log10(fSafetyCal * tInh / t0Cal);
     }
     else
     {
-        bInhCal[InhNoCal - 1] = pow(10.0, fbInhCal(InhNoCal, SI));
+        bInhCal[InhNoCal] = pow(10.0, fbInhCal(InhNoCal, SI));
 
-        return (1.0 / bInhCal[InhNoCal - 1])
+        return (1.0 / bInhCal[InhNoCal])
             * log10(fSafetyCal * tInh / t0Cal);
     }
 }
@@ -13333,7 +13354,7 @@ double fCinhBar(double SI, double tInh)
 
     if (InhNoBar == 20)
     {
-        bInhBar[simContext.InhNo1 - 1] = pow(10.0, fbInhBar(simContext.InhNo1, SI));
+        bInhBar[simContext.InhNo1] = pow(10.0, fbInhBar(simContext.InhNo1, SI));
 
         bInhBar[simContext.InhNo2 - 1] = pow(10.0, fbInhBar(simContext.InhNo2, SI));
 
@@ -13345,9 +13366,9 @@ double fCinhBar(double SI, double tInh)
     }
     else
     {
-        bInhBar[InhNoBar - 1] = pow(10.0, fbInhBar(InhNoBar, SI));
+        bInhBar[InhNoBar] = pow(10.0, fbInhBar(InhNoBar, SI));
 
-        return (1.0 / bInhBar[InhNoBar - 1]) * log10(fSafetyBar * tInh / t0Bar);
+        return (1.0 / bInhBar[InhNoBar]) * log10(fSafetyBar * tInh / t0Bar);
     }
 }
 
@@ -15490,8 +15511,7 @@ void LoopTPppt() {
     if (SIBar > 0) {
         double a = 1.0;
         double b = -(mc[iBa] + ma[iSO4]);
-        double c = mc[iBa] * ma[iSO4] - KspBarite / (gCat[iBa] * gAn[iSO4] * std::pow(gNMean[iBa], 2));
-        
+        double c = mc[iBa] * ma[iSO4] - KspBarite / (gCat[iBa] * gAn[iSO4] * std::pow(gNMean[iBaSO4], 2));
         double root2 = 0.0;
         QuadraticRoots(a, b, c, ppt, root2);
         
@@ -16167,7 +16187,7 @@ int A1_Start_ScaleSoftPitzer(SampleData& data)
 
     if (RunGoalSeek != 1)
     {
-        for (LoopTP = 0; LoopTP < 10; LoopTP++)
+        for (LoopTP = 1; LoopTP <= 10; LoopTP++)
         {
             if (simContext.UseTPCalciteSheet == 0)
             {
